@@ -1,5 +1,5 @@
-import { defineNuxtModule as t, createResolver as r, addImports as s, addComponent as l, addPlugin as a } from "@nuxt/kit";
-const d = t({
+import { defineNuxtModule as r, createResolver as s, addImports as t, addComponent as c, addPlugin as l } from "@nuxt/kit";
+const d = r({
   meta: {
     name: "vue-dev-inspector",
     configKey: "devInspector",
@@ -15,20 +15,20 @@ const d = t({
   setup(o, n) {
     if (!o.enabled)
       return;
-    const e = r(import.meta.url);
-    s([
+    const e = s(import.meta.url);
+    t([
       {
         name: "useDevInspector",
-        from: e.resolve("../composables/useDevInspector")
+        from: e.resolve("../src/composables/useDevInspector")
       },
       {
         name: "useDevInspectorStore",
-        from: e.resolve("../composables/useDevInspector")
+        from: e.resolve("../src/composables/useDevInspector")
       }
-    ]), l({
+    ]), c({
       name: "DevInspector",
-      filePath: e.resolve("../components/DevInspector.vue")
-    }), a({
+      filePath: e.resolve("../src/components/DevInspector.vue")
+    }), l({
       src: e.resolve("./plugin"),
       mode: "client"
     }), n.options.runtimeConfig.public.devInspector = {

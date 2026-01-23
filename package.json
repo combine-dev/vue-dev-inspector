@@ -20,7 +20,9 @@
     "./style.css": "./dist/style.css"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/components",
+    "src/composables"
   ],
   "scripts": {
     "dev": "vite build --watch",

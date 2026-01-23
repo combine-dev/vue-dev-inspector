@@ -33,18 +33,18 @@ export default defineNuxtModule<ModuleOptions>({
     addImports([
       {
         name: 'useDevInspector',
-        from: resolver.resolve('../composables/useDevInspector')
+        from: resolver.resolve('../src/composables/useDevInspector')
       },
       {
         name: 'useDevInspectorStore',
-        from: resolver.resolve('../composables/useDevInspector')
+        from: resolver.resolve('../src/composables/useDevInspector')
       }
     ])
 
     // Add DevInspector component
     addComponent({
       name: 'DevInspector',
-      filePath: resolver.resolve('../components/DevInspector.vue')
+      filePath: resolver.resolve('../src/components/DevInspector.vue')
     })
 
     // Add plugin for initialization
