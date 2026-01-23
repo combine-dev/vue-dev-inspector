@@ -336,10 +336,11 @@ function analyzeScript(script: string, scriptSetup: string): ScriptAnalysis {
     imports.push(match[1])
   }
 
-  // Find API calls (useApi pattern)
-  const apiCallRegex = /(?:const|let)\s+\{?\s*(\w+)\s*\}?\s*=\s*(?:await\s+)?(?:api|useApi\(\))\.(\w+)\.(\w+)\s*\(/g
+  // Find API calls - multiple patterns
 
-  while ((match = apiCallRegex.exec(combined)) !== null) {
+  // Pattern 1: const data = await api.resource.action() or useApi().resource.action()
+  const apiCallRegex1 = /(?:const|let)\s+(\w+)(?::\s*\w+)?\s*=\s*(?:await\s+)?(?:api|useApi\(\))\.(\w+)\.(\w+)\s*\(/g
+  while ((match = apiCallRegex1.exec(combined)) !== null) {
     const [, variable, resource, action] = match
     apiCalls.push({
       composable: `${resource}.${action}`,
@@ -347,9 +348,34 @@ function analyzeScript(script: string, scriptSetup: string): ScriptAnalysis {
     })
   }
 
-  // Find direct API calls
-  const directApiRegex = /(?:const|let)\s+(\w+)\s*=\s*(?:await\s+)?(\w+(?:Show|List|Create|Update|Destroy))\s*\(/g
+  // Pattern 2: api.resource.action() without assignment (result goes to existing variable)
+  // e.g., notifications.value = await api.notifications.list(...)
+  const apiCallRegex2 = /(\w+)(?:\.value)?\s*=\s*(?:await\s+)?(?:api|useApi\(\))\.(\w+)\.(\w+)\s*\(/g
+  while ((match = apiCallRegex2.exec(combined)) !== null) {
+    const [, variable, resource, action] = match
+    // Skip if already captured
+    if (!apiCalls.some(c => c.composable === `${resource}.${action}`)) {
+      apiCalls.push({
+        composable: `${resource}.${action}`,
+        variable,
+      })
+    }
+  }
 
+  // Pattern 3: Standalone api call like const { data } = await api.resource.action()
+  const apiCallRegex3 = /(?:const|let)\s+\{\s*(\w+)\s*\}\s*=\s*(?:await\s+)?(?:api|useApi\(\))\.(\w+)\.(\w+)\s*\(/g
+  while ((match = apiCallRegex3.exec(combined)) !== null) {
+    const [, variable, resource, action] = match
+    if (!apiCalls.some(c => c.composable === `${resource}.${action}`)) {
+      apiCalls.push({
+        composable: `${resource}.${action}`,
+        variable,
+      })
+    }
+  }
+
+  // Pattern 4: Direct function calls like usersShow(), notificationsList(), etc.
+  const directApiRegex = /(?:const|let)\s+(\w+)\s*=\s*(?:await\s+)?(\w+(?:Show|List|Create|Update|Destroy))\s*\(/g
   while ((match = directApiRegex.exec(combined)) !== null) {
     const [, variable, funcName] = match
     apiCalls.push({
@@ -407,8 +433,122 @@ interface ApiComposableAnalysis {
   endpoint: string
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
   description?: string
-  responseFields: { name: string; type: string }[]
-  requestFields: { name: string; type: string }[]
+  tableName: string
+  responseFields: { name: string; type: string; dbColumn: string }[]
+  requestFields: { name: string; type: string; dbColumn: string }[]
+}
+
+// Extract balanced braces content
+function extractBalancedBraces(content: string, startIndex: number): string {
+  let depth = 0
+  let started = false
+  let result = ''
+
+  for (let i = startIndex; i < content.length; i++) {
+    const char = content[i]
+    if (char === '{') {
+      depth++
+      started = true
+    }
+    if (started) {
+      result += char
+    }
+    if (char === '}') {
+      depth--
+      if (depth === 0 && started) {
+        return result
+      }
+    }
+  }
+  return result
+}
+
+// Parse interface fields including nested objects
+function parseInterfaceFields(content: string, prefix: string = ''): { name: string; type: string; dbColumn: string }[] {
+  const fields: { name: string; type: string; dbColumn: string }[] = []
+
+  // Remove outer braces
+  const inner = content.slice(1, -1)
+
+  // Split by top-level fields (not inside nested braces)
+  let depth = 0
+  let currentField = ''
+  const fieldStrings: string[] = []
+
+  for (const char of inner) {
+    if (char === '{' || char === '<') depth++
+    if (char === '}' || char === '>') depth--
+
+    if (char === '\n' && depth === 0) {
+      if (currentField.trim()) {
+        fieldStrings.push(currentField.trim())
+      }
+      currentField = ''
+    } else {
+      currentField += char
+    }
+  }
+  if (currentField.trim()) {
+    fieldStrings.push(currentField.trim())
+  }
+
+  for (const fieldStr of fieldStrings) {
+    // Match field: type pattern ([\s\S]+ to include newlines for multi-line types)
+    const match = fieldStr.match(/^(\w+)\??:\s*([\s\S]+)$/)
+    if (!match) continue
+
+    const [, fieldName, fieldType] = match
+    const fullName = prefix ? `${prefix}.${fieldName}` : fieldName
+    const dbColumn = camelToSnake(fieldName)
+
+    // Check if it's a nested object (inline or multiline)
+    const trimmedType = fieldType.trim()
+    if (trimmedType.startsWith('{') || fieldStr.includes(': {')) {
+      // Inline nested object
+      const braceIndex = fieldStr.indexOf('{')
+      if (braceIndex !== -1) {
+        const nestedContent = extractBalancedBraces(fieldStr, braceIndex)
+        if (nestedContent && nestedContent.length > 2) {
+          fields.push(...parseInterfaceFields(nestedContent, fullName))
+        }
+      }
+    } else if (trimmedType.includes('Array<{') || fieldStr.includes('Array<{')) {
+      // Array of objects
+      const arrayStart = fieldStr.indexOf('Array<{') + 6
+      const nestedContent = extractBalancedBraces(fieldStr, arrayStart)
+      if (nestedContent && nestedContent.length > 2) {
+        fields.push(...parseInterfaceFields(nestedContent, `${fullName}[]`))
+      }
+    } else {
+      // Simple field - extract just the type (first line if multiline)
+      const simpleType = trimmedType.split('\n')[0].trim()
+      fields.push({
+        name: fullName,
+        type: simpleType,
+        dbColumn: prefix ? `${camelToSnake(prefix.replace('[]', ''))}.${dbColumn}` : dbColumn,
+      })
+    }
+  }
+
+  return fields
+}
+
+// Convert camelCase to snake_case
+function camelToSnake(str: string): string {
+  return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`).replace(/^_/, '')
+}
+
+// Extract table name from endpoint
+function extractTableName(endpoint: string): string {
+  // /api/v1/users/:id -> users
+  // /api/v1/user_subjects -> user_subjects
+  const match = endpoint.match(/\/api\/v\d+\/([a-z_]+)/)
+  if (match) {
+    return match[1]
+  }
+  // Fallback: last path segment
+  const segments = endpoint.split('/').filter(s => s && !s.startsWith(':') && !s.startsWith('{'))
+  return segments[segments.length - 1] || ''
 }
 
 function analyzeApiComposable(content: string, filePath: string): ApiComposableAnalysis | null {
@@ -434,38 +574,27 @@ function analyzeApiComposable(content: string, filePath: string): ApiComposableA
   const descMatch = content.match(/\/\/\s*Description:\s*([^\n]+)/i)
   const description = descMatch?.[1]?.trim()
 
-  // Extract response interface fields
-  const responseFields: { name: string; type: string }[] = []
-  const responseInterfaceMatch = content.match(/interface\s+\w*Response\s*\{([^}]+)\}/s)
+  // Extract table name
+  const tableName = extractTableName(endpoint)
 
-  if (responseInterfaceMatch) {
-    const fieldsContent = responseInterfaceMatch[1]
-    const fieldRegex = /(\w+)\??\s*:\s*([^;\n]+)/g
-    let fieldMatch
+  // Extract response interface fields with nested object support
+  let responseFields: ApiComposableAnalysis['responseFields'] = []
+  const responseInterfaceStart = content.search(/interface\s+\w*Response\s*\{/)
 
-    while ((fieldMatch = fieldRegex.exec(fieldsContent)) !== null) {
-      responseFields.push({
-        name: fieldMatch[1],
-        type: fieldMatch[2].trim(),
-      })
-    }
+  if (responseInterfaceStart !== -1) {
+    const braceStart = content.indexOf('{', responseInterfaceStart)
+    const interfaceContent = extractBalancedBraces(content, braceStart)
+    responseFields = parseInterfaceFields(interfaceContent)
   }
 
   // Extract request interface fields
-  const requestFields: { name: string; type: string }[] = []
-  const requestInterfaceMatch = content.match(/interface\s+\w*(?:Request|Body|Params)\s*\{([^}]+)\}/s)
+  let requestFields: ApiComposableAnalysis['requestFields'] = []
+  const requestInterfaceStart = content.search(/interface\s+\w*(?:Request|Body|Params)\s*\{/)
 
-  if (requestInterfaceMatch) {
-    const fieldsContent = requestInterfaceMatch[1]
-    const fieldRegex = /(\w+)\??\s*:\s*([^;\n]+)/g
-    let fieldMatch
-
-    while ((fieldMatch = fieldRegex.exec(fieldsContent)) !== null) {
-      requestFields.push({
-        name: fieldMatch[1],
-        type: fieldMatch[2].trim(),
-      })
-    }
+  if (requestInterfaceStart !== -1) {
+    const braceStart = content.indexOf('{', requestInterfaceStart)
+    const interfaceContent = extractBalancedBraces(content, braceStart)
+    requestFields = parseInterfaceFields(interfaceContent)
   }
 
   if (!endpoint && responseFields.length === 0) {
@@ -476,6 +605,7 @@ function analyzeApiComposable(content: string, filePath: string): ApiComposableA
     endpoint,
     method,
     description,
+    tableName,
     responseFields,
     requestFields,
   }
@@ -618,20 +748,46 @@ function traceBindingToApi(
   scriptAnalysis: ScriptAnalysis,
   apiMappings: Record<string, ApiComposableAnalysis>
 ): ApiComposableAnalysis | null {
-  // Extract the root variable from binding (e.g., "user.name" -> "user")
-  const rootVar = binding.split('.')[0].split('[')[0]
+  // Extract parts from binding (e.g., "notification.title" -> ["notification", "title"])
+  const parts = binding.split('.')
+  const rootVar = parts[0].split('[')[0]
+  const fieldName = parts[parts.length - 1]
 
-  // Check if this variable comes from an API call
+  // Method 1: Check if binding variable directly matches an API call variable
   for (const apiCall of scriptAnalysis.apiCalls) {
     if (apiCall.variable === rootVar || binding.includes(apiCall.variable || '')) {
       return apiMappings[apiCall.composable] || null
     }
   }
 
-  // Check data bindings for store connections
+  // Method 2: Check if the field name exists in any of the component's API responses
+  // This handles cases like v-for="item in items" where item.name should match API
+  for (const apiCall of scriptAnalysis.apiCalls) {
+    const apiInfo = apiMappings[apiCall.composable]
+    if (!apiInfo) continue
+
+    // Check if any response field matches the binding field name
+    const matchingField = apiInfo.responseFields.find(f => {
+      const fName = f.name.split('.').pop() || f.name
+      return fName === fieldName || f.name.endsWith(`.${fieldName}`) || f.name.endsWith(`[].${fieldName}`)
+    })
+
+    if (matchingField) {
+      return apiInfo
+    }
+  }
+
+  // Method 3: Check data bindings for store connections and try to match fields
   for (const dataBinding of scriptAnalysis.dataBindings) {
     if (dataBinding.name === rootVar && dataBinding.type === 'store') {
-      // Could trace further into store definitions
+      // Try to find API from store name pattern
+      const storeName = dataBinding.source.replace('Store', '').toLowerCase()
+      const matchingApi = Object.entries(apiMappings).find(([key]) =>
+        key.toLowerCase().includes(storeName)
+      )
+      if (matchingApi) {
+        return matchingApi[1]
+      }
     }
   }
 
@@ -639,26 +795,50 @@ function traceBindingToApi(
 }
 
 function mapToDatabase(binding: string, apiInfo: ApiComposableAnalysis): ElementMapping['db'] | null {
-  // Extract field path from binding (e.g., "user.name" -> "name")
-  const parts = binding.split('.')
-  const fieldName = parts[parts.length - 1]
-
-  // Find matching field in API response
-  const field = apiInfo.responseFields.find(f => f.name === fieldName)
-  if (!field) return null
-
-  // Infer table name from endpoint
-  // e.g., /api/v1/users/:id -> users
-  const tableMatch = apiInfo.endpoint.match(/\/api\/v\d+\/(\w+)/)
-  const tableName = tableMatch?.[1] || ''
-
-  if (!tableName) return null
-
-  return {
-    table: tableName,
-    column: fieldName,
-    type: field.type,
+  // Clean binding - remove function calls like dispDate(notification.startDate) -> notification.startDate
+  let cleanBinding = binding
+  const funcMatch = binding.match(/\w+\(([^)]+)\)/)
+  if (funcMatch) {
+    cleanBinding = funcMatch[1]
   }
+
+  // Extract field path from binding (e.g., "user.name" -> "name", "data.user.email" -> "user.email")
+  const parts = cleanBinding.split('.')
+
+  // Try different path combinations to find matching field
+  // e.g., for "data.user.email", try: "email", "user.email", "data.user.email"
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const fieldPath = parts.slice(i).join('.')
+    const field = apiInfo.responseFields.find(f =>
+      f.name === fieldPath ||
+      f.name.endsWith(`.${fieldPath}`) ||
+      f.name.endsWith(`[].${fieldPath}`)
+    )
+
+    if (field) {
+      // Get the actual column name (last part of dbColumn path)
+      const columnParts = field.dbColumn.split('.')
+      const column = columnParts[columnParts.length - 1]
+
+      return {
+        table: apiInfo.tableName,
+        column: column,
+        type: field.type,
+      }
+    }
+  }
+
+  // Fallback: just use the last part with snake_case conversion
+  const lastPart = parts[parts.length - 1]
+  if (apiInfo.tableName) {
+    return {
+      table: apiInfo.tableName,
+      column: camelToSnake(lastPart),
+      type: 'unknown',
+    }
+  }
+
+  return null
 }
 
 // ===== CLI Entry Point =====

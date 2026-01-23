@@ -209,13 +209,33 @@ function analyzeScript(script, scriptSetup) {
   while ((match = importRegex.exec(combined)) !== null) {
     imports.push(match[1]);
   }
-  const apiCallRegex = /(?:const|let)\s+\{?\s*(\w+)\s*\}?\s*=\s*(?:await\s+)?(?:api|useApi\(\))\.(\w+)\.(\w+)\s*\(/g;
-  while ((match = apiCallRegex.exec(combined)) !== null) {
+  const apiCallRegex1 = /(?:const|let)\s+(\w+)(?::\s*\w+)?\s*=\s*(?:await\s+)?(?:api|useApi\(\))\.(\w+)\.(\w+)\s*\(/g;
+  while ((match = apiCallRegex1.exec(combined)) !== null) {
     const [, variable, resource, action] = match;
     apiCalls.push({
       composable: `${resource}.${action}`,
       variable
     });
+  }
+  const apiCallRegex2 = /(\w+)(?:\.value)?\s*=\s*(?:await\s+)?(?:api|useApi\(\))\.(\w+)\.(\w+)\s*\(/g;
+  while ((match = apiCallRegex2.exec(combined)) !== null) {
+    const [, variable, resource, action] = match;
+    if (!apiCalls.some((c) => c.composable === `${resource}.${action}`)) {
+      apiCalls.push({
+        composable: `${resource}.${action}`,
+        variable
+      });
+    }
+  }
+  const apiCallRegex3 = /(?:const|let)\s+\{\s*(\w+)\s*\}\s*=\s*(?:await\s+)?(?:api|useApi\(\))\.(\w+)\.(\w+)\s*\(/g;
+  while ((match = apiCallRegex3.exec(combined)) !== null) {
+    const [, variable, resource, action] = match;
+    if (!apiCalls.some((c) => c.composable === `${resource}.${action}`)) {
+      apiCalls.push({
+        composable: `${resource}.${action}`,
+        variable
+      });
+    }
   }
   const directApiRegex = /(?:const|let)\s+(\w+)\s*=\s*(?:await\s+)?(\w+(?:Show|List|Create|Update|Destroy))\s*\(/g;
   while ((match = directApiRegex.exec(combined)) !== null) {
@@ -259,6 +279,95 @@ function analyzeScript(script, scriptSetup) {
   }
   return { apiCalls, dataBindings, imports };
 }
+function extractBalancedBraces(content, startIndex) {
+  let depth = 0;
+  let started = false;
+  let result = "";
+  for (let i = startIndex; i < content.length; i++) {
+    const char = content[i];
+    if (char === "{") {
+      depth++;
+      started = true;
+    }
+    if (started) {
+      result += char;
+    }
+    if (char === "}") {
+      depth--;
+      if (depth === 0 && started) {
+        return result;
+      }
+    }
+  }
+  return result;
+}
+function parseInterfaceFields(content, prefix = "") {
+  const fields = [];
+  const inner = content.slice(1, -1);
+  let depth = 0;
+  let currentField = "";
+  const fieldStrings = [];
+  for (const char of inner) {
+    if (char === "{" || char === "<")
+      depth++;
+    if (char === "}" || char === ">")
+      depth--;
+    if (char === "\n" && depth === 0) {
+      if (currentField.trim()) {
+        fieldStrings.push(currentField.trim());
+      }
+      currentField = "";
+    } else {
+      currentField += char;
+    }
+  }
+  if (currentField.trim()) {
+    fieldStrings.push(currentField.trim());
+  }
+  for (const fieldStr of fieldStrings) {
+    const match = fieldStr.match(/^(\w+)\??:\s*([\s\S]+)$/);
+    if (!match)
+      continue;
+    const [, fieldName, fieldType] = match;
+    const fullName = prefix ? `${prefix}.${fieldName}` : fieldName;
+    const dbColumn = camelToSnake(fieldName);
+    const trimmedType = fieldType.trim();
+    if (trimmedType.startsWith("{") || fieldStr.includes(": {")) {
+      const braceIndex = fieldStr.indexOf("{");
+      if (braceIndex !== -1) {
+        const nestedContent = extractBalancedBraces(fieldStr, braceIndex);
+        if (nestedContent && nestedContent.length > 2) {
+          fields.push(...parseInterfaceFields(nestedContent, fullName));
+        }
+      }
+    } else if (trimmedType.includes("Array<{") || fieldStr.includes("Array<{")) {
+      const arrayStart = fieldStr.indexOf("Array<{") + 6;
+      const nestedContent = extractBalancedBraces(fieldStr, arrayStart);
+      if (nestedContent && nestedContent.length > 2) {
+        fields.push(...parseInterfaceFields(nestedContent, `${fullName}[]`));
+      }
+    } else {
+      const simpleType = trimmedType.split("\n")[0].trim();
+      fields.push({
+        name: fullName,
+        type: simpleType,
+        dbColumn: prefix ? `${camelToSnake(prefix.replace("[]", ""))}.${dbColumn}` : dbColumn
+      });
+    }
+  }
+  return fields;
+}
+function camelToSnake(str) {
+  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`).replace(/^_/, "");
+}
+function extractTableName(endpoint) {
+  const match = endpoint.match(/\/api\/v\d+\/([a-z_]+)/);
+  if (match) {
+    return match[1];
+  }
+  const segments = endpoint.split("/").filter((s) => s && !s.startsWith(":") && !s.startsWith("{"));
+  return segments[segments.length - 1] || "";
+}
 function analyzeApiComposable(content, filePath) {
   const pathMatch = content.match(/\/\/\s*API\s*PATH:\s*([^\n]+)/i);
   const endpoint = pathMatch?.[1]?.trim() || "";
@@ -275,31 +384,20 @@ function analyzeApiComposable(content, filePath) {
   }
   const descMatch = content.match(/\/\/\s*Description:\s*([^\n]+)/i);
   const description = descMatch?.[1]?.trim();
-  const responseFields = [];
-  const responseInterfaceMatch = content.match(/interface\s+\w*Response\s*\{([^}]+)\}/s);
-  if (responseInterfaceMatch) {
-    const fieldsContent = responseInterfaceMatch[1];
-    const fieldRegex = /(\w+)\??\s*:\s*([^;\n]+)/g;
-    let fieldMatch;
-    while ((fieldMatch = fieldRegex.exec(fieldsContent)) !== null) {
-      responseFields.push({
-        name: fieldMatch[1],
-        type: fieldMatch[2].trim()
-      });
-    }
+  const tableName = extractTableName(endpoint);
+  let responseFields = [];
+  const responseInterfaceStart = content.search(/interface\s+\w*Response\s*\{/);
+  if (responseInterfaceStart !== -1) {
+    const braceStart = content.indexOf("{", responseInterfaceStart);
+    const interfaceContent = extractBalancedBraces(content, braceStart);
+    responseFields = parseInterfaceFields(interfaceContent);
   }
-  const requestFields = [];
-  const requestInterfaceMatch = content.match(/interface\s+\w*(?:Request|Body|Params)\s*\{([^}]+)\}/s);
-  if (requestInterfaceMatch) {
-    const fieldsContent = requestInterfaceMatch[1];
-    const fieldRegex = /(\w+)\??\s*:\s*([^;\n]+)/g;
-    let fieldMatch;
-    while ((fieldMatch = fieldRegex.exec(fieldsContent)) !== null) {
-      requestFields.push({
-        name: fieldMatch[1],
-        type: fieldMatch[2].trim()
-      });
-    }
+  let requestFields = [];
+  const requestInterfaceStart = content.search(/interface\s+\w*(?:Request|Body|Params)\s*\{/);
+  if (requestInterfaceStart !== -1) {
+    const braceStart = content.indexOf("{", requestInterfaceStart);
+    const interfaceContent = extractBalancedBraces(content, braceStart);
+    requestFields = parseInterfaceFields(interfaceContent);
   }
   if (!endpoint && responseFields.length === 0) {
     return null;
@@ -308,6 +406,7 @@ function analyzeApiComposable(content, filePath) {
     endpoint,
     method,
     description,
+    tableName,
     responseFields,
     requestFields
   };
@@ -408,33 +507,70 @@ function determineElementType(el) {
   return "unknown";
 }
 function traceBindingToApi(binding, scriptAnalysis, apiMappings) {
-  const rootVar = binding.split(".")[0].split("[")[0];
+  const parts = binding.split(".");
+  const rootVar = parts[0].split("[")[0];
+  const fieldName = parts[parts.length - 1];
   for (const apiCall of scriptAnalysis.apiCalls) {
     if (apiCall.variable === rootVar || binding.includes(apiCall.variable || "")) {
       return apiMappings[apiCall.composable] || null;
     }
   }
+  for (const apiCall of scriptAnalysis.apiCalls) {
+    const apiInfo = apiMappings[apiCall.composable];
+    if (!apiInfo)
+      continue;
+    const matchingField = apiInfo.responseFields.find((f) => {
+      const fName = f.name.split(".").pop() || f.name;
+      return fName === fieldName || f.name.endsWith(`.${fieldName}`) || f.name.endsWith(`[].${fieldName}`);
+    });
+    if (matchingField) {
+      return apiInfo;
+    }
+  }
   for (const dataBinding of scriptAnalysis.dataBindings) {
     if (dataBinding.name === rootVar && dataBinding.type === "store") {
+      const storeName = dataBinding.source.replace("Store", "").toLowerCase();
+      const matchingApi = Object.entries(apiMappings).find(
+        ([key]) => key.toLowerCase().includes(storeName)
+      );
+      if (matchingApi) {
+        return matchingApi[1];
+      }
     }
   }
   return null;
 }
 function mapToDatabase(binding, apiInfo) {
-  const parts = binding.split(".");
-  const fieldName = parts[parts.length - 1];
-  const field = apiInfo.responseFields.find((f) => f.name === fieldName);
-  if (!field)
-    return null;
-  const tableMatch = apiInfo.endpoint.match(/\/api\/v\d+\/(\w+)/);
-  const tableName = tableMatch?.[1] || "";
-  if (!tableName)
-    return null;
-  return {
-    table: tableName,
-    column: fieldName,
-    type: field.type
-  };
+  let cleanBinding = binding;
+  const funcMatch = binding.match(/\w+\(([^)]+)\)/);
+  if (funcMatch) {
+    cleanBinding = funcMatch[1];
+  }
+  const parts = cleanBinding.split(".");
+  for (let i = parts.length - 1; i >= 0; i--) {
+    const fieldPath = parts.slice(i).join(".");
+    const field = apiInfo.responseFields.find(
+      (f) => f.name === fieldPath || f.name.endsWith(`.${fieldPath}`) || f.name.endsWith(`[].${fieldPath}`)
+    );
+    if (field) {
+      const columnParts = field.dbColumn.split(".");
+      const column = columnParts[columnParts.length - 1];
+      return {
+        table: apiInfo.tableName,
+        column,
+        type: field.type
+      };
+    }
+  }
+  const lastPart = parts[parts.length - 1];
+  if (apiInfo.tableName) {
+    return {
+      table: apiInfo.tableName,
+      column: camelToSnake(lastPart),
+      type: "unknown"
+    };
+  }
+  return null;
 }
 async function analyzeProject(projectPath, options = {}) {
   const { output, verbose } = options;
