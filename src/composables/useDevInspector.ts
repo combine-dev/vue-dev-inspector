@@ -345,7 +345,6 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     // Form elements are typically bound to data
     if (tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA') {
       const inputType = (element as HTMLInputElement).type || 'text'
-      const value = (element as HTMLInputElement).value || ''
       const placeholder = (element as HTMLInputElement).placeholder || ''
       return {
         type: 'v-model',
@@ -364,18 +363,86 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       }
     }
 
+    // ============ DYNAMIC DATA DETECTION (more aggressive) ============
+
+    // Check if inside a table body - table data is almost always dynamic
+    if (element.closest('tbody') || element.closest('[role="rowgroup"]')) {
+      return {
+        type: 'api',
+        source: 'table data',
+        isStatic: false,
+      }
+    }
+
+    // Check if inside a list that looks like it's rendering data
+    const listParent = element.closest('ul, ol, [role="list"]')
+    if (listParent && listParent.children.length > 1) {
+      return {
+        type: 'api',
+        source: 'list item',
+        isStatic: false,
+      }
+    }
+
+    // Check if inside common dynamic containers
+    const dynamicContainers = [
+      '[class*="card"]', '[class*="Card"]',
+      '[class*="item"]', '[class*="Item"]',
+      '[class*="row"]', '[class*="Row"]',
+      '[class*="list"]', '[class*="List"]',
+      '[class*="grid"]', '[class*="Grid"]',
+      '[role="listitem"]', '[role="row"]', '[role="gridcell"]',
+    ]
+    for (const selector of dynamicContainers) {
+      const container = element.closest(selector)
+      if (container) {
+        // Check if this container has siblings with same class (indicating a loop)
+        const parent = container.parentElement
+        if (parent) {
+          const similarSiblings = Array.from(parent.children).filter(c =>
+            c !== container && c.className === container.className
+          )
+          if (similarSiblings.length > 0) {
+            return {
+              type: 'api',
+              source: 'repeated container',
+              isStatic: false,
+            }
+          }
+        }
+      }
+    }
+
     // Check if inside a v-for loop (likely dynamic)
     const isInLoop = element.closest('[v-for]') !== null ||
-      element.closest('[data-v-for]') !== null ||
-      // Check parent for repeated similar siblings
-      (element.parentElement && element.parentElement.children.length > 3 &&
-        Array.from(element.parentElement.children).filter(c => c.tagName === element.tagName).length > 2)
+      element.closest('[data-v-for]') !== null
 
     if (isInLoop) {
       return {
         type: 'api',
         source: 'loop item',
         isStatic: false,
+      }
+    }
+
+    // Check parent for repeated similar siblings (strong indicator of loop)
+    if (element.parentElement) {
+      const parent = element.parentElement
+      const siblings = Array.from(parent.children)
+      const sameTags = siblings.filter(c => c.tagName === element.tagName)
+
+      // If there are 2+ siblings with same tag and similar structure, it's likely a loop
+      if (sameTags.length >= 2) {
+        const sameStructure = sameTags.filter(c =>
+          c.children.length === element.children.length
+        )
+        if (sameStructure.length >= 2) {
+          return {
+            type: 'api',
+            source: 'repeated element',
+            isStatic: false,
+          }
+        }
       }
     }
 
@@ -392,6 +459,9 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       /^\d+\.\d+$/, // Decimal numbers
       /^https?:\/\//, // URLs
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, // Emails
+      /^\d+件$/, // Japanese count
+      /^\d+個$/, // Japanese count
+      /^第?\d+/, // Numbered items
     ]
 
     for (const pattern of dynamicPatterns) {
@@ -404,22 +474,51 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       }
     }
 
-    // Get direct text content (not from children)
-    const directText = Array.from(element.childNodes)
-      .filter(node => node.nodeType === Node.TEXT_NODE)
-      .map(node => node.textContent?.trim() || '')
-      .join('')
-      .trim()
+    // Check if content looks like a name (likely from DB)
+    // Names often have specific patterns: 2-4 characters for Japanese, or First Last for English
+    const namePatterns = [
+      /^[\u4e00-\u9faf]{2,4}$/, // Japanese Kanji names (2-4 chars)
+      /^[\u3040-\u309f\u30a0-\u30ff]{2,6}$/, // Hiragana/Katakana names
+      /^[A-Z][a-z]+ [A-Z][a-z]+$/, // English names like "John Smith"
+    ]
+    for (const pattern of namePatterns) {
+      if (pattern.test(textContent)) {
+        return {
+          type: 'api',
+          source: 'name pattern',
+          isStatic: false,
+        }
+      }
+    }
 
-    // If element has direct text and no or few children, likely static
-    const hasDirectText = directText.length > 0
-    const hasNoChildren = element.children.length === 0
-    const hasOnlyInlineChildren = Array.from(element.children).every(c =>
-      ['SPAN', 'STRONG', 'EM', 'B', 'I', 'A', 'BR'].includes(c.tagName)
-    )
+    // ============ STATIC TEXT DETECTION (more conservative) ============
 
-    if (hasDirectText || (hasNoChildren && textContent.length > 0) || hasOnlyInlineChildren) {
-      // Likely static text
+    // Only consider static if it's a UI label element
+    const staticLabelTags = ['LABEL', 'TH', 'LEGEND', 'FIGCAPTION']
+    const isLabelTag = staticLabelTags.includes(tagName)
+
+    // Check for common static UI text patterns
+    const staticPatterns = [
+      /^(保存|キャンセル|閉じる|開く|編集|削除|追加|検索|送信|確認|戻る|次へ|完了|OK|Yes|No|Cancel|Save|Submit|Close|Open|Edit|Delete|Add|Search|Back|Next|Done)$/,
+      /^[\u30a0-\u30ff]+$/, // Pure katakana (often UI labels)
+      /項目$/, // Ends with 項目
+      /一覧$/, // Ends with 一覧
+      /設定$/, // Ends with 設定
+      /情報$/, // Ends with 情報
+    ]
+
+    const isStaticPattern = staticPatterns.some(p => p.test(textContent))
+
+    // Check if it's a button/action text
+    const isActionElement = tagName === 'BUTTON' ||
+      element.closest('button') !== null ||
+      element.getAttribute('role') === 'button'
+
+    // Only mark as static if:
+    // 1. It's a known label tag, OR
+    // 2. It matches static UI patterns, OR
+    // 3. It's an action/button element with short text
+    if (isLabelTag || isStaticPattern || (isActionElement && textContent.length < 20)) {
       return {
         type: 'static',
         source: textContent.substring(0, 50) + (textContent.length > 50 ? '...' : ''),
@@ -427,11 +526,21 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       }
     }
 
-    // Default: unknown but has content
-    if (textContent.length > 0 && textContent.length < 200) {
+    // If text is very short and looks like a label, might be static
+    if (textContent.length <= 10 && /^[\u3040-\u30ff\u4e00-\u9faf]+$/.test(textContent)) {
+      // Short Japanese text - could be label OR data, mark as unknown/prop
       return {
         type: 'prop',
-        source: 'unknown binding',
+        source: 'short text (verify manually)',
+        isStatic: false,
+      }
+    }
+
+    // Default: assume dynamic (conservative - less false positives for static)
+    if (textContent.length > 0 && textContent.length < 200) {
+      return {
+        type: 'api',
+        source: 'content (assumed dynamic)',
         isStatic: false,
       }
     }
