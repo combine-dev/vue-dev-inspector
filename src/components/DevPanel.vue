@@ -1,441 +1,444 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { X, Code, FileText, ExternalLink, Server, AlertCircle, Edit3, Download, Upload, Trash2, MousePointer2, GitBranch, FileSpreadsheet } from 'lucide-vue-next'
 import { useDevInspectorStore } from '../composables/useDevInspector'
+import { exportScreenSpecToXlsx } from '../utils/exportScreenSpec'
 
 const store = useDevInspectorStore()
 
-const activeTab = ref<'overview' | 'elements' | 'export'>('overview')
+const showExportModal = ref(false)
+const showImportModal = ref(false)
+const importText = ref('')
+const importError = ref('')
 
-const configuredCount = computed(() => Object.keys(store.elementConfigs).length)
+const methodColors: Record<string, string> = {
+  GET: '#10b981',
+  POST: '#3b82f6',
+  PUT: '#f59e0b',
+  DELETE: '#ef4444',
+  PATCH: '#8b5cf6',
+}
 
-const handleExport = () => {
+const spec = computed(() => store.currentScreenSpec)
+const elementCount = computed(() => Object.keys(store.elementConfigs).length)
+
+function copyExport() {
+  const json = store.exportConfigs()
+  navigator.clipboard.writeText(json)
+  showExportModal.value = false
+}
+
+function downloadExport() {
+  const json = store.exportConfigs()
+  const blob = new Blob([json], { type: 'application/json' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = 'dev-mode-configs.json'
+  a.click()
+  URL.revokeObjectURL(url)
+  showExportModal.value = false
+}
+
+function downloadForGit() {
   store.downloadAnnotations()
 }
 
-const handleImport = () => {
-  const input = document.createElement('input')
-  input.type = 'file'
-  input.accept = '.json'
-  input.onchange = async (e) => {
-    const file = (e.target as HTMLInputElement).files?.[0]
-    if (!file) return
-    const text = await file.text()
-    try {
-      store.importConfigs(text)
-    } catch {
-      alert('Invalid JSON file')
-    }
+async function exportToXlsx() {
+  try {
+    await exportScreenSpecToXlsx(
+      store.currentScreenSpec,
+      store.elementConfigs,
+      { systemName: 'System' }
+    )
+  } catch (e) {
+    console.error('Failed to export xlsx:', e)
+    alert('xlsx export failed. Make sure xlsx package is installed.')
   }
-  input.click()
 }
 
-const handleClear = () => {
-  if (confirm('Are you sure you want to clear all annotations?')) {
+function handleImport() {
+  try {
+    store.importConfigs(importText.value)
+    importText.value = ''
+    importError.value = ''
+    showImportModal.value = false
+  } catch {
+    importError.value = 'JSONの形式が正しくありません'
+  }
+}
+
+function handleFileImport(event: Event) {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const reader = new FileReader()
+  reader.onload = (e) => {
+    importText.value = e.target?.result as string
+  }
+  reader.readAsText(file)
+}
+
+function clearAll() {
+  if (confirm('すべての要素設定を削除しますか？')) {
     store.clearAllConfigs()
   }
-}
-
-const copyToClipboard = async () => {
-  await navigator.clipboard.writeText(store.exportConfigs())
-  alert('Copied to clipboard!')
 }
 </script>
 
 <template>
+  <!-- Floating Toggle Button -->
   <Transition
-    enter-active-class="di-transition-enter"
-    leave-active-class="di-transition-leave"
+    enter-active-class="transition ease-out duration-200"
+    enter-from-class="opacity-0 scale-95"
+    enter-to-class="opacity-100 scale-100"
+    leave-active-class="transition ease-in duration-150"
+    leave-from-class="opacity-100 scale-100"
+    leave-to-class="opacity-0 scale-95"
+  >
+    <button
+      v-if="store.isEnabled && !store.isPanelOpen"
+      @click="store.openPanel"
+      class="fixed bottom-4 right-4 z-[9998] w-12 h-12 bg-[#1e293b] text-white rounded-full shadow-lg flex items-center justify-center hover:bg-[#334155] transition-colors"
+      title="画面仕様を表示"
+      data-dev-inspector
+    >
+      <FileText class="w-5 h-5" />
+    </button>
+  </Transition>
+
+  <!-- Panel -->
+  <Transition
+    enter-active-class="transition ease-out duration-300"
+    enter-from-class="translate-x-full"
+    enter-to-class="translate-x-0"
+    leave-active-class="transition ease-in duration-200"
+    leave-from-class="translate-x-0"
+    leave-to-class="translate-x-full"
   >
     <div
-      v-if="store.isPanelOpen"
-      class="di-panel"
+      v-if="store.isEnabled && store.isPanelOpen"
+      class="fixed top-0 right-0 z-[9999] w-[360px] h-full bg-[#0f172a] text-white shadow-2xl overflow-hidden flex flex-col"
+      data-dev-inspector
     >
       <!-- Header -->
-      <div class="di-panel-header">
-        <div class="di-panel-title">
-          <span class="di-icon">🔧</span>
-          Dev Inspector
+      <div class="flex items-center justify-between px-4 py-3 bg-[#1e293b] border-b border-[#334155]">
+        <div class="flex items-center gap-2">
+          <Code class="w-5 h-5 text-[#60a5fa]" />
+          <span class="font-bold text-[14px]">Developer Mode</span>
         </div>
-        <button @click="store.closePanel" class="di-close-btn">✕</button>
+        <button
+          @click="store.closePanel"
+          class="p-1 hover:bg-[#334155] rounded transition-colors"
+        >
+          <X class="w-5 h-5" />
+        </button>
       </div>
 
-      <!-- Tabs -->
-      <div class="di-tabs">
+      <!-- Edit Mode Toggle -->
+      <div class="px-4 py-3 bg-[#1e293b]/50 border-b border-[#334155]">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <Edit3 class="w-4 h-4 text-[#fbbf24]" />
+            <span class="text-[12px]">編集モード</span>
+          </div>
+          <button
+            @click="store.toggleEditMode"
+            class="relative w-[44px] h-[24px] rounded-full transition-colors"
+            :class="store.isEditMode ? 'bg-[#fbbf24]' : 'bg-[#334155]'"
+          >
+            <span
+              class="absolute top-[2px] w-[20px] h-[20px] bg-white rounded-full shadow transition-transform"
+              :class="store.isEditMode ? 'translate-x-[22px]' : 'translate-x-[2px]'"
+            ></span>
+          </button>
+        </div>
+        <p class="text-[10px] text-[#64748b] mt-1.5">
+          ONにすると、要素をクリックして情報を編集できます
+        </p>
+
+        <!-- Pick Mode Button -->
         <button
-          :class="['di-tab', { active: activeTab === 'overview' }]"
-          @click="activeTab = 'overview'"
-        >Overview</button>
-        <button
-          :class="['di-tab', { active: activeTab === 'elements' }]"
-          @click="activeTab = 'elements'"
-        >Elements ({{ configuredCount }})</button>
-        <button
-          :class="['di-tab', { active: activeTab === 'export' }]"
-          @click="activeTab = 'export'"
-        >Export</button>
+          @click="store.togglePickMode"
+          class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-colors"
+          :class="store.isPickMode
+            ? 'bg-[#10b981] text-white'
+            : 'bg-[#0f172a] text-[#94a3b8] hover:text-white hover:bg-[#334155]'"
+        >
+          <MousePointer2 class="w-4 h-4" />
+          <span class="text-[12px] font-medium">
+            {{ store.isPickMode ? '要素選択中...' : '任意の要素にメモを追加' }}
+          </span>
+        </button>
       </div>
 
       <!-- Content -->
-      <div class="di-panel-content">
-        <!-- Overview Tab -->
-        <div v-if="activeTab === 'overview'" class="di-tab-content">
-          <div class="di-section">
-            <h3>Mode</h3>
-            <div class="di-button-group">
-              <button
-                :class="['di-btn', { active: store.isPickMode }]"
-                @click="store.togglePickMode"
+      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+        <template v-if="spec">
+          <!-- Screen Name -->
+          <div>
+            <h2 class="text-[18px] font-bold text-white mb-1">{{ spec.name }}</h2>
+            <p class="text-[12px] text-[#94a3b8]">{{ spec.description }}</p>
+          </div>
+
+          <!-- Component Path -->
+          <div class="bg-[#1e293b] rounded-lg p-3">
+            <div class="flex items-center gap-2 text-[11px] text-[#64748b] mb-2">
+              <Code class="w-4 h-4" />
+              <span>Component Path</span>
+            </div>
+            <code class="text-[12px] text-[#60a5fa] font-mono break-all">{{ spec.componentPath }}</code>
+          </div>
+
+          <!-- Figma Link -->
+          <div v-if="spec.figmaUrl" class="bg-[#1e293b] rounded-lg p-3">
+            <div class="flex items-center gap-2 text-[11px] text-[#64748b] mb-2">
+              <ExternalLink class="w-4 h-4" />
+              <span>Figma Design</span>
+            </div>
+            <a
+              :href="spec.figmaUrl"
+              target="_blank"
+              class="text-[12px] text-[#a78bfa] hover:underline font-mono break-all"
+            >{{ spec.figmaUrl }}</a>
+          </div>
+
+          <!-- APIs -->
+          <div v-if="spec.apis.length" class="bg-[#1e293b] rounded-lg p-3">
+            <div class="flex items-center gap-2 text-[11px] text-[#64748b] mb-3">
+              <Server class="w-4 h-4" />
+              <span>API Endpoints</span>
+            </div>
+            <div class="space-y-2">
+              <div
+                v-for="(api, index) in spec.apis"
+                :key="index"
+                class="flex items-start gap-2"
               >
-                {{ store.isPickMode ? '🎯 Picking...' : '🎯 Pick Element' }}
-              </button>
-              <button
-                :class="['di-btn', { active: store.isEditMode }]"
-                @click="store.toggleEditMode"
-              >
-                {{ store.isEditMode ? '✏️ Editing...' : '✏️ Edit Mode' }}
-              </button>
+                <span
+                  class="text-[10px] font-bold px-1.5 py-0.5 rounded min-w-[45px] text-center"
+                  :style="{ backgroundColor: methodColors[api.method] + '20', color: methodColors[api.method] }"
+                >{{ api.method }}</span>
+                <div class="flex-1">
+                  <code class="text-[11px] text-[#e2e8f0] font-mono">{{ api.endpoint }}</code>
+                  <p class="text-[10px] text-[#64748b] mt-0.5">{{ api.description }}</p>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div class="di-section">
-            <h3>Stats</h3>
-            <div class="di-stats">
-              <div class="di-stat">
-                <span class="di-stat-value">{{ configuredCount }}</span>
-                <span class="di-stat-label">Annotated Elements</span>
-              </div>
+          <!-- Notes -->
+          <div v-if="spec.notes?.length" class="bg-[#1e293b] rounded-lg p-3">
+            <div class="flex items-center gap-2 text-[11px] text-[#64748b] mb-2">
+              <AlertCircle class="w-4 h-4" />
+              <span>Notes</span>
             </div>
+            <ul class="space-y-1">
+              <li
+                v-for="(note, index) in spec.notes"
+                :key="index"
+                class="text-[12px] text-[#94a3b8] flex items-start gap-2"
+              >
+                <span class="text-[#64748b]">•</span>
+                <span>{{ note }}</span>
+              </li>
+            </ul>
           </div>
+        </template>
 
-          <div class="di-section">
-            <h3>Keyboard Shortcuts</h3>
-            <div class="di-shortcuts">
-              <div class="di-shortcut">
-                <kbd>Ctrl</kbd>+<kbd>Shift</kbd>+<kbd>D</kbd>
-                <span>Toggle Panel</span>
-              </div>
-              <div class="di-shortcut">
-                <kbd>Esc</kbd>
-                <span>Close Panel</span>
-              </div>
-            </div>
-          </div>
+        <!-- No Spec -->
+        <div v-else class="text-center py-8">
+          <FileText class="w-12 h-12 text-[#334155] mx-auto mb-3" />
+          <p class="text-[14px] text-[#64748b]">この画面の仕様情報は<br>まだ登録されていません</p>
         </div>
 
-        <!-- Elements Tab -->
-        <div v-if="activeTab === 'elements'" class="di-tab-content">
-          <div v-if="configuredCount === 0" class="di-empty">
-            No elements annotated yet.<br>
-            Use Pick Element to start.
+        <!-- Element Configs Section -->
+        <div class="bg-[#1e293b] rounded-lg p-3">
+          <div class="flex items-center justify-between mb-3">
+            <div class="flex items-center gap-2 text-[11px] text-[#64748b]">
+              <Edit3 class="w-4 h-4" />
+              <span>登録済み要素</span>
+              <span class="px-1.5 py-0.5 bg-[#334155] rounded text-[10px]">{{ elementCount }}</span>
+            </div>
           </div>
-          <div v-else class="di-element-list">
-            <div
-              v-for="(config, id) in store.elementConfigs"
-              :key="id"
-              class="di-element-item"
-              @click="store.startEditing(id as string)"
+
+          <!-- Export Buttons -->
+          <div v-if="elementCount > 0" class="space-y-2 mb-3">
+            <button
+              @click="downloadForGit"
+              class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[12px] text-white bg-[#10b981] hover:bg-[#059669] rounded-lg transition-colors"
             >
-              <div class="di-element-id">{{ id }}</div>
-              <div class="di-element-meta">
-                <span v-if="config.fieldInfo" class="di-tag">DB</span>
-                <span v-if="config.actionInfo" class="di-tag">Action</span>
-                <span v-if="config.links?.figmaUrl" class="di-tag">Figma</span>
-                <span v-if="config.note" class="di-tag">Note</span>
-              </div>
-            </div>
+              <GitBranch class="w-4 h-4" />
+              Git管理用に保存
+            </button>
+            <button
+              @click="exportToXlsx"
+              class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[12px] text-white bg-[#3b82f6] hover:bg-[#2563eb] rounded-lg transition-colors"
+            >
+              <FileSpreadsheet class="w-4 h-4" />
+              画面仕様書 (xlsx) 出力
+            </button>
           </div>
-        </div>
+          <p v-if="elementCount > 0" class="text-[10px] text-[#64748b] mb-3">
+            JSON: <code class="text-[#60a5fa]">dev-annotations.json</code> に配置してcommit
+          </p>
 
-        <!-- Export Tab -->
-        <div v-if="activeTab === 'export'" class="di-tab-content">
-          <div class="di-section">
-            <h3>Export / Import</h3>
-            <div class="di-button-group vertical">
-              <button class="di-btn" @click="handleExport">
-                📥 Download JSON
-              </button>
-              <button class="di-btn" @click="copyToClipboard">
-                📋 Copy to Clipboard
-              </button>
-              <button class="di-btn" @click="handleImport">
-                📤 Import JSON
-              </button>
-              <button class="di-btn danger" @click="handleClear">
-                🗑️ Clear All
-              </button>
-            </div>
+          <div class="flex flex-wrap gap-2">
+            <button
+              @click="showExportModal = true"
+              class="flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] text-[#94a3b8] hover:text-white bg-[#0f172a] hover:bg-[#334155] rounded-lg transition-colors"
+            >
+              <Download class="w-3.5 h-3.5" />
+              エクスポート
+            </button>
+            <button
+              @click="showImportModal = true"
+              class="flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] text-[#94a3b8] hover:text-white bg-[#0f172a] hover:bg-[#334155] rounded-lg transition-colors"
+            >
+              <Upload class="w-3.5 h-3.5" />
+              インポート
+            </button>
+            <button
+              v-if="elementCount > 0"
+              @click="clearAll"
+              class="flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] text-[#ef4444] hover:bg-[#ef4444]/10 rounded-lg transition-colors"
+            >
+              <Trash2 class="w-3.5 h-3.5" />
+              全削除
+            </button>
           </div>
         </div>
       </div>
+
+      <!-- Footer -->
+      <div class="px-4 py-3 bg-[#1e293b] border-t border-[#334155] text-[10px] text-[#64748b]">
+        <kbd class="px-1.5 py-0.5 bg-[#334155] rounded text-[#94a3b8]">Ctrl</kbd>
+        <span class="mx-1">+</span>
+        <kbd class="px-1.5 py-0.5 bg-[#334155] rounded text-[#94a3b8]">Shift</kbd>
+        <span class="mx-1">+</span>
+        <kbd class="px-1.5 py-0.5 bg-[#334155] rounded text-[#94a3b8]">D</kbd>
+        <span class="ml-2">で開発者モード切替</span>
+      </div>
     </div>
   </Transition>
+
+  <!-- Dev Mode Indicator -->
+  <Transition
+    enter-active-class="transition ease-out duration-200"
+    enter-from-class="opacity-0 -translate-y-2"
+    enter-to-class="opacity-100 translate-y-0"
+    leave-active-class="transition ease-in duration-150"
+    leave-from-class="opacity-100 translate-y-0"
+    leave-to-class="opacity-0 -translate-y-2"
+  >
+    <div
+      v-if="store.isEnabled"
+      class="fixed top-2 left-1/2 -translate-x-1/2 z-[9998] px-3 py-1.5 bg-[#1e293b] text-[#60a5fa] text-[11px] font-medium rounded-full shadow-lg flex items-center gap-2"
+      data-dev-inspector
+    >
+      <span class="w-2 h-2 bg-[#60a5fa] rounded-full animate-pulse"></span>
+      Developer Mode
+      <span v-if="store.isEditMode" class="text-[#fbbf24]">• 編集中</span>
+    </div>
+  </Transition>
+
+  <!-- Export Modal -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition ease-out duration-200"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition ease-in duration-150"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="showExportModal"
+        class="fixed inset-0 z-[10001] flex items-center justify-center bg-black/50"
+        @click.self="showExportModal = false"
+        data-dev-inspector
+      >
+        <div class="bg-[#1e293b] rounded-xl shadow-2xl w-[400px] p-4">
+          <h3 class="text-white font-bold text-[14px] mb-3">設定をエクスポート</h3>
+          <textarea
+            readonly
+            :value="store.exportConfigs()"
+            class="w-full h-[200px] px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-[#94a3b8] text-[11px] font-mono resize-none"
+          ></textarea>
+          <div class="flex justify-end gap-2 mt-3">
+            <button
+              @click="showExportModal = false"
+              class="px-4 py-1.5 text-[11px] text-[#94a3b8] hover:text-white hover:bg-[#334155] rounded-lg transition-colors"
+            >
+              閉じる
+            </button>
+            <button
+              @click="downloadExport"
+              class="flex items-center gap-1.5 px-4 py-1.5 text-[11px] text-white bg-[#334155] hover:bg-[#475569] rounded-lg transition-colors"
+            >
+              <Download class="w-3.5 h-3.5" />
+              ファイル保存
+            </button>
+            <button
+              @click="copyExport"
+              class="px-4 py-1.5 text-[11px] text-white bg-[#3b82f6] hover:bg-[#2563eb] rounded-lg transition-colors"
+            >
+              コピー
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+
+  <!-- Import Modal -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition ease-out duration-200"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition ease-in duration-150"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="showImportModal"
+        class="fixed inset-0 z-[10001] flex items-center justify-center bg-black/50"
+        @click.self="showImportModal = false"
+        data-dev-inspector
+      >
+        <div class="bg-[#1e293b] rounded-xl shadow-2xl w-[400px] p-4">
+          <h3 class="text-white font-bold text-[14px] mb-3">設定をインポート</h3>
+          <div class="mb-3">
+            <label class="flex items-center justify-center w-full h-[60px] border-2 border-dashed border-[#334155] rounded-lg cursor-pointer hover:border-[#60a5fa] transition-colors">
+              <input type="file" accept=".json" class="hidden" @change="handleFileImport" />
+              <span class="text-[11px] text-[#64748b]">JSONファイルをドラッグまたはクリック</span>
+            </label>
+          </div>
+          <textarea
+            v-model="importText"
+            placeholder="またはJSONを直接貼り付け..."
+            class="w-full h-[150px] px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[11px] font-mono resize-none placeholder-[#475569] focus:border-[#60a5fa] focus:outline-none"
+          ></textarea>
+          <p v-if="importError" class="text-[10px] text-[#ef4444] mt-1">{{ importError }}</p>
+          <div class="flex justify-end gap-2 mt-3">
+            <button
+              @click="showImportModal = false; importText = ''; importError = ''"
+              class="px-4 py-1.5 text-[11px] text-[#94a3b8] hover:text-white hover:bg-[#334155] rounded-lg transition-colors"
+            >
+              キャンセル
+            </button>
+            <button
+              @click="handleImport"
+              :disabled="!importText"
+              class="px-4 py-1.5 text-[11px] text-white bg-[#3b82f6] hover:bg-[#2563eb] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              インポート
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
-
-<style scoped>
-.di-panel {
-  position: fixed;
-  top: 60px;
-  right: 16px;
-  width: 320px;
-  max-height: calc(100vh - 80px);
-  background: #1a1a2e;
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  z-index: 99999;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 13px;
-  color: #e0e0e0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.di-panel-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.di-panel-title {
-  font-weight: 600;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.di-icon {
-  font-size: 16px;
-}
-
-.di-close-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  transition: background 0.2s;
-}
-
-.di-close-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.di-tabs {
-  display: flex;
-  background: #16162a;
-  border-bottom: 1px solid #2a2a4a;
-}
-
-.di-tab {
-  flex: 1;
-  padding: 10px 8px;
-  background: transparent;
-  border: none;
-  color: #888;
-  cursor: pointer;
-  font-size: 12px;
-  transition: all 0.2s;
-}
-
-.di-tab:hover {
-  color: #bbb;
-}
-
-.di-tab.active {
-  color: #667eea;
-  border-bottom: 2px solid #667eea;
-}
-
-.di-panel-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px;
-}
-
-.di-tab-content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.di-section h3 {
-  font-size: 11px;
-  text-transform: uppercase;
-  color: #666;
-  margin: 0 0 8px 0;
-  letter-spacing: 0.5px;
-}
-
-.di-button-group {
-  display: flex;
-  gap: 8px;
-}
-
-.di-button-group.vertical {
-  flex-direction: column;
-}
-
-.di-btn {
-  padding: 8px 12px;
-  background: #2a2a4a;
-  border: 1px solid #3a3a5a;
-  color: #e0e0e0;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  transition: all 0.2s;
-}
-
-.di-btn:hover {
-  background: #3a3a5a;
-}
-
-.di-btn.active {
-  background: #667eea;
-  border-color: #667eea;
-  color: white;
-}
-
-.di-btn.danger {
-  background: #4a2a2a;
-  border-color: #5a3a3a;
-}
-
-.di-btn.danger:hover {
-  background: #5a3a3a;
-}
-
-.di-stats {
-  display: flex;
-  gap: 12px;
-}
-
-.di-stat {
-  background: #2a2a4a;
-  padding: 12px;
-  border-radius: 8px;
-  text-align: center;
-  flex: 1;
-}
-
-.di-stat-value {
-  display: block;
-  font-size: 24px;
-  font-weight: 600;
-  color: #667eea;
-}
-
-.di-stat-label {
-  font-size: 10px;
-  color: #888;
-}
-
-.di-shortcuts {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.di-shortcut {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-}
-
-.di-shortcut kbd {
-  background: #2a2a4a;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 11px;
-}
-
-.di-shortcut span {
-  color: #888;
-}
-
-.di-empty {
-  text-align: center;
-  padding: 24px;
-  color: #666;
-  line-height: 1.6;
-}
-
-.di-element-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.di-element-item {
-  background: #2a2a4a;
-  padding: 10px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.di-element-item:hover {
-  background: #3a3a5a;
-}
-
-.di-element-id {
-  font-family: monospace;
-  font-size: 11px;
-  color: #667eea;
-  margin-bottom: 6px;
-  word-break: break-all;
-}
-
-.di-element-meta {
-  display: flex;
-  gap: 4px;
-  flex-wrap: wrap;
-}
-
-.di-tag {
-  background: #3a3a5a;
-  padding: 2px 6px;
-  border-radius: 4px;
-  font-size: 10px;
-  color: #aaa;
-}
-
-.di-transition-enter {
-  animation: slideIn 0.2s ease-out;
-}
-
-.di-transition-leave {
-  animation: slideOut 0.15s ease-in;
-}
-
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slideOut {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-}
-</style>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { Info, AlertTriangle, CheckSquare, HelpCircle } from 'lucide-vue-next'
 import { useDevInspectorStore } from '../composables/useDevInspector'
 
 const store = useDevInspectorStore()
@@ -9,252 +10,234 @@ const highlightStyle = ref<{
   left: string
   width: string
   height: string
-  display: string
-}>({
-  top: '0',
-  left: '0',
-  width: '0',
-  height: '0',
-  display: 'none'
-})
+} | null>(null)
 
-const tooltipStyle = ref<{
-  top: string
-  left: string
-  display: string
-}>({
-  top: '0',
-  left: '0',
-  display: 'none'
-})
+const hoveredElement = ref<HTMLElement | null>(null)
 
-const currentSelector = ref('')
+// Get note icon/color for existing annotations
+function getNoteInfo(selector: string) {
+  const config = store.getElementConfig(selector)
+  if (!config?.note) return null
 
-let lastHoveredElement: HTMLElement | null = null
+  const icons = {
+    info: Info,
+    warning: AlertTriangle,
+    todo: CheckSquare,
+    question: HelpCircle,
+  }
+  const colors = {
+    info: '#60a5fa',
+    warning: '#fbbf24',
+    todo: '#10b981',
+    question: '#a78bfa',
+  }
 
-function isDevUIElement(el: HTMLElement): boolean {
-  // Skip dev inspector UI elements
-  return el.closest('[data-dev-inspector]') !== null
+  return {
+    icon: icons[config.note.type || 'info'],
+    color: colors[config.note.type || 'info'],
+    text: config.note.text,
+  }
 }
+
+// Scroll position for reactive updates
+const scrollY = ref(0)
+const scrollX = ref(0)
+
+// Existing annotations on current page
+const existingAnnotations = computed(() => {
+  // Access scroll values to make this reactive
+  const _scrollY = scrollY.value
+  const _scrollX = scrollX.value
+
+  const annotations: Array<{
+    selector: string
+    element: HTMLElement | null
+    top: number
+    left: number
+    noteInfo: ReturnType<typeof getNoteInfo>
+  }> = []
+
+  if (!store.isEnabled) return annotations
+
+  const selectors = store.getConfiguredSelectors()
+  for (const selector of selectors) {
+    try {
+      const element = document.querySelector(selector) as HTMLElement | null
+      if (element) {
+        const rect = element.getBoundingClientRect()
+        annotations.push({
+          selector,
+          element,
+          top: rect.top + _scrollY - 4,
+          left: rect.right + _scrollX + 4,
+          noteInfo: getNoteInfo(selector),
+        })
+      }
+    } catch {
+      // Invalid selector, skip
+    }
+  }
+
+  return annotations
+})
 
 function handleMouseMove(e: MouseEvent) {
   if (!store.isPickMode) return
 
+  // Ignore dev mode UI elements
   const target = e.target as HTMLElement
-  if (!target || isDevUIElement(target)) {
-    highlightStyle.value.display = 'none'
-    tooltipStyle.value.display = 'none'
+  if (target.closest('[data-dev-inspector]')) {
+    highlightStyle.value = null
+    hoveredElement.value = null
+    store.setHoveredSelector(null)
     return
   }
 
-  if (target === lastHoveredElement) return
-  lastHoveredElement = target
+  // Get the element under cursor
+  const element = document.elementFromPoint(e.clientX, e.clientY) as HTMLElement
+  if (!element || element === document.body || element === document.documentElement) {
+    highlightStyle.value = null
+    hoveredElement.value = null
+    store.setHoveredSelector(null)
+    return
+  }
 
-  const rect = target.getBoundingClientRect()
+  // Skip if it's our overlay
+  if (element.closest('[data-dev-inspector]')) {
+    return
+  }
 
+  hoveredElement.value = element
+  const rect = element.getBoundingClientRect()
   highlightStyle.value = {
     top: `${rect.top + window.scrollY}px`,
     left: `${rect.left + window.scrollX}px`,
     width: `${rect.width}px`,
     height: `${rect.height}px`,
-    display: 'block'
   }
 
-  // Position tooltip
-  let tooltipTop = rect.top + window.scrollY - 30
-  if (tooltipTop < 10) {
-    tooltipTop = rect.bottom + window.scrollY + 8
-  }
-
-  tooltipStyle.value = {
-    top: `${tooltipTop}px`,
-    left: `${rect.left + window.scrollX}px`,
-    display: 'block'
-  }
-
-  currentSelector.value = store.generateSelector(target)
-  store.setHoveredSelector(currentSelector.value)
+  const selector = store.generateSelector(element)
+  store.setHoveredSelector(selector)
 }
 
 function handleClick(e: MouseEvent) {
   if (!store.isPickMode) return
 
   const target = e.target as HTMLElement
-  if (!target || isDevUIElement(target)) return
+  if (target.closest('[data-dev-inspector]')) return
 
   e.preventDefault()
   e.stopPropagation()
 
-  const selector = store.generateSelector(target)
-
-  // Check if config exists
-  const existingConfig = store.getElementConfig(selector)
-
-  if (!existingConfig) {
-    // Create new empty config
-    store.setElementConfig(selector, {
-      componentPath: window.location.pathname
-    })
+  if (hoveredElement.value) {
+    const selector = store.generateSelector(hoveredElement.value)
+    store.startEditing(selector)
+    store.togglePickMode() // Turn off pick mode after selection
   }
-
-  // Start editing
-  store.startEditing(selector)
-  store.togglePickMode() // Exit pick mode
 }
 
-function handleKeyDown(e: KeyboardEvent) {
+function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape' && store.isPickMode) {
     store.togglePickMode()
   }
 }
 
+// Update annotation positions on scroll/resize
+function updateAnnotationPositions() {
+  scrollY.value = window.scrollY
+  scrollX.value = window.scrollX
+}
+
 onMounted(() => {
-  document.addEventListener('mousemove', handleMouseMove, true)
-  document.addEventListener('click', handleClick, true)
-  document.addEventListener('keydown', handleKeyDown)
+  window.addEventListener('mousemove', handleMouseMove, true)
+  window.addEventListener('click', handleClick, true)
+  window.addEventListener('keydown', handleKeydown)
+  window.addEventListener('scroll', updateAnnotationPositions)
+  window.addEventListener('resize', updateAnnotationPositions)
 })
 
 onUnmounted(() => {
-  document.removeEventListener('mousemove', handleMouseMove, true)
-  document.removeEventListener('click', handleClick, true)
-  document.removeEventListener('keydown', handleKeyDown)
+  window.removeEventListener('mousemove', handleMouseMove, true)
+  window.removeEventListener('click', handleClick, true)
+  window.removeEventListener('keydown', handleKeydown)
+  window.removeEventListener('scroll', updateAnnotationPositions)
+  window.removeEventListener('resize', updateAnnotationPositions)
 })
 
-// Reset when pick mode is disabled
-watch(() => store.isPickMode, (isActive) => {
-  if (!isActive) {
-    highlightStyle.value.display = 'none'
-    tooltipStyle.value.display = 'none'
-    lastHoveredElement = null
+// Clear highlight when pick mode is disabled
+watch(() => store.isPickMode, (isPicking) => {
+  if (!isPicking) {
+    highlightStyle.value = null
+    hoveredElement.value = null
   }
 })
 </script>
 
 <template>
+  <!-- Pick mode overlay -->
   <Teleport to="body">
-    <!-- Pick mode overlay -->
+    <!-- Highlight box for hovered element -->
     <div
-      v-if="store.isPickMode"
-      class="di-pick-overlay"
+      v-if="store.isPickMode && highlightStyle"
       data-dev-inspector
+      class="fixed pointer-events-none z-[9997] border-2 border-[#10b981] bg-[#10b981]/10 transition-all duration-75"
+      :style="{
+        top: highlightStyle.top,
+        left: highlightStyle.left,
+        width: highlightStyle.width,
+        height: highlightStyle.height,
+      }"
     >
-      <!-- Highlight box -->
+      <!-- Selector label -->
       <div
-        class="di-highlight"
-        :style="highlightStyle"
-      ></div>
-
-      <!-- Selector tooltip -->
-      <div
-        class="di-selector-tooltip"
-        :style="tooltipStyle"
+        class="absolute -top-6 left-0 px-2 py-0.5 bg-[#10b981] text-white text-[10px] font-mono rounded whitespace-nowrap max-w-[300px] truncate"
       >
-        <code>{{ currentSelector }}</code>
-      </div>
-
-      <!-- Instructions -->
-      <div class="di-pick-instructions" data-dev-inspector>
-        <span>🎯 Click an element to annotate</span>
-        <kbd>Esc</kbd> to cancel
+        {{ store.hoveredSelector }}
       </div>
     </div>
 
-    <!-- Configured elements highlights (when in edit mode) -->
-    <template v-if="store.isEditMode && !store.isPickMode">
+    <!-- Pick mode instruction banner -->
+    <Transition
+      enter-active-class="transition ease-out duration-200"
+      enter-from-class="opacity-0 -translate-y-4"
+      enter-to-class="opacity-100 translate-y-0"
+      leave-active-class="transition ease-in duration-150"
+      leave-from-class="opacity-100 translate-y-0"
+      leave-to-class="opacity-0 -translate-y-4"
+    >
       <div
-        v-for="selector in store.getConfiguredSelectors()"
-        :key="selector"
-        class="di-configured-marker"
-        :data-selector="selector"
-        @click="store.startEditing(selector)"
+        v-if="store.isPickMode"
+        data-dev-inspector
+        class="fixed top-12 left-1/2 -translate-x-1/2 z-[9998] px-4 py-2 bg-[#10b981] text-white text-[12px] font-medium rounded-lg shadow-lg flex items-center gap-3"
       >
-        <span class="di-marker-dot">●</span>
+        <span>要素をクリックしてメモを追加</span>
+        <kbd class="px-1.5 py-0.5 bg-white/20 rounded text-[10px]">ESC</kbd>
+        <span class="text-[10px] opacity-80">でキャンセル</span>
+      </div>
+    </Transition>
+
+    <!-- Existing annotation markers (when not in pick mode) -->
+    <template v-if="store.isEnabled && !store.isPickMode && !store.isEditMode">
+      <div
+        v-for="annotation in existingAnnotations"
+        :key="annotation.selector"
+        data-dev-inspector
+        class="fixed z-[9996] pointer-events-none"
+        :style="{
+          top: `${annotation.top}px`,
+          left: `${annotation.left}px`,
+        }"
+      >
+        <div
+          v-if="annotation.noteInfo"
+          class="w-4 h-4 rounded-full flex items-center justify-center shadow-md pointer-events-auto cursor-pointer"
+          :style="{ backgroundColor: annotation.noteInfo.color }"
+          :title="annotation.noteInfo.text"
+          @click="store.startEditing(annotation.selector)"
+        >
+          <component :is="annotation.noteInfo.icon" class="w-2.5 h-2.5 text-white" />
+        </div>
       </div>
     </template>
   </Teleport>
 </template>
-
-<style scoped>
-.di-pick-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 99998;
-  pointer-events: none;
-}
-
-.di-highlight {
-  position: absolute;
-  background: rgba(102, 126, 234, 0.2);
-  border: 2px solid #667eea;
-  border-radius: 4px;
-  pointer-events: none;
-  transition: all 0.1s ease-out;
-  z-index: 99998;
-}
-
-.di-selector-tooltip {
-  position: absolute;
-  background: #1a1a2e;
-  color: #667eea;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-family: monospace;
-  max-width: 300px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  z-index: 99999;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.di-pick-instructions {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  z-index: 99999;
-  pointer-events: auto;
-}
-
-.di-pick-instructions kbd {
-  background: rgba(255, 255, 255, 0.2);
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 12px;
-}
-
-.di-configured-marker {
-  position: fixed;
-  width: 16px;
-  height: 16px;
-  background: #667eea;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  z-index: 99990;
-  transition: transform 0.2s;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.di-configured-marker:hover {
-  transform: scale(1.2);
-}
-
-.di-marker-dot {
-  color: white;
-  font-size: 8px;
-}
-</style>

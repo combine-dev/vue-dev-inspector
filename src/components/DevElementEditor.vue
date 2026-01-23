@@ -1,438 +1,606 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { useDevInspectorStore, type ElementConfig, type FieldInfo, type ActionInfo, type ElementNote, type LinkInfo } from '../composables/useDevInspector'
+import { X, Database, Zap, Save, Trash2, MessageSquare, Info, AlertTriangle, CheckSquare, HelpCircle, Link, Settings2 } from 'lucide-vue-next'
+import { useDevInspectorStore, type FieldInfo, type ActionInfo, type ElementNote, type LinkInfo, type DevMeta } from '../composables/useDevInspector'
 
 const store = useDevInspectorStore()
 
-const activeSection = ref<'field' | 'action' | 'links' | 'note'>('field')
+const activeTab = ref<'note' | 'field' | 'action' | 'links' | 'meta'>('note')
 
-// Local form state
-const fieldInfo = ref<FieldInfo>({ table: '', column: '' })
-const actionInfo = ref<ActionInfo>({ type: 'navigate' })
-const linkInfo = ref<LinkInfo>({})
-const noteInfo = ref<ElementNote>({ text: '', type: 'info' })
+// Field form
+const fieldTable = ref('')
+const fieldColumn = ref('')
+const fieldType = ref('')
+const fieldValidation = ref('')
+const fieldDescription = ref('')
 
-// Watch for editing changes
-watch(() => store.editingElementId, (id) => {
+// Action form
+const actionType = ref<ActionInfo['type']>('navigate')
+const actionTarget = ref('')
+const actionMethod = ref<ActionInfo['method']>('GET')
+const actionDescription = ref('')
+
+// Note form
+const noteText = ref('')
+const noteAuthor = ref('')
+const noteType = ref<ElementNote['type']>('info')
+
+// Links form
+const linkTestPath = ref('')
+const linkFigmaUrl = ref('')
+const linkGithubIssue = ref('')
+const linkGithubPr = ref('')
+const linkRelatedDocs = ref('')
+
+// Meta form
+const metaUsedStores = ref('')
+const metaUsedComponents = ref('')
+const metaI18nKeys = ref('')
+const metaDesignTokens = ref('')
+const metaAccessibility = ref('')
+const metaResponsive = ref('')
+
+const isEditing = computed(() => store.editingElementId !== null)
+const elementId = computed(() => store.editingElementId)
+
+// Load existing config when editing starts
+watch(elementId, (id) => {
   if (id) {
     const config = store.getElementConfig(id)
-    if (config) {
-      fieldInfo.value = config.fieldInfo || { table: '', column: '' }
-      actionInfo.value = config.actionInfo || { type: 'navigate' }
-      linkInfo.value = config.links || {}
-      noteInfo.value = config.note || { text: '', type: 'info' }
-    } else {
-      resetForm()
+    if (config?.fieldInfo) {
+      fieldTable.value = config.fieldInfo.table || ''
+      fieldColumn.value = config.fieldInfo.column || ''
+      fieldType.value = config.fieldInfo.type || ''
+      fieldValidation.value = config.fieldInfo.validation?.join(', ') || ''
+      fieldDescription.value = config.fieldInfo.description || ''
     }
+    if (config?.actionInfo) {
+      actionType.value = config.actionInfo.type || 'navigate'
+      actionTarget.value = config.actionInfo.target || ''
+      actionMethod.value = config.actionInfo.method || 'GET'
+      actionDescription.value = config.actionInfo.description || ''
+    }
+    if (config?.note) {
+      noteText.value = config.note.text || ''
+      noteAuthor.value = config.note.author || ''
+      noteType.value = config.note.type || 'info'
+    }
+    if (config?.links) {
+      linkTestPath.value = config.links.testPath || ''
+      linkFigmaUrl.value = config.links.figmaUrl || ''
+      linkGithubIssue.value = config.links.githubIssue || ''
+      linkGithubPr.value = config.links.githubPr || ''
+      linkRelatedDocs.value = config.links.relatedDocs || ''
+    }
+    if (config?.devMeta) {
+      metaUsedStores.value = config.devMeta.usedStores?.join(', ') || ''
+      metaUsedComponents.value = config.devMeta.usedComponents?.join(', ') || ''
+      metaI18nKeys.value = config.devMeta.i18nKeys?.join(', ') || ''
+      metaDesignTokens.value = config.devMeta.designTokens?.join(', ') || ''
+      metaAccessibility.value = config.devMeta.accessibility || ''
+      metaResponsive.value = config.devMeta.responsive || ''
+    }
+    // Set default tab based on what data exists
+    if (config?.note?.text) {
+      activeTab.value = 'note'
+    } else if (config?.fieldInfo) {
+      activeTab.value = 'field'
+    } else if (config?.actionInfo) {
+      activeTab.value = 'action'
+    } else if (config?.links) {
+      activeTab.value = 'links'
+    } else if (config?.devMeta) {
+      activeTab.value = 'meta'
+    } else {
+      activeTab.value = 'note' // Default to note for new elements
+    }
+  } else {
+    resetForm()
   }
-}, { immediate: true })
+})
 
 function resetForm() {
-  fieldInfo.value = { table: '', column: '' }
-  actionInfo.value = { type: 'navigate' }
-  linkInfo.value = {}
-  noteInfo.value = { text: '', type: 'info' }
-}
-
-function save() {
-  if (!store.editingElementId) return
-
-  const config: Partial<ElementConfig> = {}
-
-  // Only include non-empty sections
-  if (fieldInfo.value.table || fieldInfo.value.column) {
-    config.fieldInfo = fieldInfo.value
-  }
-  if (actionInfo.value.target || actionInfo.value.description) {
-    config.actionInfo = actionInfo.value
-  }
-  if (linkInfo.value.figmaUrl || linkInfo.value.testPath || linkInfo.value.githubIssue) {
-    config.links = linkInfo.value
-  }
-  if (noteInfo.value.text) {
-    config.note = noteInfo.value
-  }
-
-  store.setElementConfig(store.editingElementId, config)
-  store.stopEditing()
-}
-
-function deleteConfig() {
-  if (!store.editingElementId) return
-  if (confirm('Delete this annotation?')) {
-    store.deleteElementConfig(store.editingElementId)
-    store.stopEditing()
-  }
+  fieldTable.value = ''
+  fieldColumn.value = ''
+  fieldType.value = ''
+  fieldValidation.value = ''
+  fieldDescription.value = ''
+  actionType.value = 'navigate'
+  actionTarget.value = ''
+  actionMethod.value = 'GET'
+  actionDescription.value = ''
+  noteText.value = ''
+  noteAuthor.value = ''
+  noteType.value = 'info'
+  linkTestPath.value = ''
+  linkFigmaUrl.value = ''
+  linkGithubIssue.value = ''
+  linkGithubPr.value = ''
+  linkRelatedDocs.value = ''
+  metaUsedStores.value = ''
+  metaUsedComponents.value = ''
+  metaI18nKeys.value = ''
+  metaDesignTokens.value = ''
+  metaAccessibility.value = ''
+  metaResponsive.value = ''
+  activeTab.value = 'note'
 }
 
 function close() {
   store.stopEditing()
+  resetForm()
 }
+
+function save() {
+  if (!elementId.value) return
+
+  const fieldInfo: FieldInfo | undefined = fieldTable.value && fieldColumn.value
+    ? {
+        table: fieldTable.value,
+        column: fieldColumn.value,
+        type: fieldType.value || undefined,
+        validation: fieldValidation.value ? fieldValidation.value.split(',').map(s => s.trim()) : undefined,
+        description: fieldDescription.value || undefined,
+      }
+    : undefined
+
+  const actionInfo: ActionInfo | undefined = actionTarget.value
+    ? {
+        type: actionType.value,
+        target: actionTarget.value,
+        method: actionType.value === 'api' ? actionMethod.value : undefined,
+        description: actionDescription.value || undefined,
+      }
+    : undefined
+
+  const note: ElementNote | undefined = noteText.value
+    ? {
+        text: noteText.value,
+        author: noteAuthor.value || undefined,
+        type: noteType.value,
+      }
+    : undefined
+
+  const links: LinkInfo | undefined = (linkTestPath.value || linkFigmaUrl.value || linkGithubIssue.value || linkGithubPr.value || linkRelatedDocs.value)
+    ? {
+        testPath: linkTestPath.value || undefined,
+        figmaUrl: linkFigmaUrl.value || undefined,
+        githubIssue: linkGithubIssue.value || undefined,
+        githubPr: linkGithubPr.value || undefined,
+        relatedDocs: linkRelatedDocs.value || undefined,
+      }
+    : undefined
+
+  const devMeta: DevMeta | undefined = (metaUsedStores.value || metaUsedComponents.value || metaI18nKeys.value || metaDesignTokens.value || metaAccessibility.value || metaResponsive.value)
+    ? {
+        usedStores: metaUsedStores.value ? metaUsedStores.value.split(',').map(s => s.trim()) : undefined,
+        usedComponents: metaUsedComponents.value ? metaUsedComponents.value.split(',').map(s => s.trim()) : undefined,
+        i18nKeys: metaI18nKeys.value ? metaI18nKeys.value.split(',').map(s => s.trim()) : undefined,
+        designTokens: metaDesignTokens.value ? metaDesignTokens.value.split(',').map(s => s.trim()) : undefined,
+        accessibility: metaAccessibility.value || undefined,
+        responsive: metaResponsive.value || undefined,
+      }
+    : undefined
+
+  store.setElementConfig(elementId.value, {
+    fieldInfo,
+    actionInfo,
+    note,
+    links,
+    devMeta,
+  })
+
+  close()
+}
+
+function deleteConfig() {
+  if (!elementId.value) return
+  store.deleteElementConfig(elementId.value)
+  close()
+}
+
+const typeOptions = ['VARCHAR', 'TEXT', 'INT', 'BIGINT', 'BOOLEAN', 'DATE', 'DATETIME', 'TIMESTAMP', 'JSON']
+const actionTypeOptions: { value: ActionInfo['type']; label: string }[] = [
+  { value: 'navigate', label: '画面遷移' },
+  { value: 'api', label: 'API呼び出し' },
+  { value: 'modal', label: 'モーダル表示' },
+  { value: 'emit', label: 'イベント発火' },
+  { value: 'function', label: '関数実行' },
+]
+const methodOptions: ActionInfo['method'][] = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
+const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof Info; color: string }[] = [
+  { value: 'info', label: '情報', icon: Info, color: '#60a5fa' },
+  { value: 'warning', label: '注意', icon: AlertTriangle, color: '#fbbf24' },
+  { value: 'todo', label: 'TODO', icon: CheckSquare, color: '#10b981' },
+  { value: 'question', label: '質問', icon: HelpCircle, color: '#a78bfa' },
+]
 </script>
 
 <template>
-  <Transition
-    enter-active-class="di-transition-enter"
-    leave-active-class="di-transition-leave"
-  >
-    <div v-if="store.editingElementId" class="di-editor">
-      <!-- Header -->
-      <div class="di-editor-header">
-        <div class="di-editor-title">Edit Element</div>
-        <button @click="close" class="di-close-btn">✕</button>
-      </div>
-
-      <!-- Element ID -->
-      <div class="di-element-id-display">
-        <code>{{ store.editingElementId }}</code>
-      </div>
-
-      <!-- Section Tabs -->
-      <div class="di-section-tabs">
-        <button
-          :class="['di-section-tab', { active: activeSection === 'field' }]"
-          @click="activeSection = 'field'"
-        >🗄️ DB Field</button>
-        <button
-          :class="['di-section-tab', { active: activeSection === 'action' }]"
-          @click="activeSection = 'action'"
-        >⚡ Action</button>
-        <button
-          :class="['di-section-tab', { active: activeSection === 'links' }]"
-          @click="activeSection = 'links'"
-        >🔗 Links</button>
-        <button
-          :class="['di-section-tab', { active: activeSection === 'note' }]"
-          @click="activeSection = 'note'"
-        >📝 Note</button>
-      </div>
-
-      <!-- Form Content -->
-      <div class="di-editor-content">
-        <!-- Field Info -->
-        <div v-if="activeSection === 'field'" class="di-form">
-          <div class="di-form-group">
-            <label>Table Name</label>
-            <input v-model="fieldInfo.table" type="text" placeholder="e.g., users" />
+  <!-- Modal Overlay -->
+  <Teleport to="body">
+    <Transition
+      enter-active-class="transition ease-out duration-200"
+      enter-from-class="opacity-0"
+      enter-to-class="opacity-100"
+      leave-active-class="transition ease-in duration-150"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="isEditing"
+        class="fixed inset-0 z-[10000] flex items-center justify-center bg-black/50"
+        @click.self="close"
+        data-dev-inspector
+      >
+        <!-- Modal -->
+        <div class="bg-[#1e293b] rounded-xl shadow-2xl w-[420px] max-h-[80vh] overflow-hidden">
+          <!-- Header -->
+          <div class="flex items-center justify-between px-4 py-3 bg-[#0f172a] border-b border-[#334155]">
+            <h3 class="text-white font-bold text-[14px]">要素情報を編集</h3>
+            <button
+              @click="close"
+              class="p-1 text-[#94a3b8] hover:text-white hover:bg-[#334155] rounded transition-colors"
+            >
+              <X class="w-5 h-5" />
+            </button>
           </div>
-          <div class="di-form-group">
-            <label>Column Name</label>
-            <input v-model="fieldInfo.column" type="text" placeholder="e.g., email" />
+
+          <!-- Tabs -->
+          <div class="flex border-b border-[#334155] overflow-x-auto">
+            <button
+              @click="activeTab = 'note'"
+              class="flex items-center justify-center gap-1 px-2.5 py-2.5 text-[10px] font-medium transition-colors whitespace-nowrap"
+              :class="activeTab === 'note' ? 'text-[#10b981] border-b-2 border-[#10b981] bg-[#10b981]/10' : 'text-[#94a3b8] hover:text-white'"
+            >
+              <MessageSquare class="w-3 h-3" />
+              メモ
+            </button>
+            <button
+              @click="activeTab = 'field'"
+              class="flex items-center justify-center gap-1 px-2.5 py-2.5 text-[10px] font-medium transition-colors whitespace-nowrap"
+              :class="activeTab === 'field' ? 'text-[#60a5fa] border-b-2 border-[#60a5fa] bg-[#60a5fa]/10' : 'text-[#94a3b8] hover:text-white'"
+            >
+              <Database class="w-3 h-3" />
+              データ
+            </button>
+            <button
+              @click="activeTab = 'action'"
+              class="flex items-center justify-center gap-1 px-2.5 py-2.5 text-[10px] font-medium transition-colors whitespace-nowrap"
+              :class="activeTab === 'action' ? 'text-[#a78bfa] border-b-2 border-[#a78bfa] bg-[#a78bfa]/10' : 'text-[#94a3b8] hover:text-white'"
+            >
+              <Zap class="w-3 h-3" />
+              アクション
+            </button>
+            <button
+              @click="activeTab = 'links'"
+              class="flex items-center justify-center gap-1 px-2.5 py-2.5 text-[10px] font-medium transition-colors whitespace-nowrap"
+              :class="activeTab === 'links' ? 'text-[#f59e0b] border-b-2 border-[#f59e0b] bg-[#f59e0b]/10' : 'text-[#94a3b8] hover:text-white'"
+            >
+              <Link class="w-3 h-3" />
+              リンク
+            </button>
+            <button
+              @click="activeTab = 'meta'"
+              class="flex items-center justify-center gap-1 px-2.5 py-2.5 text-[10px] font-medium transition-colors whitespace-nowrap"
+              :class="activeTab === 'meta' ? 'text-[#ec4899] border-b-2 border-[#ec4899] bg-[#ec4899]/10' : 'text-[#94a3b8] hover:text-white'"
+            >
+              <Settings2 class="w-3 h-3" />
+              開発情報
+            </button>
           </div>
-          <div class="di-form-group">
-            <label>Data Type</label>
-            <input v-model="fieldInfo.type" type="text" placeholder="e.g., VARCHAR(255)" />
+
+          <!-- Content -->
+          <div class="p-4 space-y-3 max-h-[400px] overflow-y-auto">
+            <!-- Note Tab -->
+            <template v-if="activeTab === 'note'">
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-2">タイプ</label>
+                <div class="grid grid-cols-4 gap-2">
+                  <button
+                    v-for="opt in noteTypeOptions"
+                    :key="opt.value"
+                    @click="noteType = opt.value"
+                    class="flex flex-col items-center gap-1 p-2 rounded-lg border transition-colors"
+                    :class="noteType === opt.value
+                      ? 'border-current bg-current/10'
+                      : 'border-[#334155] hover:border-[#475569]'"
+                    :style="noteType === opt.value ? { color: opt.color, borderColor: opt.color } : {}"
+                  >
+                    <component
+                      :is="opt.icon"
+                      class="w-4 h-4"
+                      :style="{ color: noteType === opt.value ? opt.color : '#64748b' }"
+                    />
+                    <span
+                      class="text-[10px]"
+                      :style="{ color: noteType === opt.value ? opt.color : '#94a3b8' }"
+                    >{{ opt.label }}</span>
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">メモ内容 *</label>
+                <textarea
+                  v-model="noteText"
+                  rows="4"
+                  placeholder="この要素についてのメモ、説明、注意事項など..."
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#10b981] focus:outline-none resize-none"
+                ></textarea>
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">記入者（オプション）</label>
+                <input
+                  v-model="noteAuthor"
+                  type="text"
+                  placeholder="名前"
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#10b981] focus:outline-none"
+                />
+              </div>
+            </template>
+
+            <!-- Field Tab -->
+            <template v-if="activeTab === 'field'">
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[10px] text-[#64748b] mb-1">テーブル名 *</label>
+                  <input
+                    v-model="fieldTable"
+                    type="text"
+                    placeholder="users"
+                    class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#60a5fa] focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[10px] text-[#64748b] mb-1">カラム名 *</label>
+                  <input
+                    v-model="fieldColumn"
+                    type="text"
+                    placeholder="name"
+                    class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#60a5fa] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">データ型</label>
+                <select
+                  v-model="fieldType"
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] focus:border-[#60a5fa] focus:outline-none"
+                >
+                  <option value="">選択してください</option>
+                  <option v-for="type in typeOptions" :key="type" :value="type">{{ type }}</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">バリデーション (カンマ区切り)</label>
+                <input
+                  v-model="fieldValidation"
+                  type="text"
+                  placeholder="required, max:255"
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#60a5fa] focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">説明</label>
+                <textarea
+                  v-model="fieldDescription"
+                  rows="2"
+                  placeholder="このフィールドの説明..."
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#60a5fa] focus:outline-none resize-none"
+                ></textarea>
+              </div>
+            </template>
+
+            <!-- Action Tab -->
+            <template v-if="activeTab === 'action'">
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">アクションタイプ</label>
+                <select
+                  v-model="actionType"
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] focus:border-[#a78bfa] focus:outline-none"
+                >
+                  <option v-for="opt in actionTypeOptions" :key="opt.value" :value="opt.value">
+                    {{ opt.label }}
+                  </option>
+                </select>
+              </div>
+
+              <div v-if="actionType === 'api'" class="grid grid-cols-[100px_1fr] gap-3">
+                <div>
+                  <label class="block text-[10px] text-[#64748b] mb-1">メソッド</label>
+                  <select
+                    v-model="actionMethod"
+                    class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] focus:border-[#a78bfa] focus:outline-none"
+                  >
+                    <option v-for="method in methodOptions" :key="method" :value="method">
+                      {{ method }}
+                    </option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-[10px] text-[#64748b] mb-1">エンドポイント</label>
+                  <input
+                    v-model="actionTarget"
+                    type="text"
+                    placeholder="/api/tasks"
+                    class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#a78bfa] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div v-else>
+                <label class="block text-[10px] text-[#64748b] mb-1">
+                  {{ actionType === 'navigate' ? '遷移先パス' : actionType === 'modal' ? 'モーダル名' : actionType === 'emit' ? 'イベント名' : '関数名' }}
+                </label>
+                <input
+                  v-model="actionTarget"
+                  type="text"
+                  :placeholder="actionType === 'navigate' ? '/tasks' : actionType === 'modal' ? 'ConfirmDialog' : actionType === 'emit' ? 'onSubmit' : 'handleClick'"
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#a78bfa] focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">説明</label>
+                <textarea
+                  v-model="actionDescription"
+                  rows="2"
+                  placeholder="このアクションの説明..."
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#a78bfa] focus:outline-none resize-none"
+                ></textarea>
+              </div>
+            </template>
+
+            <!-- Links Tab -->
+            <template v-if="activeTab === 'links'">
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">テストファイルパス</label>
+                <input
+                  v-model="linkTestPath"
+                  type="text"
+                  placeholder="src/__tests__/components/MyComponent.test.ts"
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#f59e0b] focus:outline-none font-mono"
+                />
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">Figma URL</label>
+                <input
+                  v-model="linkFigmaUrl"
+                  type="text"
+                  placeholder="https://www.figma.com/design/..."
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#f59e0b] focus:outline-none"
+                />
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-[10px] text-[#64748b] mb-1">GitHub Issue</label>
+                  <input
+                    v-model="linkGithubIssue"
+                    type="text"
+                    placeholder="#123"
+                    class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#f59e0b] focus:outline-none"
+                  />
+                </div>
+                <div>
+                  <label class="block text-[10px] text-[#64748b] mb-1">GitHub PR</label>
+                  <input
+                    v-model="linkGithubPr"
+                    type="text"
+                    placeholder="#456"
+                    class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#f59e0b] focus:outline-none"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">関連ドキュメント</label>
+                <input
+                  v-model="linkRelatedDocs"
+                  type="text"
+                  placeholder="https://docs.example.com/..."
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#f59e0b] focus:outline-none"
+                />
+              </div>
+            </template>
+
+            <!-- Meta Tab -->
+            <template v-if="activeTab === 'meta'">
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">使用Piniaストア (カンマ区切り)</label>
+                <input
+                  v-model="metaUsedStores"
+                  type="text"
+                  placeholder="useUserStore, useThemeStore"
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#ec4899] focus:outline-none font-mono"
+                />
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">使用コンポーネント (カンマ区切り)</label>
+                <input
+                  v-model="metaUsedComponents"
+                  type="text"
+                  placeholder="Button, Modal, Input"
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#ec4899] focus:outline-none font-mono"
+                />
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">i18nキー (カンマ区切り)</label>
+                <input
+                  v-model="metaI18nKeys"
+                  type="text"
+                  placeholder="common.save, errors.required"
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#ec4899] focus:outline-none font-mono"
+                />
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">デザイントークン (カンマ区切り)</label>
+                <input
+                  v-model="metaDesignTokens"
+                  type="text"
+                  placeholder="primaryColor, secondaryColor"
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#ec4899] focus:outline-none font-mono"
+                />
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">アクセシビリティ</label>
+                <textarea
+                  v-model="metaAccessibility"
+                  rows="2"
+                  placeholder="キーボード操作、スクリーンリーダー対応などのメモ..."
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#ec4899] focus:outline-none resize-none"
+                ></textarea>
+              </div>
+
+              <div>
+                <label class="block text-[10px] text-[#64748b] mb-1">レスポンシブ動作</label>
+                <textarea
+                  v-model="metaResponsive"
+                  rows="2"
+                  placeholder="モバイルでの表示変更、ブレークポイントなど..."
+                  class="w-full px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[12px] placeholder-[#475569] focus:border-[#ec4899] focus:outline-none resize-none"
+                ></textarea>
+              </div>
+            </template>
           </div>
-          <div class="di-form-group">
-            <label>Description</label>
-            <textarea v-model="fieldInfo.description" placeholder="Field description..." rows="2"></textarea>
+
+          <!-- Footer -->
+          <div class="flex items-center justify-between px-4 py-3 bg-[#0f172a] border-t border-[#334155]">
+            <button
+              @click="deleteConfig"
+              class="flex items-center gap-1.5 px-3 py-1.5 text-[11px] text-[#ef4444] hover:bg-[#ef4444]/10 rounded-lg transition-colors"
+            >
+              <Trash2 class="w-3.5 h-3.5" />
+              削除
+            </button>
+            <div class="flex items-center gap-2">
+              <button
+                @click="close"
+                class="px-4 py-1.5 text-[11px] text-[#94a3b8] hover:text-white hover:bg-[#334155] rounded-lg transition-colors"
+              >
+                キャンセル
+              </button>
+              <button
+                @click="save"
+                class="flex items-center gap-1.5 px-4 py-1.5 text-[11px] text-white bg-[#3b82f6] hover:bg-[#2563eb] rounded-lg transition-colors"
+              >
+                <Save class="w-3.5 h-3.5" />
+                保存
+              </button>
+            </div>
           </div>
         </div>
-
-        <!-- Action Info -->
-        <div v-if="activeSection === 'action'" class="di-form">
-          <div class="di-form-group">
-            <label>Action Type</label>
-            <select v-model="actionInfo.type">
-              <option value="navigate">Navigate</option>
-              <option value="api">API Call</option>
-              <option value="modal">Open Modal</option>
-              <option value="emit">Emit Event</option>
-              <option value="function">Function Call</option>
-            </select>
-          </div>
-          <div v-if="actionInfo.type === 'api'" class="di-form-group">
-            <label>HTTP Method</label>
-            <select v-model="actionInfo.method">
-              <option value="GET">GET</option>
-              <option value="POST">POST</option>
-              <option value="PUT">PUT</option>
-              <option value="DELETE">DELETE</option>
-              <option value="PATCH">PATCH</option>
-            </select>
-          </div>
-          <div class="di-form-group">
-            <label>Target / Endpoint</label>
-            <input v-model="actionInfo.target" type="text" placeholder="e.g., /api/users or /dashboard" />
-          </div>
-          <div class="di-form-group">
-            <label>Description</label>
-            <textarea v-model="actionInfo.description" placeholder="What this action does..." rows="2"></textarea>
-          </div>
-        </div>
-
-        <!-- Links -->
-        <div v-if="activeSection === 'links'" class="di-form">
-          <div class="di-form-group">
-            <label>Figma URL</label>
-            <input v-model="linkInfo.figmaUrl" type="url" placeholder="https://figma.com/..." />
-          </div>
-          <div class="di-form-group">
-            <label>Test File Path</label>
-            <input v-model="linkInfo.testPath" type="text" placeholder="e.g., tests/components/Button.spec.ts" />
-          </div>
-          <div class="di-form-group">
-            <label>GitHub Issue</label>
-            <input v-model="linkInfo.githubIssue" type="url" placeholder="https://github.com/.../issues/123" />
-          </div>
-          <div class="di-form-group">
-            <label>GitHub PR</label>
-            <input v-model="linkInfo.githubPr" type="url" placeholder="https://github.com/.../pull/456" />
-          </div>
-          <div class="di-form-group">
-            <label>Related Docs</label>
-            <input v-model="linkInfo.relatedDocs" type="url" placeholder="https://..." />
-          </div>
-        </div>
-
-        <!-- Note -->
-        <div v-if="activeSection === 'note'" class="di-form">
-          <div class="di-form-group">
-            <label>Note Type</label>
-            <select v-model="noteInfo.type">
-              <option value="info">ℹ️ Info</option>
-              <option value="warning">⚠️ Warning</option>
-              <option value="todo">📋 TODO</option>
-              <option value="question">❓ Question</option>
-            </select>
-          </div>
-          <div class="di-form-group">
-            <label>Note Text</label>
-            <textarea v-model="noteInfo.text" placeholder="Write your note here..." rows="4"></textarea>
-          </div>
-          <div class="di-form-group">
-            <label>Author</label>
-            <input v-model="noteInfo.author" type="text" placeholder="Your name" />
-          </div>
-        </div>
       </div>
-
-      <!-- Footer -->
-      <div class="di-editor-footer">
-        <button class="di-btn danger" @click="deleteConfig">Delete</button>
-        <div class="di-footer-right">
-          <button class="di-btn" @click="close">Cancel</button>
-          <button class="di-btn primary" @click="save">Save</button>
-        </div>
-      </div>
-    </div>
-  </Transition>
+    </Transition>
+  </Teleport>
 </template>
-
-<style scoped>
-.di-editor {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 400px;
-  max-height: 80vh;
-  background: #1a1a2e;
-  border-radius: 12px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
-  z-index: 100000;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 13px;
-  color: #e0e0e0;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.di-editor-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-}
-
-.di-editor-title {
-  font-weight: 600;
-  font-size: 14px;
-}
-
-.di-close-btn {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-}
-
-.di-close-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
-}
-
-.di-element-id-display {
-  padding: 8px 16px;
-  background: #16162a;
-  border-bottom: 1px solid #2a2a4a;
-}
-
-.di-element-id-display code {
-  font-size: 11px;
-  color: #667eea;
-  word-break: break-all;
-}
-
-.di-section-tabs {
-  display: flex;
-  background: #16162a;
-  border-bottom: 1px solid #2a2a4a;
-  overflow-x: auto;
-}
-
-.di-section-tab {
-  flex: 1;
-  padding: 8px 4px;
-  background: transparent;
-  border: none;
-  color: #888;
-  cursor: pointer;
-  font-size: 11px;
-  white-space: nowrap;
-  transition: all 0.2s;
-}
-
-.di-section-tab:hover {
-  color: #bbb;
-}
-
-.di-section-tab.active {
-  color: #667eea;
-  border-bottom: 2px solid #667eea;
-}
-
-.di-editor-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 16px;
-}
-
-.di-form {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.di-form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.di-form-group label {
-  font-size: 11px;
-  text-transform: uppercase;
-  color: #888;
-  letter-spacing: 0.5px;
-}
-
-.di-form-group input,
-.di-form-group select,
-.di-form-group textarea {
-  padding: 8px 10px;
-  background: #2a2a4a;
-  border: 1px solid #3a3a5a;
-  border-radius: 6px;
-  color: #e0e0e0;
-  font-size: 13px;
-  font-family: inherit;
-}
-
-.di-form-group input:focus,
-.di-form-group select:focus,
-.di-form-group textarea:focus {
-  outline: none;
-  border-color: #667eea;
-}
-
-.di-form-group textarea {
-  resize: vertical;
-  min-height: 60px;
-}
-
-.di-editor-footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px 16px;
-  background: #16162a;
-  border-top: 1px solid #2a2a4a;
-}
-
-.di-footer-right {
-  display: flex;
-  gap: 8px;
-}
-
-.di-btn {
-  padding: 8px 16px;
-  background: #2a2a4a;
-  border: 1px solid #3a3a5a;
-  color: #e0e0e0;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  transition: all 0.2s;
-}
-
-.di-btn:hover {
-  background: #3a3a5a;
-}
-
-.di-btn.primary {
-  background: #667eea;
-  border-color: #667eea;
-  color: white;
-}
-
-.di-btn.primary:hover {
-  background: #5a6fd6;
-}
-
-.di-btn.danger {
-  background: #4a2a2a;
-  border-color: #5a3a3a;
-  color: #ff6b6b;
-}
-
-.di-btn.danger:hover {
-  background: #5a3a3a;
-}
-
-.di-transition-enter {
-  animation: fadeIn 0.2s ease-out;
-}
-
-.di-transition-leave {
-  animation: fadeOut 0.15s ease-in;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-}
-
-@keyframes fadeOut {
-  from {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(1);
-  }
-  to {
-    opacity: 0;
-    transform: translate(-50%, -50%) scale(0.95);
-  }
-}
-</style>

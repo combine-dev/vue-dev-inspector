@@ -32,17 +32,29 @@
   },
   "peerDependencies": {
     "pinia": "^2.0.0 || ^3.0.0",
-    "vue": "^3.3.0"
+    "vue": "^3.3.0",
+    "lucide-vue-next": ">=0.300.0",
+    "xlsx": ">=0.18.0"
+  },
+  "peerDependenciesMeta": {
+    "lucide-vue-next": {
+      "optional": false
+    },
+    "xlsx": {
+      "optional": true
+    }
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@vitejs/plugin-vue": "^5.0.0",
+    "lucide-vue-next": "^0.300.0",
     "pinia": "^2.1.0",
     "typescript": "^5.0.0",
     "vite": "^5.0.0",
     "vite-plugin-dts": "^3.0.0",
     "vue": "^3.4.0",
-    "vue-tsc": "^2.0.0"
+    "vue-tsc": "^2.0.0",
+    "xlsx": "^0.18.5"
   },
   "keywords": [
     "vue",
