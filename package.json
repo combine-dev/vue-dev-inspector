@@ -30,16 +30,15 @@
     "typecheck": "vue-tsc --noEmit",
     "prepublishOnly": "npm run build"
   },
+  "dependencies": {
+    "lucide-vue-next": "^0.300.0"
+  },
   "peerDependencies": {
     "pinia": "^2.0.0 || ^3.0.0",
     "vue": "^3.3.0",
-    "lucide-vue-next": ">=0.300.0",
     "xlsx": ">=0.18.0"
   },
   "peerDependenciesMeta": {
-    "lucide-vue-next": {
-      "optional": false
-    },
     "xlsx": {
       "optional": true
     }
