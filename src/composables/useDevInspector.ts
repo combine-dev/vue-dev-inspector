@@ -1,7 +1,17 @@
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, nextTick } from 'vue'
 import { defineStore } from 'pinia'
 
 // ===== Types =====
+
+export interface SourceBindingInfo {
+  type: 'static' | 'v-model' | 'prop' | 'computed' | 'store' | 'api'
+  source?: string // e.g., 'form.userName', 'userStore.currentUser.name'
+  apiEndpoint?: string
+  apiMethod?: string
+  storeKey?: string
+  isStatic?: boolean // true = 固定文言
+}
+
 export interface FieldInfo {
   table: string
   column: string
@@ -49,6 +59,7 @@ export interface ElementConfig {
   note?: ElementNote
   links?: LinkInfo
   devMeta?: DevMeta
+  sourceBinding?: SourceBindingInfo
   createdAt: string
   updatedAt: string
 }
@@ -132,15 +143,21 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   function saveConfigs() {
     try {
       if (typeof window !== 'undefined') {
-        localStorage.setItem(storageKey.value, JSON.stringify(elementConfigs.value))
+        const data = JSON.stringify(elementConfigs.value)
+        localStorage.setItem(storageKey.value, data)
+        console.log('[DevInspector] Saved configs:', Object.keys(elementConfigs.value).length, 'items')
       }
     } catch (e) {
       console.error('[DevInspector] Failed to save configs:', e)
     }
   }
 
-  // Watch for changes and save
-  watch(elementConfigs, saveConfigs, { deep: true })
+  // Watch for changes and save - use immediate flush to ensure save happens
+  watch(elementConfigs, () => {
+    nextTick(() => {
+      saveConfigs()
+    })
+  }, { deep: true })
 
   // ===== Actions =====
   function toggle() {
@@ -271,7 +288,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     const now = new Date().toISOString()
     const existing = elementConfigs.value[id]
 
-    elementConfigs.value[id] = {
+    const newConfig: ElementConfig = {
       ...existing,
       ...config,
       id,
@@ -279,10 +296,107 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       createdAt: existing?.createdAt || now,
       updatedAt: now,
     }
+
+    // Create new object to ensure reactivity triggers
+    elementConfigs.value = {
+      ...elementConfigs.value,
+      [id]: newConfig,
+    }
+
+    // Force immediate save
+    nextTick(() => saveConfigs())
   }
 
   function deleteElementConfig(id: string) {
-    delete elementConfigs.value[id]
+    // Create new object without the deleted key to ensure reactivity
+    const { [id]: _, ...rest } = elementConfigs.value
+    elementConfigs.value = rest
+
+    // Force immediate save
+    nextTick(() => saveConfigs())
+  }
+
+  // Auto-detect source binding for an element
+  function detectSourceBinding(element: HTMLElement): SourceBindingInfo | null {
+    // Check for various Vue binding patterns
+    const textContent = element.textContent?.trim() || ''
+
+    // Check if element has v-model (via Vue's internal data)
+    const vueInstance = (element as any).__vueParentComponent
+    if (vueInstance) {
+      const props = vueInstance.props || {}
+      const attrs = vueInstance.attrs || {}
+
+      // Check for modelValue (v-model)
+      if ('modelValue' in props || 'model-value' in attrs) {
+        return {
+          type: 'v-model',
+          source: 'form binding detected',
+          isStatic: false,
+        }
+      }
+    }
+
+    // Check for data attributes that might indicate binding
+    const dataSource = element.dataset.source || element.dataset.field || element.dataset.bind
+    if (dataSource) {
+      return {
+        type: 'prop',
+        source: dataSource,
+        isStatic: false,
+      }
+    }
+
+    // Heuristic: If the element text looks like static content (no special chars, short text)
+    // This is a simple heuristic - in practice, we'd need build-time analysis
+    const isLikelyStatic = (
+      textContent.length > 0 &&
+      textContent.length < 100 &&
+      !textContent.includes('{{') &&
+      !textContent.match(/^\d+$/) && // Not just a number
+      !textContent.match(/^\d{4}[-/]\d{2}[-/]\d{2}/) && // Not a date
+      element.children.length === 0 && // No child elements
+      !element.closest('[v-for]') && // Not inside a loop
+      !element.hasAttribute(':') && // No dynamic bindings visible
+      (element.tagName === 'SPAN' || element.tagName === 'LABEL' || element.tagName === 'P' || element.tagName === 'H1' || element.tagName === 'H2' || element.tagName === 'H3' || element.tagName === 'TH' || element.tagName === 'BUTTON')
+    )
+
+    if (isLikelyStatic) {
+      return {
+        type: 'static',
+        isStatic: true,
+      }
+    }
+
+    // Check if text looks like dynamic data (dates, numbers, IDs)
+    if (textContent.match(/^\d+$/) || textContent.match(/^\d{4}[-/]\d{2}[-/]\d{2}/)) {
+      return {
+        type: 'api',
+        isStatic: false,
+      }
+    }
+
+    return null
+  }
+
+  // Try to auto-fill element config based on detection
+  function autoDetectElementInfo(element: HTMLElement, id: string): Partial<ElementConfig> {
+    const binding = detectSourceBinding(element)
+    const result: Partial<ElementConfig> = {}
+
+    if (binding) {
+      result.sourceBinding = binding
+
+      // If static, add a note indicating fixed text
+      if (binding.isStatic) {
+        result.note = {
+          type: 'info',
+          text: '固定文言',
+        }
+      }
+    }
+
+    return result
   }
 
   function startEditing(id: string) {
@@ -374,6 +488,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     downloadAnnotations,
     importConfigs,
     clearAllConfigs,
+    detectSourceBinding,
+    autoDetectElementInfo,
   }
 })
 

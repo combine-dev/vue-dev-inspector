@@ -31,6 +31,7 @@ declare interface ElementConfig {
     note?: ElementNote;
     links?: LinkInfo;
     devMeta?: DevMeta;
+    sourceBinding?: SourceBindingInfo;
     createdAt: string;
     updatedAt: string;
 }
@@ -63,6 +64,15 @@ export declare interface PluginOptions extends DevInspectorOptions {
      * @default true
      */
     autoRegister?: boolean;
+}
+
+declare interface SourceBindingInfo {
+    type: 'static' | 'v-model' | 'prop' | 'computed' | 'store' | 'api';
+    source?: string;
+    apiEndpoint?: string;
+    apiMethod?: string;
+    storeKey?: string;
+    isStatic?: boolean;
 }
 
 declare const VueDevInspector: Plugin_2<PluginOptions[]>;

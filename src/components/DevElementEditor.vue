@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { X, Database, Zap, Save, Trash2, MessageSquare, Info, AlertTriangle, CheckSquare, HelpCircle, Link, Settings2 } from 'lucide-vue-next'
-import { useDevInspectorStore, type FieldInfo, type ActionInfo, type ElementNote, type LinkInfo, type DevMeta } from '../composables/useDevInspector'
+import { X, Database, Zap, Save, Trash2, MessageSquare, Info, AlertTriangle, CheckSquare, HelpCircle, Link, Settings2, Wand2 } from 'lucide-vue-next'
+import { useDevInspectorStore, type FieldInfo, type ActionInfo, type ElementNote, type LinkInfo, type DevMeta, type SourceBindingInfo } from '../composables/useDevInspector'
 
 const store = useDevInspectorStore()
 
@@ -39,6 +39,11 @@ const metaI18nKeys = ref('')
 const metaDesignTokens = ref('')
 const metaAccessibility = ref('')
 const metaResponsive = ref('')
+
+// Source binding
+const sourceBindingType = ref<SourceBindingInfo['type'] | ''>('')
+const sourceBindingSource = ref('')
+const sourceBindingIsStatic = ref(false)
 
 const isEditing = computed(() => store.editingElementId !== null)
 const elementId = computed(() => store.editingElementId)
@@ -79,6 +84,11 @@ watch(elementId, (id) => {
       metaDesignTokens.value = config.devMeta.designTokens?.join(', ') || ''
       metaAccessibility.value = config.devMeta.accessibility || ''
       metaResponsive.value = config.devMeta.responsive || ''
+    }
+    if (config?.sourceBinding) {
+      sourceBindingType.value = config.sourceBinding.type || ''
+      sourceBindingSource.value = config.sourceBinding.source || ''
+      sourceBindingIsStatic.value = config.sourceBinding.isStatic || false
     }
     // Set default tab based on what data exists
     if (config?.note?.text) {
@@ -123,12 +133,41 @@ function resetForm() {
   metaDesignTokens.value = ''
   metaAccessibility.value = ''
   metaResponsive.value = ''
+  sourceBindingType.value = ''
+  sourceBindingSource.value = ''
+  sourceBindingIsStatic.value = false
   activeTab.value = 'note'
 }
 
 function close() {
   store.stopEditing()
   resetForm()
+}
+
+// Auto-detect binding from DOM element
+function autoDetect() {
+  if (!elementId.value) return
+
+  try {
+    const element = document.querySelector(elementId.value) as HTMLElement
+    if (!element) return
+
+    const detected = store.autoDetectElementInfo(element, elementId.value)
+
+    if (detected.sourceBinding) {
+      sourceBindingType.value = detected.sourceBinding.type || ''
+      sourceBindingSource.value = detected.sourceBinding.source || ''
+      sourceBindingIsStatic.value = detected.sourceBinding.isStatic || false
+
+      // If static, set note automatically
+      if (detected.sourceBinding.isStatic && !noteText.value) {
+        noteText.value = '固定文言'
+        noteType.value = 'info'
+      }
+    }
+  } catch (e) {
+    console.error('[DevInspector] Auto-detect failed:', e)
+  }
 }
 
 function save() {
@@ -182,12 +221,21 @@ function save() {
       }
     : undefined
 
+  const sourceBinding: SourceBindingInfo | undefined = sourceBindingType.value
+    ? {
+        type: sourceBindingType.value as SourceBindingInfo['type'],
+        source: sourceBindingSource.value || undefined,
+        isStatic: sourceBindingIsStatic.value,
+      }
+    : undefined
+
   store.setElementConfig(elementId.value, {
     fieldInfo,
     actionInfo,
     note,
     links,
     devMeta,
+    sourceBinding,
   })
 
   close()
@@ -223,9 +271,24 @@ const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof
         <!-- Header -->
         <div class="di-editor-header">
           <h3>要素情報を編集</h3>
-          <button @click="close" class="di-editor-close">
-            <X style="width: 20px; height: 20px;" />
-          </button>
+          <div class="di-header-actions">
+            <button @click="autoDetect" class="di-btn-auto" title="自動検出">
+              <Wand2 style="width: 16px; height: 16px;" />
+            </button>
+            <button @click="close" class="di-editor-close">
+              <X style="width: 20px; height: 20px;" />
+            </button>
+          </div>
+        </div>
+
+        <!-- Source binding indicator -->
+        <div v-if="sourceBindingIsStatic" class="di-static-indicator">
+          <span class="di-static-badge">固定文言</span>
+          <span class="di-static-hint">このテキストはソースコードに直接記述されています</span>
+        </div>
+        <div v-else-if="sourceBindingType" class="di-binding-indicator">
+          <span class="di-binding-badge" :class="'di-binding-' + sourceBindingType">{{ sourceBindingType }}</span>
+          <span v-if="sourceBindingSource" class="di-binding-source">{{ sourceBindingSource }}</span>
         </div>
 
         <!-- Tabs -->
@@ -499,6 +562,24 @@ const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof
   font-size: 14px;
   margin: 0;
 }
+.di-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.di-btn-auto {
+  padding: 6px;
+  background: #334155;
+  border: none;
+  color: #60a5fa;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-btn-auto:hover {
+  background: #475569;
+  color: #93c5fd;
+}
 .di-editor-close {
   padding: 4px;
   background: transparent;
@@ -511,6 +592,43 @@ const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof
 .di-editor-close:hover {
   color: white;
   background: #334155;
+}
+
+.di-static-indicator,
+.di-binding-indicator {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #0f172a;
+  border-bottom: 1px solid #334155;
+  font-size: 11px;
+}
+.di-static-badge {
+  padding: 2px 8px;
+  background: #10b981;
+  color: white;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.di-static-hint {
+  color: #64748b;
+}
+.di-binding-badge {
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 600;
+  color: white;
+}
+.di-binding-v-model { background: #8b5cf6; }
+.di-binding-prop { background: #f59e0b; }
+.di-binding-computed { background: #ec4899; }
+.di-binding-store { background: #06b6d4; }
+.di-binding-api { background: #3b82f6; }
+.di-binding-static { background: #10b981; }
+.di-binding-source {
+  color: #94a3b8;
+  font-family: monospace;
 }
 
 .di-editor-tabs {

@@ -32,6 +32,7 @@ declare interface ElementConfig {
     note?: ElementNote;
     links?: LinkInfo;
     devMeta?: DevMeta;
+    sourceBinding?: SourceBindingInfo;
     createdAt: string;
     updatedAt: string;
 }
@@ -64,6 +65,15 @@ export declare interface ModuleOptions extends DevInspectorOptions {
      * @default true in development
      */
     enabled?: boolean;
+}
+
+declare interface SourceBindingInfo {
+    type: 'static' | 'v-model' | 'prop' | 'computed' | 'store' | 'api';
+    source?: string;
+    apiEndpoint?: string;
+    apiMethod?: string;
+    storeKey?: string;
+    isStatic?: boolean;
 }
 
 export { }

@@ -14,6 +14,7 @@ export {
   type LinkInfo,
   type DevMeta,
   type ScreenSpec,
+  type SourceBindingInfo,
 } from './composables/useDevInspector'
 
 // Components

@@ -79,6 +79,7 @@ export declare interface ElementConfig {
     note?: ElementNote;
     links?: LinkInfo;
     devMeta?: DevMeta;
+    sourceBinding?: SourceBindingInfo;
     createdAt: string;
     updatedAt: string;
 }
@@ -124,6 +125,15 @@ export declare interface ScreenSpec {
         description: string;
     }[];
     notes?: string[];
+}
+
+export declare interface SourceBindingInfo {
+    type: 'static' | 'v-model' | 'prop' | 'computed' | 'store' | 'api';
+    source?: string;
+    apiEndpoint?: string;
+    apiMethod?: string;
+    storeKey?: string;
+    isStatic?: boolean;
 }
 
 export declare function useDevInspector(): Store<"devInspector", Pick<{
@@ -182,6 +192,8 @@ exportAsFile: () => string;
 downloadAnnotations: (filename?: string) => void;
 importConfigs: (json: string) => void;
 clearAllConfigs: () => void;
+detectSourceBinding: (element: HTMLElement) => SourceBindingInfo | null;
+autoDetectElementInfo: (element: HTMLElement, id: string) => Partial<ElementConfig>;
 }, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -238,6 +250,8 @@ exportAsFile: () => string;
 downloadAnnotations: (filename?: string) => void;
 importConfigs: (json: string) => void;
 clearAllConfigs: () => void;
+detectSourceBinding: (element: HTMLElement) => SourceBindingInfo | null;
+autoDetectElementInfo: (element: HTMLElement, id: string) => Partial<ElementConfig>;
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -294,7 +308,9 @@ exportAsFile: () => string;
 downloadAnnotations: (filename?: string) => void;
 importConfigs: (json: string) => void;
 clearAllConfigs: () => void;
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs">>;
+detectSourceBinding: (element: HTMLElement) => SourceBindingInfo | null;
+autoDetectElementInfo: (element: HTMLElement, id: string) => Partial<ElementConfig>;
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo">>;
 
 export declare const useDevInspectorStore: StoreDefinition<"devInspector", Pick<{
 isEnabled: Ref<boolean, boolean>;
@@ -352,6 +368,8 @@ exportAsFile: () => string;
 downloadAnnotations: (filename?: string) => void;
 importConfigs: (json: string) => void;
 clearAllConfigs: () => void;
+detectSourceBinding: (element: HTMLElement) => SourceBindingInfo | null;
+autoDetectElementInfo: (element: HTMLElement, id: string) => Partial<ElementConfig>;
 }, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -408,6 +426,8 @@ exportAsFile: () => string;
 downloadAnnotations: (filename?: string) => void;
 importConfigs: (json: string) => void;
 clearAllConfigs: () => void;
+detectSourceBinding: (element: HTMLElement) => SourceBindingInfo | null;
+autoDetectElementInfo: (element: HTMLElement, id: string) => Partial<ElementConfig>;
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -464,7 +484,9 @@ exportAsFile: () => string;
 downloadAnnotations: (filename?: string) => void;
 importConfigs: (json: string) => void;
 clearAllConfigs: () => void;
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs">>;
+detectSourceBinding: (element: HTMLElement) => SourceBindingInfo | null;
+autoDetectElementInfo: (element: HTMLElement, id: string) => Partial<ElementConfig>;
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo">>;
 
 declare const VueDevInspector: Plugin_2<PluginOptions[]>;
 export { VueDevInspector }
