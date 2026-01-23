@@ -248,8 +248,8 @@ watch(() => store.isPickMode, (isPicking) => {
       <span class="di-pick-hint">でキャンセル</span>
     </div>
 
-    <!-- Existing annotation boxes (when not in pick mode) -->
-    <template v-if="store.isEnabled && !store.isPickMode && !store.isEditMode && store.scanResults.length === 0">
+    <!-- Existing annotation boxes (when not in pick mode and not editing) -->
+    <template v-if="store.isEnabled && !store.isPickMode && !store.isEditMode && !store.editingElementId && store.scanResults.length === 0">
       <div
         v-for="annotation in existingAnnotations"
         :key="annotation.selector"
@@ -275,7 +275,7 @@ watch(() => store.isPickMode, (isPicking) => {
     </template>
 
     <!-- Scanned elements highlights (yellow/green boxes) -->
-    <template v-if="store.isEnabled && scannedHighlights.length > 0">
+    <template v-if="store.isEnabled && !store.editingElementId && scannedHighlights.length > 0">
       <div
         v-for="highlight in scannedHighlights"
         :key="'scan-' + highlight.selector"

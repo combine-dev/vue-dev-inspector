@@ -499,12 +499,12 @@ async function Qe(v, l, u = {}) {
     "",
     "",
     "備考"
-  ]), Object.values(l).forEach((o, I) => {
+  ]), Object.values(l).forEach((o, M) => {
     var A, $, s;
     const _ = o.id;
-    let M = "", T = "", S = "";
-    if ((A = o.note) != null && A.text && (M = o.note.text), o.fieldInfo && (M += M ? `
-` : "", M += `DB: ${o.fieldInfo.table}.${o.fieldInfo.column}`, o.fieldInfo.type && (M += ` (${o.fieldInfo.type})`), o.fieldInfo.description && (M += `
+    let I = "", T = "", S = "";
+    if ((A = o.note) != null && A.text && (I = o.note.text), o.fieldInfo && (I += I ? `
+` : "", I += `DB: ${o.fieldInfo.table}.${o.fieldInfo.column}`, o.fieldInfo.type && (I += ` (${o.fieldInfo.type})`), o.fieldInfo.description && (I += `
 ${o.fieldInfo.description}`)), o.actionInfo && (S = `[${{
       navigate: "画面遷移",
       api: "API呼び出し",
@@ -529,7 +529,7 @@ ${o.actionInfo.description}`)), o.links) {
     }
     p.push([
       "",
-      I + 1,
+      M + 1,
       "",
       _,
       "",
@@ -543,7 +543,7 @@ ${o.actionInfo.description}`)), o.links) {
       "",
       "",
       "",
-      M,
+      I,
       "",
       "",
       "",
@@ -693,7 +693,7 @@ const et = {
 }, xt = { class: "di-card-label" }, wt = ["href"], Ct = {
   key: 1,
   class: "di-card"
-}, $t = { class: "di-card-label" }, Mt = { class: "di-api-list" }, It = { class: "di-api-info" }, Et = { class: "di-api-endpoint" }, Pt = { class: "di-api-desc" }, _t = {
+}, $t = { class: "di-card-label" }, It = { class: "di-api-list" }, Mt = { class: "di-api-info" }, Et = { class: "di-api-endpoint" }, Pt = { class: "di-api-desc" }, _t = {
   key: 2,
   class: "di-card"
 }, Tt = { class: "di-card-label" }, St = { class: "di-notes-list" }, Ut = {
@@ -764,19 +764,19 @@ const et = {
         U.value = (Z = Y.target) == null ? void 0 : Z.result;
       }, r.readAsText(f);
     }
-    function I() {
+    function M() {
       confirm("すべての要素設定を削除しますか？") && l.clearAllConfigs();
     }
-    const _ = y(0), M = y(!1), T = y([]);
+    const _ = y(0), I = y(!1), T = y([]);
     async function S() {
-      M.value = !0, _.value = await l.scanCurrentPage();
+      I.value = !0, _.value = await l.scanCurrentPage();
     }
     async function A() {
       if (!u) {
         alert("Vue Routerが見つかりません。全ページスキャンにはVue Routerが必要です。");
         return;
       }
-      confirm("全ページをスキャンします。ページ遷移が発生しますがよろしいですか？") && (M.value = !0, T.value = await l.scanAllPages(u));
+      confirm("全ページをスキャンします。ページ遷移が発生しますがよろしいですか？") && (I.value = !0, T.value = await l.scanAllPages(u));
     }
     return ($, s) => {
       var f;
@@ -866,7 +866,7 @@ const et = {
                   e("span", null, w(n(l).currentScanPage ? `${n(l).currentScanPage}` : "全ページスキャン"), 1)
                 ], 8, dt)
               ]),
-              M.value && (_.value > 0 || T.value.length > 0) ? (d(), c("div", ut, [
+              I.value && (_.value > 0 || T.value.length > 0) ? (d(), c("div", ut, [
                 _.value > 0 ? (d(), c("div", rt, [
                   e("span", ct, w(_.value), 1),
                   s[14] || (s[14] = e("span", null, "件の要素を検出・登録しました", -1))
@@ -880,7 +880,7 @@ const et = {
                 ]))), 128)),
                 e("button", {
                   onClick: s[4] || (s[4] = (r) => {
-                    M.value = !1, T.value = [];
+                    I.value = !1, T.value = [];
                   }),
                   class: "di-scan-close"
                 }, " 閉じる ")
@@ -915,7 +915,7 @@ const et = {
                     g(n(Ke), { style: { width: "16px", height: "16px" } }),
                     s[18] || (s[18] = e("span", null, "API Endpoints", -1))
                   ]),
-                  e("div", Mt, [
+                  e("div", It, [
                     (d(!0), c(B, null, K(h.value.apis, (r, q) => (d(), c("div", {
                       key: q,
                       class: "di-api-item"
@@ -924,7 +924,7 @@ const et = {
                         class: "di-method-badge",
                         style: H({ backgroundColor: R[r.method] + "20", color: R[r.method] })
                       }, w(r.method), 5),
-                      e("div", It, [
+                      e("div", Mt, [
                         e("code", Et, w(r.endpoint), 1),
                         e("p", Pt, w(r.description), 1)
                       ])
@@ -1000,7 +1000,7 @@ const et = {
                   ]),
                   p.value > 0 ? (d(), c("button", {
                     key: 0,
-                    onClick: I,
+                    onClick: M,
                     class: "di-btn-small di-btn-danger"
                   }, [
                     g(n(ke), { style: { width: "14px", height: "14px" } }),
@@ -1130,20 +1130,20 @@ const et = {
 }, $l = {
   key: 1,
   class: "di-form-group"
-}, Ml = { class: "di-form-label" }, Il = ["placeholder"], El = { class: "di-form-group" }, Pl = { class: "di-form-group" }, _l = { class: "di-form-group" }, Tl = { class: "di-form-row" }, Sl = { class: "di-form-group" }, Ul = { class: "di-form-group" }, Vl = { class: "di-form-group" }, Dl = { class: "di-form-group" }, Ll = { class: "di-form-group" }, Al = { class: "di-form-group" }, Bl = { class: "di-form-group" }, jl = { class: "di-form-group" }, Rl = { class: "di-form-group" }, ql = { class: "di-editor-footer" }, Ol = { class: "di-editor-actions" }, zl = /* @__PURE__ */ ie({
+}, Il = { class: "di-form-label" }, Ml = ["placeholder"], El = { class: "di-form-group" }, Pl = { class: "di-form-group" }, _l = { class: "di-form-group" }, Tl = { class: "di-form-row" }, Sl = { class: "di-form-group" }, Ul = { class: "di-form-group" }, Vl = { class: "di-form-group" }, Dl = { class: "di-form-group" }, Ll = { class: "di-form-group" }, Al = { class: "di-form-group" }, Bl = { class: "di-form-group" }, jl = { class: "di-form-group" }, Rl = { class: "di-form-group" }, ql = { class: "di-editor-footer" }, Ol = { class: "di-editor-actions" }, zl = /* @__PURE__ */ ie({
   __name: "DevElementEditor",
   setup(v) {
-    const l = ne(), u = y("note"), b = y(""), P = y(""), U = y(""), D = y(""), R = y(""), h = y("navigate"), p = y(""), O = y("GET"), z = y(""), j = y(""), k = y(""), m = y("info"), o = y(""), I = y(""), _ = y(""), M = y(""), T = y(""), S = y(""), A = y(""), $ = y(""), s = y(""), f = y(""), r = y(""), q = y(""), Y = y(""), Z = y(!1), xe = Q(() => l.editingElementId !== null), J = Q(() => l.editingElementId);
+    const l = ne(), u = y("note"), b = y(""), P = y(""), U = y(""), D = y(""), R = y(""), h = y("navigate"), p = y(""), O = y("GET"), z = y(""), j = y(""), k = y(""), m = y("info"), o = y(""), M = y(""), _ = y(""), I = y(""), T = y(""), S = y(""), A = y(""), $ = y(""), s = y(""), f = y(""), r = y(""), q = y(""), Y = y(""), Z = y(!1), xe = Q(() => l.editingElementId !== null), J = Q(() => l.editingElementId);
     be(J, (X) => {
       var t, i, te, le, oe, N;
       if (X) {
         const a = l.getElementConfig(X);
-        a != null && a.fieldInfo && (b.value = a.fieldInfo.table || "", P.value = a.fieldInfo.column || "", U.value = a.fieldInfo.type || "", D.value = ((t = a.fieldInfo.validation) == null ? void 0 : t.join(", ")) || "", R.value = a.fieldInfo.description || ""), a != null && a.actionInfo && (h.value = a.actionInfo.type || "navigate", p.value = a.actionInfo.target || "", O.value = a.actionInfo.method || "GET", z.value = a.actionInfo.description || ""), a != null && a.note && (j.value = a.note.text || "", k.value = a.note.author || "", m.value = a.note.type || "info"), a != null && a.links && (o.value = a.links.testPath || "", I.value = a.links.figmaUrl || "", _.value = a.links.githubIssue || "", M.value = a.links.githubPr || "", T.value = a.links.relatedDocs || ""), a != null && a.devMeta && (S.value = ((i = a.devMeta.usedStores) == null ? void 0 : i.join(", ")) || "", A.value = ((te = a.devMeta.usedComponents) == null ? void 0 : te.join(", ")) || "", $.value = ((le = a.devMeta.i18nKeys) == null ? void 0 : le.join(", ")) || "", s.value = ((oe = a.devMeta.designTokens) == null ? void 0 : oe.join(", ")) || "", f.value = a.devMeta.accessibility || "", r.value = a.devMeta.responsive || ""), a != null && a.sourceBinding && (q.value = a.sourceBinding.type || "", Y.value = a.sourceBinding.source || "", Z.value = a.sourceBinding.isStatic || !1), (N = a == null ? void 0 : a.note) != null && N.text ? u.value = "note" : a != null && a.fieldInfo ? u.value = "field" : a != null && a.actionInfo ? u.value = "action" : a != null && a.links ? u.value = "links" : a != null && a.devMeta ? u.value = "meta" : u.value = "note";
+        a != null && a.fieldInfo && (b.value = a.fieldInfo.table || "", P.value = a.fieldInfo.column || "", U.value = a.fieldInfo.type || "", D.value = ((t = a.fieldInfo.validation) == null ? void 0 : t.join(", ")) || "", R.value = a.fieldInfo.description || ""), a != null && a.actionInfo && (h.value = a.actionInfo.type || "navigate", p.value = a.actionInfo.target || "", O.value = a.actionInfo.method || "GET", z.value = a.actionInfo.description || ""), a != null && a.note && (j.value = a.note.text || "", k.value = a.note.author || "", m.value = a.note.type || "info"), a != null && a.links && (o.value = a.links.testPath || "", M.value = a.links.figmaUrl || "", _.value = a.links.githubIssue || "", I.value = a.links.githubPr || "", T.value = a.links.relatedDocs || ""), a != null && a.devMeta && (S.value = ((i = a.devMeta.usedStores) == null ? void 0 : i.join(", ")) || "", A.value = ((te = a.devMeta.usedComponents) == null ? void 0 : te.join(", ")) || "", $.value = ((le = a.devMeta.i18nKeys) == null ? void 0 : le.join(", ")) || "", s.value = ((oe = a.devMeta.designTokens) == null ? void 0 : oe.join(", ")) || "", f.value = a.devMeta.accessibility || "", r.value = a.devMeta.responsive || ""), a != null && a.sourceBinding && (q.value = a.sourceBinding.type || "", Y.value = a.sourceBinding.source || "", Z.value = a.sourceBinding.isStatic || !1), (N = a == null ? void 0 : a.note) != null && N.text ? u.value = "note" : a != null && a.fieldInfo ? u.value = "field" : a != null && a.actionInfo ? u.value = "action" : a != null && a.links ? u.value = "links" : a != null && a.devMeta ? u.value = "meta" : u.value = "note";
       } else
         re();
     });
     function re() {
-      b.value = "", P.value = "", U.value = "", D.value = "", R.value = "", h.value = "navigate", p.value = "", O.value = "GET", z.value = "", j.value = "", k.value = "", m.value = "info", o.value = "", I.value = "", _.value = "", M.value = "", T.value = "", S.value = "", A.value = "", $.value = "", s.value = "", f.value = "", r.value = "", q.value = "", Y.value = "", Z.value = !1, u.value = "note";
+      b.value = "", P.value = "", U.value = "", D.value = "", R.value = "", h.value = "navigate", p.value = "", O.value = "GET", z.value = "", j.value = "", k.value = "", m.value = "info", o.value = "", M.value = "", _.value = "", I.value = "", T.value = "", S.value = "", A.value = "", $.value = "", s.value = "", f.value = "", r.value = "", q.value = "", Y.value = "", Z.value = !1, u.value = "note";
     }
     function ee() {
       l.stopEditing(), re();
@@ -1176,11 +1176,11 @@ const et = {
         text: j.value,
         author: k.value || void 0,
         type: m.value
-      } : void 0, te = o.value || I.value || _.value || M.value || T.value ? {
+      } : void 0, te = o.value || M.value || _.value || I.value || T.value ? {
         testPath: o.value || void 0,
-        figmaUrl: I.value || void 0,
+        figmaUrl: M.value || void 0,
         githubIssue: _.value || void 0,
-        githubPr: M.value || void 0,
+        githubPr: I.value || void 0,
         relatedDocs: T.value || void 0
       } : void 0, le = S.value || A.value || $.value || s.value || f.value || r.value ? {
         usedStores: S.value ? S.value.split(",").map((N) => N.trim()) : void 0,
@@ -1206,7 +1206,7 @@ const et = {
     function $e() {
       J.value && (l.deleteElementConfig(J.value), ee());
     }
-    const Me = ["VARCHAR", "TEXT", "INT", "BIGINT", "BOOLEAN", "DATE", "DATETIME", "TIMESTAMP", "JSON"], Ie = [
+    const Ie = ["VARCHAR", "TEXT", "INT", "BIGINT", "BOOLEAN", "DATE", "DATETIME", "TIMESTAMP", "JSON"], Me = [
       { value: "navigate", label: "画面遷移" },
       { value: "api", label: "API呼び出し" },
       { value: "modal", label: "モーダル表示" },
@@ -1370,7 +1370,7 @@ const et = {
                   class: "di-select"
                 }, [
                   t[40] || (t[40] = e("option", { value: "" }, "選択してください", -1)),
-                  (d(), c(B, null, K(Me, (i) => e("option", {
+                  (d(), c(B, null, K(Ie, (i) => e("option", {
                     key: i,
                     value: i
                   }, w(i), 9, hl)), 64))
@@ -1408,7 +1408,7 @@ const et = {
                   "onUpdate:modelValue": t[12] || (t[12] = (i) => h.value = i),
                   class: "di-select"
                 }, [
-                  (d(), c(B, null, K(Ie, (i) => e("option", {
+                  (d(), c(B, null, K(Me, (i) => e("option", {
                     key: i.value,
                     value: i.value
                   }, w(i.label), 9, kl)), 64))
@@ -1443,13 +1443,13 @@ const et = {
                   ])
                 ])
               ])) : (d(), c("div", $l, [
-                e("label", Ml, w(h.value === "navigate" ? "遷移先パス" : h.value === "modal" ? "モーダル名" : h.value === "emit" ? "イベント名" : "関数名"), 1),
+                e("label", Il, w(h.value === "navigate" ? "遷移先パス" : h.value === "modal" ? "モーダル名" : h.value === "emit" ? "イベント名" : "関数名"), 1),
                 E(e("input", {
                   "onUpdate:modelValue": t[15] || (t[15] = (i) => p.value = i),
                   type: "text",
                   placeholder: h.value === "navigate" ? "/tasks" : h.value === "modal" ? "ConfirmDialog" : h.value === "emit" ? "onSubmit" : "handleClick",
                   class: "di-input"
-                }, null, 8, Il), [
+                }, null, 8, Ml), [
                   [V, p.value]
                 ])
               ])),
@@ -1480,12 +1480,12 @@ const et = {
               e("div", _l, [
                 t[49] || (t[49] = e("label", { class: "di-form-label" }, "Figma URL", -1)),
                 E(e("input", {
-                  "onUpdate:modelValue": t[18] || (t[18] = (i) => I.value = i),
+                  "onUpdate:modelValue": t[18] || (t[18] = (i) => M.value = i),
                   type: "text",
                   placeholder: "https://www.figma.com/design/...",
                   class: "di-input"
                 }, null, 512), [
-                  [V, I.value]
+                  [V, M.value]
                 ])
               ]),
               e("div", Tl, [
@@ -1503,12 +1503,12 @@ const et = {
                 e("div", Ul, [
                   t[51] || (t[51] = e("label", { class: "di-form-label" }, "GitHub PR", -1)),
                   E(e("input", {
-                    "onUpdate:modelValue": t[20] || (t[20] = (i) => M.value = i),
+                    "onUpdate:modelValue": t[20] || (t[20] = (i) => I.value = i),
                     type: "text",
                     placeholder: "#456",
                     class: "di-input"
                   }, null, 512), [
-                    [V, M.value]
+                    [V, I.value]
                   ])
                 ])
               ]),
@@ -1634,26 +1634,26 @@ const et = {
       var o;
       const m = l.getElementConfig(k);
       if (!(m != null && m.sourceBinding)) {
-        const I = ((o = m == null ? void 0 : m.note) == null ? void 0 : o.type) || "info";
+        const M = ((o = m == null ? void 0 : m.note) == null ? void 0 : o.type) || "info";
         return {
           info: "#60a5fa",
           warning: "#fbbf24",
           todo: "#10b981",
           question: "#a78bfa"
-        }[I] || "#60a5fa";
+        }[M] || "#60a5fa";
       }
       return m.sourceBinding.isStatic ? "#10b981" : m.sourceBinding.type === "v-model" ? "#8b5cf6" : m.sourceBinding.type === "api" ? "#f59e0b" : "#60a5fa";
     }
     const R = Q(() => {
-      var _, M;
+      var _, I;
       const k = P.value, m = U.value, o = [];
       if (!l.isEnabled) return o;
-      const I = l.getConfiguredSelectors();
-      for (const T of I)
+      const M = l.getConfiguredSelectors();
+      for (const T of M)
         try {
           const S = document.querySelector(T);
           if (S) {
-            const A = S.getBoundingClientRect(), $ = l.getElementConfig(T), s = ((_ = $ == null ? void 0 : $.sourceBinding) == null ? void 0 : _.isStatic) || !1, f = ((M = $ == null ? void 0 : $.sourceBinding) == null ? void 0 : M.type) || "";
+            const A = S.getBoundingClientRect(), $ = l.getElementConfig(T), s = ((_ = $ == null ? void 0 : $.sourceBinding) == null ? void 0 : _.isStatic) || !1, f = ((I = $ == null ? void 0 : $.sourceBinding) == null ? void 0 : I.type) || "";
             let r = "";
             s ? r = "固定" : f === "v-model" ? r = "フォーム" : f === "api" ? r = "データ" : r = "メモ", o.push({
               selector: T,
@@ -1670,21 +1670,21 @@ const et = {
         }
       return o;
     }), h = Q(() => {
-      var I;
+      var M;
       const k = P.value, m = U.value, o = [];
       if (!l.isEnabled || l.scanResults.length === 0) return o;
       for (const _ of l.scanResults)
         try {
-          const M = document.querySelector(_.selector);
-          if (M) {
-            const T = M.getBoundingClientRect();
+          const I = document.querySelector(_.selector);
+          if (I) {
+            const T = I.getBoundingClientRect();
             o.push({
               selector: _.selector,
               top: `${T.top + k}px`,
               left: `${T.left + m}px`,
               width: `${T.width}px`,
               height: `${T.height}px`,
-              isStatic: ((I = _.detected.sourceBinding) == null ? void 0 : I.isStatic) || !1
+              isStatic: ((M = _.detected.sourceBinding) == null ? void 0 : M.isStatic) || !1
             });
           }
         } catch {
@@ -1705,12 +1705,12 @@ const et = {
       if (o.closest("[data-dev-inspector]"))
         return;
       b.value = o;
-      const I = o.getBoundingClientRect();
+      const M = o.getBoundingClientRect();
       u.value = {
-        top: `${I.top + window.scrollY}px`,
-        left: `${I.left + window.scrollX}px`,
-        width: `${I.width}px`,
-        height: `${I.height}px`
+        top: `${M.top + window.scrollY}px`,
+        left: `${M.left + window.scrollX}px`,
+        width: `${M.width}px`,
+        height: `${M.height}px`
       };
       const _ = l.generateSelector(o);
       l.setHoveredSelector(_);
@@ -1752,7 +1752,7 @@ const et = {
         e("kbd", null, "ESC", -1),
         e("span", { class: "di-pick-hint" }, "でキャンセル", -1)
       ])])) : x("", !0),
-      n(l).isEnabled && !n(l).isPickMode && !n(l).isEditMode && n(l).scanResults.length === 0 ? (d(!0), c(B, { key: 2 }, K(R.value, (o) => (d(), c("div", {
+      n(l).isEnabled && !n(l).isPickMode && !n(l).isEditMode && !n(l).editingElementId && n(l).scanResults.length === 0 ? (d(!0), c(B, { key: 2 }, K(R.value, (o) => (d(), c("div", {
         key: o.selector,
         "data-dev-inspector": "",
         class: "di-annotation-box",
@@ -1764,14 +1764,14 @@ const et = {
           borderColor: o.color,
           backgroundColor: o.color + "15"
         }),
-        onClick: (I) => n(l).startEditing(o.selector)
+        onClick: (M) => n(l).startEditing(o.selector)
       }, [
         e("div", {
           class: "di-annotation-label",
           style: H({ backgroundColor: o.color })
         }, w(o.label), 5)
       ], 12, Gl))), 128)) : x("", !0),
-      n(l).isEnabled && h.value.length > 0 ? (d(), c(B, { key: 3 }, [
+      n(l).isEnabled && !n(l).editingElementId && h.value.length > 0 ? (d(), c(B, { key: 3 }, [
         (d(!0), c(B, null, K(h.value, (o) => (d(), c("div", {
           key: "scan-" + o.selector,
           "data-dev-inspector": "",
@@ -1782,7 +1782,7 @@ const et = {
             width: o.width,
             height: o.height
           }),
-          onClick: (I) => n(l).startEditing(o.selector)
+          onClick: (M) => n(l).startEditing(o.selector)
         }, [
           e("div", {
             class: G(["di-scan-label", { "di-scan-label-static": o.isStatic }])
@@ -1798,7 +1798,7 @@ const et = {
       ], 64)) : x("", !0)
     ]));
   }
-}), Zl = /* @__PURE__ */ ue(Yl, [["__scopeId", "data-v-b1dcdc2d"]]), Jl = {
+}), Zl = /* @__PURE__ */ ue(Yl, [["__scopeId", "data-v-355cdd92"]]), Jl = {
   key: 0,
   "data-dev-inspector": ""
 }, Wl = /* @__PURE__ */ ie({
