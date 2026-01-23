@@ -39,6 +39,25 @@ export declare interface ActionInfo {
     params?: Record<string, string>;
 }
 
+export declare interface AnalyzedElement {
+    selector: string;
+    type: 'static' | 'data' | 'button' | 'link' | 'form' | 'unknown';
+    text?: string;
+    binding?: string;
+    api?: {
+        endpoint: string;
+        method: string;
+        description?: string;
+    };
+    db?: {
+        table: string;
+        column: string;
+        type?: string;
+    };
+    component?: string;
+    line?: number;
+}
+
 export declare const DevElementEditor: DefineComponent<    {}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<{}> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>;
 
 export declare const DevInspector: DefineComponent<ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<DevInspectorOptions>, {
@@ -56,6 +75,7 @@ export declare interface DevInspectorOptions {
     storageKey?: string;
     enabledInProduction?: boolean;
     initialAnnotations?: Record<string, ElementConfig>;
+    analysisData?: ProjectAnalysis;
 }
 
 export declare interface DevMeta {
@@ -112,6 +132,24 @@ export declare interface PluginOptions extends DevInspectorOptions {
      * @default true
      */
     autoRegister?: boolean;
+}
+
+export declare interface ProjectAnalysis {
+    projectPath: string;
+    analyzedAt: string;
+    components: Record<string, {
+        filePath: string;
+        componentName: string;
+        elements: AnalyzedElement[];
+    }>;
+    apiMappings: Record<string, {
+        endpoint: string;
+        method: string;
+        responseFields: {
+            name: string;
+            type: string;
+        }[];
+    }>;
 }
 
 export declare interface ScreenSpec {
@@ -313,7 +351,43 @@ count: number;
 allPagesRoutes: Ref<string[], string[]>;
 currentScanPage: Ref<string, string>;
 clearScanResults: () => void;
-}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage">, Pick<{
+analysisData: Ref<    {
+projectPath: string;
+analyzedAt: string;
+components: Record<string, {
+filePath: string;
+componentName: string;
+elements: AnalyzedElement[];
+}>;
+apiMappings: Record<string, {
+endpoint: string;
+method: string;
+responseFields: {
+name: string;
+type: string;
+}[];
+}>;
+} | null, ProjectAnalysis | {
+projectPath: string;
+analyzedAt: string;
+components: Record<string, {
+filePath: string;
+componentName: string;
+elements: AnalyzedElement[];
+}>;
+apiMappings: Record<string, {
+endpoint: string;
+method: string;
+responseFields: {
+name: string;
+type: string;
+}[];
+}>;
+} | null>;
+loadAnalysisData: (url: string) => Promise<void>;
+getAnalyzedElement: (selector: string) => AnalyzedElement | null;
+getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
+}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -490,6 +564,42 @@ count: number;
 allPagesRoutes: Ref<string[], string[]>;
 currentScanPage: Ref<string, string>;
 clearScanResults: () => void;
+analysisData: Ref<    {
+projectPath: string;
+analyzedAt: string;
+components: Record<string, {
+filePath: string;
+componentName: string;
+elements: AnalyzedElement[];
+}>;
+apiMappings: Record<string, {
+endpoint: string;
+method: string;
+responseFields: {
+name: string;
+type: string;
+}[];
+}>;
+} | null, ProjectAnalysis | {
+projectPath: string;
+analyzedAt: string;
+components: Record<string, {
+filePath: string;
+componentName: string;
+elements: AnalyzedElement[];
+}>;
+apiMappings: Record<string, {
+endpoint: string;
+method: string;
+responseFields: {
+name: string;
+type: string;
+}[];
+}>;
+} | null>;
+loadAnalysisData: (url: string) => Promise<void>;
+getAnalyzedElement: (selector: string) => AnalyzedElement | null;
+getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -667,7 +777,43 @@ count: number;
 allPagesRoutes: Ref<string[], string[]>;
 currentScanPage: Ref<string, string>;
 clearScanResults: () => void;
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults">>;
+analysisData: Ref<    {
+projectPath: string;
+analyzedAt: string;
+components: Record<string, {
+filePath: string;
+componentName: string;
+elements: AnalyzedElement[];
+}>;
+apiMappings: Record<string, {
+endpoint: string;
+method: string;
+responseFields: {
+name: string;
+type: string;
+}[];
+}>;
+} | null, ProjectAnalysis | {
+projectPath: string;
+analyzedAt: string;
+components: Record<string, {
+filePath: string;
+componentName: string;
+elements: AnalyzedElement[];
+}>;
+apiMappings: Record<string, {
+endpoint: string;
+method: string;
+responseFields: {
+name: string;
+type: string;
+}[];
+}>;
+} | null>;
+loadAnalysisData: (url: string) => Promise<void>;
+getAnalyzedElement: (selector: string) => AnalyzedElement | null;
+getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage">>;
 
 export declare const useDevInspectorStore: StoreDefinition<"devInspector", Pick<{
 isEnabled: Ref<boolean, boolean>;
@@ -846,7 +992,43 @@ count: number;
 allPagesRoutes: Ref<string[], string[]>;
 currentScanPage: Ref<string, string>;
 clearScanResults: () => void;
-}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage">, Pick<{
+analysisData: Ref<    {
+projectPath: string;
+analyzedAt: string;
+components: Record<string, {
+filePath: string;
+componentName: string;
+elements: AnalyzedElement[];
+}>;
+apiMappings: Record<string, {
+endpoint: string;
+method: string;
+responseFields: {
+name: string;
+type: string;
+}[];
+}>;
+} | null, ProjectAnalysis | {
+projectPath: string;
+analyzedAt: string;
+components: Record<string, {
+filePath: string;
+componentName: string;
+elements: AnalyzedElement[];
+}>;
+apiMappings: Record<string, {
+endpoint: string;
+method: string;
+responseFields: {
+name: string;
+type: string;
+}[];
+}>;
+} | null>;
+loadAnalysisData: (url: string) => Promise<void>;
+getAnalyzedElement: (selector: string) => AnalyzedElement | null;
+getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
+}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -1023,6 +1205,42 @@ count: number;
 allPagesRoutes: Ref<string[], string[]>;
 currentScanPage: Ref<string, string>;
 clearScanResults: () => void;
+analysisData: Ref<    {
+projectPath: string;
+analyzedAt: string;
+components: Record<string, {
+filePath: string;
+componentName: string;
+elements: AnalyzedElement[];
+}>;
+apiMappings: Record<string, {
+endpoint: string;
+method: string;
+responseFields: {
+name: string;
+type: string;
+}[];
+}>;
+} | null, ProjectAnalysis | {
+projectPath: string;
+analyzedAt: string;
+components: Record<string, {
+filePath: string;
+componentName: string;
+elements: AnalyzedElement[];
+}>;
+apiMappings: Record<string, {
+endpoint: string;
+method: string;
+responseFields: {
+name: string;
+type: string;
+}[];
+}>;
+} | null>;
+loadAnalysisData: (url: string) => Promise<void>;
+getAnalyzedElement: (selector: string) => AnalyzedElement | null;
+getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -1200,7 +1418,43 @@ count: number;
 allPagesRoutes: Ref<string[], string[]>;
 currentScanPage: Ref<string, string>;
 clearScanResults: () => void;
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults">>;
+analysisData: Ref<    {
+projectPath: string;
+analyzedAt: string;
+components: Record<string, {
+filePath: string;
+componentName: string;
+elements: AnalyzedElement[];
+}>;
+apiMappings: Record<string, {
+endpoint: string;
+method: string;
+responseFields: {
+name: string;
+type: string;
+}[];
+}>;
+} | null, ProjectAnalysis | {
+projectPath: string;
+analyzedAt: string;
+components: Record<string, {
+filePath: string;
+componentName: string;
+elements: AnalyzedElement[];
+}>;
+apiMappings: Record<string, {
+endpoint: string;
+method: string;
+responseFields: {
+name: string;
+type: string;
+}[];
+}>;
+} | null>;
+loadAnalysisData: (url: string) => Promise<void>;
+getAnalyzedElement: (selector: string) => AnalyzedElement | null;
+getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage">>;
 
 declare const VueDevInspector: Plugin_2<PluginOptions[]>;
 export { VueDevInspector }

@@ -1,6 +1,6 @@
 import { h as ce, defineComponent as ie, inject as Te, ref as y, computed as Q, openBlock as d, createElementBlock as c, Fragment as B, createBlock as F, Teleport as W, unref as n, createVNode as k, createCommentVNode as w, createElementVNode as e, normalizeClass as G, toDisplayString as $, renderList as K, normalizeStyle as H, createTextVNode as L, withModifiers as de, withDirectives as P, vModelText as V, watch as fe, resolveDynamicComponent as Se, vModelSelect as ae, onMounted as ke, onUnmounted as Ue } from "vue";
-import { u as ne } from "./useDevInspector-BJOD4iUs.js";
-import { a as no } from "./useDevInspector-BJOD4iUs.js";
+import { u as ne } from "./useDevInspector-CzlEakrQ.js";
+import { a as no } from "./useDevInspector-CzlEakrQ.js";
 /**
  * @license lucide-vue-next v0.300.0 - ISC
  *
@@ -1818,7 +1818,8 @@ const et = {
   props: {
     storageKey: { default: "devInspector:elementConfigs" },
     enabledInProduction: { type: Boolean, default: !1 },
-    initialAnnotations: {}
+    initialAnnotations: {},
+    analysisData: {}
   },
   setup(v) {
     const l = v, u = ne();

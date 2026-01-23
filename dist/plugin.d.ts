@@ -8,10 +8,30 @@ declare interface ActionInfo {
     params?: Record<string, string>;
 }
 
+declare interface AnalyzedElement {
+    selector: string;
+    type: 'static' | 'data' | 'button' | 'link' | 'form' | 'unknown';
+    text?: string;
+    binding?: string;
+    api?: {
+        endpoint: string;
+        method: string;
+        description?: string;
+    };
+    db?: {
+        table: string;
+        column: string;
+        type?: string;
+    };
+    component?: string;
+    line?: number;
+}
+
 declare interface DevInspectorOptions {
     storageKey?: string;
     enabledInProduction?: boolean;
     initialAnnotations?: Record<string, ElementConfig>;
+    analysisData?: ProjectAnalysis;
 }
 
 declare interface DevMeta {
@@ -64,6 +84,24 @@ export declare interface PluginOptions extends DevInspectorOptions {
      * @default true
      */
     autoRegister?: boolean;
+}
+
+declare interface ProjectAnalysis {
+    projectPath: string;
+    analyzedAt: string;
+    components: Record<string, {
+        filePath: string;
+        componentName: string;
+        elements: AnalyzedElement[];
+    }>;
+    apiMappings: Record<string, {
+        endpoint: string;
+        method: string;
+        responseFields: {
+            name: string;
+            type: string;
+        }[];
+    }>;
 }
 
 declare interface SourceBindingInfo {

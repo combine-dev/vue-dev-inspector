@@ -77,10 +77,45 @@ export interface ScreenSpec {
   notes?: string[]
 }
 
+export interface AnalyzedElement {
+  selector: string
+  type: 'static' | 'data' | 'button' | 'link' | 'form' | 'unknown'
+  text?: string
+  binding?: string
+  api?: {
+    endpoint: string
+    method: string
+    description?: string
+  }
+  db?: {
+    table: string
+    column: string
+    type?: string
+  }
+  component?: string
+  line?: number
+}
+
+export interface ProjectAnalysis {
+  projectPath: string
+  analyzedAt: string
+  components: Record<string, {
+    filePath: string
+    componentName: string
+    elements: AnalyzedElement[]
+  }>
+  apiMappings: Record<string, {
+    endpoint: string
+    method: string
+    responseFields: { name: string; type: string }[]
+  }>
+}
+
 export interface DevInspectorOptions {
   storageKey?: string
   enabledInProduction?: boolean
   initialAnnotations?: Record<string, ElementConfig>
+  analysisData?: ProjectAnalysis
 }
 
 // ===== Store =====
@@ -103,6 +138,9 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   // Computed
   const storageKey = computed(() => options.value.storageKey || STORAGE_KEY_DEFAULT)
 
+  // Analysis data (from CLI tool)
+  const analysisData = ref<ProjectAnalysis | null>(null)
+
   const isAvailable = computed(() => {
     if (options.value.enabledInProduction) return true
     // Check for development environment
@@ -116,6 +154,51 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   function init(opts: DevInspectorOptions = {}) {
     options.value = opts
     loadConfigs()
+
+    // Load analysis data if provided
+    if (opts.analysisData) {
+      analysisData.value = opts.analysisData
+    }
+  }
+
+  // Load analysis data from JSON file (can be called separately)
+  async function loadAnalysisData(url: string): Promise<void> {
+    try {
+      const response = await fetch(url)
+      if (response.ok) {
+        analysisData.value = await response.json()
+        console.log('[DevInspector] Analysis data loaded:', Object.keys(analysisData.value?.components || {}).length, 'components')
+      }
+    } catch (e) {
+      console.warn('[DevInspector] Failed to load analysis data:', e)
+    }
+  }
+
+  // Get analyzed element info for a selector
+  function getAnalyzedElement(selector: string): AnalyzedElement | null {
+    if (!analysisData.value) return null
+
+    for (const component of Object.values(analysisData.value.components)) {
+      const element = component.elements.find(e => e.selector === selector)
+      if (element) return element
+    }
+
+    return null
+  }
+
+  // Get all analyzed elements for current page
+  function getAnalyzedElementsForPage(componentPath?: string): AnalyzedElement[] {
+    if (!analysisData.value) return []
+
+    const results: AnalyzedElement[] = []
+
+    for (const [path, component] of Object.entries(analysisData.value.components)) {
+      if (!componentPath || path.includes(componentPath)) {
+        results.push(...component.elements)
+      }
+    }
+
+    return results
   }
 
   // Load configs from localStorage
@@ -888,6 +971,11 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     allPagesRoutes,
     currentScanPage,
     clearScanResults,
+    // Analysis data
+    analysisData,
+    loadAnalysisData,
+    getAnalyzedElement,
+    getAnalyzedElementsForPage,
   }
 })
 

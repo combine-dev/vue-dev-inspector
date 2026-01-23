@@ -15,6 +15,8 @@ export {
   type DevMeta,
   type ScreenSpec,
   type SourceBindingInfo,
+  type AnalyzedElement,
+  type ProjectAnalysis,
 } from './composables/useDevInspector'
 
 // Components

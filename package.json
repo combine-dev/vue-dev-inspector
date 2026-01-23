@@ -6,6 +6,9 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "bin": {
+    "vue-dev-inspector": "./dist/cli.cjs"
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
@@ -17,16 +20,21 @@
       "require": "./dist/nuxt.cjs",
       "types": "./dist/nuxt.d.ts"
     },
+    "./cli": {
+      "require": "./dist/cli.cjs"
+    },
     "./style.css": "./dist/style.css"
   },
   "files": [
     "dist",
     "src/components",
-    "src/composables"
+    "src/composables",
+    "src/cli"
   ],
   "scripts": {
     "dev": "vite build --watch",
-    "build": "vite build",
+    "build": "vite build && npm run build:cli",
+    "build:cli": "esbuild src/cli/index.ts --bundle --platform=node --outfile=dist/cli.cjs --format=cjs",
     "typecheck": "vue-tsc --noEmit",
     "prepublishOnly": "npm run build"
   },
@@ -46,6 +54,7 @@
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@vitejs/plugin-vue": "^5.0.0",
+    "esbuild": "^0.20.0",
     "lucide-vue-next": "^0.300.0",
     "pinia": "^2.1.0",
     "typescript": "^5.0.0",
