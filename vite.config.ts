@@ -16,6 +16,7 @@ export default defineConfig({
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
         nuxt: resolve(__dirname, 'src/nuxt/module.ts'),
+        plugin: resolve(__dirname, 'src/nuxt/plugin.ts'),
       },
       formats: ['es', 'cjs'],
       fileName: (format, entryName) => {
