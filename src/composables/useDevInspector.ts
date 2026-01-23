@@ -399,6 +399,137 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     return result
   }
 
+  // Scan state
+  const isScanning = ref(false)
+  const scanProgress = ref(0)
+  const scanResults = ref<Array<{ selector: string; element: HTMLElement; detected: Partial<ElementConfig> }>>([])
+
+  // Scan all elements on the current page
+  async function scanCurrentPage(): Promise<number> {
+    isScanning.value = true
+    scanProgress.value = 0
+    scanResults.value = []
+
+    try {
+      // Get all text-containing elements
+      const allElements = document.querySelectorAll('body *:not([data-dev-inspector]):not(script):not(style):not(noscript)')
+      const textElements: HTMLElement[] = []
+
+      allElements.forEach((el) => {
+        const element = el as HTMLElement
+        // Skip if already configured
+        const existingSelector = generateSelector(element)
+        if (elementConfigs.value[existingSelector]) return
+
+        // Check if element has meaningful text content
+        const text = element.textContent?.trim() || ''
+        if (text.length > 0 && text.length < 200) {
+          // Check if this element directly contains text (not just from children)
+          const directText = Array.from(element.childNodes)
+            .filter(node => node.nodeType === Node.TEXT_NODE)
+            .map(node => node.textContent?.trim() || '')
+            .join('')
+
+          if (directText.length > 0 || element.children.length === 0) {
+            textElements.push(element)
+          }
+        }
+      })
+
+      const total = textElements.length
+      let processed = 0
+      let added = 0
+
+      for (const element of textElements) {
+        const selector = generateSelector(element)
+        const detected = autoDetectElementInfo(element, selector)
+
+        if (detected.sourceBinding) {
+          scanResults.value.push({ selector, element, detected })
+
+          // Auto-save detected elements
+          setElementConfig(selector, detected)
+          added++
+        }
+
+        processed++
+        scanProgress.value = Math.round((processed / total) * 100)
+
+        // Yield to UI every 10 elements
+        if (processed % 10 === 0) {
+          await new Promise(resolve => setTimeout(resolve, 0))
+        }
+      }
+
+      return added
+    } finally {
+      isScanning.value = false
+      scanProgress.value = 100
+    }
+  }
+
+  // Scan all pages (requires Vue Router)
+  const allPagesRoutes = ref<string[]>([])
+  const currentScanPage = ref('')
+
+  async function scanAllPages(router: any): Promise<{ page: string; count: number }[]> {
+    if (!router) {
+      console.warn('[DevInspector] Router not provided for all pages scan')
+      return []
+    }
+
+    isScanning.value = true
+    const results: { page: string; count: number }[] = []
+
+    try {
+      // Get all routes from Vue Router
+      const routes = router.getRoutes()
+      const pagePaths: string[] = []
+
+      for (const route of routes) {
+        // Skip dynamic routes with required params, redirects, and special routes
+        if (route.path.includes(':') && !route.path.includes('?')) continue
+        if (route.redirect) continue
+        if (route.path === '/:pathMatch(.*)*') continue
+        if (route.meta?.devInspectorSkip) continue
+
+        pagePaths.push(route.path)
+      }
+
+      allPagesRoutes.value = pagePaths
+
+      for (const path of pagePaths) {
+        currentScanPage.value = path
+
+        try {
+          // Navigate to page
+          await router.push(path)
+
+          // Wait for page to render
+          await new Promise(resolve => setTimeout(resolve, 500))
+
+          // Scan the page
+          const count = await scanCurrentPage()
+          results.push({ page: path, count })
+        } catch (e) {
+          console.warn(`[DevInspector] Failed to scan page ${path}:`, e)
+          results.push({ page: path, count: 0 })
+        }
+      }
+
+      return results
+    } finally {
+      isScanning.value = false
+      currentScanPage.value = ''
+    }
+  }
+
+  // Clear scan results
+  function clearScanResults() {
+    scanResults.value = []
+    scanProgress.value = 0
+  }
+
   function startEditing(id: string) {
     editingElementId.value = id
   }
@@ -490,6 +621,15 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     clearAllConfigs,
     detectSourceBinding,
     autoDetectElementInfo,
+    // Scan
+    isScanning,
+    scanProgress,
+    scanResults,
+    scanCurrentPage,
+    scanAllPages,
+    allPagesRoutes,
+    currentScanPage,
+    clearScanResults,
   }
 })
 

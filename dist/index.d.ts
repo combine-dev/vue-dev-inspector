@@ -194,7 +194,124 @@ importConfigs: (json: string) => void;
 clearAllConfigs: () => void;
 detectSourceBinding: (element: HTMLElement) => SourceBindingInfo | null;
 autoDetectElementInfo: (element: HTMLElement, id: string) => Partial<ElementConfig>;
-}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId">, Pick<{
+isScanning: Ref<boolean, boolean>;
+scanProgress: Ref<number, number>;
+scanResults: Ref<    {
+selector: string;
+element: HTMLElement;
+detected: {
+id?: string | undefined;
+componentPath?: string | undefined;
+fieldInfo?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+} | undefined;
+actionInfo?: {
+type: "navigate" | "api" | "modal" | "emit" | "function";
+target?: string | undefined;
+method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
+description?: string | undefined;
+params?: Record<string, string> | undefined;
+} | undefined;
+note?: {
+text: string;
+author?: string | undefined;
+type?: "info" | "warning" | "todo" | "question" | undefined;
+} | undefined;
+links?: {
+testPath?: string | undefined;
+figmaUrl?: string | undefined;
+githubIssue?: string | undefined;
+githubPr?: string | undefined;
+relatedDocs?: string | undefined;
+} | undefined;
+devMeta?: {
+usedStores?: string[] | undefined;
+usedComponents?: string[] | undefined;
+i18nKeys?: string[] | undefined;
+designTokens?: string[] | undefined;
+accessibility?: string | undefined;
+responsive?: string | undefined;
+} | undefined;
+sourceBinding?: {
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+source?: string | undefined;
+apiEndpoint?: string | undefined;
+apiMethod?: string | undefined;
+storeKey?: string | undefined;
+isStatic?: boolean | undefined;
+} | undefined;
+createdAt?: string | undefined;
+updatedAt?: string | undefined;
+};
+}[], {
+selector: string;
+element: HTMLElement;
+detected: Partial<ElementConfig>;
+}[] | {
+selector: string;
+element: HTMLElement;
+detected: {
+id?: string | undefined;
+componentPath?: string | undefined;
+fieldInfo?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+} | undefined;
+actionInfo?: {
+type: "navigate" | "api" | "modal" | "emit" | "function";
+target?: string | undefined;
+method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
+description?: string | undefined;
+params?: Record<string, string> | undefined;
+} | undefined;
+note?: {
+text: string;
+author?: string | undefined;
+type?: "info" | "warning" | "todo" | "question" | undefined;
+} | undefined;
+links?: {
+testPath?: string | undefined;
+figmaUrl?: string | undefined;
+githubIssue?: string | undefined;
+githubPr?: string | undefined;
+relatedDocs?: string | undefined;
+} | undefined;
+devMeta?: {
+usedStores?: string[] | undefined;
+usedComponents?: string[] | undefined;
+i18nKeys?: string[] | undefined;
+designTokens?: string[] | undefined;
+accessibility?: string | undefined;
+responsive?: string | undefined;
+} | undefined;
+sourceBinding?: {
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+source?: string | undefined;
+apiEndpoint?: string | undefined;
+apiMethod?: string | undefined;
+storeKey?: string | undefined;
+isStatic?: boolean | undefined;
+} | undefined;
+createdAt?: string | undefined;
+updatedAt?: string | undefined;
+};
+}[]>;
+scanCurrentPage: () => Promise<number>;
+scanAllPages: (router: any) => Promise<{
+page: string;
+count: number;
+}[]>;
+allPagesRoutes: Ref<string[], string[]>;
+currentScanPage: Ref<string, string>;
+clearScanResults: () => void;
+}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -252,6 +369,123 @@ importConfigs: (json: string) => void;
 clearAllConfigs: () => void;
 detectSourceBinding: (element: HTMLElement) => SourceBindingInfo | null;
 autoDetectElementInfo: (element: HTMLElement, id: string) => Partial<ElementConfig>;
+isScanning: Ref<boolean, boolean>;
+scanProgress: Ref<number, number>;
+scanResults: Ref<    {
+selector: string;
+element: HTMLElement;
+detected: {
+id?: string | undefined;
+componentPath?: string | undefined;
+fieldInfo?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+} | undefined;
+actionInfo?: {
+type: "navigate" | "api" | "modal" | "emit" | "function";
+target?: string | undefined;
+method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
+description?: string | undefined;
+params?: Record<string, string> | undefined;
+} | undefined;
+note?: {
+text: string;
+author?: string | undefined;
+type?: "info" | "warning" | "todo" | "question" | undefined;
+} | undefined;
+links?: {
+testPath?: string | undefined;
+figmaUrl?: string | undefined;
+githubIssue?: string | undefined;
+githubPr?: string | undefined;
+relatedDocs?: string | undefined;
+} | undefined;
+devMeta?: {
+usedStores?: string[] | undefined;
+usedComponents?: string[] | undefined;
+i18nKeys?: string[] | undefined;
+designTokens?: string[] | undefined;
+accessibility?: string | undefined;
+responsive?: string | undefined;
+} | undefined;
+sourceBinding?: {
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+source?: string | undefined;
+apiEndpoint?: string | undefined;
+apiMethod?: string | undefined;
+storeKey?: string | undefined;
+isStatic?: boolean | undefined;
+} | undefined;
+createdAt?: string | undefined;
+updatedAt?: string | undefined;
+};
+}[], {
+selector: string;
+element: HTMLElement;
+detected: Partial<ElementConfig>;
+}[] | {
+selector: string;
+element: HTMLElement;
+detected: {
+id?: string | undefined;
+componentPath?: string | undefined;
+fieldInfo?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+} | undefined;
+actionInfo?: {
+type: "navigate" | "api" | "modal" | "emit" | "function";
+target?: string | undefined;
+method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
+description?: string | undefined;
+params?: Record<string, string> | undefined;
+} | undefined;
+note?: {
+text: string;
+author?: string | undefined;
+type?: "info" | "warning" | "todo" | "question" | undefined;
+} | undefined;
+links?: {
+testPath?: string | undefined;
+figmaUrl?: string | undefined;
+githubIssue?: string | undefined;
+githubPr?: string | undefined;
+relatedDocs?: string | undefined;
+} | undefined;
+devMeta?: {
+usedStores?: string[] | undefined;
+usedComponents?: string[] | undefined;
+i18nKeys?: string[] | undefined;
+designTokens?: string[] | undefined;
+accessibility?: string | undefined;
+responsive?: string | undefined;
+} | undefined;
+sourceBinding?: {
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+source?: string | undefined;
+apiEndpoint?: string | undefined;
+apiMethod?: string | undefined;
+storeKey?: string | undefined;
+isStatic?: boolean | undefined;
+} | undefined;
+createdAt?: string | undefined;
+updatedAt?: string | undefined;
+};
+}[]>;
+scanCurrentPage: () => Promise<number>;
+scanAllPages: (router: any) => Promise<{
+page: string;
+count: number;
+}[]>;
+allPagesRoutes: Ref<string[], string[]>;
+currentScanPage: Ref<string, string>;
+clearScanResults: () => void;
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -310,7 +544,124 @@ importConfigs: (json: string) => void;
 clearAllConfigs: () => void;
 detectSourceBinding: (element: HTMLElement) => SourceBindingInfo | null;
 autoDetectElementInfo: (element: HTMLElement, id: string) => Partial<ElementConfig>;
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo">>;
+isScanning: Ref<boolean, boolean>;
+scanProgress: Ref<number, number>;
+scanResults: Ref<    {
+selector: string;
+element: HTMLElement;
+detected: {
+id?: string | undefined;
+componentPath?: string | undefined;
+fieldInfo?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+} | undefined;
+actionInfo?: {
+type: "navigate" | "api" | "modal" | "emit" | "function";
+target?: string | undefined;
+method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
+description?: string | undefined;
+params?: Record<string, string> | undefined;
+} | undefined;
+note?: {
+text: string;
+author?: string | undefined;
+type?: "info" | "warning" | "todo" | "question" | undefined;
+} | undefined;
+links?: {
+testPath?: string | undefined;
+figmaUrl?: string | undefined;
+githubIssue?: string | undefined;
+githubPr?: string | undefined;
+relatedDocs?: string | undefined;
+} | undefined;
+devMeta?: {
+usedStores?: string[] | undefined;
+usedComponents?: string[] | undefined;
+i18nKeys?: string[] | undefined;
+designTokens?: string[] | undefined;
+accessibility?: string | undefined;
+responsive?: string | undefined;
+} | undefined;
+sourceBinding?: {
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+source?: string | undefined;
+apiEndpoint?: string | undefined;
+apiMethod?: string | undefined;
+storeKey?: string | undefined;
+isStatic?: boolean | undefined;
+} | undefined;
+createdAt?: string | undefined;
+updatedAt?: string | undefined;
+};
+}[], {
+selector: string;
+element: HTMLElement;
+detected: Partial<ElementConfig>;
+}[] | {
+selector: string;
+element: HTMLElement;
+detected: {
+id?: string | undefined;
+componentPath?: string | undefined;
+fieldInfo?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+} | undefined;
+actionInfo?: {
+type: "navigate" | "api" | "modal" | "emit" | "function";
+target?: string | undefined;
+method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
+description?: string | undefined;
+params?: Record<string, string> | undefined;
+} | undefined;
+note?: {
+text: string;
+author?: string | undefined;
+type?: "info" | "warning" | "todo" | "question" | undefined;
+} | undefined;
+links?: {
+testPath?: string | undefined;
+figmaUrl?: string | undefined;
+githubIssue?: string | undefined;
+githubPr?: string | undefined;
+relatedDocs?: string | undefined;
+} | undefined;
+devMeta?: {
+usedStores?: string[] | undefined;
+usedComponents?: string[] | undefined;
+i18nKeys?: string[] | undefined;
+designTokens?: string[] | undefined;
+accessibility?: string | undefined;
+responsive?: string | undefined;
+} | undefined;
+sourceBinding?: {
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+source?: string | undefined;
+apiEndpoint?: string | undefined;
+apiMethod?: string | undefined;
+storeKey?: string | undefined;
+isStatic?: boolean | undefined;
+} | undefined;
+createdAt?: string | undefined;
+updatedAt?: string | undefined;
+};
+}[]>;
+scanCurrentPage: () => Promise<number>;
+scanAllPages: (router: any) => Promise<{
+page: string;
+count: number;
+}[]>;
+allPagesRoutes: Ref<string[], string[]>;
+currentScanPage: Ref<string, string>;
+clearScanResults: () => void;
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults">>;
 
 export declare const useDevInspectorStore: StoreDefinition<"devInspector", Pick<{
 isEnabled: Ref<boolean, boolean>;
@@ -370,7 +721,124 @@ importConfigs: (json: string) => void;
 clearAllConfigs: () => void;
 detectSourceBinding: (element: HTMLElement) => SourceBindingInfo | null;
 autoDetectElementInfo: (element: HTMLElement, id: string) => Partial<ElementConfig>;
-}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId">, Pick<{
+isScanning: Ref<boolean, boolean>;
+scanProgress: Ref<number, number>;
+scanResults: Ref<    {
+selector: string;
+element: HTMLElement;
+detected: {
+id?: string | undefined;
+componentPath?: string | undefined;
+fieldInfo?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+} | undefined;
+actionInfo?: {
+type: "navigate" | "api" | "modal" | "emit" | "function";
+target?: string | undefined;
+method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
+description?: string | undefined;
+params?: Record<string, string> | undefined;
+} | undefined;
+note?: {
+text: string;
+author?: string | undefined;
+type?: "info" | "warning" | "todo" | "question" | undefined;
+} | undefined;
+links?: {
+testPath?: string | undefined;
+figmaUrl?: string | undefined;
+githubIssue?: string | undefined;
+githubPr?: string | undefined;
+relatedDocs?: string | undefined;
+} | undefined;
+devMeta?: {
+usedStores?: string[] | undefined;
+usedComponents?: string[] | undefined;
+i18nKeys?: string[] | undefined;
+designTokens?: string[] | undefined;
+accessibility?: string | undefined;
+responsive?: string | undefined;
+} | undefined;
+sourceBinding?: {
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+source?: string | undefined;
+apiEndpoint?: string | undefined;
+apiMethod?: string | undefined;
+storeKey?: string | undefined;
+isStatic?: boolean | undefined;
+} | undefined;
+createdAt?: string | undefined;
+updatedAt?: string | undefined;
+};
+}[], {
+selector: string;
+element: HTMLElement;
+detected: Partial<ElementConfig>;
+}[] | {
+selector: string;
+element: HTMLElement;
+detected: {
+id?: string | undefined;
+componentPath?: string | undefined;
+fieldInfo?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+} | undefined;
+actionInfo?: {
+type: "navigate" | "api" | "modal" | "emit" | "function";
+target?: string | undefined;
+method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
+description?: string | undefined;
+params?: Record<string, string> | undefined;
+} | undefined;
+note?: {
+text: string;
+author?: string | undefined;
+type?: "info" | "warning" | "todo" | "question" | undefined;
+} | undefined;
+links?: {
+testPath?: string | undefined;
+figmaUrl?: string | undefined;
+githubIssue?: string | undefined;
+githubPr?: string | undefined;
+relatedDocs?: string | undefined;
+} | undefined;
+devMeta?: {
+usedStores?: string[] | undefined;
+usedComponents?: string[] | undefined;
+i18nKeys?: string[] | undefined;
+designTokens?: string[] | undefined;
+accessibility?: string | undefined;
+responsive?: string | undefined;
+} | undefined;
+sourceBinding?: {
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+source?: string | undefined;
+apiEndpoint?: string | undefined;
+apiMethod?: string | undefined;
+storeKey?: string | undefined;
+isStatic?: boolean | undefined;
+} | undefined;
+createdAt?: string | undefined;
+updatedAt?: string | undefined;
+};
+}[]>;
+scanCurrentPage: () => Promise<number>;
+scanAllPages: (router: any) => Promise<{
+page: string;
+count: number;
+}[]>;
+allPagesRoutes: Ref<string[], string[]>;
+currentScanPage: Ref<string, string>;
+clearScanResults: () => void;
+}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -428,6 +896,123 @@ importConfigs: (json: string) => void;
 clearAllConfigs: () => void;
 detectSourceBinding: (element: HTMLElement) => SourceBindingInfo | null;
 autoDetectElementInfo: (element: HTMLElement, id: string) => Partial<ElementConfig>;
+isScanning: Ref<boolean, boolean>;
+scanProgress: Ref<number, number>;
+scanResults: Ref<    {
+selector: string;
+element: HTMLElement;
+detected: {
+id?: string | undefined;
+componentPath?: string | undefined;
+fieldInfo?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+} | undefined;
+actionInfo?: {
+type: "navigate" | "api" | "modal" | "emit" | "function";
+target?: string | undefined;
+method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
+description?: string | undefined;
+params?: Record<string, string> | undefined;
+} | undefined;
+note?: {
+text: string;
+author?: string | undefined;
+type?: "info" | "warning" | "todo" | "question" | undefined;
+} | undefined;
+links?: {
+testPath?: string | undefined;
+figmaUrl?: string | undefined;
+githubIssue?: string | undefined;
+githubPr?: string | undefined;
+relatedDocs?: string | undefined;
+} | undefined;
+devMeta?: {
+usedStores?: string[] | undefined;
+usedComponents?: string[] | undefined;
+i18nKeys?: string[] | undefined;
+designTokens?: string[] | undefined;
+accessibility?: string | undefined;
+responsive?: string | undefined;
+} | undefined;
+sourceBinding?: {
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+source?: string | undefined;
+apiEndpoint?: string | undefined;
+apiMethod?: string | undefined;
+storeKey?: string | undefined;
+isStatic?: boolean | undefined;
+} | undefined;
+createdAt?: string | undefined;
+updatedAt?: string | undefined;
+};
+}[], {
+selector: string;
+element: HTMLElement;
+detected: Partial<ElementConfig>;
+}[] | {
+selector: string;
+element: HTMLElement;
+detected: {
+id?: string | undefined;
+componentPath?: string | undefined;
+fieldInfo?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+} | undefined;
+actionInfo?: {
+type: "navigate" | "api" | "modal" | "emit" | "function";
+target?: string | undefined;
+method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
+description?: string | undefined;
+params?: Record<string, string> | undefined;
+} | undefined;
+note?: {
+text: string;
+author?: string | undefined;
+type?: "info" | "warning" | "todo" | "question" | undefined;
+} | undefined;
+links?: {
+testPath?: string | undefined;
+figmaUrl?: string | undefined;
+githubIssue?: string | undefined;
+githubPr?: string | undefined;
+relatedDocs?: string | undefined;
+} | undefined;
+devMeta?: {
+usedStores?: string[] | undefined;
+usedComponents?: string[] | undefined;
+i18nKeys?: string[] | undefined;
+designTokens?: string[] | undefined;
+accessibility?: string | undefined;
+responsive?: string | undefined;
+} | undefined;
+sourceBinding?: {
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+source?: string | undefined;
+apiEndpoint?: string | undefined;
+apiMethod?: string | undefined;
+storeKey?: string | undefined;
+isStatic?: boolean | undefined;
+} | undefined;
+createdAt?: string | undefined;
+updatedAt?: string | undefined;
+};
+}[]>;
+scanCurrentPage: () => Promise<number>;
+scanAllPages: (router: any) => Promise<{
+page: string;
+count: number;
+}[]>;
+allPagesRoutes: Ref<string[], string[]>;
+currentScanPage: Ref<string, string>;
+clearScanResults: () => void;
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -486,7 +1071,124 @@ importConfigs: (json: string) => void;
 clearAllConfigs: () => void;
 detectSourceBinding: (element: HTMLElement) => SourceBindingInfo | null;
 autoDetectElementInfo: (element: HTMLElement, id: string) => Partial<ElementConfig>;
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo">>;
+isScanning: Ref<boolean, boolean>;
+scanProgress: Ref<number, number>;
+scanResults: Ref<    {
+selector: string;
+element: HTMLElement;
+detected: {
+id?: string | undefined;
+componentPath?: string | undefined;
+fieldInfo?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+} | undefined;
+actionInfo?: {
+type: "navigate" | "api" | "modal" | "emit" | "function";
+target?: string | undefined;
+method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
+description?: string | undefined;
+params?: Record<string, string> | undefined;
+} | undefined;
+note?: {
+text: string;
+author?: string | undefined;
+type?: "info" | "warning" | "todo" | "question" | undefined;
+} | undefined;
+links?: {
+testPath?: string | undefined;
+figmaUrl?: string | undefined;
+githubIssue?: string | undefined;
+githubPr?: string | undefined;
+relatedDocs?: string | undefined;
+} | undefined;
+devMeta?: {
+usedStores?: string[] | undefined;
+usedComponents?: string[] | undefined;
+i18nKeys?: string[] | undefined;
+designTokens?: string[] | undefined;
+accessibility?: string | undefined;
+responsive?: string | undefined;
+} | undefined;
+sourceBinding?: {
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+source?: string | undefined;
+apiEndpoint?: string | undefined;
+apiMethod?: string | undefined;
+storeKey?: string | undefined;
+isStatic?: boolean | undefined;
+} | undefined;
+createdAt?: string | undefined;
+updatedAt?: string | undefined;
+};
+}[], {
+selector: string;
+element: HTMLElement;
+detected: Partial<ElementConfig>;
+}[] | {
+selector: string;
+element: HTMLElement;
+detected: {
+id?: string | undefined;
+componentPath?: string | undefined;
+fieldInfo?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+} | undefined;
+actionInfo?: {
+type: "navigate" | "api" | "modal" | "emit" | "function";
+target?: string | undefined;
+method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
+description?: string | undefined;
+params?: Record<string, string> | undefined;
+} | undefined;
+note?: {
+text: string;
+author?: string | undefined;
+type?: "info" | "warning" | "todo" | "question" | undefined;
+} | undefined;
+links?: {
+testPath?: string | undefined;
+figmaUrl?: string | undefined;
+githubIssue?: string | undefined;
+githubPr?: string | undefined;
+relatedDocs?: string | undefined;
+} | undefined;
+devMeta?: {
+usedStores?: string[] | undefined;
+usedComponents?: string[] | undefined;
+i18nKeys?: string[] | undefined;
+designTokens?: string[] | undefined;
+accessibility?: string | undefined;
+responsive?: string | undefined;
+} | undefined;
+sourceBinding?: {
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+source?: string | undefined;
+apiEndpoint?: string | undefined;
+apiMethod?: string | undefined;
+storeKey?: string | undefined;
+isStatic?: boolean | undefined;
+} | undefined;
+createdAt?: string | undefined;
+updatedAt?: string | undefined;
+};
+}[]>;
+scanCurrentPage: () => Promise<number>;
+scanAllPages: (router: any) => Promise<{
+page: string;
+count: number;
+}[]>;
+allPagesRoutes: Ref<string[], string[]>;
+currentScanPage: Ref<string, string>;
+clearScanResults: () => void;
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults">>;
 
 declare const VueDevInspector: Plugin_2<PluginOptions[]>;
 export { VueDevInspector }
