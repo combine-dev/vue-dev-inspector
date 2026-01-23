@@ -318,8 +318,13 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
 
   // Auto-detect source binding for an element
   function detectSourceBinding(element: HTMLElement): SourceBindingInfo | null {
-    // Check for various Vue binding patterns
     const textContent = element.textContent?.trim() || ''
+    const tagName = element.tagName.toUpperCase()
+
+    // Skip empty elements
+    if (!textContent && tagName !== 'INPUT' && tagName !== 'SELECT' && tagName !== 'TEXTAREA') {
+      return null
+    }
 
     // Check if element has v-model (via Vue's internal data)
     const vueInstance = (element as any).__vueParentComponent
@@ -337,6 +342,18 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       }
     }
 
+    // Form elements are typically bound to data
+    if (tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA') {
+      const inputType = (element as HTMLInputElement).type || 'text'
+      const value = (element as HTMLInputElement).value || ''
+      const placeholder = (element as HTMLInputElement).placeholder || ''
+      return {
+        type: 'v-model',
+        source: `${tagName.toLowerCase()}[type=${inputType}]${placeholder ? ` placeholder="${placeholder}"` : ''}`,
+        isStatic: false,
+      }
+    }
+
     // Check for data attributes that might indicate binding
     const dataSource = element.dataset.source || element.dataset.field || element.dataset.bind
     if (dataSource) {
@@ -347,31 +364,74 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       }
     }
 
-    // Heuristic: If the element text looks like static content (no special chars, short text)
-    // This is a simple heuristic - in practice, we'd need build-time analysis
-    const isLikelyStatic = (
-      textContent.length > 0 &&
-      textContent.length < 100 &&
-      !textContent.includes('{{') &&
-      !textContent.match(/^\d+$/) && // Not just a number
-      !textContent.match(/^\d{4}[-/]\d{2}[-/]\d{2}/) && // Not a date
-      element.children.length === 0 && // No child elements
-      !element.closest('[v-for]') && // Not inside a loop
-      !element.hasAttribute(':') && // No dynamic bindings visible
-      (element.tagName === 'SPAN' || element.tagName === 'LABEL' || element.tagName === 'P' || element.tagName === 'H1' || element.tagName === 'H2' || element.tagName === 'H3' || element.tagName === 'TH' || element.tagName === 'BUTTON')
+    // Check if inside a v-for loop (likely dynamic)
+    const isInLoop = element.closest('[v-for]') !== null ||
+      element.closest('[data-v-for]') !== null ||
+      // Check parent for repeated similar siblings
+      (element.parentElement && element.parentElement.children.length > 3 &&
+        Array.from(element.parentElement.children).filter(c => c.tagName === element.tagName).length > 2)
+
+    if (isInLoop) {
+      return {
+        type: 'api',
+        source: 'loop item',
+        isStatic: false,
+      }
+    }
+
+    // Check if text looks like dynamic data patterns
+    const dynamicPatterns = [
+      /^\d+$/, // Just numbers (likely IDs or counts)
+      /^\d{4}[-/]\d{1,2}[-/]\d{1,2}/, // Dates
+      /^\d{1,2}:\d{2}/, // Times
+      /^¥[\d,]+/, // Currency
+      /^\$[\d,]+/, // Currency USD
+      /^[\d,]+円$/, // Japanese currency
+      /^[a-f0-9]{8}-[a-f0-9]{4}/, // UUIDs
+      /^[A-Z0-9]{6,}$/, // IDs/codes
+      /^\d+\.\d+$/, // Decimal numbers
+      /^https?:\/\//, // URLs
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, // Emails
+    ]
+
+    for (const pattern of dynamicPatterns) {
+      if (pattern.test(textContent)) {
+        return {
+          type: 'api',
+          source: 'dynamic data pattern',
+          isStatic: false,
+        }
+      }
+    }
+
+    // Get direct text content (not from children)
+    const directText = Array.from(element.childNodes)
+      .filter(node => node.nodeType === Node.TEXT_NODE)
+      .map(node => node.textContent?.trim() || '')
+      .join('')
+      .trim()
+
+    // If element has direct text and no or few children, likely static
+    const hasDirectText = directText.length > 0
+    const hasNoChildren = element.children.length === 0
+    const hasOnlyInlineChildren = Array.from(element.children).every(c =>
+      ['SPAN', 'STRONG', 'EM', 'B', 'I', 'A', 'BR'].includes(c.tagName)
     )
 
-    if (isLikelyStatic) {
+    if (hasDirectText || (hasNoChildren && textContent.length > 0) || hasOnlyInlineChildren) {
+      // Likely static text
       return {
         type: 'static',
+        source: textContent.substring(0, 50) + (textContent.length > 50 ? '...' : ''),
         isStatic: true,
       }
     }
 
-    // Check if text looks like dynamic data (dates, numbers, IDs)
-    if (textContent.match(/^\d+$/) || textContent.match(/^\d{4}[-/]\d{2}[-/]\d{2}/)) {
+    // Default: unknown but has content
+    if (textContent.length > 0 && textContent.length < 200) {
       return {
-        type: 'api',
+        type: 'prop',
+        source: 'unknown binding',
         isStatic: false,
       }
     }
@@ -387,11 +447,33 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     if (binding) {
       result.sourceBinding = binding
 
-      // If static, add a note indicating fixed text
+      // Get the actual text content
+      const textContent = element.textContent?.trim() || ''
+
+      // If static, add a note with the actual text content
       if (binding.isStatic) {
         result.note = {
           type: 'info',
-          text: '固定文言',
+          text: `【固定文言】${textContent}`,
+        }
+      } else if (binding.type === 'v-model') {
+        // For form elements, note the binding type
+        const tagName = element.tagName.toUpperCase()
+        if (tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA') {
+          const placeholder = (element as HTMLInputElement).placeholder || ''
+          const label = element.closest('label')?.textContent?.trim() ||
+            element.getAttribute('aria-label') ||
+            document.querySelector(`label[for="${element.id}"]`)?.textContent?.trim() || ''
+          result.note = {
+            type: 'todo',
+            text: `【フォーム要素】${label || placeholder || tagName.toLowerCase()}`,
+          }
+        }
+      } else if (binding.type === 'api') {
+        // For dynamic data
+        result.note = {
+          type: 'question',
+          text: `【動的データ】${textContent.substring(0, 100)}${textContent.length > 100 ? '...' : ''}`,
         }
       }
     }
@@ -411,54 +493,105 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     scanResults.value = []
 
     try {
-      // Get all text-containing elements
-      const allElements = document.querySelectorAll('body *:not([data-dev-inspector]):not(script):not(style):not(noscript)')
-      const textElements: HTMLElement[] = []
+      // Target elements for scanning - expanded list
+      const targetSelectors = [
+        // Text elements
+        'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+        'p', 'span', 'label', 'a',
+        'th', 'td',
+        'li',
+        'button',
+        'div', // Include divs but filter later
+        // Form elements
+        'input', 'select', 'textarea',
+        // Other interactive
+        '[role="button"]', '[role="link"]', '[role="menuitem"]',
+      ].join(',')
+
+      const allElements = document.querySelectorAll(targetSelectors)
+      const candidateElements: HTMLElement[] = []
 
       allElements.forEach((el) => {
         const element = el as HTMLElement
+
+        // Skip dev inspector elements
+        if (element.closest('[data-dev-inspector]')) return
+
+        // Skip hidden elements
+        const style = window.getComputedStyle(element)
+        if (style.display === 'none' || style.visibility === 'hidden' || style.opacity === '0') return
+
         // Skip if already configured
         const existingSelector = generateSelector(element)
         if (elementConfigs.value[existingSelector]) return
 
-        // Check if element has meaningful text content
+        const tagName = element.tagName.toUpperCase()
         const text = element.textContent?.trim() || ''
-        if (text.length > 0 && text.length < 200) {
-          // Check if this element directly contains text (not just from children)
+
+        // For form elements, always include
+        if (tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA') {
+          candidateElements.push(element)
+          return
+        }
+
+        // Skip elements with too much text (likely containers)
+        if (text.length > 300) return
+
+        // Skip empty non-form elements
+        if (text.length === 0) return
+
+        // For DIVs, only include if they have direct text and few/no children
+        if (tagName === 'DIV') {
           const directText = Array.from(element.childNodes)
             .filter(node => node.nodeType === Node.TEXT_NODE)
             .map(node => node.textContent?.trim() || '')
             .join('')
+            .trim()
 
-          if (directText.length > 0 || element.children.length === 0) {
-            textElements.push(element)
-          }
+          if (directText.length === 0) return
+          if (element.children.length > 3) return
+        }
+
+        // For other elements, check if they have meaningful content
+        const hasDirectText = Array.from(element.childNodes)
+          .some(node => node.nodeType === Node.TEXT_NODE && (node.textContent?.trim() || '').length > 0)
+
+        const hasNoBlockChildren = !Array.from(element.children)
+          .some(c => ['DIV', 'P', 'UL', 'OL', 'TABLE', 'SECTION', 'ARTICLE'].includes(c.tagName))
+
+        if (hasDirectText || (element.children.length === 0 && text.length > 0) || hasNoBlockChildren) {
+          candidateElements.push(element)
         }
       })
 
-      const total = textElements.length
+      const total = candidateElements.length
       let processed = 0
       let added = 0
 
-      for (const element of textElements) {
-        const selector = generateSelector(element)
-        const detected = autoDetectElementInfo(element, selector)
+      // Process in batches for better UI responsiveness
+      const batchSize = 20
 
-        if (detected.sourceBinding) {
-          scanResults.value.push({ selector, element, detected })
+      for (let i = 0; i < candidateElements.length; i += batchSize) {
+        const batch = candidateElements.slice(i, i + batchSize)
 
-          // Auto-save detected elements
-          setElementConfig(selector, detected)
-          added++
+        for (const element of batch) {
+          const selector = generateSelector(element)
+          const detected = autoDetectElementInfo(element, selector)
+
+          if (detected.sourceBinding) {
+            scanResults.value.push({ selector, element, detected })
+
+            // Auto-save detected elements
+            setElementConfig(selector, detected)
+            added++
+          }
+
+          processed++
+          scanProgress.value = Math.round((processed / total) * 100)
         }
 
-        processed++
-        scanProgress.value = Math.round((processed / total) * 100)
-
-        // Yield to UI every 10 elements
-        if (processed % 10 === 0) {
-          await new Promise(resolve => setTimeout(resolve, 0))
-        }
+        // Yield to UI between batches
+        await new Promise(resolve => setTimeout(resolve, 10))
       }
 
       return added

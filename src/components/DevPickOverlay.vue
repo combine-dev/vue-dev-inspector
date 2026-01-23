@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
-import { Info, AlertTriangle, CheckSquare, HelpCircle } from 'lucide-vue-next'
 import { useDevInspectorStore } from '../composables/useDevInspector'
 
 const store = useDevInspectorStore()
@@ -14,36 +13,33 @@ const highlightStyle = ref<{
 
 const hoveredElement = ref<HTMLElement | null>(null)
 
-// Get note icon/color for existing annotations
-function getNoteInfo(selector: string) {
-  const config = store.getElementConfig(selector)
-  if (!config?.note) return null
-
-  const icons = {
-    info: Info,
-    warning: AlertTriangle,
-    todo: CheckSquare,
-    question: HelpCircle,
-  }
-  const colors = {
-    info: '#60a5fa',
-    warning: '#fbbf24',
-    todo: '#10b981',
-    question: '#a78bfa',
-  }
-
-  return {
-    icon: icons[config.note.type || 'info'],
-    color: colors[config.note.type || 'info'],
-    text: config.note.text,
-  }
-}
-
 // Scroll position for reactive updates
 const scrollY = ref(0)
 const scrollX = ref(0)
 
-// Existing annotations on current page
+// Get note type color
+function getNoteColor(selector: string): string {
+  const config = store.getElementConfig(selector)
+  if (!config?.sourceBinding) {
+    // Fallback based on note type
+    const noteType = config?.note?.type || 'info'
+    const colors: Record<string, string> = {
+      info: '#60a5fa',
+      warning: '#fbbf24',
+      todo: '#10b981',
+      question: '#a78bfa',
+    }
+    return colors[noteType] || '#60a5fa'
+  }
+
+  // Color based on source binding type
+  if (config.sourceBinding.isStatic) return '#10b981' // Green for static
+  if (config.sourceBinding.type === 'v-model') return '#8b5cf6' // Purple for form
+  if (config.sourceBinding.type === 'api') return '#f59e0b' // Orange for API data
+  return '#60a5fa' // Blue default
+}
+
+// Existing annotations on current page (as highlight boxes)
 const existingAnnotations = computed(() => {
   // Access scroll values to make this reactive
   const _scrollY = scrollY.value
@@ -51,10 +47,13 @@ const existingAnnotations = computed(() => {
 
   const annotations: Array<{
     selector: string
-    element: HTMLElement | null
-    top: number
-    left: number
-    noteInfo: ReturnType<typeof getNoteInfo>
+    top: string
+    left: string
+    width: string
+    height: string
+    color: string
+    isStatic: boolean
+    label: string
   }> = []
 
   if (!store.isEnabled) return annotations
@@ -65,12 +64,25 @@ const existingAnnotations = computed(() => {
       const element = document.querySelector(selector) as HTMLElement | null
       if (element) {
         const rect = element.getBoundingClientRect()
+        const config = store.getElementConfig(selector)
+        const isStatic = config?.sourceBinding?.isStatic || false
+        const bindingType = config?.sourceBinding?.type || ''
+
+        let label = ''
+        if (isStatic) label = '固定'
+        else if (bindingType === 'v-model') label = 'フォーム'
+        else if (bindingType === 'api') label = 'データ'
+        else label = 'メモ'
+
         annotations.push({
           selector,
-          element,
-          top: rect.top + _scrollY - 4,
-          left: rect.right + _scrollX + 4,
-          noteInfo: getNoteInfo(selector),
+          top: `${rect.top + _scrollY}px`,
+          left: `${rect.left + _scrollX}px`,
+          width: `${rect.width}px`,
+          height: `${rect.height}px`,
+          color: getNoteColor(selector),
+          isStatic,
+          label,
         })
       }
     } catch {
@@ -236,26 +248,28 @@ watch(() => store.isPickMode, (isPicking) => {
       <span class="di-pick-hint">でキャンセル</span>
     </div>
 
-    <!-- Existing annotation markers (when not in pick mode) -->
-    <template v-if="store.isEnabled && !store.isPickMode && !store.isEditMode">
+    <!-- Existing annotation boxes (when not in pick mode) -->
+    <template v-if="store.isEnabled && !store.isPickMode && !store.isEditMode && store.scanResults.length === 0">
       <div
         v-for="annotation in existingAnnotations"
         :key="annotation.selector"
         data-dev-inspector
-        class="di-annotation-marker"
+        class="di-annotation-box"
         :style="{
-          top: `${annotation.top}px`,
-          left: `${annotation.left}px`,
+          top: annotation.top,
+          left: annotation.left,
+          width: annotation.width,
+          height: annotation.height,
+          borderColor: annotation.color,
+          backgroundColor: annotation.color + '15',
         }"
+        @click="store.startEditing(annotation.selector)"
       >
         <div
-          v-if="annotation.noteInfo"
-          class="di-marker-dot"
-          :style="{ backgroundColor: annotation.noteInfo.color }"
-          :title="annotation.noteInfo.text"
-          @click="store.startEditing(annotation.selector)"
+          class="di-annotation-label"
+          :style="{ backgroundColor: annotation.color }"
         >
-          <component :is="annotation.noteInfo.icon" style="width: 10px; height: 10px; color: white;" />
+          {{ annotation.label }}
         </div>
       </div>
     </template>
@@ -345,26 +359,30 @@ watch(() => store.isPickMode, (isPicking) => {
   opacity: 0.8;
 }
 
-.di-annotation-marker {
-  position: fixed;
+/* Annotation boxes for existing configs */
+.di-annotation-box {
+  position: absolute;
   z-index: 9996;
-  pointer-events: none;
+  border: 2px solid;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-annotation-box:hover {
+  filter: brightness(1.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.di-marker-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  pointer-events: auto;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-.di-marker-dot:hover {
-  transform: scale(1.2);
+.di-annotation-label {
+  position: absolute;
+  top: -18px;
+  left: 0;
+  padding: 1px 6px;
+  color: white;
+  font-size: 9px;
+  font-weight: 600;
+  border-radius: 3px;
+  white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
 /* Scanned element highlights */
