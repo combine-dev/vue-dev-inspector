@@ -596,10 +596,26 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   const scanResults = ref<Array<{ selector: string; element: HTMLElement; detected: Partial<ElementConfig> }>>([])
 
   // Scan all elements on the current page
-  async function scanCurrentPage(): Promise<number> {
+  async function scanCurrentPage(options: { rescan?: boolean } = {}): Promise<number> {
     isScanning.value = true
     scanProgress.value = 0
     scanResults.value = []
+
+    const { rescan = false } = options
+
+    // If rescan mode, clear existing configs for this page first
+    if (rescan) {
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
+      const keysToDelete = Object.keys(elementConfigs.value).filter(key => {
+        const config = elementConfigs.value[key]
+        return !config.componentPath || config.componentPath.includes(currentPath)
+      })
+      for (const key of keysToDelete) {
+        delete elementConfigs.value[key]
+      }
+      // Trigger save
+      nextTick(() => saveConfigs())
+    }
 
     try {
       // Target elements for scanning - expanded list

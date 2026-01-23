@@ -94,9 +94,9 @@ const lastScanCount = ref(0)
 const showScanResults = ref(false)
 const allPagesScanResults = ref<{ page: string; count: number }[]>([])
 
-async function handleScanPage() {
+async function handleScanPage(rescan = false) {
   showScanResults.value = true
-  lastScanCount.value = await store.scanCurrentPage()
+  lastScanCount.value = await store.scanCurrentPage({ rescan })
 }
 
 async function handleScanAllPages() {
@@ -174,14 +174,26 @@ async function handleScanAllPages() {
         <!-- Scan Buttons -->
         <div class="di-scan-section">
           <button
-            @click="handleScanPage"
+            @click="handleScanPage(false)"
             class="di-scan-btn"
             :disabled="store.isScanning"
+            title="新規要素のみスキャン"
           >
             <Loader2 v-if="store.isScanning && !store.currentScanPage" class="di-spin" style="width: 16px; height: 16px;" />
             <Scan v-else style="width: 16px; height: 16px;" />
-            <span>{{ store.isScanning && !store.currentScanPage ? `スキャン中... ${store.scanProgress}%` : 'ページ全体をスキャン' }}</span>
+            <span>{{ store.isScanning && !store.currentScanPage ? `${store.scanProgress}%` : 'スキャン' }}</span>
           </button>
+          <button
+            @click="handleScanPage(true)"
+            class="di-scan-btn di-scan-btn-rescan"
+            :disabled="store.isScanning"
+            title="既存の設定をクリアして再スキャン"
+          >
+            <Scan style="width: 16px; height: 16px;" />
+            <span>再スキャン</span>
+          </button>
+        </div>
+        <div class="di-scan-section">
           <button
             @click="handleScanAllPages"
             class="di-scan-btn di-scan-btn-all"
@@ -572,8 +584,15 @@ async function handleScanAllPages() {
   opacity: 0.6;
   cursor: not-allowed;
 }
+.di-scan-btn-rescan {
+  color: #f59e0b;
+}
+.di-scan-btn-rescan:hover:not(:disabled) {
+  border-color: #f59e0b;
+}
 .di-scan-btn-all {
   color: #a78bfa;
+  flex: 1;
 }
 .di-scan-btn-all:hover:not(:disabled) {
   border-color: #a78bfa;

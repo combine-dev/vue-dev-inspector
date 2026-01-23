@@ -1,13 +1,13 @@
-import { ref as p, computed as W, watch as mt, nextTick as j } from "vue";
+import { ref as u, computed as W, watch as mt, nextTick as _ } from "vue";
 import { defineStore as yt } from "pinia";
-const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () => {
-  const w = p({}), y = p(!1), h = p(!1), C = p(!1), I = p(null), b = p(!1), i = p({}), S = p(null), x = p(null), B = W(() => w.value.storageKey || Et), L = W(() => w.value.enabledInProduction ? !0 : typeof import.meta < "u" && St ? !1 : process.env.NODE_ENV === "development");
+const St = {}, Et = "devInspector:elementConfigs", bt = yt("devInspector", () => {
+  const $ = u({}), C = u(!1), y = u(!1), A = u(!1), x = u(null), w = u(!1), i = u({}), T = u(null), R = u(null), B = W(() => $.value.storageKey || Et), k = W(() => $.value.enabledInProduction ? !0 : typeof import.meta < "u" && St ? !1 : process.env.NODE_ENV === "development");
   function G(t = {}) {
-    w.value = t, K();
+    $.value = t, K();
   }
   function K() {
     try {
-      const t = w.value.initialAnnotations || {};
+      const t = $.value.initialAnnotations || {};
       if (typeof window < "u") {
         const n = localStorage.getItem(B.value), e = n ? JSON.parse(n) : {};
         i.value = { ...t, ...e };
@@ -17,7 +17,7 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
       console.error("[DevInspector] Failed to load configs:", t);
     }
   }
-  function O() {
+  function L() {
     try {
       if (typeof window < "u") {
         const t = JSON.stringify(i.value);
@@ -28,29 +28,29 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
     }
   }
   mt(i, () => {
-    j(() => {
-      O();
+    _(() => {
+      L();
     });
   }, { deep: !0 });
   function V() {
-    L.value && (y.value = !y.value, y.value || (h.value = !1, S.value = null));
+    k.value && (C.value = !C.value, C.value || (y.value = !1, T.value = null));
   }
   function q() {
-    L.value && (y.value = !0);
+    k.value && (C.value = !0);
   }
   function H() {
-    y.value = !1, h.value = !1, S.value = null;
+    C.value = !1, y.value = !1, T.value = null;
   }
   function Y() {
-    h.value = !h.value, h.value || (S.value = null), h.value && (C.value = !1);
+    y.value = !y.value, y.value || (T.value = null), y.value && (A.value = !1);
   }
   function Q() {
-    C.value = !C.value, C.value && (h.value = !1), x.value = null;
+    A.value = !A.value, A.value && (y.value = !1), R.value = null;
   }
   function tt(t) {
-    x.value = t;
+    R.value = t;
   }
-  function D(t) {
+  function U(t) {
     if (t.id)
       return `#${t.id}`;
     if (t.dataset.devId)
@@ -58,24 +58,24 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
     const n = [];
     let e = t;
     for (; e && e !== document.body; ) {
-      let o = e.tagName.toLowerCase();
+      let a = e.tagName.toLowerCase();
       if (e.id) {
-        o = `#${e.id}`, n.unshift(o);
+        a = `#${e.id}`, n.unshift(a);
         break;
       }
-      const s = Array.from(e.classList).filter((c) => !c.startsWith("hover:") && !c.startsWith("focus:")).slice(0, 2);
-      s.length > 0 && (o += "." + s.join("."));
-      const a = e.parentElement;
-      if (a) {
-        const c = Array.from(a.children).filter(
-          (f) => f.tagName === e.tagName
+      const o = Array.from(e.classList).filter((c) => !c.startsWith("hover:") && !c.startsWith("focus:")).slice(0, 2);
+      o.length > 0 && (a += "." + o.join("."));
+      const s = e.parentElement;
+      if (s) {
+        const c = Array.from(s.children).filter(
+          (p) => p.tagName === e.tagName
         );
         if (c.length > 1) {
-          const f = c.indexOf(e) + 1;
-          o += `:nth-child(${f})`;
+          const p = c.indexOf(e) + 1;
+          a += `:nth-child(${p})`;
         }
       }
-      n.unshift(o), e = e.parentElement;
+      n.unshift(a), e = e.parentElement;
     }
     return n.join(" > ");
   }
@@ -87,51 +87,51 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
     });
   }
   function nt(t) {
-    I.value = t;
+    x.value = t;
   }
   function ot() {
-    I.value = null;
+    x.value = null;
   }
   function at() {
-    b.value = !b.value;
+    w.value = !w.value;
   }
   function st() {
-    b.value = !0;
+    w.value = !0;
   }
   function it() {
-    b.value = !1;
+    w.value = !1;
   }
   function rt(t) {
     return i.value[t];
   }
   function F(t, n) {
-    var a;
-    const e = (/* @__PURE__ */ new Date()).toISOString(), o = i.value[t], s = {
-      ...o,
+    var s;
+    const e = (/* @__PURE__ */ new Date()).toISOString(), a = i.value[t], o = {
+      ...a,
       ...n,
       id: t,
-      componentPath: n.componentPath || ((a = I.value) == null ? void 0 : a.componentPath) || "",
-      createdAt: (o == null ? void 0 : o.createdAt) || e,
+      componentPath: n.componentPath || ((s = x.value) == null ? void 0 : s.componentPath) || "",
+      createdAt: (a == null ? void 0 : a.createdAt) || e,
       updatedAt: e
     };
     i.value = {
       ...i.value,
-      [t]: s
-    }, j(() => O());
+      [t]: o
+    }, _(() => L());
   }
-  function lt(t) {
+  function ct(t) {
     const { [t]: n, ...e } = i.value;
-    i.value = e, j(() => O());
+    i.value = e, _(() => L());
   }
   function z(t) {
-    var N;
-    const n = ((N = t.textContent) == null ? void 0 : N.trim()) || "", e = t.tagName.toUpperCase();
+    var D;
+    const n = ((D = t.textContent) == null ? void 0 : D.trim()) || "", e = t.tagName.toUpperCase();
     if (!n && e !== "INPUT" && e !== "SELECT" && e !== "TEXTAREA")
       return null;
-    const o = t.__vueParentComponent;
-    if (o) {
-      const l = o.props || {}, u = o.attrs || {};
-      if ("modelValue" in l || "model-value" in u)
+    const a = t.__vueParentComponent;
+    if (a) {
+      const l = a.props || {}, d = a.attrs || {};
+      if ("modelValue" in l || "model-value" in d)
         return {
           type: "v-model",
           source: "form binding detected",
@@ -139,18 +139,18 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
         };
     }
     if (e === "INPUT" || e === "SELECT" || e === "TEXTAREA") {
-      const l = t.type || "text", u = t.placeholder || "";
+      const l = t.type || "text", d = t.placeholder || "";
       return {
         type: "v-model",
-        source: `${e.toLowerCase()}[type=${l}]${u ? ` placeholder="${u}"` : ""}`,
+        source: `${e.toLowerCase()}[type=${l}]${d ? ` placeholder="${d}"` : ""}`,
         isStatic: !1
       };
     }
-    const s = t.dataset.source || t.dataset.field || t.dataset.bind;
-    if (s)
+    const o = t.dataset.source || t.dataset.field || t.dataset.bind;
+    if (o)
       return {
         type: "prop",
-        source: s,
+        source: o,
         isStatic: !1
       };
     if (t.closest("tbody") || t.closest('[role="rowgroup"]'))
@@ -159,8 +159,8 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
         source: "table data",
         isStatic: !1
       };
-    const a = t.closest('ul, ol, [role="list"]');
-    if (a && a.children.length > 1)
+    const s = t.closest('ul, ol, [role="list"]');
+    if (s && s.children.length > 1)
       return {
         type: "api",
         source: "list item",
@@ -182,11 +182,11 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
       '[role="gridcell"]'
     ];
     for (const l of c) {
-      const u = t.closest(l);
-      if (u) {
-        const m = u.parentElement;
-        if (m && Array.from(m.children).filter(
-          ($) => $ !== u && $.className === u.className
+      const d = t.closest(l);
+      if (d) {
+        const g = d.parentElement;
+        if (g && Array.from(g.children).filter(
+          (b) => b !== d && b.className === d.className
         ).length > 0)
           return {
             type: "api",
@@ -202,9 +202,9 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
         isStatic: !1
       };
     if (t.parentElement) {
-      const l = t.parentElement, m = Array.from(l.children).filter((k) => k.tagName === t.tagName);
-      if (m.length >= 2 && m.filter(
-        ($) => $.children.length === t.children.length
+      const l = t.parentElement, g = Array.from(l.children).filter((m) => m.tagName === t.tagName);
+      if (g.length >= 2 && g.filter(
+        (b) => b.children.length === t.children.length
       ).length >= 2)
         return {
           type: "api",
@@ -212,7 +212,7 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
           isStatic: !1
         };
     }
-    const r = [
+    const E = [
       /^\d+$/,
       // Just numbers (likely IDs or counts)
       /^\d{4}[-/]\d{1,2}[-/]\d{1,2}/,
@@ -242,14 +242,14 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
       /^第?\d+/
       // Numbered items
     ];
-    for (const l of r)
+    for (const l of E)
       if (l.test(n))
         return {
           type: "api",
           source: "dynamic data pattern",
           isStatic: !1
         };
-    const d = [
+    const v = [
       /^[\u4e00-\u9faf]{2,4}$/,
       // Japanese Kanji names (2-4 chars)
       /^[\u3040-\u309f\u30a0-\u30ff]{2,6}$/,
@@ -257,14 +257,14 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
       /^[A-Z][a-z]+ [A-Z][a-z]+$/
       // English names like "John Smith"
     ];
-    for (const l of d)
+    for (const l of v)
       if (l.test(n))
         return {
           type: "api",
           source: "name pattern",
           isStatic: !1
         };
-    const g = ["LABEL", "TH", "LEGEND", "FIGCAPTION"].includes(e), R = [
+    const f = ["LABEL", "TH", "LEGEND", "FIGCAPTION"].includes(e), h = [
       /^(保存|キャンセル|閉じる|開く|編集|削除|追加|検索|送信|確認|戻る|次へ|完了|OK|Yes|No|Cancel|Save|Submit|Close|Open|Edit|Delete|Add|Search|Back|Next|Done)$/,
       /^[\u30a0-\u30ff]+$/,
       // Pure katakana (often UI labels)
@@ -276,8 +276,8 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
       // Ends with 設定
       /情報$/
       // Ends with 情報
-    ].some((l) => l.test(n)), U = e === "BUTTON" || t.closest("button") !== null || t.getAttribute("role") === "button";
-    return g || R || U && n.length < 20 ? {
+    ].some((l) => l.test(n)), I = e === "BUTTON" || t.closest("button") !== null || t.getAttribute("role") === "button";
+    return f || h || I && n.length < 20 ? {
       type: "static",
       source: n.substring(0, 50) + (n.length > 50 ? "..." : ""),
       isStatic: !0
@@ -292,37 +292,47 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
     } : null;
   }
   function J(t, n) {
-    var s, a, c, f, r;
-    const e = z(t), o = {};
+    var o, s, c, p, E;
+    const e = z(t), a = {};
     if (e) {
-      o.sourceBinding = e;
-      const d = ((s = t.textContent) == null ? void 0 : s.trim()) || "";
+      a.sourceBinding = e;
+      const v = ((o = t.textContent) == null ? void 0 : o.trim()) || "";
       if (e.isStatic)
-        o.note = {
+        a.note = {
           type: "info",
-          text: `【固定文言】${d}`
+          text: `【固定文言】${v}`
         };
       else if (e.type === "v-model") {
-        const v = t.tagName.toUpperCase();
-        if (v === "INPUT" || v === "SELECT" || v === "TEXTAREA") {
-          const g = t.placeholder || "", E = ((c = (a = t.closest("label")) == null ? void 0 : a.textContent) == null ? void 0 : c.trim()) || t.getAttribute("aria-label") || ((r = (f = document.querySelector(`label[for="${t.id}"]`)) == null ? void 0 : f.textContent) == null ? void 0 : r.trim()) || "";
-          o.note = {
+        const r = t.tagName.toUpperCase();
+        if (r === "INPUT" || r === "SELECT" || r === "TEXTAREA") {
+          const f = t.placeholder || "", S = ((c = (s = t.closest("label")) == null ? void 0 : s.textContent) == null ? void 0 : c.trim()) || t.getAttribute("aria-label") || ((E = (p = document.querySelector(`label[for="${t.id}"]`)) == null ? void 0 : p.textContent) == null ? void 0 : E.trim()) || "";
+          a.note = {
             type: "todo",
-            text: `【フォーム要素】${E || g || v.toLowerCase()}`
+            text: `【フォーム要素】${S || f || r.toLowerCase()}`
           };
         }
-      } else e.type === "api" && (o.note = {
+      } else e.type === "api" && (a.note = {
         type: "question",
-        text: `【動的データ】${d.substring(0, 100)}${d.length > 100 ? "..." : ""}`
+        text: `【動的データ】${v.substring(0, 100)}${v.length > 100 ? "..." : ""}`
       });
     }
-    return o;
+    return a;
   }
-  const T = p(!1), A = p(0), P = p([]);
-  async function M() {
-    T.value = !0, A.value = 0, P.value = [];
+  const N = u(!1), P = u(0), O = u([]);
+  async function M(t = {}) {
+    N.value = !0, P.value = 0, O.value = [];
+    const { rescan: n = !1 } = t;
+    if (n) {
+      const e = typeof window < "u" ? window.location.pathname : "/", a = Object.keys(i.value).filter((o) => {
+        const s = i.value[o];
+        return !s.componentPath || s.componentPath.includes(e);
+      });
+      for (const o of a)
+        delete i.value[o];
+      _(() => L());
+    }
     try {
-      const t = [
+      const e = [
         // Text elements
         "h1",
         "h2",
@@ -348,82 +358,82 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
         '[role="button"]',
         '[role="link"]',
         '[role="menuitem"]'
-      ].join(","), n = document.querySelectorAll(t), e = [];
-      n.forEach((f) => {
-        var N;
-        const r = f;
+      ].join(","), a = document.querySelectorAll(e), o = [];
+      a.forEach((v) => {
+        var d;
+        const r = v;
         if (r.closest("[data-dev-inspector]")) return;
-        const d = window.getComputedStyle(r);
-        if (d.display === "none" || d.visibility === "hidden" || d.opacity === "0") return;
-        const v = D(r);
-        if (i.value[v]) return;
-        const g = r.tagName.toUpperCase(), E = ((N = r.textContent) == null ? void 0 : N.trim()) || "";
-        if (g === "INPUT" || g === "SELECT" || g === "TEXTAREA") {
-          e.push(r);
+        const f = window.getComputedStyle(r);
+        if (f.display === "none" || f.visibility === "hidden" || f.opacity === "0") return;
+        const S = U(r);
+        if (i.value[S]) return;
+        const h = r.tagName.toUpperCase(), I = ((d = r.textContent) == null ? void 0 : d.trim()) || "";
+        if (h === "INPUT" || h === "SELECT" || h === "TEXTAREA") {
+          o.push(r);
           return;
         }
-        if (E.length > 300 || E.length === 0 || g === "DIV" && (Array.from(r.childNodes).filter((u) => u.nodeType === Node.TEXT_NODE).map((u) => {
-          var m;
-          return ((m = u.textContent) == null ? void 0 : m.trim()) || "";
+        if (I.length > 300 || I.length === 0 || h === "DIV" && (Array.from(r.childNodes).filter((m) => m.nodeType === Node.TEXT_NODE).map((m) => {
+          var b;
+          return ((b = m.textContent) == null ? void 0 : b.trim()) || "";
         }).join("").trim().length === 0 || r.children.length > 3))
           return;
-        const R = Array.from(r.childNodes).some((l) => {
-          var u;
-          return l.nodeType === Node.TEXT_NODE && (((u = l.textContent) == null ? void 0 : u.trim()) || "").length > 0;
-        }), U = !Array.from(r.children).some((l) => ["DIV", "P", "UL", "OL", "TABLE", "SECTION", "ARTICLE"].includes(l.tagName));
-        (R || r.children.length === 0 && E.length > 0 || U) && e.push(r);
+        const D = Array.from(r.childNodes).some((g) => {
+          var m;
+          return g.nodeType === Node.TEXT_NODE && (((m = g.textContent) == null ? void 0 : m.trim()) || "").length > 0;
+        }), l = !Array.from(r.children).some((g) => ["DIV", "P", "UL", "OL", "TABLE", "SECTION", "ARTICLE"].includes(g.tagName));
+        (D || r.children.length === 0 && I.length > 0 || l) && o.push(r);
       });
-      const o = e.length;
-      let s = 0, a = 0;
-      const c = 20;
-      for (let f = 0; f < e.length; f += c) {
-        const r = e.slice(f, f + c);
-        for (const d of r) {
-          const v = D(d), g = J(d, v);
-          g.sourceBinding && (P.value.push({ selector: v, element: d, detected: g }), F(v, g), a++), s++, A.value = Math.round(s / o * 100);
+      const s = o.length;
+      let c = 0, p = 0;
+      const E = 20;
+      for (let v = 0; v < o.length; v += E) {
+        const r = o.slice(v, v + E);
+        for (const f of r) {
+          const S = U(f), h = J(f, S);
+          h.sourceBinding && (O.value.push({ selector: S, element: f, detected: h }), F(S, h), p++), c++, P.value = Math.round(c / s * 100);
         }
-        await new Promise((d) => setTimeout(d, 10));
+        await new Promise((f) => setTimeout(f, 10));
       }
-      return a;
+      return p;
     } finally {
-      T.value = !1, A.value = 100;
+      N.value = !1, P.value = 100;
     }
   }
-  const X = p([]), _ = p("");
-  async function ct(t) {
+  const X = u([]), j = u("");
+  async function lt(t) {
     var e;
     if (!t)
       return console.warn("[DevInspector] Router not provided for all pages scan"), [];
-    T.value = !0;
+    N.value = !0;
     const n = [];
     try {
-      const o = t.getRoutes(), s = [];
-      for (const a of o)
-        a.path.includes(":") && !a.path.includes("?") || a.redirect || a.path !== "/:pathMatch(.*)*" && ((e = a.meta) != null && e.devInspectorSkip || s.push(a.path));
-      X.value = s;
-      for (const a of s) {
-        _.value = a;
+      const a = t.getRoutes(), o = [];
+      for (const s of a)
+        s.path.includes(":") && !s.path.includes("?") || s.redirect || s.path !== "/:pathMatch(.*)*" && ((e = s.meta) != null && e.devInspectorSkip || o.push(s.path));
+      X.value = o;
+      for (const s of o) {
+        j.value = s;
         try {
-          await t.push(a), await new Promise((f) => setTimeout(f, 500));
+          await t.push(s), await new Promise((p) => setTimeout(p, 500));
           const c = await M();
-          n.push({ page: a, count: c });
+          n.push({ page: s, count: c });
         } catch (c) {
-          console.warn(`[DevInspector] Failed to scan page ${a}:`, c), n.push({ page: a, count: 0 });
+          console.warn(`[DevInspector] Failed to scan page ${s}:`, c), n.push({ page: s, count: 0 });
         }
       }
       return n;
     } finally {
-      T.value = !1, _.value = "";
+      N.value = !1, j.value = "";
     }
   }
   function ut() {
-    P.value = [], A.value = 0;
+    O.value = [], P.value = 0;
   }
   function ft(t) {
-    S.value = t;
+    T.value = t;
   }
   function dt() {
-    S.value = null;
+    T.value = null;
   }
   function pt() {
     return JSON.stringify(i.value, null, 2);
@@ -439,11 +449,11 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
     };
     return JSON.stringify(t, null, 2);
   }
-  function gt(t = "dev-annotations.json") {
-    const n = Z(), e = new Blob([n], { type: "application/json" }), o = URL.createObjectURL(e), s = document.createElement("a");
-    s.href = o, s.download = t, document.body.appendChild(s), s.click(), document.body.removeChild(s), URL.revokeObjectURL(o);
+  function vt(t = "dev-annotations.json") {
+    const n = Z(), e = new Blob([n], { type: "application/json" }), a = URL.createObjectURL(e), o = document.createElement("a");
+    o.href = a, o.download = t, document.body.appendChild(o), o.click(), document.body.removeChild(o), URL.revokeObjectURL(a);
   }
-  function vt(t) {
+  function gt(t) {
     try {
       const n = JSON.parse(t), e = n.annotations || n;
       i.value = { ...i.value, ...e };
@@ -456,15 +466,15 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
   }
   return {
     // State
-    isEnabled: y,
-    isAvailable: L,
-    isEditMode: h,
-    isPickMode: C,
-    hoveredSelector: x,
-    currentScreenSpec: I,
-    isPanelOpen: b,
+    isEnabled: C,
+    isAvailable: k,
+    isEditMode: y,
+    isPickMode: A,
+    hoveredSelector: R,
+    currentScreenSpec: x,
+    isPanelOpen: w,
     elementConfigs: i,
-    editingElementId: S,
+    editingElementId: T,
     // Actions
     init: G,
     toggle: V,
@@ -473,7 +483,7 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
     toggleEditMode: Y,
     togglePickMode: Q,
     setHoveredSelector: tt,
-    generateSelector: D,
+    generateSelector: U,
     getConfiguredSelectors: et,
     setScreenSpec: nt,
     clearScreenSpec: ot,
@@ -482,31 +492,31 @@ const St = {}, Et = "devInspector:elementConfigs", Ct = yt("devInspector", () =>
     closePanel: it,
     getElementConfig: rt,
     setElementConfig: F,
-    deleteElementConfig: lt,
+    deleteElementConfig: ct,
     startEditing: ft,
     stopEditing: dt,
     exportConfigs: pt,
     exportAsFile: Z,
-    downloadAnnotations: gt,
-    importConfigs: vt,
+    downloadAnnotations: vt,
+    importConfigs: gt,
     clearAllConfigs: ht,
     detectSourceBinding: z,
     autoDetectElementInfo: J,
     // Scan
-    isScanning: T,
-    scanProgress: A,
-    scanResults: P,
+    isScanning: N,
+    scanProgress: P,
+    scanResults: O,
     scanCurrentPage: M,
-    scanAllPages: ct,
+    scanAllPages: lt,
     allPagesRoutes: X,
-    currentScanPage: _,
+    currentScanPage: j,
     clearScanResults: ut
   };
 });
 function At() {
-  return Ct();
+  return bt();
 }
 export {
   At as a,
-  Ct as u
+  bt as u
 };

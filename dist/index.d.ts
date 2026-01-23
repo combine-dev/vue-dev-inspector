@@ -303,7 +303,9 @@ createdAt?: string | undefined;
 updatedAt?: string | undefined;
 };
 }[]>;
-scanCurrentPage: () => Promise<number>;
+scanCurrentPage: (options?: {
+rescan?: boolean;
+}) => Promise<number>;
 scanAllPages: (router: any) => Promise<{
 page: string;
 count: number;
@@ -478,7 +480,9 @@ createdAt?: string | undefined;
 updatedAt?: string | undefined;
 };
 }[]>;
-scanCurrentPage: () => Promise<number>;
+scanCurrentPage: (options?: {
+rescan?: boolean;
+}) => Promise<number>;
 scanAllPages: (router: any) => Promise<{
 page: string;
 count: number;
@@ -653,7 +657,9 @@ createdAt?: string | undefined;
 updatedAt?: string | undefined;
 };
 }[]>;
-scanCurrentPage: () => Promise<number>;
+scanCurrentPage: (options?: {
+rescan?: boolean;
+}) => Promise<number>;
 scanAllPages: (router: any) => Promise<{
 page: string;
 count: number;
@@ -830,7 +836,9 @@ createdAt?: string | undefined;
 updatedAt?: string | undefined;
 };
 }[]>;
-scanCurrentPage: () => Promise<number>;
+scanCurrentPage: (options?: {
+rescan?: boolean;
+}) => Promise<number>;
 scanAllPages: (router: any) => Promise<{
 page: string;
 count: number;
@@ -1005,7 +1013,9 @@ createdAt?: string | undefined;
 updatedAt?: string | undefined;
 };
 }[]>;
-scanCurrentPage: () => Promise<number>;
+scanCurrentPage: (options?: {
+rescan?: boolean;
+}) => Promise<number>;
 scanAllPages: (router: any) => Promise<{
 page: string;
 count: number;
@@ -1180,7 +1190,9 @@ createdAt?: string | undefined;
 updatedAt?: string | undefined;
 };
 }[]>;
-scanCurrentPage: () => Promise<number>;
+scanCurrentPage: (options?: {
+rescan?: boolean;
+}) => Promise<number>;
 scanAllPages: (router: any) => Promise<{
 page: string;
 count: number;
