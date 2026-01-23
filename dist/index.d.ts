@@ -1,0 +1,484 @@
+import { ComponentOptionsMixin } from 'vue';
+import { ComponentProvideOptions } from 'vue';
+import { ComputedRef } from 'vue';
+import { DefineComponent } from 'vue';
+import { ExtractPropTypes } from 'vue';
+import { Plugin as Plugin_2 } from 'vue';
+import { PropType } from 'vue';
+import { PublicProps } from 'vue';
+import { Ref } from 'vue';
+import { Store } from 'pinia';
+import { StoreDefinition } from 'pinia';
+
+declare type __VLS_NonUndefinedable<T> = T extends undefined ? never : T;
+
+declare type __VLS_Prettify<T> = {
+    [K in keyof T]: T[K];
+} & {};
+
+declare type __VLS_TypePropsToRuntimeProps<T> = {
+    [K in keyof T]-?: {} extends Pick<T, K> ? {
+        type: PropType<__VLS_NonUndefinedable<T[K]>>;
+    } : {
+        type: PropType<T[K]>;
+        required: true;
+    };
+};
+
+declare type __VLS_WithDefaults<P, D> = {
+    [K in keyof Pick<P, keyof P>]: K extends keyof D ? __VLS_Prettify<P[K] & {
+        default: D[K];
+    }> : P[K];
+};
+
+export declare interface ActionInfo {
+    type: 'navigate' | 'api' | 'modal' | 'emit' | 'function';
+    target?: string;
+    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+    description?: string;
+    params?: Record<string, string>;
+}
+
+export declare const DevElementEditor: DefineComponent<    {}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<{}> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>;
+
+export declare const DevInspector: DefineComponent<ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<DevInspectorOptions>, {
+storageKey: string;
+enabledInProduction: boolean;
+}>>, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<ExtractPropTypes<__VLS_WithDefaults<__VLS_TypePropsToRuntimeProps<DevInspectorOptions>, {
+storageKey: string;
+enabledInProduction: boolean;
+}>>> & Readonly<{}>, {
+storageKey: string;
+enabledInProduction: boolean;
+}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>;
+
+export declare interface DevInspectorOptions {
+    storageKey?: string;
+    enabledInProduction?: boolean;
+    initialAnnotations?: Record<string, ElementConfig>;
+}
+
+export declare interface DevMeta {
+    usedStores?: string[];
+    usedComponents?: string[];
+    i18nKeys?: string[];
+    designTokens?: string[];
+    accessibility?: string;
+    responsive?: string;
+}
+
+export declare const DevPanel: DefineComponent<    {}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<{}> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>;
+
+export declare const DevPickOverlay: DefineComponent<    {}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<{}> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>;
+
+export declare interface ElementConfig {
+    id: string;
+    componentPath: string;
+    fieldInfo?: FieldInfo;
+    actionInfo?: ActionInfo;
+    note?: ElementNote;
+    links?: LinkInfo;
+    devMeta?: DevMeta;
+    createdAt: string;
+    updatedAt: string;
+}
+
+export declare interface ElementNote {
+    text: string;
+    author?: string;
+    type?: 'info' | 'warning' | 'todo' | 'question';
+}
+
+export declare interface FieldInfo {
+    table: string;
+    column: string;
+    type?: string;
+    validation?: string[];
+    description?: string;
+}
+
+export declare interface LinkInfo {
+    testPath?: string;
+    figmaUrl?: string;
+    githubIssue?: string;
+    githubPr?: string;
+    relatedDocs?: string;
+}
+
+export declare interface PluginOptions extends DevInspectorOptions {
+    /**
+     * Whether to auto-register the DevInspector component globally
+     * @default true
+     */
+    autoRegister?: boolean;
+}
+
+export declare interface ScreenSpec {
+    name: string;
+    description: string;
+    componentPath: string;
+    figmaUrl?: string;
+    apis: {
+        method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+        endpoint: string;
+        description: string;
+    }[];
+    notes?: string[];
+}
+
+export declare function useDevInspector(): Store<"devInspector", Pick<{
+isEnabled: Ref<boolean, boolean>;
+isAvailable: ComputedRef<boolean>;
+isEditMode: Ref<boolean, boolean>;
+isPickMode: Ref<boolean, boolean>;
+hoveredSelector: Ref<string | null, string | null>;
+currentScreenSpec: Ref<    {
+name: string;
+description: string;
+componentPath: string;
+figmaUrl?: string | undefined;
+apis: {
+method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+endpoint: string;
+description: string;
+}[];
+notes?: string[] | undefined;
+} | null, ScreenSpec | {
+name: string;
+description: string;
+componentPath: string;
+figmaUrl?: string | undefined;
+apis: {
+method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+endpoint: string;
+description: string;
+}[];
+notes?: string[] | undefined;
+} | null>;
+isPanelOpen: Ref<boolean, boolean>;
+elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
+editingElementId: Ref<string | null, string | null>;
+init: (opts?: DevInspectorOptions) => void;
+toggle: () => void;
+enable: () => void;
+disable: () => void;
+toggleEditMode: () => void;
+togglePickMode: () => void;
+setHoveredSelector: (selector: string | null) => void;
+generateSelector: (element: HTMLElement) => string;
+getConfiguredSelectors: () => string[];
+setScreenSpec: (spec: ScreenSpec) => void;
+clearScreenSpec: () => void;
+togglePanel: () => void;
+openPanel: () => void;
+closePanel: () => void;
+getElementConfig: (id: string) => ElementConfig | undefined;
+setElementConfig: (id: string, config: Partial<ElementConfig>) => void;
+deleteElementConfig: (id: string) => void;
+startEditing: (id: string) => void;
+stopEditing: () => void;
+exportConfigs: () => string;
+exportAsFile: () => string;
+downloadAnnotations: (filename?: string) => void;
+importConfigs: (json: string) => void;
+clearAllConfigs: () => void;
+}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId">, Pick<{
+isEnabled: Ref<boolean, boolean>;
+isAvailable: ComputedRef<boolean>;
+isEditMode: Ref<boolean, boolean>;
+isPickMode: Ref<boolean, boolean>;
+hoveredSelector: Ref<string | null, string | null>;
+currentScreenSpec: Ref<    {
+name: string;
+description: string;
+componentPath: string;
+figmaUrl?: string | undefined;
+apis: {
+method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+endpoint: string;
+description: string;
+}[];
+notes?: string[] | undefined;
+} | null, ScreenSpec | {
+name: string;
+description: string;
+componentPath: string;
+figmaUrl?: string | undefined;
+apis: {
+method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+endpoint: string;
+description: string;
+}[];
+notes?: string[] | undefined;
+} | null>;
+isPanelOpen: Ref<boolean, boolean>;
+elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
+editingElementId: Ref<string | null, string | null>;
+init: (opts?: DevInspectorOptions) => void;
+toggle: () => void;
+enable: () => void;
+disable: () => void;
+toggleEditMode: () => void;
+togglePickMode: () => void;
+setHoveredSelector: (selector: string | null) => void;
+generateSelector: (element: HTMLElement) => string;
+getConfiguredSelectors: () => string[];
+setScreenSpec: (spec: ScreenSpec) => void;
+clearScreenSpec: () => void;
+togglePanel: () => void;
+openPanel: () => void;
+closePanel: () => void;
+getElementConfig: (id: string) => ElementConfig | undefined;
+setElementConfig: (id: string, config: Partial<ElementConfig>) => void;
+deleteElementConfig: (id: string) => void;
+startEditing: (id: string) => void;
+stopEditing: () => void;
+exportConfigs: () => string;
+exportAsFile: () => string;
+downloadAnnotations: (filename?: string) => void;
+importConfigs: (json: string) => void;
+clearAllConfigs: () => void;
+}, "isAvailable">, Pick<{
+isEnabled: Ref<boolean, boolean>;
+isAvailable: ComputedRef<boolean>;
+isEditMode: Ref<boolean, boolean>;
+isPickMode: Ref<boolean, boolean>;
+hoveredSelector: Ref<string | null, string | null>;
+currentScreenSpec: Ref<    {
+name: string;
+description: string;
+componentPath: string;
+figmaUrl?: string | undefined;
+apis: {
+method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+endpoint: string;
+description: string;
+}[];
+notes?: string[] | undefined;
+} | null, ScreenSpec | {
+name: string;
+description: string;
+componentPath: string;
+figmaUrl?: string | undefined;
+apis: {
+method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+endpoint: string;
+description: string;
+}[];
+notes?: string[] | undefined;
+} | null>;
+isPanelOpen: Ref<boolean, boolean>;
+elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
+editingElementId: Ref<string | null, string | null>;
+init: (opts?: DevInspectorOptions) => void;
+toggle: () => void;
+enable: () => void;
+disable: () => void;
+toggleEditMode: () => void;
+togglePickMode: () => void;
+setHoveredSelector: (selector: string | null) => void;
+generateSelector: (element: HTMLElement) => string;
+getConfiguredSelectors: () => string[];
+setScreenSpec: (spec: ScreenSpec) => void;
+clearScreenSpec: () => void;
+togglePanel: () => void;
+openPanel: () => void;
+closePanel: () => void;
+getElementConfig: (id: string) => ElementConfig | undefined;
+setElementConfig: (id: string, config: Partial<ElementConfig>) => void;
+deleteElementConfig: (id: string) => void;
+startEditing: (id: string) => void;
+stopEditing: () => void;
+exportConfigs: () => string;
+exportAsFile: () => string;
+downloadAnnotations: (filename?: string) => void;
+importConfigs: (json: string) => void;
+clearAllConfigs: () => void;
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs">>;
+
+export declare const useDevInspectorStore: StoreDefinition<"devInspector", Pick<{
+isEnabled: Ref<boolean, boolean>;
+isAvailable: ComputedRef<boolean>;
+isEditMode: Ref<boolean, boolean>;
+isPickMode: Ref<boolean, boolean>;
+hoveredSelector: Ref<string | null, string | null>;
+currentScreenSpec: Ref<    {
+name: string;
+description: string;
+componentPath: string;
+figmaUrl?: string | undefined;
+apis: {
+method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+endpoint: string;
+description: string;
+}[];
+notes?: string[] | undefined;
+} | null, ScreenSpec | {
+name: string;
+description: string;
+componentPath: string;
+figmaUrl?: string | undefined;
+apis: {
+method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+endpoint: string;
+description: string;
+}[];
+notes?: string[] | undefined;
+} | null>;
+isPanelOpen: Ref<boolean, boolean>;
+elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
+editingElementId: Ref<string | null, string | null>;
+init: (opts?: DevInspectorOptions) => void;
+toggle: () => void;
+enable: () => void;
+disable: () => void;
+toggleEditMode: () => void;
+togglePickMode: () => void;
+setHoveredSelector: (selector: string | null) => void;
+generateSelector: (element: HTMLElement) => string;
+getConfiguredSelectors: () => string[];
+setScreenSpec: (spec: ScreenSpec) => void;
+clearScreenSpec: () => void;
+togglePanel: () => void;
+openPanel: () => void;
+closePanel: () => void;
+getElementConfig: (id: string) => ElementConfig | undefined;
+setElementConfig: (id: string, config: Partial<ElementConfig>) => void;
+deleteElementConfig: (id: string) => void;
+startEditing: (id: string) => void;
+stopEditing: () => void;
+exportConfigs: () => string;
+exportAsFile: () => string;
+downloadAnnotations: (filename?: string) => void;
+importConfigs: (json: string) => void;
+clearAllConfigs: () => void;
+}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId">, Pick<{
+isEnabled: Ref<boolean, boolean>;
+isAvailable: ComputedRef<boolean>;
+isEditMode: Ref<boolean, boolean>;
+isPickMode: Ref<boolean, boolean>;
+hoveredSelector: Ref<string | null, string | null>;
+currentScreenSpec: Ref<    {
+name: string;
+description: string;
+componentPath: string;
+figmaUrl?: string | undefined;
+apis: {
+method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+endpoint: string;
+description: string;
+}[];
+notes?: string[] | undefined;
+} | null, ScreenSpec | {
+name: string;
+description: string;
+componentPath: string;
+figmaUrl?: string | undefined;
+apis: {
+method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+endpoint: string;
+description: string;
+}[];
+notes?: string[] | undefined;
+} | null>;
+isPanelOpen: Ref<boolean, boolean>;
+elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
+editingElementId: Ref<string | null, string | null>;
+init: (opts?: DevInspectorOptions) => void;
+toggle: () => void;
+enable: () => void;
+disable: () => void;
+toggleEditMode: () => void;
+togglePickMode: () => void;
+setHoveredSelector: (selector: string | null) => void;
+generateSelector: (element: HTMLElement) => string;
+getConfiguredSelectors: () => string[];
+setScreenSpec: (spec: ScreenSpec) => void;
+clearScreenSpec: () => void;
+togglePanel: () => void;
+openPanel: () => void;
+closePanel: () => void;
+getElementConfig: (id: string) => ElementConfig | undefined;
+setElementConfig: (id: string, config: Partial<ElementConfig>) => void;
+deleteElementConfig: (id: string) => void;
+startEditing: (id: string) => void;
+stopEditing: () => void;
+exportConfigs: () => string;
+exportAsFile: () => string;
+downloadAnnotations: (filename?: string) => void;
+importConfigs: (json: string) => void;
+clearAllConfigs: () => void;
+}, "isAvailable">, Pick<{
+isEnabled: Ref<boolean, boolean>;
+isAvailable: ComputedRef<boolean>;
+isEditMode: Ref<boolean, boolean>;
+isPickMode: Ref<boolean, boolean>;
+hoveredSelector: Ref<string | null, string | null>;
+currentScreenSpec: Ref<    {
+name: string;
+description: string;
+componentPath: string;
+figmaUrl?: string | undefined;
+apis: {
+method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+endpoint: string;
+description: string;
+}[];
+notes?: string[] | undefined;
+} | null, ScreenSpec | {
+name: string;
+description: string;
+componentPath: string;
+figmaUrl?: string | undefined;
+apis: {
+method: "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
+endpoint: string;
+description: string;
+}[];
+notes?: string[] | undefined;
+} | null>;
+isPanelOpen: Ref<boolean, boolean>;
+elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
+editingElementId: Ref<string | null, string | null>;
+init: (opts?: DevInspectorOptions) => void;
+toggle: () => void;
+enable: () => void;
+disable: () => void;
+toggleEditMode: () => void;
+togglePickMode: () => void;
+setHoveredSelector: (selector: string | null) => void;
+generateSelector: (element: HTMLElement) => string;
+getConfiguredSelectors: () => string[];
+setScreenSpec: (spec: ScreenSpec) => void;
+clearScreenSpec: () => void;
+togglePanel: () => void;
+openPanel: () => void;
+closePanel: () => void;
+getElementConfig: (id: string) => ElementConfig | undefined;
+setElementConfig: (id: string, config: Partial<ElementConfig>) => void;
+deleteElementConfig: (id: string) => void;
+startEditing: (id: string) => void;
+stopEditing: () => void;
+exportConfigs: () => string;
+exportAsFile: () => string;
+downloadAnnotations: (filename?: string) => void;
+importConfigs: (json: string) => void;
+clearAllConfigs: () => void;
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs">>;
+
+declare const VueDevInspector: Plugin_2<PluginOptions[]>;
+export { VueDevInspector }
+export default VueDevInspector;
+
+export { }
+
+
+declare module '@nuxt/schema' {
+    interface PublicRuntimeConfig {
+        devInspector: {
+            storageKey?: string;
+            enabledInProduction?: boolean;
+        };
+    }
+}
+
