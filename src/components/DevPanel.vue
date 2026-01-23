@@ -89,158 +89,120 @@ function clearAll() {
 
 <template>
   <!-- Floating Toggle Button -->
-  <Transition
-    enter-active-class="transition ease-out duration-200"
-    enter-from-class="opacity-0 scale-95"
-    enter-to-class="opacity-100 scale-100"
-    leave-active-class="transition ease-in duration-150"
-    leave-from-class="opacity-100 scale-100"
-    leave-to-class="opacity-0 scale-95"
-  >
+  <Teleport to="body">
     <button
       v-if="store.isEnabled && !store.isPanelOpen"
       @click="store.openPanel"
-      class="fixed bottom-4 right-4 z-[9998] w-12 h-12 bg-[#1e293b] text-white rounded-full shadow-lg flex items-center justify-center hover:bg-[#334155] transition-colors"
+      class="di-fab"
       title="画面仕様を表示"
       data-dev-inspector
     >
-      <FileText class="w-5 h-5" />
+      <FileText style="width: 20px; height: 20px;" />
     </button>
-  </Transition>
+  </Teleport>
 
   <!-- Panel -->
-  <Transition
-    enter-active-class="transition ease-out duration-300"
-    enter-from-class="translate-x-full"
-    enter-to-class="translate-x-0"
-    leave-active-class="transition ease-in duration-200"
-    leave-from-class="translate-x-0"
-    leave-to-class="translate-x-full"
-  >
+  <Teleport to="body">
     <div
       v-if="store.isEnabled && store.isPanelOpen"
-      class="fixed top-0 right-0 z-[9999] w-[360px] h-full bg-[#0f172a] text-white shadow-2xl overflow-hidden flex flex-col"
+      class="di-panel"
       data-dev-inspector
     >
       <!-- Header -->
-      <div class="flex items-center justify-between px-4 py-3 bg-[#1e293b] border-b border-[#334155]">
-        <div class="flex items-center gap-2">
-          <Code class="w-5 h-5 text-[#60a5fa]" />
-          <span class="font-bold text-[14px]">Developer Mode</span>
+      <div class="di-header">
+        <div class="di-header-title">
+          <Code style="width: 20px; height: 20px; color: #60a5fa;" />
+          <span>Developer Mode</span>
         </div>
-        <button
-          @click="store.closePanel"
-          class="p-1 hover:bg-[#334155] rounded transition-colors"
-        >
-          <X class="w-5 h-5" />
+        <button @click="store.closePanel" class="di-close-btn">
+          <X style="width: 20px; height: 20px;" />
         </button>
       </div>
 
       <!-- Edit Mode Toggle -->
-      <div class="px-4 py-3 bg-[#1e293b]/50 border-b border-[#334155]">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <Edit3 class="w-4 h-4 text-[#fbbf24]" />
-            <span class="text-[12px]">編集モード</span>
+      <div class="di-edit-section">
+        <div class="di-edit-row">
+          <div class="di-edit-label">
+            <Edit3 style="width: 16px; height: 16px; color: #fbbf24;" />
+            <span>編集モード</span>
           </div>
           <button
             @click="store.toggleEditMode"
-            class="relative w-[44px] h-[24px] rounded-full transition-colors"
-            :class="store.isEditMode ? 'bg-[#fbbf24]' : 'bg-[#334155]'"
+            class="di-toggle"
+            :class="{ active: store.isEditMode }"
           >
-            <span
-              class="absolute top-[2px] w-[20px] h-[20px] bg-white rounded-full shadow transition-transform"
-              :class="store.isEditMode ? 'translate-x-[22px]' : 'translate-x-[2px]'"
-            ></span>
+            <span class="di-toggle-knob" :class="{ active: store.isEditMode }"></span>
           </button>
         </div>
-        <p class="text-[10px] text-[#64748b] mt-1.5">
-          ONにすると、要素をクリックして情報を編集できます
-        </p>
+        <p class="di-edit-hint">ONにすると、要素をクリックして情報を編集できます</p>
 
         <!-- Pick Mode Button -->
         <button
           @click="store.togglePickMode"
-          class="mt-3 w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg transition-colors"
-          :class="store.isPickMode
-            ? 'bg-[#10b981] text-white'
-            : 'bg-[#0f172a] text-[#94a3b8] hover:text-white hover:bg-[#334155]'"
+          class="di-pick-btn"
+          :class="{ active: store.isPickMode }"
         >
-          <MousePointer2 class="w-4 h-4" />
-          <span class="text-[12px] font-medium">
-            {{ store.isPickMode ? '要素選択中...' : '任意の要素にメモを追加' }}
-          </span>
+          <MousePointer2 style="width: 16px; height: 16px;" />
+          <span>{{ store.isPickMode ? '要素選択中...' : '任意の要素にメモを追加' }}</span>
         </button>
       </div>
 
       <!-- Content -->
-      <div class="flex-1 overflow-y-auto p-4 space-y-4">
+      <div class="di-content">
         <template v-if="spec">
           <!-- Screen Name -->
-          <div>
-            <h2 class="text-[18px] font-bold text-white mb-1">{{ spec.name }}</h2>
-            <p class="text-[12px] text-[#94a3b8]">{{ spec.description }}</p>
+          <div class="di-section">
+            <h2 class="di-screen-name">{{ spec.name }}</h2>
+            <p class="di-screen-desc">{{ spec.description }}</p>
           </div>
 
           <!-- Component Path -->
-          <div class="bg-[#1e293b] rounded-lg p-3">
-            <div class="flex items-center gap-2 text-[11px] text-[#64748b] mb-2">
-              <Code class="w-4 h-4" />
+          <div class="di-card">
+            <div class="di-card-label">
+              <Code style="width: 16px; height: 16px;" />
               <span>Component Path</span>
             </div>
-            <code class="text-[12px] text-[#60a5fa] font-mono break-all">{{ spec.componentPath }}</code>
+            <code class="di-code-blue">{{ spec.componentPath }}</code>
           </div>
 
           <!-- Figma Link -->
-          <div v-if="spec.figmaUrl" class="bg-[#1e293b] rounded-lg p-3">
-            <div class="flex items-center gap-2 text-[11px] text-[#64748b] mb-2">
-              <ExternalLink class="w-4 h-4" />
+          <div v-if="spec.figmaUrl" class="di-card">
+            <div class="di-card-label">
+              <ExternalLink style="width: 16px; height: 16px;" />
               <span>Figma Design</span>
             </div>
-            <a
-              :href="spec.figmaUrl"
-              target="_blank"
-              class="text-[12px] text-[#a78bfa] hover:underline font-mono break-all"
-            >{{ spec.figmaUrl }}</a>
+            <a :href="spec.figmaUrl" target="_blank" class="di-link-purple">{{ spec.figmaUrl }}</a>
           </div>
 
           <!-- APIs -->
-          <div v-if="spec.apis.length" class="bg-[#1e293b] rounded-lg p-3">
-            <div class="flex items-center gap-2 text-[11px] text-[#64748b] mb-3">
-              <Server class="w-4 h-4" />
+          <div v-if="spec.apis.length" class="di-card">
+            <div class="di-card-label">
+              <Server style="width: 16px; height: 16px;" />
               <span>API Endpoints</span>
             </div>
-            <div class="space-y-2">
-              <div
-                v-for="(api, index) in spec.apis"
-                :key="index"
-                class="flex items-start gap-2"
-              >
+            <div class="di-api-list">
+              <div v-for="(api, index) in spec.apis" :key="index" class="di-api-item">
                 <span
-                  class="text-[10px] font-bold px-1.5 py-0.5 rounded min-w-[45px] text-center"
+                  class="di-method-badge"
                   :style="{ backgroundColor: methodColors[api.method] + '20', color: methodColors[api.method] }"
                 >{{ api.method }}</span>
-                <div class="flex-1">
-                  <code class="text-[11px] text-[#e2e8f0] font-mono">{{ api.endpoint }}</code>
-                  <p class="text-[10px] text-[#64748b] mt-0.5">{{ api.description }}</p>
+                <div class="di-api-info">
+                  <code class="di-api-endpoint">{{ api.endpoint }}</code>
+                  <p class="di-api-desc">{{ api.description }}</p>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Notes -->
-          <div v-if="spec.notes?.length" class="bg-[#1e293b] rounded-lg p-3">
-            <div class="flex items-center gap-2 text-[11px] text-[#64748b] mb-2">
-              <AlertCircle class="w-4 h-4" />
+          <div v-if="spec.notes?.length" class="di-card">
+            <div class="di-card-label">
+              <AlertCircle style="width: 16px; height: 16px;" />
               <span>Notes</span>
             </div>
-            <ul class="space-y-1">
-              <li
-                v-for="(note, index) in spec.notes"
-                :key="index"
-                class="text-[12px] text-[#94a3b8] flex items-start gap-2"
-              >
-                <span class="text-[#64748b]">•</span>
+            <ul class="di-notes-list">
+              <li v-for="(note, index) in spec.notes" :key="index" class="di-note-item">
+                <span class="di-bullet">•</span>
                 <span>{{ note }}</span>
               </li>
             </ul>
@@ -248,63 +210,47 @@ function clearAll() {
         </template>
 
         <!-- No Spec -->
-        <div v-else class="text-center py-8">
-          <FileText class="w-12 h-12 text-[#334155] mx-auto mb-3" />
-          <p class="text-[14px] text-[#64748b]">この画面の仕様情報は<br>まだ登録されていません</p>
+        <div v-else class="di-no-spec">
+          <FileText style="width: 48px; height: 48px; color: #334155;" />
+          <p>この画面の仕様情報は<br>まだ登録されていません</p>
         </div>
 
         <!-- Element Configs Section -->
-        <div class="bg-[#1e293b] rounded-lg p-3">
-          <div class="flex items-center justify-between mb-3">
-            <div class="flex items-center gap-2 text-[11px] text-[#64748b]">
-              <Edit3 class="w-4 h-4" />
+        <div class="di-card">
+          <div class="di-card-header">
+            <div class="di-card-label">
+              <Edit3 style="width: 16px; height: 16px;" />
               <span>登録済み要素</span>
-              <span class="px-1.5 py-0.5 bg-[#334155] rounded text-[10px]">{{ elementCount }}</span>
+              <span class="di-count-badge">{{ elementCount }}</span>
             </div>
           </div>
 
           <!-- Export Buttons -->
-          <div v-if="elementCount > 0" class="space-y-2 mb-3">
-            <button
-              @click="downloadForGit"
-              class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[12px] text-white bg-[#10b981] hover:bg-[#059669] rounded-lg transition-colors"
-            >
-              <GitBranch class="w-4 h-4" />
+          <div v-if="elementCount > 0" class="di-export-buttons">
+            <button @click="downloadForGit" class="di-btn-green">
+              <GitBranch style="width: 16px; height: 16px;" />
               Git管理用に保存
             </button>
-            <button
-              @click="exportToXlsx"
-              class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-[12px] text-white bg-[#3b82f6] hover:bg-[#2563eb] rounded-lg transition-colors"
-            >
-              <FileSpreadsheet class="w-4 h-4" />
+            <button @click="exportToXlsx" class="di-btn-blue">
+              <FileSpreadsheet style="width: 16px; height: 16px;" />
               画面仕様書 (xlsx) 出力
             </button>
           </div>
-          <p v-if="elementCount > 0" class="text-[10px] text-[#64748b] mb-3">
-            JSON: <code class="text-[#60a5fa]">dev-annotations.json</code> に配置してcommit
+          <p v-if="elementCount > 0" class="di-export-hint">
+            JSON: <code>dev-annotations.json</code> に配置してcommit
           </p>
 
-          <div class="flex flex-wrap gap-2">
-            <button
-              @click="showExportModal = true"
-              class="flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] text-[#94a3b8] hover:text-white bg-[#0f172a] hover:bg-[#334155] rounded-lg transition-colors"
-            >
-              <Download class="w-3.5 h-3.5" />
+          <div class="di-action-buttons">
+            <button @click="showExportModal = true" class="di-btn-small">
+              <Download style="width: 14px; height: 14px;" />
               エクスポート
             </button>
-            <button
-              @click="showImportModal = true"
-              class="flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] text-[#94a3b8] hover:text-white bg-[#0f172a] hover:bg-[#334155] rounded-lg transition-colors"
-            >
-              <Upload class="w-3.5 h-3.5" />
+            <button @click="showImportModal = true" class="di-btn-small">
+              <Upload style="width: 14px; height: 14px;" />
               インポート
             </button>
-            <button
-              v-if="elementCount > 0"
-              @click="clearAll"
-              class="flex items-center gap-1.5 px-2.5 py-1.5 text-[10px] text-[#ef4444] hover:bg-[#ef4444]/10 rounded-lg transition-colors"
-            >
-              <Trash2 class="w-3.5 h-3.5" />
+            <button v-if="elementCount > 0" @click="clearAll" class="di-btn-small di-btn-danger">
+              <Trash2 style="width: 14px; height: 14px;" />
               全削除
             </button>
           </div>
@@ -312,133 +258,600 @@ function clearAll() {
       </div>
 
       <!-- Footer -->
-      <div class="px-4 py-3 bg-[#1e293b] border-t border-[#334155] text-[10px] text-[#64748b]">
-        <kbd class="px-1.5 py-0.5 bg-[#334155] rounded text-[#94a3b8]">Ctrl</kbd>
-        <span class="mx-1">+</span>
-        <kbd class="px-1.5 py-0.5 bg-[#334155] rounded text-[#94a3b8]">Shift</kbd>
-        <span class="mx-1">+</span>
-        <kbd class="px-1.5 py-0.5 bg-[#334155] rounded text-[#94a3b8]">D</kbd>
-        <span class="ml-2">で開発者モード切替</span>
+      <div class="di-footer">
+        <kbd>Ctrl</kbd><span>+</span><kbd>Shift</kbd><span>+</span><kbd>D</kbd>
+        <span class="di-footer-text">で開発者モード切替</span>
       </div>
     </div>
-  </Transition>
+  </Teleport>
 
   <!-- Dev Mode Indicator -->
-  <Transition
-    enter-active-class="transition ease-out duration-200"
-    enter-from-class="opacity-0 -translate-y-2"
-    enter-to-class="opacity-100 translate-y-0"
-    leave-active-class="transition ease-in duration-150"
-    leave-from-class="opacity-100 translate-y-0"
-    leave-to-class="opacity-0 -translate-y-2"
-  >
-    <div
-      v-if="store.isEnabled"
-      class="fixed top-2 left-1/2 -translate-x-1/2 z-[9998] px-3 py-1.5 bg-[#1e293b] text-[#60a5fa] text-[11px] font-medium rounded-full shadow-lg flex items-center gap-2"
-      data-dev-inspector
-    >
-      <span class="w-2 h-2 bg-[#60a5fa] rounded-full animate-pulse"></span>
+  <Teleport to="body">
+    <div v-if="store.isEnabled" class="di-indicator" data-dev-inspector>
+      <span class="di-indicator-dot"></span>
       Developer Mode
-      <span v-if="store.isEditMode" class="text-[#fbbf24]">• 編集中</span>
+      <span v-if="store.isEditMode" class="di-indicator-edit">• 編集中</span>
     </div>
-  </Transition>
+  </Teleport>
 
   <!-- Export Modal -->
   <Teleport to="body">
-    <Transition
-      enter-active-class="transition ease-out duration-200"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="transition ease-in duration-150"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
+    <div
+      v-if="showExportModal"
+      class="di-modal-overlay"
+      @click.self="showExportModal = false"
+      data-dev-inspector
     >
-      <div
-        v-if="showExportModal"
-        class="fixed inset-0 z-[10001] flex items-center justify-center bg-black/50"
-        @click.self="showExportModal = false"
-        data-dev-inspector
-      >
-        <div class="bg-[#1e293b] rounded-xl shadow-2xl w-[400px] p-4">
-          <h3 class="text-white font-bold text-[14px] mb-3">設定をエクスポート</h3>
-          <textarea
-            readonly
-            :value="store.exportConfigs()"
-            class="w-full h-[200px] px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-[#94a3b8] text-[11px] font-mono resize-none"
-          ></textarea>
-          <div class="flex justify-end gap-2 mt-3">
-            <button
-              @click="showExportModal = false"
-              class="px-4 py-1.5 text-[11px] text-[#94a3b8] hover:text-white hover:bg-[#334155] rounded-lg transition-colors"
-            >
-              閉じる
-            </button>
-            <button
-              @click="downloadExport"
-              class="flex items-center gap-1.5 px-4 py-1.5 text-[11px] text-white bg-[#334155] hover:bg-[#475569] rounded-lg transition-colors"
-            >
-              <Download class="w-3.5 h-3.5" />
-              ファイル保存
-            </button>
-            <button
-              @click="copyExport"
-              class="px-4 py-1.5 text-[11px] text-white bg-[#3b82f6] hover:bg-[#2563eb] rounded-lg transition-colors"
-            >
-              コピー
-            </button>
-          </div>
+      <div class="di-modal">
+        <h3 class="di-modal-title">設定をエクスポート</h3>
+        <textarea readonly :value="store.exportConfigs()" class="di-modal-textarea"></textarea>
+        <div class="di-modal-actions">
+          <button @click="showExportModal = false" class="di-btn-small">閉じる</button>
+          <button @click="downloadExport" class="di-btn-small di-btn-gray">
+            <Download style="width: 14px; height: 14px;" />
+            ファイル保存
+          </button>
+          <button @click="copyExport" class="di-btn-small di-btn-primary">コピー</button>
         </div>
       </div>
-    </Transition>
+    </div>
   </Teleport>
 
   <!-- Import Modal -->
   <Teleport to="body">
-    <Transition
-      enter-active-class="transition ease-out duration-200"
-      enter-from-class="opacity-0"
-      enter-to-class="opacity-100"
-      leave-active-class="transition ease-in duration-150"
-      leave-from-class="opacity-100"
-      leave-to-class="opacity-0"
+    <div
+      v-if="showImportModal"
+      class="di-modal-overlay"
+      @click.self="showImportModal = false"
+      data-dev-inspector
     >
-      <div
-        v-if="showImportModal"
-        class="fixed inset-0 z-[10001] flex items-center justify-center bg-black/50"
-        @click.self="showImportModal = false"
-        data-dev-inspector
-      >
-        <div class="bg-[#1e293b] rounded-xl shadow-2xl w-[400px] p-4">
-          <h3 class="text-white font-bold text-[14px] mb-3">設定をインポート</h3>
-          <div class="mb-3">
-            <label class="flex items-center justify-center w-full h-[60px] border-2 border-dashed border-[#334155] rounded-lg cursor-pointer hover:border-[#60a5fa] transition-colors">
-              <input type="file" accept=".json" class="hidden" @change="handleFileImport" />
-              <span class="text-[11px] text-[#64748b]">JSONファイルをドラッグまたはクリック</span>
-            </label>
-          </div>
-          <textarea
-            v-model="importText"
-            placeholder="またはJSONを直接貼り付け..."
-            class="w-full h-[150px] px-3 py-2 bg-[#0f172a] border border-[#334155] rounded-lg text-white text-[11px] font-mono resize-none placeholder-[#475569] focus:border-[#60a5fa] focus:outline-none"
-          ></textarea>
-          <p v-if="importError" class="text-[10px] text-[#ef4444] mt-1">{{ importError }}</p>
-          <div class="flex justify-end gap-2 mt-3">
-            <button
-              @click="showImportModal = false; importText = ''; importError = ''"
-              class="px-4 py-1.5 text-[11px] text-[#94a3b8] hover:text-white hover:bg-[#334155] rounded-lg transition-colors"
-            >
-              キャンセル
-            </button>
-            <button
-              @click="handleImport"
-              :disabled="!importText"
-              class="px-4 py-1.5 text-[11px] text-white bg-[#3b82f6] hover:bg-[#2563eb] rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              インポート
-            </button>
-          </div>
+      <div class="di-modal">
+        <h3 class="di-modal-title">設定をインポート</h3>
+        <label class="di-file-drop">
+          <input type="file" accept=".json" @change="handleFileImport" />
+          <span>JSONファイルをドラッグまたはクリック</span>
+        </label>
+        <textarea
+          v-model="importText"
+          placeholder="またはJSONを直接貼り付け..."
+          class="di-modal-textarea di-modal-textarea-input"
+        ></textarea>
+        <p v-if="importError" class="di-error">{{ importError }}</p>
+        <div class="di-modal-actions">
+          <button @click="showImportModal = false; importText = ''; importError = ''" class="di-btn-small">
+            キャンセル
+          </button>
+          <button @click="handleImport" :disabled="!importText" class="di-btn-small di-btn-primary">
+            インポート
+          </button>
         </div>
       </div>
-    </Transition>
+    </div>
   </Teleport>
 </template>
+
+<style scoped>
+/* Base styles */
+.di-fab {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 9998;
+  width: 48px;
+  height: 48px;
+  background: #1e293b;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.di-fab:hover {
+  background: #334155;
+}
+
+/* Panel */
+.di-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 9999;
+  width: 360px;
+  height: 100%;
+  background: #0f172a;
+  color: white;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.4);
+  display: flex;
+  flex-direction: column;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 13px;
+}
+
+/* Header */
+.di-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+.di-header-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 14px;
+}
+.di-close-btn {
+  padding: 4px;
+  background: transparent;
+  border: none;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.di-close-btn:hover {
+  background: #334155;
+}
+
+/* Edit Section */
+.di-edit-section {
+  padding: 12px 16px;
+  background: rgba(30, 41, 59, 0.5);
+  border-bottom: 1px solid #334155;
+}
+.di-edit-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.di-edit-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+.di-edit-hint {
+  font-size: 10px;
+  color: #64748b;
+  margin-top: 6px;
+}
+
+/* Toggle */
+.di-toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #334155;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.di-toggle.active {
+  background: #fbbf24;
+}
+.di-toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+.di-toggle-knob.active {
+  transform: translateX(20px);
+}
+
+/* Pick Button */
+.di-pick-btn {
+  margin-top: 12px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #0f172a;
+  color: #94a3b8;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-pick-btn:hover {
+  color: white;
+  background: #334155;
+}
+.di-pick-btn.active {
+  background: #10b981;
+  color: white;
+}
+
+/* Content */
+.di-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Section */
+.di-section {
+  margin-bottom: 8px;
+}
+.di-screen-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: white;
+  margin: 0 0 4px 0;
+}
+.di-screen-desc {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+/* Card */
+.di-card {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 12px;
+}
+.di-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.di-card-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+.di-code-blue {
+  font-size: 12px;
+  color: #60a5fa;
+  font-family: monospace;
+  word-break: break-all;
+}
+.di-link-purple {
+  font-size: 12px;
+  color: #a78bfa;
+  font-family: monospace;
+  word-break: break-all;
+  text-decoration: none;
+}
+.di-link-purple:hover {
+  text-decoration: underline;
+}
+.di-count-badge {
+  padding: 2px 6px;
+  background: #334155;
+  border-radius: 4px;
+  font-size: 10px;
+}
+
+/* API List */
+.di-api-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.di-api-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.di-method-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  min-width: 45px;
+  text-align: center;
+}
+.di-api-info {
+  flex: 1;
+}
+.di-api-endpoint {
+  font-size: 11px;
+  color: #e2e8f0;
+  font-family: monospace;
+}
+.di-api-desc {
+  font-size: 10px;
+  color: #64748b;
+  margin: 2px 0 0 0;
+}
+
+/* Notes */
+.di-notes-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.di-note-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+.di-bullet {
+  color: #64748b;
+}
+
+/* No Spec */
+.di-no-spec {
+  text-align: center;
+  padding: 32px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.di-no-spec p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Export Buttons */
+.di-export-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.di-btn-green {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #10b981;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.di-btn-green:hover {
+  background: #059669;
+}
+.di-btn-blue {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.di-btn-blue:hover {
+  background: #2563eb;
+}
+.di-export-hint {
+  font-size: 10px;
+  color: #64748b;
+  margin: 0 0 12px 0;
+}
+.di-export-hint code {
+  color: #60a5fa;
+}
+
+/* Action Buttons */
+.di-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.di-btn-small {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  background: #0f172a;
+  color: #94a3b8;
+  border: none;
+  border-radius: 6px;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-btn-small:hover {
+  color: white;
+  background: #334155;
+}
+.di-btn-small:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.di-btn-danger {
+  color: #ef4444;
+}
+.di-btn-danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+}
+.di-btn-gray {
+  background: #334155;
+  color: white;
+}
+.di-btn-gray:hover {
+  background: #475569;
+}
+.di-btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+.di-btn-primary:hover {
+  background: #2563eb;
+}
+
+/* Footer */
+.di-footer {
+  padding: 12px 16px;
+  background: #1e293b;
+  border-top: 1px solid #334155;
+  font-size: 10px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.di-footer kbd {
+  padding: 2px 6px;
+  background: #334155;
+  border-radius: 4px;
+  color: #94a3b8;
+}
+.di-footer-text {
+  margin-left: 8px;
+}
+
+/* Indicator */
+.di-indicator {
+  position: fixed;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9998;
+  padding: 6px 12px;
+  background: #1e293b;
+  color: #60a5fa;
+  font-size: 11px;
+  font-weight: 500;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.di-indicator-dot {
+  width: 8px;
+  height: 8px;
+  background: #60a5fa;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+.di-indicator-edit {
+  color: #fbbf24;
+}
+
+/* Modal */
+.di-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+.di-modal {
+  background: #1e293b;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  width: 400px;
+  padding: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.di-modal-title {
+  color: white;
+  font-weight: 700;
+  font-size: 14px;
+  margin: 0 0 12px 0;
+}
+.di-modal-textarea {
+  width: 100%;
+  height: 200px;
+  padding: 12px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  color: #94a3b8;
+  font-size: 11px;
+  font-family: monospace;
+  resize: none;
+  box-sizing: border-box;
+}
+.di-modal-textarea-input {
+  height: 150px;
+  color: white;
+}
+.di-modal-textarea-input::placeholder {
+  color: #475569;
+}
+.di-modal-textarea:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+.di-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+.di-file-drop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 60px;
+  border: 2px dashed #334155;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  margin-bottom: 12px;
+}
+.di-file-drop:hover {
+  border-color: #60a5fa;
+}
+.di-file-drop input {
+  display: none;
+}
+.di-file-drop span {
+  font-size: 11px;
+  color: #64748b;
+}
+.di-error {
+  font-size: 10px;
+  color: #ef4444;
+  margin: 4px 0 0 0;
+}
+</style>

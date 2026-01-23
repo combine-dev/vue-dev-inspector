@@ -174,13 +174,12 @@ watch(() => store.isPickMode, (isPicking) => {
 </script>
 
 <template>
-  <!-- Pick mode overlay -->
   <Teleport to="body">
     <!-- Highlight box for hovered element -->
     <div
       v-if="store.isPickMode && highlightStyle"
       data-dev-inspector
-      class="fixed pointer-events-none z-[9997] border-2 border-[#10b981] bg-[#10b981]/10 transition-all duration-75"
+      class="di-highlight"
       :style="{
         top: highlightStyle.top,
         left: highlightStyle.left,
@@ -188,33 +187,15 @@ watch(() => store.isPickMode, (isPicking) => {
         height: highlightStyle.height,
       }"
     >
-      <!-- Selector label -->
-      <div
-        class="absolute -top-6 left-0 px-2 py-0.5 bg-[#10b981] text-white text-[10px] font-mono rounded whitespace-nowrap max-w-[300px] truncate"
-      >
-        {{ store.hoveredSelector }}
-      </div>
+      <div class="di-highlight-label">{{ store.hoveredSelector }}</div>
     </div>
 
     <!-- Pick mode instruction banner -->
-    <Transition
-      enter-active-class="transition ease-out duration-200"
-      enter-from-class="opacity-0 -translate-y-4"
-      enter-to-class="opacity-100 translate-y-0"
-      leave-active-class="transition ease-in duration-150"
-      leave-from-class="opacity-100 translate-y-0"
-      leave-to-class="opacity-0 -translate-y-4"
-    >
-      <div
-        v-if="store.isPickMode"
-        data-dev-inspector
-        class="fixed top-12 left-1/2 -translate-x-1/2 z-[9998] px-4 py-2 bg-[#10b981] text-white text-[12px] font-medium rounded-lg shadow-lg flex items-center gap-3"
-      >
-        <span>要素をクリックしてメモを追加</span>
-        <kbd class="px-1.5 py-0.5 bg-white/20 rounded text-[10px]">ESC</kbd>
-        <span class="text-[10px] opacity-80">でキャンセル</span>
-      </div>
-    </Transition>
+    <div v-if="store.isPickMode" data-dev-inspector class="di-pick-banner">
+      <span>要素をクリックしてメモを追加</span>
+      <kbd>ESC</kbd>
+      <span class="di-pick-hint">でキャンセル</span>
+    </div>
 
     <!-- Existing annotation markers (when not in pick mode) -->
     <template v-if="store.isEnabled && !store.isPickMode && !store.isEditMode">
@@ -222,7 +203,7 @@ watch(() => store.isPickMode, (isPicking) => {
         v-for="annotation in existingAnnotations"
         :key="annotation.selector"
         data-dev-inspector
-        class="fixed z-[9996] pointer-events-none"
+        class="di-annotation-marker"
         :style="{
           top: `${annotation.top}px`,
           left: `${annotation.left}px`,
@@ -230,14 +211,92 @@ watch(() => store.isPickMode, (isPicking) => {
       >
         <div
           v-if="annotation.noteInfo"
-          class="w-4 h-4 rounded-full flex items-center justify-center shadow-md pointer-events-auto cursor-pointer"
+          class="di-marker-dot"
           :style="{ backgroundColor: annotation.noteInfo.color }"
           :title="annotation.noteInfo.text"
           @click="store.startEditing(annotation.selector)"
         >
-          <component :is="annotation.noteInfo.icon" class="w-2.5 h-2.5 text-white" />
+          <component :is="annotation.noteInfo.icon" style="width: 10px; height: 10px; color: white;" />
         </div>
       </div>
     </template>
   </Teleport>
 </template>
+
+<style scoped>
+.di-highlight {
+  position: fixed;
+  pointer-events: none;
+  z-index: 9997;
+  border: 2px solid #10b981;
+  background: rgba(16, 185, 129, 0.1);
+  transition: all 0.075s ease-out;
+}
+
+.di-highlight-label {
+  position: absolute;
+  top: -24px;
+  left: 0;
+  padding: 2px 8px;
+  background: #10b981;
+  color: white;
+  font-size: 10px;
+  font-family: monospace;
+  border-radius: 4px;
+  white-space: nowrap;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.di-pick-banner {
+  position: fixed;
+  top: 48px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9998;
+  padding: 8px 16px;
+  background: #10b981;
+  color: white;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.di-pick-banner kbd {
+  padding: 2px 6px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  font-size: 10px;
+}
+.di-pick-hint {
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.di-annotation-marker {
+  position: fixed;
+  z-index: 9996;
+  pointer-events: none;
+}
+
+.di-marker-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.di-marker-dot:hover {
+  transform: scale(1.2);
+}
+</style>
