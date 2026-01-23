@@ -104,23 +104,77 @@ interface TemplateElement {
 
 function analyzeTemplate(template: string): TemplateElement[] {
   const elements: TemplateElement[] = []
+  const seen = new Set<string>() // Avoid duplicates
 
-  // Match elements with text content
-  // This is a simplified parser - production would use a proper HTML/Vue parser
+  // Helper to add element if unique
+  const addElement = (el: TemplateElement) => {
+    const key = `${el.line}:${el.tag}:${el.text}:${el.binding || ''}`
+    if (!seen.has(key) && (el.text || el.binding)) {
+      seen.add(key)
+      elements.push(el)
+    }
+  }
 
-  // Find static text in tags
-  const staticTextRegex = /<([\w-]+)([^>]*)>([^<{]+)<\/\1>/g
+  // 1. Find all tags with their content (supports multiline and nested tags)
+  const tagRegex = /<([A-Za-z][\w-]*)((?:\s+[^>]*)?)\s*>([\s\S]*?)<\/\1>/g
   let match
 
-  while ((match = staticTextRegex.exec(template)) !== null) {
-    const [fullMatch, tag, attrs, text] = match
-    const trimmedText = text.trim()
+  while ((match = tagRegex.exec(template)) !== null) {
+    const [fullMatch, tag, attrs, content] = match
+    const line = template.substring(0, match.index).split('\n').length
+    const parsedAttrs = parseAttributes(attrs)
 
-    if (trimmedText && !trimmedText.includes('{{')) {
-      const line = template.substring(0, match.index).split('\n').length
-      elements.push({
+    // Extract text content (remove nested tags, keep text)
+    const textContent = content
+      .replace(/<[^>]+>/g, ' ')  // Remove nested tags
+      .replace(/\s+/g, ' ')      // Normalize whitespace
+      .trim()
+
+    // Check for {{ bindings }} in content
+    const bindingMatches = content.match(/\{\{\s*([^}]+)\s*\}\}/g)
+    const hasBinding = !!bindingMatches || attrs.includes(':') || attrs.includes('v-')
+
+    // Determine if content has meaningful text
+    const cleanText = textContent.replace(/\{\{[^}]+\}\}/g, '').trim()
+
+    if (cleanText && cleanText.length > 0) {
+      // Has static text content
+      addElement({
         tag,
-        text: trimmedText,
+        text: cleanText,
+        isStatic: !hasBinding,
+        binding: bindingMatches ? bindingMatches.map(b => b.replace(/[{}]/g, '').trim()).join(', ') : undefined,
+        attributes: parsedAttrs,
+        line,
+      })
+    } else if (bindingMatches) {
+      // Only dynamic binding, no static text
+      for (const bindingMatch of bindingMatches) {
+        const binding = bindingMatch.replace(/[{}\s]/g, '')
+        addElement({
+          tag,
+          text: `{{ ${binding} }}`,
+          isStatic: false,
+          binding,
+          attributes: parsedAttrs,
+          line,
+        })
+      }
+    }
+  }
+
+  // 2. Find attribute values with static text (placeholder, title, label, field-name, etc.)
+  const attrTextRegex = /<([A-Za-z][\w-]*)([^>]*(?:placeholder|title|label|field-name|aria-label|alt)="([^"]+)"[^>]*)>/gi
+
+  while ((match = attrTextRegex.exec(template)) !== null) {
+    const [fullMatch, tag, attrs, attrValue] = match
+    const line = template.substring(0, match.index).split('\n').length
+
+    // Skip if it's a binding (starts with : or v-)
+    if (!attrs.match(/[:v-](?:placeholder|title|label|field-name|aria-label|alt)/)) {
+      addElement({
+        tag,
+        text: attrValue,
         isStatic: true,
         attributes: parseAttributes(attrs),
         line,
@@ -128,29 +182,13 @@ function analyzeTemplate(template: string): TemplateElement[] {
     }
   }
 
-  // Find dynamic bindings {{ }}
-  const bindingRegex = /<([\w-]+)([^>]*)>\s*\{\{\s*([^}]+)\s*\}\}\s*<\/\1>/g
-
-  while ((match = bindingRegex.exec(template)) !== null) {
-    const [fullMatch, tag, attrs, binding] = match
-    const line = template.substring(0, match.index).split('\n').length
-    elements.push({
-      tag,
-      text: `{{ ${binding.trim()} }}`,
-      isStatic: false,
-      binding: binding.trim(),
-      attributes: parseAttributes(attrs),
-      line,
-    })
-  }
-
-  // Find v-text and v-html bindings
-  const vTextRegex = /<([\w-]+)([^>]*v-(?:text|html)="([^"]+)"[^>]*)>/g
+  // 3. Find v-text and v-html bindings
+  const vTextRegex = /<([A-Za-z][\w-]*)([^>]*\sv-(?:text|html)="([^"]+)"[^>]*)>/g
 
   while ((match = vTextRegex.exec(template)) !== null) {
     const [fullMatch, tag, attrs, binding] = match
     const line = template.substring(0, match.index).split('\n').length
-    elements.push({
+    addElement({
       tag,
       text: `v-text: ${binding}`,
       isStatic: false,
@@ -160,40 +198,87 @@ function analyzeTemplate(template: string): TemplateElement[] {
     })
   }
 
-  // Find form inputs with v-model
-  const vModelRegex = /<(input|select|textarea)([^>]*v-model="([^"]+)"[^>]*)>/gi
+  // 4. Find form inputs with v-model
+  const vModelRegex = /<([A-Za-z][\w-]*)([^>]*\sv-model(?:\.[\w]+)*="([^"]+)"[^>]*)>/gi
 
   while ((match = vModelRegex.exec(template)) !== null) {
     const [fullMatch, tag, attrs, binding] = match
     const line = template.substring(0, match.index).split('\n').length
-    elements.push({
-      tag: tag.toLowerCase(),
-      text: `v-model: ${binding}`,
+    const parsedAttrs = parseAttributes(attrs)
+
+    // Get placeholder or label for context
+    const placeholder = parsedAttrs.placeholder || ''
+
+    addElement({
+      tag,
+      text: placeholder ? `[${placeholder}] v-model: ${binding}` : `v-model: ${binding}`,
       isStatic: false,
       binding: binding.trim(),
-      attributes: parseAttributes(attrs),
+      attributes: parsedAttrs,
       line,
     })
   }
 
-  // Find buttons and links
-  const buttonRegex = /<(button|a)([^>]*)>([^<]*(?:<[^>]+>[^<]*)*)<\/\1>/gi
+  // 5. Find standalone {{ bindings }} not caught by tag regex
+  const standaloneBindingRegex = /\{\{\s*([^}]+)\s*\}\}/g
 
-  while ((match = buttonRegex.exec(template)) !== null) {
-    const [fullMatch, tag, attrs, content] = match
+  while ((match = standaloneBindingRegex.exec(template)) !== null) {
+    const binding = match[1].trim()
     const line = template.substring(0, match.index).split('\n').length
 
-    // Extract text content (remove nested tags)
-    const textContent = content.replace(/<[^>]+>/g, '').trim()
-    const hasBinding = content.includes('{{') || attrs.includes(':') || attrs.includes('v-')
+    // Check if already captured
+    const alreadyExists = elements.some(e => e.line === line && e.binding?.includes(binding))
+    if (!alreadyExists) {
+      addElement({
+        tag: 'text',
+        text: `{{ ${binding} }}`,
+        isStatic: false,
+        binding,
+        attributes: {},
+        line,
+      })
+    }
+  }
 
-    if (textContent || attrs.includes('@click') || attrs.includes('href')) {
-      elements.push({
-        tag: tag.toLowerCase(),
+  // 6. Find elements with @click (buttons/links)
+  const clickableRegex = /<([A-Za-z][\w-]*)([^>]*@click[^>]*)>/g
+
+  while ((match = clickableRegex.exec(template)) !== null) {
+    const [fullMatch, tag, attrs] = match
+    const line = template.substring(0, match.index).split('\n').length
+    const parsedAttrs = parseAttributes(attrs)
+
+    // Try to find associated text
+    const afterMatch = template.substring(match.index + fullMatch.length)
+    const textMatch = afterMatch.match(/^([^<]*)/)?.[1]?.trim()
+
+    if (textMatch && textMatch.length < 100) {
+      addElement({
+        tag,
+        text: textMatch.replace(/\{\{[^}]+\}\}/g, '').trim() || '[クリック要素]',
+        isStatic: !textMatch.includes('{{'),
+        attributes: parsedAttrs,
+        line,
+      })
+    }
+  }
+
+  // 7. Find NuxtLink/RouterLink with to attribute
+  const linkRegex = /<(NuxtLink|RouterLink|router-link|nuxt-link)([^>]*)>([\s\S]*?)<\/\1>/gi
+
+  while ((match = linkRegex.exec(template)) !== null) {
+    const [fullMatch, tag, attrs, content] = match
+    const line = template.substring(0, match.index).split('\n').length
+    const parsedAttrs = parseAttributes(attrs)
+    const textContent = content.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+
+    if (textContent) {
+      addElement({
+        tag: 'link',
         text: textContent,
-        isStatic: !hasBinding && !!textContent,
-        binding: hasBinding ? extractBinding(content) : undefined,
-        attributes: parseAttributes(attrs),
+        isStatic: !content.includes('{{'),
+        binding: parsedAttrs.to || parsedAttrs[':to'],
+        attributes: parsedAttrs,
         line,
       })
     }

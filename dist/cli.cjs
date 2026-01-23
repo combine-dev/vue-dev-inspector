@@ -55,40 +55,66 @@ function parseSFC(content) {
 }
 function analyzeTemplate(template) {
   const elements = [];
-  const staticTextRegex = /<([\w-]+)([^>]*)>([^<{]+)<\/\1>/g;
+  const seen = /* @__PURE__ */ new Set();
+  const addElement = (el) => {
+    const key = `${el.line}:${el.tag}:${el.text}:${el.binding || ""}`;
+    if (!seen.has(key) && (el.text || el.binding)) {
+      seen.add(key);
+      elements.push(el);
+    }
+  };
+  const tagRegex = /<([A-Za-z][\w-]*)((?:\s+[^>]*)?)\s*>([\s\S]*?)<\/\1>/g;
   let match;
-  while ((match = staticTextRegex.exec(template)) !== null) {
-    const [fullMatch, tag, attrs, text] = match;
-    const trimmedText = text.trim();
-    if (trimmedText && !trimmedText.includes("{{")) {
-      const line = template.substring(0, match.index).split("\n").length;
-      elements.push({
+  while ((match = tagRegex.exec(template)) !== null) {
+    const [fullMatch, tag, attrs, content] = match;
+    const line = template.substring(0, match.index).split("\n").length;
+    const parsedAttrs = parseAttributes(attrs);
+    const textContent = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    const bindingMatches = content.match(/\{\{\s*([^}]+)\s*\}\}/g);
+    const hasBinding = !!bindingMatches || attrs.includes(":") || attrs.includes("v-");
+    const cleanText = textContent.replace(/\{\{[^}]+\}\}/g, "").trim();
+    if (cleanText && cleanText.length > 0) {
+      addElement({
         tag,
-        text: trimmedText,
+        text: cleanText,
+        isStatic: !hasBinding,
+        binding: bindingMatches ? bindingMatches.map((b) => b.replace(/[{}]/g, "").trim()).join(", ") : void 0,
+        attributes: parsedAttrs,
+        line
+      });
+    } else if (bindingMatches) {
+      for (const bindingMatch of bindingMatches) {
+        const binding = bindingMatch.replace(/[{}\s]/g, "");
+        addElement({
+          tag,
+          text: `{{ ${binding} }}`,
+          isStatic: false,
+          binding,
+          attributes: parsedAttrs,
+          line
+        });
+      }
+    }
+  }
+  const attrTextRegex = /<([A-Za-z][\w-]*)([^>]*(?:placeholder|title|label|field-name|aria-label|alt)="([^"]+)"[^>]*)>/gi;
+  while ((match = attrTextRegex.exec(template)) !== null) {
+    const [fullMatch, tag, attrs, attrValue] = match;
+    const line = template.substring(0, match.index).split("\n").length;
+    if (!attrs.match(/[:v-](?:placeholder|title|label|field-name|aria-label|alt)/)) {
+      addElement({
+        tag,
+        text: attrValue,
         isStatic: true,
         attributes: parseAttributes(attrs),
         line
       });
     }
   }
-  const bindingRegex = /<([\w-]+)([^>]*)>\s*\{\{\s*([^}]+)\s*\}\}\s*<\/\1>/g;
-  while ((match = bindingRegex.exec(template)) !== null) {
-    const [fullMatch, tag, attrs, binding] = match;
-    const line = template.substring(0, match.index).split("\n").length;
-    elements.push({
-      tag,
-      text: `{{ ${binding.trim()} }}`,
-      isStatic: false,
-      binding: binding.trim(),
-      attributes: parseAttributes(attrs),
-      line
-    });
-  }
-  const vTextRegex = /<([\w-]+)([^>]*v-(?:text|html)="([^"]+)"[^>]*)>/g;
+  const vTextRegex = /<([A-Za-z][\w-]*)([^>]*\sv-(?:text|html)="([^"]+)"[^>]*)>/g;
   while ((match = vTextRegex.exec(template)) !== null) {
     const [fullMatch, tag, attrs, binding] = match;
     const line = template.substring(0, match.index).split("\n").length;
-    elements.push({
+    addElement({
       tag,
       text: `v-text: ${binding}`,
       isStatic: false,
@@ -97,32 +123,67 @@ function analyzeTemplate(template) {
       line
     });
   }
-  const vModelRegex = /<(input|select|textarea)([^>]*v-model="([^"]+)"[^>]*)>/gi;
+  const vModelRegex = /<([A-Za-z][\w-]*)([^>]*\sv-model(?:\.[\w]+)*="([^"]+)"[^>]*)>/gi;
   while ((match = vModelRegex.exec(template)) !== null) {
     const [fullMatch, tag, attrs, binding] = match;
     const line = template.substring(0, match.index).split("\n").length;
-    elements.push({
-      tag: tag.toLowerCase(),
-      text: `v-model: ${binding}`,
+    const parsedAttrs = parseAttributes(attrs);
+    const placeholder = parsedAttrs.placeholder || "";
+    addElement({
+      tag,
+      text: placeholder ? `[${placeholder}] v-model: ${binding}` : `v-model: ${binding}`,
       isStatic: false,
       binding: binding.trim(),
-      attributes: parseAttributes(attrs),
+      attributes: parsedAttrs,
       line
     });
   }
-  const buttonRegex = /<(button|a)([^>]*)>([^<]*(?:<[^>]+>[^<]*)*)<\/\1>/gi;
-  while ((match = buttonRegex.exec(template)) !== null) {
+  const standaloneBindingRegex = /\{\{\s*([^}]+)\s*\}\}/g;
+  while ((match = standaloneBindingRegex.exec(template)) !== null) {
+    const binding = match[1].trim();
+    const line = template.substring(0, match.index).split("\n").length;
+    const alreadyExists = elements.some((e) => e.line === line && e.binding?.includes(binding));
+    if (!alreadyExists) {
+      addElement({
+        tag: "text",
+        text: `{{ ${binding} }}`,
+        isStatic: false,
+        binding,
+        attributes: {},
+        line
+      });
+    }
+  }
+  const clickableRegex = /<([A-Za-z][\w-]*)([^>]*@click[^>]*)>/g;
+  while ((match = clickableRegex.exec(template)) !== null) {
+    const [fullMatch, tag, attrs] = match;
+    const line = template.substring(0, match.index).split("\n").length;
+    const parsedAttrs = parseAttributes(attrs);
+    const afterMatch = template.substring(match.index + fullMatch.length);
+    const textMatch = afterMatch.match(/^([^<]*)/)?.[1]?.trim();
+    if (textMatch && textMatch.length < 100) {
+      addElement({
+        tag,
+        text: textMatch.replace(/\{\{[^}]+\}\}/g, "").trim() || "[\u30AF\u30EA\u30C3\u30AF\u8981\u7D20]",
+        isStatic: !textMatch.includes("{{"),
+        attributes: parsedAttrs,
+        line
+      });
+    }
+  }
+  const linkRegex = /<(NuxtLink|RouterLink|router-link|nuxt-link)([^>]*)>([\s\S]*?)<\/\1>/gi;
+  while ((match = linkRegex.exec(template)) !== null) {
     const [fullMatch, tag, attrs, content] = match;
     const line = template.substring(0, match.index).split("\n").length;
-    const textContent = content.replace(/<[^>]+>/g, "").trim();
-    const hasBinding = content.includes("{{") || attrs.includes(":") || attrs.includes("v-");
-    if (textContent || attrs.includes("@click") || attrs.includes("href")) {
-      elements.push({
-        tag: tag.toLowerCase(),
+    const parsedAttrs = parseAttributes(attrs);
+    const textContent = content.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+    if (textContent) {
+      addElement({
+        tag: "link",
         text: textContent,
-        isStatic: !hasBinding && !!textContent,
-        binding: hasBinding ? extractBinding(content) : void 0,
-        attributes: parseAttributes(attrs),
+        isStatic: !content.includes("{{"),
+        binding: parsedAttrs.to || parsedAttrs[":to"],
+        attributes: parsedAttrs,
         line
       });
     }
@@ -137,10 +198,6 @@ function parseAttributes(attrString) {
     attrs[match[1]] = match[2] || "";
   }
   return attrs;
-}
-function extractBinding(content) {
-  const match = content.match(/\{\{\s*([^}]+)\s*\}\}/);
-  return match?.[1]?.trim();
 }
 function analyzeScript(script, scriptSetup) {
   const combined = script + "\n" + scriptSetup;
