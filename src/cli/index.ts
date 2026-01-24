@@ -15,14 +15,15 @@ vue-dev-inspector - ソースコード解析ツール
   analyze    Vue プロジェクトを解析して要素マッピングを生成
 
 オプション:
-  -o, --output <file>   出力ファイル (デフォルト: dev-inspector-analysis.json)
-  -v, --verbose         詳細ログを出力
-  -h, --help            ヘルプを表示
+  -o, --output <file>    出力ファイル (デフォルト: dev-inspector-analysis.json)
+  -s, --schema <file>    Rails schema.rbのパス (自動検出も可能)
+  -v, --verbose          詳細ログを出力
+  -h, --help             ヘルプを表示
 
 例:
   npx vue-dev-inspector analyze ./src
   npx vue-dev-inspector analyze ./front -o analysis.json -v
-  npx vue-dev-inspector analyze /path/to/project --verbose
+  npx vue-dev-inspector analyze /front -s /api/db/schema.rb -v
 `)
 }
 
@@ -42,10 +43,15 @@ async function main() {
       ? args[outputFlagIndex + 1]
       : 'dev-inspector-analysis.json'
 
+    const schemaFlagIndex = args.findIndex(a => a === '-s' || a === '--schema')
+    const schemaPath = schemaFlagIndex !== -1
+      ? args[schemaFlagIndex + 1]
+      : undefined
+
     const verbose = args.includes('-v') || args.includes('--verbose')
 
     try {
-      await analyzeProject(projectPath, { output, verbose })
+      await analyzeProject(projectPath, { output, verbose, schemaPath })
     } catch (error) {
       console.error('Error:', error)
       process.exit(1)

@@ -5,6 +5,23 @@ import * as path from 'path'
 
 // ===== Types =====
 
+interface DbColumnInfo {
+  name: string
+  type: string
+  comment: string | null
+  nullable: boolean
+}
+
+interface DbTableInfo {
+  name: string
+  comment: string | null
+  columns: Record<string, DbColumnInfo>
+}
+
+interface DbSchema {
+  tables: Record<string, DbTableInfo>
+}
+
 interface ElementMapping {
   selector: string
   type: 'static' | 'data' | 'button' | 'link' | 'form' | 'unknown'
@@ -19,6 +36,7 @@ interface ElementMapping {
     table: string
     column: string
     type?: string
+    comment?: string  // DBコメント追加
   }
   component?: string
   line?: number
@@ -538,6 +556,78 @@ function camelToSnake(str: string): string {
   return str.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`).replace(/^_/, '')
 }
 
+// ===== Rails Schema Parser =====
+
+function parseRailsSchema(schemaPath: string): DbSchema | null {
+  if (!fs.existsSync(schemaPath)) {
+    return null
+  }
+
+  const content = fs.readFileSync(schemaPath, 'utf-8')
+  const tables: Record<string, DbTableInfo> = {}
+
+  // Match create_table blocks
+  // Pattern: create_table "table_name", ... do |t|
+  const tableRegex = /create_table\s+"(\w+)"[^]*?(?:comment:\s*"([^"]*)")?[^]*?do\s*\|t\|([\s\S]*?)(?=^\s*end\s*$)/gm
+
+  let tableMatch
+  while ((tableMatch = tableRegex.exec(content)) !== null) {
+    const tableName = tableMatch[1]
+    const tableComment = tableMatch[2] || null
+    const columnsBlock = tableMatch[3]
+
+    const columns: Record<string, DbColumnInfo> = {}
+
+    // Match column definitions
+    // Pattern: t.type "column_name", ... comment: "comment"
+    const columnRegex = /t\.(\w+)\s+"(\w+)"(?:[^,\n]*,\s*comment:\s*"([^"]*)")?/g
+
+    let colMatch
+    while ((colMatch = columnRegex.exec(columnsBlock)) !== null) {
+      const colType = colMatch[1]
+      const colName = colMatch[2]
+      const colComment = colMatch[3] || null
+
+      // Skip index definitions
+      if (colType === 'index') continue
+
+      columns[colName] = {
+        name: colName,
+        type: colType,
+        comment: colComment,
+        nullable: !columnsBlock.includes(`"${colName}"`) || !columnsBlock.match(new RegExp(`"${colName}"[^,]*null:\\s*false`))
+      }
+    }
+
+    tables[tableName] = {
+      name: tableName,
+      comment: tableComment,
+      columns
+    }
+  }
+
+  return { tables }
+}
+
+// Find Rails schema.rb in common locations
+function findRailsSchema(projectPath: string): string | null {
+  const possiblePaths = [
+    path.join(projectPath, '../api/db/schema.rb'),
+    path.join(projectPath, 'api/db/schema.rb'),
+    path.join(projectPath, '../db/schema.rb'),
+    path.join(projectPath, 'db/schema.rb'),
+    path.join(projectPath, '../../api/db/schema.rb'),
+  ]
+
+  for (const schemaPath of possiblePaths) {
+    if (fs.existsSync(schemaPath)) {
+      return schemaPath
+    }
+  }
+
+  return null
+}
+
 // Extract table name from endpoint
 function extractTableName(endpoint: string): string {
   // /api/v1/users/:id -> users
@@ -820,21 +910,43 @@ function mapToDatabase(binding: string, apiInfo: ApiComposableAnalysis): Element
       const columnParts = field.dbColumn.split('.')
       const column = columnParts[columnParts.length - 1]
 
+      // Look up comment from Rails schema
+      let comment: string | undefined
+      if (globalDbSchema) {
+        const table = globalDbSchema.tables[apiInfo.tableName]
+        if (table && table.columns[column]) {
+          comment = table.columns[column].comment || undefined
+        }
+      }
+
       return {
         table: apiInfo.tableName,
         column: column,
         type: field.type,
+        comment,
       }
     }
   }
 
   // Fallback: just use the last part with snake_case conversion
   const lastPart = parts[parts.length - 1]
+  const snakeColumn = camelToSnake(lastPart)
+
   if (apiInfo.tableName) {
+    // Try to get comment from Rails schema even for fallback
+    let comment: string | undefined
+    if (globalDbSchema) {
+      const table = globalDbSchema.tables[apiInfo.tableName]
+      if (table && table.columns[snakeColumn]) {
+        comment = table.columns[snakeColumn].comment || undefined
+      }
+    }
+
     return {
       table: apiInfo.tableName,
-      column: camelToSnake(lastPart),
+      column: snakeColumn,
       type: 'unknown',
+      comment,
     }
   }
 
@@ -843,13 +955,30 @@ function mapToDatabase(binding: string, apiInfo: ApiComposableAnalysis): Element
 
 // ===== CLI Entry Point =====
 
+// Global variable to store DB schema for use in mapping functions
+let globalDbSchema: DbSchema | null = null
+
 export async function analyzeProject(projectPath: string, options: {
   output?: string
   verbose?: boolean
+  schemaPath?: string
 } = {}): Promise<ProjectAnalysis> {
-  const { output, verbose } = options
+  const { output, verbose, schemaPath } = options
 
   console.log(`\n🔍 Analyzing project: ${projectPath}\n`)
+
+  // Load Rails schema if available
+  const railsSchemaPath = schemaPath || findRailsSchema(projectPath)
+  if (railsSchemaPath) {
+    console.log(`📊 Loading Rails schema: ${railsSchemaPath}`)
+    globalDbSchema = parseRailsSchema(railsSchemaPath)
+    if (globalDbSchema && verbose) {
+      console.log(`   Found ${Object.keys(globalDbSchema.tables).length} tables`)
+    }
+  } else {
+    console.log('⚠️  Rails schema.rb not found - DB comments will not be available')
+    globalDbSchema = null
+  }
 
   // Find all relevant files
   const vueFiles = findFiles(projectPath, /\.vue$/)

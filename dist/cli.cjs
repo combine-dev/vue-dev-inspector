@@ -360,6 +360,57 @@ function parseInterfaceFields(content, prefix = "") {
 function camelToSnake(str) {
   return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`).replace(/^_/, "");
 }
+function parseRailsSchema(schemaPath) {
+  if (!fs.existsSync(schemaPath)) {
+    return null;
+  }
+  const content = fs.readFileSync(schemaPath, "utf-8");
+  const tables = {};
+  const tableRegex = /create_table\s+"(\w+)"[^]*?(?:comment:\s*"([^"]*)")?[^]*?do\s*\|t\|([\s\S]*?)(?=^\s*end\s*$)/gm;
+  let tableMatch;
+  while ((tableMatch = tableRegex.exec(content)) !== null) {
+    const tableName = tableMatch[1];
+    const tableComment = tableMatch[2] || null;
+    const columnsBlock = tableMatch[3];
+    const columns = {};
+    const columnRegex = /t\.(\w+)\s+"(\w+)"(?:[^,\n]*,\s*comment:\s*"([^"]*)")?/g;
+    let colMatch;
+    while ((colMatch = columnRegex.exec(columnsBlock)) !== null) {
+      const colType = colMatch[1];
+      const colName = colMatch[2];
+      const colComment = colMatch[3] || null;
+      if (colType === "index")
+        continue;
+      columns[colName] = {
+        name: colName,
+        type: colType,
+        comment: colComment,
+        nullable: !columnsBlock.includes(`"${colName}"`) || !columnsBlock.match(new RegExp(`"${colName}"[^,]*null:\\s*false`))
+      };
+    }
+    tables[tableName] = {
+      name: tableName,
+      comment: tableComment,
+      columns
+    };
+  }
+  return { tables };
+}
+function findRailsSchema(projectPath) {
+  const possiblePaths = [
+    path.join(projectPath, "../api/db/schema.rb"),
+    path.join(projectPath, "api/db/schema.rb"),
+    path.join(projectPath, "../db/schema.rb"),
+    path.join(projectPath, "db/schema.rb"),
+    path.join(projectPath, "../../api/db/schema.rb")
+  ];
+  for (const schemaPath of possiblePaths) {
+    if (fs.existsSync(schemaPath)) {
+      return schemaPath;
+    }
+  }
+  return null;
+}
 function extractTableName(endpoint) {
   const match = endpoint.match(/\/api\/v\d+\/([a-z_]+)/);
   if (match) {
@@ -555,28 +606,57 @@ function mapToDatabase(binding, apiInfo) {
     if (field) {
       const columnParts = field.dbColumn.split(".");
       const column = columnParts[columnParts.length - 1];
+      let comment;
+      if (globalDbSchema) {
+        const table = globalDbSchema.tables[apiInfo.tableName];
+        if (table && table.columns[column]) {
+          comment = table.columns[column].comment || void 0;
+        }
+      }
       return {
         table: apiInfo.tableName,
         column,
-        type: field.type
+        type: field.type,
+        comment
       };
     }
   }
   const lastPart = parts[parts.length - 1];
+  const snakeColumn = camelToSnake(lastPart);
   if (apiInfo.tableName) {
+    let comment;
+    if (globalDbSchema) {
+      const table = globalDbSchema.tables[apiInfo.tableName];
+      if (table && table.columns[snakeColumn]) {
+        comment = table.columns[snakeColumn].comment || void 0;
+      }
+    }
     return {
       table: apiInfo.tableName,
-      column: camelToSnake(lastPart),
-      type: "unknown"
+      column: snakeColumn,
+      type: "unknown",
+      comment
     };
   }
   return null;
 }
+var globalDbSchema = null;
 async function analyzeProject(projectPath, options = {}) {
-  const { output, verbose } = options;
+  const { output, verbose, schemaPath } = options;
   console.log(`
 \u{1F50D} Analyzing project: ${projectPath}
 `);
+  const railsSchemaPath = schemaPath || findRailsSchema(projectPath);
+  if (railsSchemaPath) {
+    console.log(`\u{1F4CA} Loading Rails schema: ${railsSchemaPath}`);
+    globalDbSchema = parseRailsSchema(railsSchemaPath);
+    if (globalDbSchema && verbose) {
+      console.log(`   Found ${Object.keys(globalDbSchema.tables).length} tables`);
+    }
+  } else {
+    console.log("\u26A0\uFE0F  Rails schema.rb not found - DB comments will not be available");
+    globalDbSchema = null;
+  }
   const vueFiles = findFiles(projectPath, /\.vue$/);
   const apiFiles = findFiles(path.join(projectPath, "composables", "useApi"), /\.ts$/);
   const altApiFiles = findFiles(path.join(projectPath, "front", "composables", "useApi"), /\.ts$/);
@@ -685,14 +765,15 @@ vue-dev-inspector - \u30BD\u30FC\u30B9\u30B3\u30FC\u30C9\u89E3\u6790\u30C4\u30FC
   analyze    Vue \u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u3092\u89E3\u6790\u3057\u3066\u8981\u7D20\u30DE\u30C3\u30D4\u30F3\u30B0\u3092\u751F\u6210
 
 \u30AA\u30D7\u30B7\u30E7\u30F3:
-  -o, --output <file>   \u51FA\u529B\u30D5\u30A1\u30A4\u30EB (\u30C7\u30D5\u30A9\u30EB\u30C8: dev-inspector-analysis.json)
-  -v, --verbose         \u8A73\u7D30\u30ED\u30B0\u3092\u51FA\u529B
-  -h, --help            \u30D8\u30EB\u30D7\u3092\u8868\u793A
+  -o, --output <file>    \u51FA\u529B\u30D5\u30A1\u30A4\u30EB (\u30C7\u30D5\u30A9\u30EB\u30C8: dev-inspector-analysis.json)
+  -s, --schema <file>    Rails schema.rb\u306E\u30D1\u30B9 (\u81EA\u52D5\u691C\u51FA\u3082\u53EF\u80FD)
+  -v, --verbose          \u8A73\u7D30\u30ED\u30B0\u3092\u51FA\u529B
+  -h, --help             \u30D8\u30EB\u30D7\u3092\u8868\u793A
 
 \u4F8B:
   npx vue-dev-inspector analyze ./src
   npx vue-dev-inspector analyze ./front -o analysis.json -v
-  npx vue-dev-inspector analyze /path/to/project --verbose
+  npx vue-dev-inspector analyze /front -s /api/db/schema.rb -v
 `);
 }
 async function main() {
@@ -705,9 +786,11 @@ async function main() {
     const projectPath = args[1] || ".";
     const outputFlagIndex = args.findIndex((a) => a === "-o" || a === "--output");
     const output = outputFlagIndex !== -1 ? args[outputFlagIndex + 1] : "dev-inspector-analysis.json";
+    const schemaFlagIndex = args.findIndex((a) => a === "-s" || a === "--schema");
+    const schemaPath = schemaFlagIndex !== -1 ? args[schemaFlagIndex + 1] : void 0;
     const verbose = args.includes("-v") || args.includes("--verbose");
     try {
-      await analyzeProject(projectPath, { output, verbose });
+      await analyzeProject(projectPath, { output, verbose, schemaPath });
     } catch (error) {
       console.error("Error:", error);
       process.exit(1);
