@@ -117,6 +117,14 @@ const isLoadingAnalysis = ref(false)
 const analysisLoadError = ref('')
 const analysisMatchCount = ref(0)
 
+const filterOptions = [
+  { value: 'db-api', label: 'DB/APIのみ' },
+  { value: 'all', label: 'すべて' },
+  { value: 'static', label: '固定文言' },
+  { value: 'data', label: '動的データ' },
+  { value: 'none', label: '非表示' },
+] as const
+
 async function loadAnalysisData() {
   isLoadingAnalysis.value = true
   analysisLoadError.value = ''
@@ -294,6 +302,22 @@ async function applyAnalysis() {
           <div v-if="store.analysisResults.length > 0" class="di-analysis-status">
             <span class="di-analysis-count">{{ store.analysisResults.filter(r => r.matched).length }}</span>
             <span>/ {{ store.analysisResults.length }} 要素がマッチ</span>
+          </div>
+
+          <!-- Analysis Filter -->
+          <div v-if="store.analysisResults.length > 0" class="di-analysis-filter">
+            <span class="di-filter-label">表示フィルター:</span>
+            <div class="di-filter-buttons">
+              <button
+                v-for="opt in filterOptions"
+                :key="opt.value"
+                @click="store.analysisFilter = opt.value"
+                class="di-filter-btn"
+                :class="{ active: store.analysisFilter === opt.value }"
+              >
+                {{ opt.label }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1189,5 +1213,43 @@ async function applyAnalysis() {
 .di-analysis-count {
   font-weight: 700;
   color: #3b82f6;
+}
+
+/* Analysis Filter */
+.di-analysis-filter {
+  margin-top: 10px;
+  padding: 10px;
+  background: #1e293b;
+  border-radius: 6px;
+}
+.di-filter-label {
+  display: block;
+  font-size: 10px;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+.di-filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.di-filter-btn {
+  padding: 4px 10px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: #94a3b8;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-filter-btn:hover {
+  border-color: #60a5fa;
+  color: #60a5fa;
+}
+.di-filter-btn.active {
+  background: #3b82f6;
+  border-color: #3b82f6;
+  color: white;
 }
 </style>

@@ -149,16 +149,40 @@ const analysisHighlights = computed(() => {
     apiInfo?: string
   }> = []
 
+  // Check filter setting
+  const filter = store.analysisFilter
+  if (filter === 'none') return highlights
   if (!store.isEnabled || store.analysisResults.length === 0) return highlights
 
   for (const result of store.analysisResults) {
     if (!result.matched) continue
 
+    const el = result.element
+
+    // Apply filter
+    if (filter === 'db-api') {
+      // Only show elements with actual DB or API info (not just empty objects)
+      const hasDb = el.db && (el.db.table || el.db.column)
+      const hasApi = el.api && el.api.endpoint
+      if (!hasDb && !hasApi) continue
+    } else if (filter === 'static') {
+      // Only static elements
+      if (el.type !== 'static') continue
+    } else if (filter === 'data') {
+      // Only data elements
+      if (el.type !== 'data') continue
+    }
+    // 'all' shows everything
+
     try {
       const element = document.querySelector(result.selector) as HTMLElement | null
       if (element) {
         const rect = element.getBoundingClientRect()
-        const el = result.element
+
+        // Skip very large elements (likely containers)
+        if (rect.width > window.innerWidth * 0.8 || rect.height > window.innerHeight * 0.5) {
+          continue
+        }
 
         let dbInfo = ''
         if (el.db) {
@@ -284,6 +308,14 @@ watch(() => store.isPickMode, (isPicking) => {
 
 <template>
   <Teleport to="body">
+    <!-- Loading overlay during initialization -->
+    <div v-if="store.isInitializing" data-dev-inspector class="di-loading-overlay">
+      <div class="di-loading-content">
+        <div class="di-loading-spinner"></div>
+        <span class="di-loading-text">Developer Mode 起動中...</span>
+      </div>
+    </div>
+
     <!-- Highlight box for hovered element -->
     <div
       v-if="store.isPickMode && highlightStyle"
@@ -401,6 +433,41 @@ watch(() => store.isPickMode, (isPicking) => {
 </template>
 
 <style scoped>
+/* Loading overlay */
+.di-loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(4px);
+}
+.di-loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+.di-loading-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid #334155;
+  border-top-color: #60a5fa;
+  border-radius: 50%;
+  animation: di-spin 1s linear infinite;
+}
+@keyframes di-spin {
+  to { transform: rotate(360deg); }
+}
+.di-loading-text {
+  color: #e2e8f0;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
 .di-highlight {
   position: fixed;
   pointer-events: none;

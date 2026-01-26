@@ -185,6 +185,7 @@ isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
 isPickMode: Ref<boolean, boolean>;
+isInitializing: Ref<boolean, boolean>;
 hoveredSelector: Ref<string | null, string | null>;
 currentScreenSpec: Ref<    {
 name: string;
@@ -212,7 +213,7 @@ notes?: string[] | undefined;
 isPanelOpen: Ref<boolean, boolean>;
 elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
 editingElementId: Ref<string | null, string | null>;
-init: (opts?: DevInspectorOptions) => void;
+init: (opts?: DevInspectorOptions) => Promise<void>;
 toggle: () => void;
 enable: () => void;
 disable: () => void;
@@ -442,11 +443,13 @@ matched: boolean;
 }[]>;
 applyAnalysisToPage: () => Promise<number>;
 clearAnalysisResults: () => void;
-}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults">, Pick<{
+analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "none", "static" | "data" | "all" | "db-api" | "none">;
+}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "analysisFilter">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
 isPickMode: Ref<boolean, boolean>;
+isInitializing: Ref<boolean, boolean>;
 hoveredSelector: Ref<string | null, string | null>;
 currentScreenSpec: Ref<    {
 name: string;
@@ -474,7 +477,7 @@ notes?: string[] | undefined;
 isPanelOpen: Ref<boolean, boolean>;
 elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
 editingElementId: Ref<string | null, string | null>;
-init: (opts?: DevInspectorOptions) => void;
+init: (opts?: DevInspectorOptions) => Promise<void>;
 toggle: () => void;
 enable: () => void;
 disable: () => void;
@@ -704,11 +707,13 @@ matched: boolean;
 }[]>;
 applyAnalysisToPage: () => Promise<number>;
 clearAnalysisResults: () => void;
+analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "none", "static" | "data" | "all" | "db-api" | "none">;
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
 isPickMode: Ref<boolean, boolean>;
+isInitializing: Ref<boolean, boolean>;
 hoveredSelector: Ref<string | null, string | null>;
 currentScreenSpec: Ref<    {
 name: string;
@@ -736,7 +741,7 @@ notes?: string[] | undefined;
 isPanelOpen: Ref<boolean, boolean>;
 elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
 editingElementId: Ref<string | null, string | null>;
-init: (opts?: DevInspectorOptions) => void;
+init: (opts?: DevInspectorOptions) => Promise<void>;
 toggle: () => void;
 enable: () => void;
 disable: () => void;
@@ -966,6 +971,7 @@ matched: boolean;
 }[]>;
 applyAnalysisToPage: () => Promise<number>;
 clearAnalysisResults: () => void;
+analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "none", "static" | "data" | "all" | "db-api" | "none">;
 }, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults">>;
 
 export declare const useDevInspectorStore: StoreDefinition<"devInspector", Pick<{
@@ -973,6 +979,7 @@ isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
 isPickMode: Ref<boolean, boolean>;
+isInitializing: Ref<boolean, boolean>;
 hoveredSelector: Ref<string | null, string | null>;
 currentScreenSpec: Ref<    {
 name: string;
@@ -1000,7 +1007,7 @@ notes?: string[] | undefined;
 isPanelOpen: Ref<boolean, boolean>;
 elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
 editingElementId: Ref<string | null, string | null>;
-init: (opts?: DevInspectorOptions) => void;
+init: (opts?: DevInspectorOptions) => Promise<void>;
 toggle: () => void;
 enable: () => void;
 disable: () => void;
@@ -1230,11 +1237,13 @@ matched: boolean;
 }[]>;
 applyAnalysisToPage: () => Promise<number>;
 clearAnalysisResults: () => void;
-}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults">, Pick<{
+analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "none", "static" | "data" | "all" | "db-api" | "none">;
+}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "analysisFilter">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
 isPickMode: Ref<boolean, boolean>;
+isInitializing: Ref<boolean, boolean>;
 hoveredSelector: Ref<string | null, string | null>;
 currentScreenSpec: Ref<    {
 name: string;
@@ -1262,7 +1271,7 @@ notes?: string[] | undefined;
 isPanelOpen: Ref<boolean, boolean>;
 elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
 editingElementId: Ref<string | null, string | null>;
-init: (opts?: DevInspectorOptions) => void;
+init: (opts?: DevInspectorOptions) => Promise<void>;
 toggle: () => void;
 enable: () => void;
 disable: () => void;
@@ -1492,11 +1501,13 @@ matched: boolean;
 }[]>;
 applyAnalysisToPage: () => Promise<number>;
 clearAnalysisResults: () => void;
+analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "none", "static" | "data" | "all" | "db-api" | "none">;
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
 isPickMode: Ref<boolean, boolean>;
+isInitializing: Ref<boolean, boolean>;
 hoveredSelector: Ref<string | null, string | null>;
 currentScreenSpec: Ref<    {
 name: string;
@@ -1524,7 +1535,7 @@ notes?: string[] | undefined;
 isPanelOpen: Ref<boolean, boolean>;
 elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
 editingElementId: Ref<string | null, string | null>;
-init: (opts?: DevInspectorOptions) => void;
+init: (opts?: DevInspectorOptions) => Promise<void>;
 toggle: () => void;
 enable: () => void;
 disable: () => void;
@@ -1754,6 +1765,7 @@ matched: boolean;
 }[]>;
 applyAnalysisToPage: () => Promise<number>;
 clearAnalysisResults: () => void;
+analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "none", "static" | "data" | "all" | "db-api" | "none">;
 }, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults">>;
 
 declare const VueDevInspector: Plugin_2<PluginOptions[]>;

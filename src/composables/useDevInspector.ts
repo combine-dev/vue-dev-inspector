@@ -135,6 +135,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   const isEnabled = ref(false)
   const isEditMode = ref(false)
   const isPickMode = ref(false)
+  const isInitializing = ref(false) // Loading state for initial analysis data load
   const currentScreenSpec = ref<ScreenSpec | null>(null)
   const isPanelOpen = ref(false)
   const elementConfigs = ref<Record<string, ElementConfig>>({})
@@ -147,6 +148,9 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   // Analysis data (from CLI tool)
   const analysisData = ref<ProjectAnalysis | null>(null)
 
+  // Analysis display filter: 'all' | 'db-api' | 'static' | 'data' | 'none'
+  const analysisFilter = ref<'all' | 'db-api' | 'static' | 'data' | 'none'>('db-api')
+
   const isAvailable = computed(() => {
     if (options.value.enabledInProduction) return true
     // Check for development environment
@@ -157,7 +161,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   })
 
   // Initialize with options
-  function init(opts: DevInspectorOptions = {}) {
+  async function init(opts: DevInspectorOptions = {}) {
     options.value = opts
     loadConfigs()
 
@@ -171,15 +175,18 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     const shouldAutoLoad = opts.autoLoadAnalysis !== false // Default: true
 
     if (shouldAutoLoad && isAvailable.value) {
-      loadAnalysisData(autoLoadUrl).then(() => {
+      isInitializing.value = true
+      try {
+        await loadAnalysisData(autoLoadUrl)
         // Auto-apply to page after loading
         if (analysisData.value && opts.autoApplyAnalysis !== false) {
           // Small delay to ensure DOM is ready
-          setTimeout(() => {
-            applyAnalysisToPage()
-          }, 500)
+          await new Promise(resolve => setTimeout(resolve, 300))
+          applyAnalysisToPage()
         }
-      })
+      } finally {
+        isInitializing.value = false
+      }
     }
   }
 
@@ -1060,6 +1067,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     isAvailable,
     isEditMode,
     isPickMode,
+    isInitializing,
     hoveredSelector,
     currentScreenSpec,
     isPanelOpen,
@@ -1109,6 +1117,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     analysisResults,
     applyAnalysisToPage,
     clearAnalysisResults,
+    analysisFilter,
   }
 })
 
