@@ -1,20 +1,13 @@
-import { ref as u, computed as H, watch as Ne, nextTick as U } from "vue";
-import { defineStore as Pe } from "pinia";
-const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () => {
-  const L = u({}), C = u(!1), E = u(!1), N = u(!1), F = u(!1), O = u(null), P = u(!1), l = u({}), T = u(null), z = u(null), W = H(() => L.value.storageKey || $e), h = u(null), Y = u("db-api"), k = H(() => L.value.enabledInProduction ? !0 : typeof import.meta < "u" && Ie ? !1 : process.env.NODE_ENV === "development");
-  async function Q(e = {}) {
-    L.value = e, ne(), e.analysisData && (h.value = e.analysisData);
+import { ref as r, computed as Q, watch as Pe, nextTick as U } from "vue";
+import { defineStore as Ie } from "pinia";
+const $e = {}, xe = "devInspector:elementConfigs", De = Ie("devInspector", () => {
+  const N = r({}), C = r(!1), A = r(!1), P = r(!1), F = r(!1), L = r(null), I = r(!1), l = r({}), T = r(null), z = r(null), W = Q(() => N.value.storageKey || xe), h = r(null), ee = r("db-api"), k = Q(() => N.value.enabledInProduction ? !0 : typeof import.meta < "u" && $e ? !1 : process.env.NODE_ENV === "development"), X = r(!1);
+  function te(e = {}) {
+    N.value = e, ae(), e.analysisData && (h.value = e.analysisData);
     const n = e.analysisDataUrl ?? "/dev-inspector-analysis.json";
-    if (e.autoLoadAnalysis !== !1 && k.value) {
-      F.value = !0;
-      try {
-        await X(n), h.value && e.autoApplyAnalysis !== !1 && (await new Promise((o) => setTimeout(o, 300)), K());
-      } finally {
-        F.value = !1;
-      }
-    }
+    e.autoLoadAnalysis !== !1 && k.value && J(n);
   }
-  async function X(e) {
+  async function J(e) {
     var n;
     try {
       const t = await fetch(e);
@@ -25,7 +18,7 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
     }
     return !1;
   }
-  function ee(e) {
+  function ne(e) {
     if (!h.value) return null;
     for (const n of Object.values(h.value.components)) {
       const t = n.elements.find((o) => o.selector === e);
@@ -33,16 +26,16 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
     }
     return null;
   }
-  function te(e) {
+  function oe(e) {
     if (!h.value) return [];
     const n = [];
     for (const [t, o] of Object.entries(h.value.components))
       (!e || t.includes(e)) && n.push(...o.elements);
     return n;
   }
-  function ne() {
+  function ae() {
     try {
-      const e = L.value.initialAnnotations || {};
+      const e = N.value.initialAnnotations || {};
       if (typeof window < "u") {
         const n = localStorage.getItem(W.value), t = n ? JSON.parse(n) : {};
         l.value = { ...e, ...t };
@@ -62,30 +55,39 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
       console.error("[DevInspector] Failed to save configs:", e);
     }
   }
-  Ne(l, () => {
+  Pe(l, () => {
     U(() => {
       R();
     });
   }, { deep: !0 });
-  function oe() {
-    k.value && (C.value = !C.value, C.value || (E.value = !1, T.value = null));
+  async function se() {
+    k.value && (C.value ? (C.value = !1, A.value = !1, T.value = null) : await M());
   }
-  function ae() {
-    k.value && (C.value = !0);
-  }
-  function se() {
-    C.value = !1, E.value = !1, T.value = null;
+  async function M() {
+    if (!k.value) return;
+    if (h.value && !X.value && N.value.autoApplyAnalysis !== !1) {
+      F.value = !0, C.value = !0;
+      try {
+        await new Promise((n) => setTimeout(n, 300)), H(), X.value = !0;
+      } finally {
+        F.value = !1;
+      }
+    } else
+      C.value = !0;
   }
   function le() {
-    E.value = !E.value, E.value || (T.value = null), E.value && (N.value = !1);
+    C.value = !1, A.value = !1, T.value = null;
   }
   function ie() {
-    N.value = !N.value, N.value && (E.value = !1), z.value = null;
+    A.value = !A.value, A.value || (T.value = null), A.value && (P.value = !1);
   }
-  function ce(e) {
+  function ce() {
+    P.value = !P.value, P.value && (A.value = !1), z.value = null;
+  }
+  function re(e) {
     z.value = e;
   }
-  function I(e) {
+  function $(e) {
     if (e.id)
       return `#${e.id}`;
     if (e.dataset.devId)
@@ -114,38 +116,38 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
     }
     return n.join(" > ");
   }
-  function re() {
+  function ue() {
     const e = typeof window < "u" ? window.location.pathname : "/";
     return Object.keys(l.value).filter((n) => {
       const t = l.value[n];
       return t ? (n.includes(">") || n.startsWith("#") || n.startsWith("[") || n.startsWith(".")) && (!t.componentPath || t.componentPath.includes(e) || e === "/") : !1;
     });
   }
-  function ue(e) {
-    O.value = e;
-  }
-  function fe() {
-    O.value = null;
+  function fe(e) {
+    L.value = e;
   }
   function de() {
-    P.value = !P.value;
+    L.value = null;
   }
   function pe() {
-    P.value = !0;
+    I.value = !I.value;
   }
   function ve() {
-    P.value = !1;
+    I.value = !0;
   }
-  function ge(e) {
+  function ge() {
+    I.value = !1;
+  }
+  function he(e) {
     return l.value[e];
   }
-  function J(e, n) {
+  function Z(e, n) {
     var s;
     const t = (/* @__PURE__ */ new Date()).toISOString(), o = l.value[e], a = {
       ...o,
       ...n,
       id: e,
-      componentPath: n.componentPath || ((s = O.value) == null ? void 0 : s.componentPath) || "",
+      componentPath: n.componentPath || ((s = L.value) == null ? void 0 : s.componentPath) || "",
       createdAt: (o == null ? void 0 : o.createdAt) || t,
       updatedAt: t
     };
@@ -154,11 +156,11 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
       [e]: a
     }, U(() => R());
   }
-  function he(e) {
+  function me(e) {
     const { [e]: n, ...t } = l.value;
     l.value = t, U(() => R());
   }
-  function M(e) {
+  function q(e) {
     var j;
     const n = ((j = e.textContent) == null ? void 0 : j.trim()) || "", t = e.tagName.toUpperCase();
     if (!n && t !== "INPUT" && t !== "SELECT" && t !== "TEXTAREA")
@@ -284,7 +286,7 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
           source: "dynamic data pattern",
           isStatic: !1
         };
-    const r = [
+    const u = [
       /^[\u4e00-\u9faf]{2,4}$/,
       // Japanese Kanji names (2-4 chars)
       /^[\u3040-\u309f\u30a0-\u30ff]{2,6}$/,
@@ -292,7 +294,7 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
       /^[A-Z][a-z]+ [A-Z][a-z]+$/
       // English names like "John Smith"
     ];
-    for (const d of r)
+    for (const d of u)
       if (d.test(n))
         return {
           type: "api",
@@ -311,8 +313,8 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
       // Ends with 設定
       /情報$/
       // Ends with 情報
-    ].some((d) => d.test(n)), D = t === "BUTTON" || e.closest("button") !== null || e.getAttribute("role") === "button";
-    return p || y || D && n.length < 20 ? {
+    ].some((d) => d.test(n)), O = t === "BUTTON" || e.closest("button") !== null || e.getAttribute("role") === "button";
+    return p || y || O && n.length < 20 ? {
       type: "static",
       source: n.substring(0, 50) + (n.length > 50 ? "..." : ""),
       isStatic: !0
@@ -326,36 +328,36 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
       isStatic: !1
     } : null;
   }
-  function Z(e, n) {
+  function G(e, n) {
     var a, s, i, f, g;
-    const t = M(e), o = {};
+    const t = q(e), o = {};
     if (t) {
       o.sourceBinding = t;
-      const r = ((a = e.textContent) == null ? void 0 : a.trim()) || "";
+      const u = ((a = e.textContent) == null ? void 0 : a.trim()) || "";
       if (t.isStatic)
         o.note = {
           type: "info",
-          text: `【固定文言】${r}`
+          text: `【固定文言】${u}`
         };
       else if (t.type === "v-model") {
         const c = e.tagName.toUpperCase();
         if (c === "INPUT" || c === "SELECT" || c === "TEXTAREA") {
-          const p = e.placeholder || "", A = ((i = (s = e.closest("label")) == null ? void 0 : s.textContent) == null ? void 0 : i.trim()) || e.getAttribute("aria-label") || ((g = (f = document.querySelector(`label[for="${e.id}"]`)) == null ? void 0 : f.textContent) == null ? void 0 : g.trim()) || "";
+          const p = e.placeholder || "", E = ((i = (s = e.closest("label")) == null ? void 0 : s.textContent) == null ? void 0 : i.trim()) || e.getAttribute("aria-label") || ((g = (f = document.querySelector(`label[for="${e.id}"]`)) == null ? void 0 : f.textContent) == null ? void 0 : g.trim()) || "";
           o.note = {
             type: "todo",
-            text: `【フォーム要素】${A || p || c.toLowerCase()}`
+            text: `【フォーム要素】${E || p || c.toLowerCase()}`
           };
         }
       } else t.type === "api" && (o.note = {
         type: "question",
-        text: `【動的データ】${r.substring(0, 100)}${r.length > 100 ? "..." : ""}`
+        text: `【動的データ】${u.substring(0, 100)}${u.length > 100 ? "..." : ""}`
       });
     }
     return o;
   }
-  const $ = u(!1), x = u(0), _ = u([]);
-  async function q(e = {}) {
-    $.value = !0, x.value = 0, _.value = [];
+  const x = r(!1), D = r(0), _ = r([]);
+  async function K(e = {}) {
+    x.value = !0, D.value = 0, _.value = [];
     const { rescan: n = !1 } = e;
     if (n) {
       const t = typeof window < "u" ? window.location.pathname : "/", o = Object.keys(l.value).filter((a) => {
@@ -394,20 +396,20 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
         '[role="link"]',
         '[role="menuitem"]'
       ].join(","), o = document.querySelectorAll(t), a = [];
-      o.forEach((r) => {
+      o.forEach((u) => {
         var v;
-        const c = r;
+        const c = u;
         if (c.closest("[data-dev-inspector]")) return;
         const p = window.getComputedStyle(c);
         if (p.display === "none" || p.visibility === "hidden" || p.opacity === "0") return;
-        const A = I(c);
-        if (l.value[A]) return;
-        const y = c.tagName.toUpperCase(), D = ((v = c.textContent) == null ? void 0 : v.trim()) || "";
+        const E = $(c);
+        if (l.value[E]) return;
+        const y = c.tagName.toUpperCase(), O = ((v = c.textContent) == null ? void 0 : v.trim()) || "";
         if (y === "INPUT" || y === "SELECT" || y === "TEXTAREA") {
           a.push(c);
           return;
         }
-        if (D.length > 300 || D.length === 0 || y === "DIV" && (Array.from(c.childNodes).filter((S) => S.nodeType === Node.TEXT_NODE).map((S) => {
+        if (O.length > 300 || O.length === 0 || y === "DIV" && (Array.from(c.childNodes).filter((S) => S.nodeType === Node.TEXT_NODE).map((S) => {
           var w;
           return ((w = S.textContent) == null ? void 0 : w.trim()) || "";
         }).join("").trim().length === 0 || c.children.length > 3))
@@ -416,41 +418,41 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
           var S;
           return m.nodeType === Node.TEXT_NODE && (((S = m.textContent) == null ? void 0 : S.trim()) || "").length > 0;
         }), d = !Array.from(c.children).some((m) => ["DIV", "P", "UL", "OL", "TABLE", "SECTION", "ARTICLE"].includes(m.tagName));
-        (j || c.children.length === 0 && D.length > 0 || d) && a.push(c);
+        (j || c.children.length === 0 && O.length > 0 || d) && a.push(c);
       });
       const s = a.length;
       let i = 0, f = 0;
       const g = 20;
-      for (let r = 0; r < a.length; r += g) {
-        const c = a.slice(r, r + g);
+      for (let u = 0; u < a.length; u += g) {
+        const c = a.slice(u, u + g);
         for (const p of c) {
-          const A = I(p), y = Z(p, A);
-          y.sourceBinding && (_.value.push({ selector: A, element: p, detected: y }), J(A, y), f++), i++, x.value = Math.round(i / s * 100);
+          const E = $(p), y = G(p, E);
+          y.sourceBinding && (_.value.push({ selector: E, element: p, detected: y }), Z(E, y), f++), i++, D.value = Math.round(i / s * 100);
         }
         await new Promise((p) => setTimeout(p, 10));
       }
       return f;
     } finally {
-      $.value = !1, x.value = 100;
+      x.value = !1, D.value = 100;
     }
   }
-  const G = u([]), B = u("");
-  async function me(e) {
+  const V = r([]), B = r("");
+  async function ye(e) {
     var t;
     if (!e)
       return console.warn("[DevInspector] Router not provided for all pages scan"), [];
-    $.value = !0;
+    x.value = !0;
     const n = [];
     try {
       const o = e.getRoutes(), a = [];
       for (const s of o)
         s.path.includes(":") && !s.path.includes("?") || s.redirect || s.path !== "/:pathMatch(.*)*" && ((t = s.meta) != null && t.devInspectorSkip || a.push(s.path));
-      G.value = a;
+      V.value = a;
       for (const s of a) {
         B.value = s;
         try {
           await e.push(s), await new Promise((f) => setTimeout(f, 500));
-          const i = await q();
+          const i = await K();
           n.push({ page: s, count: i });
         } catch (i) {
           console.warn(`[DevInspector] Failed to scan page ${s}:`, i), n.push({ page: s, count: 0 });
@@ -458,14 +460,14 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
       }
       return n;
     } finally {
-      $.value = !1, B.value = "";
+      x.value = !1, B.value = "";
     }
   }
-  function ye() {
-    _.value = [], x.value = 0;
+  function Se() {
+    _.value = [], D.value = 0;
   }
-  const b = u([]);
-  async function K() {
+  const b = r([]);
+  async function H() {
     var t;
     if (!h.value)
       return console.warn("[DevInspector] No analysis data loaded. Call loadAnalysisData first."), 0;
@@ -490,9 +492,9 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
         for (; f.nextNode(); ) {
           const g = f.currentNode;
           if ((t = g.textContent) != null && t.includes(i)) {
-            const r = g.parentElement;
-            if (r) {
-              a = !0, s = I(r);
+            const u = g.parentElement;
+            if (u) {
+              a = !0, s = $(u);
               break;
             }
           }
@@ -501,8 +503,8 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
       if (!a && o.selector.includes(".")) {
         const i = o.selector.match(/^(\w+)\.(.+)$/);
         if (i) {
-          const [, f, g] = i, r = document.querySelectorAll(`${f}.${g.split(".")[0]}`);
-          r.length > 0 && (a = !0, s = I(r[0]));
+          const [, f, g] = i, u = document.querySelectorAll(`${f}.${g.split(".")[0]}`);
+          u.length > 0 && (a = !0, s = $(u[0]));
         }
       }
       b.value.push({
@@ -513,19 +515,19 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
     }
     return console.log(`[DevInspector] Applied analysis: ${b.value.filter((o) => o.matched).length}/${b.value.length} elements matched`), b.value.filter((o) => o.matched).length;
   }
-  function Se() {
+  function Ae() {
     b.value = [];
   }
   function Ee(e) {
     T.value = e;
   }
-  function Ae() {
+  function be() {
     T.value = null;
   }
-  function be() {
+  function we() {
     return JSON.stringify(l.value, null, 2);
   }
-  function V() {
+  function Y() {
     const e = {
       _meta: {
         version: "1.0.0",
@@ -536,11 +538,11 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
     };
     return JSON.stringify(e, null, 2);
   }
-  function we(e = "dev-annotations.json") {
-    const n = V(), t = new Blob([n], { type: "application/json" }), o = URL.createObjectURL(t), a = document.createElement("a");
+  function Ce(e = "dev-annotations.json") {
+    const n = Y(), t = new Blob([n], { type: "application/json" }), o = URL.createObjectURL(t), a = document.createElement("a");
     a.href = o, a.download = e, document.body.appendChild(a), a.click(), document.body.removeChild(a), URL.revokeObjectURL(o);
   }
-  function Ce(e) {
+  function Te(e) {
     try {
       const n = JSON.parse(e), t = n.annotations || n;
       l.value = { ...l.value, ...t };
@@ -548,72 +550,72 @@ const Ie = {}, $e = "devInspector:elementConfigs", xe = Pe("devInspector", () =>
       throw console.error("[DevInspector] Failed to import configs:", n), new Error("Invalid JSON format");
     }
   }
-  function Te() {
+  function Ne() {
     l.value = {};
   }
   return {
     // State
     isEnabled: C,
     isAvailable: k,
-    isEditMode: E,
-    isPickMode: N,
+    isEditMode: A,
+    isPickMode: P,
     isInitializing: F,
     hoveredSelector: z,
-    currentScreenSpec: O,
-    isPanelOpen: P,
+    currentScreenSpec: L,
+    isPanelOpen: I,
     elementConfigs: l,
     editingElementId: T,
     // Actions
-    init: Q,
-    toggle: oe,
-    enable: ae,
-    disable: se,
-    toggleEditMode: le,
-    togglePickMode: ie,
-    setHoveredSelector: ce,
-    generateSelector: I,
-    getConfiguredSelectors: re,
-    setScreenSpec: ue,
-    clearScreenSpec: fe,
-    togglePanel: de,
-    openPanel: pe,
-    closePanel: ve,
-    getElementConfig: ge,
-    setElementConfig: J,
-    deleteElementConfig: he,
+    init: te,
+    toggle: se,
+    enable: M,
+    disable: le,
+    toggleEditMode: ie,
+    togglePickMode: ce,
+    setHoveredSelector: re,
+    generateSelector: $,
+    getConfiguredSelectors: ue,
+    setScreenSpec: fe,
+    clearScreenSpec: de,
+    togglePanel: pe,
+    openPanel: ve,
+    closePanel: ge,
+    getElementConfig: he,
+    setElementConfig: Z,
+    deleteElementConfig: me,
     startEditing: Ee,
-    stopEditing: Ae,
-    exportConfigs: be,
-    exportAsFile: V,
-    downloadAnnotations: we,
-    importConfigs: Ce,
-    clearAllConfigs: Te,
-    detectSourceBinding: M,
-    autoDetectElementInfo: Z,
+    stopEditing: be,
+    exportConfigs: we,
+    exportAsFile: Y,
+    downloadAnnotations: Ce,
+    importConfigs: Te,
+    clearAllConfigs: Ne,
+    detectSourceBinding: q,
+    autoDetectElementInfo: G,
     // Scan
-    isScanning: $,
-    scanProgress: x,
+    isScanning: x,
+    scanProgress: D,
     scanResults: _,
-    scanCurrentPage: q,
-    scanAllPages: me,
-    allPagesRoutes: G,
+    scanCurrentPage: K,
+    scanAllPages: ye,
+    allPagesRoutes: V,
     currentScanPage: B,
-    clearScanResults: ye,
+    clearScanResults: Se,
     // Analysis data
     analysisData: h,
-    loadAnalysisData: X,
-    getAnalyzedElement: ee,
-    getAnalyzedElementsForPage: te,
+    loadAnalysisData: J,
+    getAnalyzedElement: ne,
+    getAnalyzedElementsForPage: oe,
     analysisResults: b,
-    applyAnalysisToPage: K,
-    clearAnalysisResults: Se,
-    analysisFilter: Y
+    applyAnalysisToPage: H,
+    clearAnalysisResults: Ae,
+    analysisFilter: ee
   };
 });
-function Oe() {
-  return xe();
+function ke() {
+  return De();
 }
 export {
-  Oe as a,
-  xe as u
+  ke as a,
+  De as u
 };

@@ -160,8 +160,11 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     return process.env.NODE_ENV === 'development'
   })
 
+  // Track if analysis has been applied on first enable
+  const analysisAppliedOnce = ref(false)
+
   // Initialize with options
-  async function init(opts: DevInspectorOptions = {}) {
+  function init(opts: DevInspectorOptions = {}) {
     options.value = opts
     loadConfigs()
 
@@ -170,23 +173,12 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       analysisData.value = opts.analysisData
     }
 
-    // Auto-load analysis data from JSON file in development mode
+    // Auto-load analysis data from JSON file in development mode (background, no loading UI)
     const autoLoadUrl = opts.analysisDataUrl ?? '/dev-inspector-analysis.json'
     const shouldAutoLoad = opts.autoLoadAnalysis !== false // Default: true
 
     if (shouldAutoLoad && isAvailable.value) {
-      isInitializing.value = true
-      try {
-        await loadAnalysisData(autoLoadUrl)
-        // Auto-apply to page after loading
-        if (analysisData.value && opts.autoApplyAnalysis !== false) {
-          // Small delay to ensure DOM is ready
-          await new Promise(resolve => setTimeout(resolve, 300))
-          applyAnalysisToPage()
-        }
-      } finally {
-        isInitializing.value = false
-      }
+      loadAnalysisData(autoLoadUrl)
     }
   }
 
@@ -275,18 +267,41 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   }, { deep: true })
 
   // ===== Actions =====
-  function toggle() {
+  async function toggle() {
     if (!isAvailable.value) return
-    isEnabled.value = !isEnabled.value
-    if (!isEnabled.value) {
+    if (isEnabled.value) {
+      // Disabling
+      isEnabled.value = false
       isEditMode.value = false
       editingElementId.value = null
+    } else {
+      // Enabling - show loading and apply analysis
+      await enable()
     }
   }
 
-  function enable() {
+  async function enable() {
     if (!isAvailable.value) return
-    isEnabled.value = true
+
+    // Show loading on first enable if we have analysis data
+    const shouldApplyAnalysis = analysisData.value &&
+                                 !analysisAppliedOnce.value &&
+                                 options.value.autoApplyAnalysis !== false
+
+    if (shouldApplyAnalysis) {
+      isInitializing.value = true
+      isEnabled.value = true
+      try {
+        // Small delay to ensure DOM is ready
+        await new Promise(resolve => setTimeout(resolve, 300))
+        applyAnalysisToPage()
+        analysisAppliedOnce.value = true
+      } finally {
+        isInitializing.value = false
+      }
+    } else {
+      isEnabled.value = true
+    }
   }
 
   function disable() {
