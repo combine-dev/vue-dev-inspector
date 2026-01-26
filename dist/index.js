@@ -1914,7 +1914,7 @@ const et = {
         e("kbd", null, "ESC", -1),
         e("span", { class: "di-pick-hint" }, "でキャンセル", -1)
       ])])) : k("", !0),
-      o(l).isEnabled && !o(l).isPickMode && !o(l).isEditMode && !o(l).editingElementId && o(l).scanResults.length === 0 ? (d(!0), r(V, { key: 3 }, J(O.value, (n) => (d(), r("div", {
+      o(l).isEnabled && !o(l).isPickMode && !o(l).isEditMode && !o(l).editingElementId && o(l).scanResults.length === 0 && o(l).analysisResults.length === 0 ? (d(!0), r(V, { key: 3 }, J(O.value, (n) => (d(), r("div", {
         key: n.selector,
         "data-dev-inspector": "",
         class: "di-annotation-box",
@@ -1933,7 +1933,7 @@ const et = {
           style: N({ backgroundColor: n.color })
         }, f(n.label), 5)
       ], 12, as))), 128)) : k("", !0),
-      o(l).isEnabled && !o(l).editingElementId && g.value.length > 0 ? (d(), r(V, { key: 4 }, [
+      o(l).isEnabled && !o(l).editingElementId && g.value.length > 0 && o(l).analysisResults.length === 0 ? (d(), r(V, { key: 4 }, [
         (d(!0), r(V, null, J(g.value, (n) => (d(), r("div", {
           key: "scan-" + n.selector,
           "data-dev-inspector": "",
@@ -1995,7 +1995,7 @@ const et = {
       ], 64)) : k("", !0)
     ]));
   }
-}), ms = /* @__PURE__ */ he(bs, [["__scopeId", "data-v-43258c1d"]]), hs = {
+}), ms = /* @__PURE__ */ he(bs, [["__scopeId", "data-v-1df4da8a"]]), hs = {
   key: 0,
   "data-dev-inspector": ""
 }, fs = /* @__PURE__ */ ue({
