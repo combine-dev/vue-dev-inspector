@@ -118,10 +118,11 @@ const analysisLoadError = ref('')
 const analysisMatchCount = ref(0)
 
 const filterOptions = [
-  { value: 'db-api', label: 'DB/APIのみ' },
   { value: 'all', label: 'すべて' },
+  { value: 'db-api', label: 'DB/API' },
   { value: 'static', label: '固定文言' },
   { value: 'data', label: '動的データ' },
+  { value: 'other', label: 'その他' },
   { value: 'none', label: '非表示' },
 ] as const
 

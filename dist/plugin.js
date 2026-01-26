@@ -1,5 +1,5 @@
 import { defineNuxtPlugin as s, useRuntimeConfig as r } from "#app";
-import { u as a } from "./useDevInspector-DDBXynb_.js";
+import { u as a } from "./useDevInspector-B3fGEKA2.js";
 const p = s((t) => {
   if (import.meta.server) return;
   const o = r().public.devInspector || {};

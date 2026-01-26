@@ -443,7 +443,8 @@ matched: boolean;
 }[]>;
 applyAnalysisToPage: () => Promise<number>;
 clearAnalysisResults: () => void;
-analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "none", "static" | "data" | "all" | "db-api" | "none">;
+removeAnalysisResult: (selector: string) => void;
+analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "other" | "none", "static" | "data" | "all" | "db-api" | "other" | "none">;
 }, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "analysisFilter">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -707,7 +708,8 @@ matched: boolean;
 }[]>;
 applyAnalysisToPage: () => Promise<number>;
 clearAnalysisResults: () => void;
-analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "none", "static" | "data" | "all" | "db-api" | "none">;
+removeAnalysisResult: (selector: string) => void;
+analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "other" | "none", "static" | "data" | "all" | "db-api" | "other" | "none">;
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -971,8 +973,9 @@ matched: boolean;
 }[]>;
 applyAnalysisToPage: () => Promise<number>;
 clearAnalysisResults: () => void;
-analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "none", "static" | "data" | "all" | "db-api" | "none">;
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults">>;
+removeAnalysisResult: (selector: string) => void;
+analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "other" | "none", "static" | "data" | "all" | "db-api" | "other" | "none">;
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult">>;
 
 export declare const useDevInspectorStore: StoreDefinition<"devInspector", Pick<{
 isEnabled: Ref<boolean, boolean>;
@@ -1237,7 +1240,8 @@ matched: boolean;
 }[]>;
 applyAnalysisToPage: () => Promise<number>;
 clearAnalysisResults: () => void;
-analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "none", "static" | "data" | "all" | "db-api" | "none">;
+removeAnalysisResult: (selector: string) => void;
+analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "other" | "none", "static" | "data" | "all" | "db-api" | "other" | "none">;
 }, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "analysisFilter">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -1501,7 +1505,8 @@ matched: boolean;
 }[]>;
 applyAnalysisToPage: () => Promise<number>;
 clearAnalysisResults: () => void;
-analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "none", "static" | "data" | "all" | "db-api" | "none">;
+removeAnalysisResult: (selector: string) => void;
+analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "other" | "none", "static" | "data" | "all" | "db-api" | "other" | "none">;
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -1765,8 +1770,9 @@ matched: boolean;
 }[]>;
 applyAnalysisToPage: () => Promise<number>;
 clearAnalysisResults: () => void;
-analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "none", "static" | "data" | "all" | "db-api" | "none">;
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults">>;
+removeAnalysisResult: (selector: string) => void;
+analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "other" | "none", "static" | "data" | "all" | "db-api" | "other" | "none">;
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult">>;
 
 declare const VueDevInspector: Plugin_2<PluginOptions[]>;
 export { VueDevInspector }

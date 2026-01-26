@@ -1,7 +1,7 @@
-import { ref as r, computed as Q, watch as Pe, nextTick as U } from "vue";
-import { defineStore as Ie } from "pinia";
-const $e = {}, xe = "devInspector:elementConfigs", De = Ie("devInspector", () => {
-  const N = r({}), C = r(!1), A = r(!1), P = r(!1), F = r(!1), L = r(null), I = r(!1), l = r({}), T = r(null), z = r(null), W = Q(() => N.value.storageKey || xe), h = r(null), ee = r("db-api"), k = Q(() => N.value.enabledInProduction ? !0 : typeof import.meta < "u" && $e ? !1 : process.env.NODE_ENV === "development"), X = r(!1);
+import { ref as r, computed as Q, watch as Ie, nextTick as U } from "vue";
+import { defineStore as $e } from "pinia";
+const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () => {
+  const N = r({}), C = r(!1), E = r(!1), P = r(!1), F = r(!1), L = r(null), I = r(!1), l = r({}), T = r(null), z = r(null), W = Q(() => N.value.storageKey || De), h = r(null), ee = r("all"), k = Q(() => N.value.enabledInProduction ? !0 : typeof import.meta < "u" && xe ? !1 : process.env.NODE_ENV === "development"), X = r(!1);
   function te(e = {}) {
     N.value = e, ae(), e.analysisData && (h.value = e.analysisData);
     const n = e.analysisDataUrl ?? "/dev-inspector-analysis.json";
@@ -55,13 +55,13 @@ const $e = {}, xe = "devInspector:elementConfigs", De = Ie("devInspector", () =>
       console.error("[DevInspector] Failed to save configs:", e);
     }
   }
-  Pe(l, () => {
+  Ie(l, () => {
     U(() => {
       R();
     });
   }, { deep: !0 });
   async function se() {
-    k.value && (C.value ? (C.value = !1, A.value = !1, T.value = null) : await M());
+    k.value && (C.value ? (C.value = !1, E.value = !1, T.value = null) : await M());
   }
   async function M() {
     if (!k.value) return;
@@ -76,13 +76,13 @@ const $e = {}, xe = "devInspector:elementConfigs", De = Ie("devInspector", () =>
       C.value = !0;
   }
   function le() {
-    C.value = !1, A.value = !1, T.value = null;
+    C.value = !1, E.value = !1, T.value = null;
   }
   function ie() {
-    A.value = !A.value, A.value || (T.value = null), A.value && (P.value = !1);
+    E.value = !E.value, E.value || (T.value = null), E.value && (P.value = !1);
   }
   function ce() {
-    P.value = !P.value, P.value && (A.value = !1), z.value = null;
+    P.value = !P.value, P.value && (E.value = !1), z.value = null;
   }
   function re(e) {
     z.value = e;
@@ -342,10 +342,10 @@ const $e = {}, xe = "devInspector:elementConfigs", De = Ie("devInspector", () =>
       else if (t.type === "v-model") {
         const c = e.tagName.toUpperCase();
         if (c === "INPUT" || c === "SELECT" || c === "TEXTAREA") {
-          const p = e.placeholder || "", E = ((i = (s = e.closest("label")) == null ? void 0 : s.textContent) == null ? void 0 : i.trim()) || e.getAttribute("aria-label") || ((g = (f = document.querySelector(`label[for="${e.id}"]`)) == null ? void 0 : f.textContent) == null ? void 0 : g.trim()) || "";
+          const p = e.placeholder || "", b = ((i = (s = e.closest("label")) == null ? void 0 : s.textContent) == null ? void 0 : i.trim()) || e.getAttribute("aria-label") || ((g = (f = document.querySelector(`label[for="${e.id}"]`)) == null ? void 0 : f.textContent) == null ? void 0 : g.trim()) || "";
           o.note = {
             type: "todo",
-            text: `【フォーム要素】${E || p || c.toLowerCase()}`
+            text: `【フォーム要素】${b || p || c.toLowerCase()}`
           };
         }
       } else t.type === "api" && (o.note = {
@@ -402,8 +402,8 @@ const $e = {}, xe = "devInspector:elementConfigs", De = Ie("devInspector", () =>
         if (c.closest("[data-dev-inspector]")) return;
         const p = window.getComputedStyle(c);
         if (p.display === "none" || p.visibility === "hidden" || p.opacity === "0") return;
-        const E = $(c);
-        if (l.value[E]) return;
+        const b = $(c);
+        if (l.value[b]) return;
         const y = c.tagName.toUpperCase(), O = ((v = c.textContent) == null ? void 0 : v.trim()) || "";
         if (y === "INPUT" || y === "SELECT" || y === "TEXTAREA") {
           a.push(c);
@@ -426,8 +426,8 @@ const $e = {}, xe = "devInspector:elementConfigs", De = Ie("devInspector", () =>
       for (let u = 0; u < a.length; u += g) {
         const c = a.slice(u, u + g);
         for (const p of c) {
-          const E = $(p), y = G(p, E);
-          y.sourceBinding && (_.value.push({ selector: E, element: p, detected: y }), Z(E, y), f++), i++, D.value = Math.round(i / s * 100);
+          const b = $(p), y = G(p, b);
+          y.sourceBinding && (_.value.push({ selector: b, element: p, detected: y }), Z(b, y), f++), i++, D.value = Math.round(i / s * 100);
         }
         await new Promise((p) => setTimeout(p, 10));
       }
@@ -466,12 +466,12 @@ const $e = {}, xe = "devInspector:elementConfigs", De = Ie("devInspector", () =>
   function Se() {
     _.value = [], D.value = 0;
   }
-  const b = r([]);
+  const A = r([]);
   async function H() {
     var t;
     if (!h.value)
       return console.warn("[DevInspector] No analysis data loaded. Call loadAnalysisData first."), 0;
-    b.value = [];
+    A.value = [];
     const e = typeof window < "u" ? window.location.pathname : "/", n = [];
     for (const [o, a] of Object.entries(h.value.components)) {
       const s = o.replace(/^pages/, "").replace(/\.vue$/, "").replace(/\/index$/, "").replace(/\[.*?\]/g, "[^/]+");
@@ -507,24 +507,27 @@ const $e = {}, xe = "devInspector:elementConfigs", De = Ie("devInspector", () =>
           u.length > 0 && (a = !0, s = $(u[0]));
         }
       }
-      b.value.push({
+      A.value.push({
         selector: s,
         element: o,
         matched: a
       });
     }
-    return console.log(`[DevInspector] Applied analysis: ${b.value.filter((o) => o.matched).length}/${b.value.length} elements matched`), b.value.filter((o) => o.matched).length;
+    return console.log(`[DevInspector] Applied analysis: ${A.value.filter((o) => o.matched).length}/${A.value.length} elements matched`), A.value.filter((o) => o.matched).length;
   }
   function Ae() {
-    b.value = [];
+    A.value = [];
   }
   function Ee(e) {
+    A.value = A.value.filter((n) => n.selector !== e);
+  }
+  function be(e) {
     T.value = e;
   }
-  function be() {
+  function we() {
     T.value = null;
   }
-  function we() {
+  function Ce() {
     return JSON.stringify(l.value, null, 2);
   }
   function Y() {
@@ -538,11 +541,11 @@ const $e = {}, xe = "devInspector:elementConfigs", De = Ie("devInspector", () =>
     };
     return JSON.stringify(e, null, 2);
   }
-  function Ce(e = "dev-annotations.json") {
+  function Te(e = "dev-annotations.json") {
     const n = Y(), t = new Blob([n], { type: "application/json" }), o = URL.createObjectURL(t), a = document.createElement("a");
     a.href = o, a.download = e, document.body.appendChild(a), a.click(), document.body.removeChild(a), URL.revokeObjectURL(o);
   }
-  function Te(e) {
+  function Ne(e) {
     try {
       const n = JSON.parse(e), t = n.annotations || n;
       l.value = { ...l.value, ...t };
@@ -550,14 +553,14 @@ const $e = {}, xe = "devInspector:elementConfigs", De = Ie("devInspector", () =>
       throw console.error("[DevInspector] Failed to import configs:", n), new Error("Invalid JSON format");
     }
   }
-  function Ne() {
+  function Pe() {
     l.value = {};
   }
   return {
     // State
     isEnabled: C,
     isAvailable: k,
-    isEditMode: A,
+    isEditMode: E,
     isPickMode: P,
     isInitializing: F,
     hoveredSelector: z,
@@ -583,13 +586,13 @@ const $e = {}, xe = "devInspector:elementConfigs", De = Ie("devInspector", () =>
     getElementConfig: he,
     setElementConfig: Z,
     deleteElementConfig: me,
-    startEditing: Ee,
-    stopEditing: be,
-    exportConfigs: we,
+    startEditing: be,
+    stopEditing: we,
+    exportConfigs: Ce,
     exportAsFile: Y,
-    downloadAnnotations: Ce,
-    importConfigs: Te,
-    clearAllConfigs: Ne,
+    downloadAnnotations: Te,
+    importConfigs: Ne,
+    clearAllConfigs: Pe,
     detectSourceBinding: q,
     autoDetectElementInfo: G,
     // Scan
@@ -606,16 +609,17 @@ const $e = {}, xe = "devInspector:elementConfigs", De = Ie("devInspector", () =>
     loadAnalysisData: J,
     getAnalyzedElement: ne,
     getAnalyzedElementsForPage: oe,
-    analysisResults: b,
+    analysisResults: A,
     applyAnalysisToPage: H,
     clearAnalysisResults: Ae,
+    removeAnalysisResult: Ee,
     analysisFilter: ee
   };
 });
-function ke() {
-  return De();
+function Re() {
+  return Oe();
 }
 export {
-  ke as a,
-  De as u
+  Re as a,
+  Oe as u
 };

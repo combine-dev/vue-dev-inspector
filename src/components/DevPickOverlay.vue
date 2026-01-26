@@ -159,18 +159,25 @@ const analysisHighlights = computed(() => {
 
     const el = result.element
 
+    // Check element properties
+    const hasDb = el.db && (el.db.table || el.db.column)
+    const hasApi = el.api && el.api.endpoint
+    const isStatic = el.type === 'static'
+    const isData = el.type === 'data'
+
     // Apply filter
     if (filter === 'db-api') {
-      // Only show elements with actual DB or API info (not just empty objects)
-      const hasDb = el.db && (el.db.table || el.db.column)
-      const hasApi = el.api && el.api.endpoint
+      // Only show elements with actual DB or API info
       if (!hasDb && !hasApi) continue
     } else if (filter === 'static') {
       // Only static elements
-      if (el.type !== 'static') continue
+      if (!isStatic) continue
     } else if (filter === 'data') {
       // Only data elements
-      if (el.type !== 'data') continue
+      if (!isData) continue
+    } else if (filter === 'other') {
+      // Elements that are not DB/API, not static, not data
+      if (hasDb || hasApi || isStatic || isData) continue
     }
     // 'all' shows everything
 
@@ -417,6 +424,11 @@ watch(() => store.isPickMode, (isPicking) => {
         <div class="di-analysis-label" :class="'di-analysis-label-' + highlight.type">
           <span class="di-analysis-type">{{ highlight.type === 'static' ? '固定' : highlight.type === 'data' ? 'DB' : highlight.type }}</span>
           <span v-if="highlight.dbInfo" class="di-analysis-db">{{ highlight.dbInfo }}</span>
+          <button
+            class="di-analysis-delete"
+            @click.stop="store.removeAnalysisResult(highlight.selector)"
+            title="この要素を非表示"
+          >×</button>
         </div>
         <div v-if="highlight.text && highlight.text.length < 30" class="di-analysis-text">
           {{ highlight.text }}
@@ -701,6 +713,24 @@ watch(() => store.isPickMode, (isPicking) => {
   font-family: monospace;
   font-size: 8px;
   opacity: 0.9;
+}
+
+.di-analysis-delete {
+  margin-left: 4px;
+  padding: 0 4px;
+  background: rgba(0, 0, 0, 0.3);
+  border: none;
+  border-radius: 2px;
+  color: white;
+  font-size: 10px;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s, background 0.2s;
+}
+.di-analysis-delete:hover {
+  opacity: 1;
+  background: rgba(239, 68, 68, 0.8);
 }
 
 .di-analysis-text {

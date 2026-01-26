@@ -148,8 +148,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   // Analysis data (from CLI tool)
   const analysisData = ref<ProjectAnalysis | null>(null)
 
-  // Analysis display filter: 'all' | 'db-api' | 'static' | 'data' | 'none'
-  const analysisFilter = ref<'all' | 'db-api' | 'static' | 'data' | 'none'>('db-api')
+  // Analysis display filter
+  const analysisFilter = ref<'all' | 'db-api' | 'static' | 'data' | 'other' | 'none'>('all')
 
   const isAvailable = computed(() => {
     if (options.value.enabledInProduction) return true
@@ -1023,6 +1023,10 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     analysisResults.value = []
   }
 
+  function removeAnalysisResult(selector: string) {
+    analysisResults.value = analysisResults.value.filter(r => r.selector !== selector)
+  }
+
   function startEditing(id: string) {
     editingElementId.value = id
   }
@@ -1132,6 +1136,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     analysisResults,
     applyAnalysisToPage,
     clearAnalysisResults,
+    removeAnalysisResult,
     analysisFilter,
   }
 })
