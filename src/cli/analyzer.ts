@@ -760,34 +760,120 @@ function analyzeApiComposable(content: string, filePath: string): ApiComposableA
 
 interface TypeDefinition {
   name: string
-  fields: { name: string; type: string; optional: boolean }[]
+  fields: { name: string; type: string; optional: boolean; dbColumn?: string }[]
+  tableName?: string // Inferred DB table name
+  isDbType?: boolean // true if this is a DB model type (not API response)
 }
 
-function analyzeTypeFile(content: string): TypeDefinition[] {
+// Global registry of DB types (populated from server/types/*.ts)
+let globalDbTypes: Record<string, TypeDefinition> = {}
+
+function analyzeTypeFile(content: string, filePath?: string): TypeDefinition[] {
   const types: TypeDefinition[] = []
 
-  const interfaceRegex = /(?:export\s+)?interface\s+(\w+)\s*\{([^}]+)\}/gs
+  // Check if this is in api/ subfolder (API response type) or root types/ (DB type)
+  const isApiType = filePath?.includes('/types/api/') || false
+
+  // Infer table name from filename for DB types
+  // e.g., server/types/user.ts -> users table
+  let inferredTableName: string | undefined
+  if (filePath && !isApiType) {
+    const fileName = path.basename(filePath, '.ts')
+    if (fileName !== 'index') {
+      // Pluralize: user -> users, notification -> notifications
+      inferredTableName = fileName.endsWith('s') ? fileName : fileName + 's'
+    }
+  }
+
+  // Use balanced brace extraction for nested interfaces
+  const interfaceStartRegex = /(?:export\s+)?(?:interface|type)\s+(\w+)\s*(?:=\s*)?\{/g
   let match
 
-  while ((match = interfaceRegex.exec(content)) !== null) {
-    const [, name, fieldsContent] = match
-    const fields: TypeDefinition['fields'] = []
+  while ((match = interfaceStartRegex.exec(content)) !== null) {
+    const name = match[1]
+    const braceStart = match.index + match[0].length - 1
+    const interfaceContent = extractBalancedBraces(content, braceStart)
 
-    const fieldRegex = /(\w+)(\?)?:\s*([^;\n]+)/g
-    let fieldMatch
+    if (!interfaceContent) continue
 
-    while ((fieldMatch = fieldRegex.exec(fieldsContent)) !== null) {
-      fields.push({
-        name: fieldMatch[1],
-        type: fieldMatch[3].trim(),
-        optional: !!fieldMatch[2],
-      })
-    }
+    const fields = parseTypeFields(interfaceContent, inferredTableName)
 
-    types.push({ name, fields })
+    types.push({
+      name,
+      fields,
+      tableName: inferredTableName,
+      isDbType: !isApiType,
+    })
   }
 
   return types
+}
+
+// Parse type/interface fields with DB column inference
+function parseTypeFields(content: string, tableName?: string): TypeDefinition['fields'] {
+  const fields: TypeDefinition['fields'] = []
+
+  // Remove outer braces
+  const inner = content.slice(1, -1)
+
+  // Match field definitions
+  const fieldRegex = /(\w+)(\?)?:\s*([^;\n,]+)/g
+  let fieldMatch
+
+  while ((fieldMatch = fieldRegex.exec(inner)) !== null) {
+    const fieldName = fieldMatch[1]
+    const fieldType = fieldMatch[3].trim()
+
+    // Convert camelCase field to snake_case for DB column
+    const dbColumn = camelToSnake(fieldName)
+
+    fields.push({
+      name: fieldName,
+      type: fieldType,
+      optional: !!fieldMatch[2],
+      dbColumn,
+    })
+  }
+
+  return fields
+}
+
+// Resolve type references to get actual DB fields
+function resolveTypeToDbFields(
+  typeName: string,
+  typeDefinitions: Record<string, TypeDefinition>
+): { tableName: string; fields: TypeDefinition['fields'] } | null {
+  // Direct match
+  let typeDef = typeDefinitions[typeName]
+
+  // Try without common suffixes
+  if (!typeDef) {
+    const baseName = typeName.replace(/(Response|Request|Data|Item|List)$/, '')
+    typeDef = typeDefinitions[baseName]
+  }
+
+  if (!typeDef) return null
+
+  // If this type references another type (e.g., UsersShowResponse = User)
+  // follow the chain
+  if (typeDef.fields.length === 0) {
+    // Check if it's an alias to another type
+    return null
+  }
+
+  // Infer table name from type name if not set
+  let tableName = typeDef.tableName
+  if (!tableName) {
+    // UserResponse -> users, NotificationListResponse -> notifications
+    const baseName = typeName
+      .replace(/(Response|Request|Data|Item|List|Show|Create|Update|Destroy)$/g, '')
+      .replace(/([A-Z])/g, '_$1')
+      .toLowerCase()
+      .replace(/^_/, '')
+    tableName = baseName.endsWith('s') ? baseName : baseName + 's'
+  }
+
+  return { tableName, fields: typeDef.fields }
 }
 
 // ===== Main Analyzer =====
@@ -992,9 +1078,10 @@ function mapToDatabase(binding: string, apiInfo: ApiComposableAnalysis): Element
 
   // Extract field path from binding (e.g., "user.name" -> "name", "data.user.email" -> "user.email")
   const parts = cleanBinding.split('.')
+  const fieldName = parts[parts.length - 1]
+  const rootVar = parts[0]
 
-  // Try different path combinations to find matching field
-  // e.g., for "data.user.email", try: "email", "user.email", "data.user.email"
+  // Method 1: Try to match using API's responseFields
   for (let i = parts.length - 1; i >= 0; i--) {
     const fieldPath = parts.slice(i).join('.')
     const field = apiInfo.responseFields.find(f =>
@@ -1022,6 +1109,42 @@ function mapToDatabase(binding: string, apiInfo: ApiComposableAnalysis): Element
         column: column,
         type: field.type,
         comment,
+      }
+    }
+  }
+
+  // Method 2: Try to find field in globalDbTypes
+  // This handles cases where API response uses DB model types from server/types/
+  for (const [typeName, typeDef] of Object.entries(globalDbTypes)) {
+    // Check if this type might be related to the binding
+    // e.g., User type for user.name binding, Notification for notification.title
+    const typeNameLower = typeName.toLowerCase()
+    const rootVarLower = rootVar.toLowerCase()
+
+    if (typeNameLower === rootVarLower ||
+        rootVarLower.includes(typeNameLower) ||
+        typeNameLower.includes(rootVarLower.replace(/s$/, ''))) {
+
+      // Find the field in this type
+      const typeField = typeDef.fields.find(f =>
+        f.name === fieldName || f.dbColumn === camelToSnake(fieldName)
+      )
+
+      if (typeField && typeDef.tableName) {
+        // Verify column exists in Rails schema
+        if (globalDbSchema) {
+          const table = globalDbSchema.tables[typeDef.tableName]
+          const dbColumn = typeField.dbColumn || camelToSnake(fieldName)
+
+          if (table && table.columns[dbColumn]) {
+            return {
+              table: typeDef.tableName,
+              column: dbColumn,
+              type: table.columns[dbColumn].type || typeField.type,
+              comment: table.columns[dbColumn].comment || undefined,
+            }
+          }
+        }
       }
     }
   }
@@ -1133,20 +1256,33 @@ export async function analyzeProject(projectPath: string, options: {
     }
   }
 
-  // Analyze type definitions
+  // Analyze type definitions (separate DB types from API types)
   console.log('📋 Analyzing type definitions...')
   const typeDefinitions: Record<string, TypeDefinition> = {}
+  globalDbTypes = {} // Reset global DB types
 
   for (const typeFile of allTypeFiles) {
     const content = fs.readFileSync(typeFile, 'utf-8')
-    const types = analyzeTypeFile(content)
+    const types = analyzeTypeFile(content, typeFile)
+    const isApiType = typeFile.includes('/types/api/')
 
     for (const type of types) {
       typeDefinitions[type.name] = type
-      if (verbose) {
-        console.log(`  ✓ ${type.name}: ${type.fields.length} fields`)
+
+      // Store DB types separately for DB column lookups
+      if (type.isDbType && type.tableName) {
+        globalDbTypes[type.name] = type
+        if (verbose) {
+          console.log(`  ✓ [DB] ${type.name} -> ${type.tableName}: ${type.fields.length} fields`)
+        }
+      } else if (verbose) {
+        console.log(`  ✓ [API] ${type.name}: ${type.fields.length} fields`)
       }
     }
+  }
+
+  if (verbose) {
+    console.log(`  Total: ${Object.keys(globalDbTypes).length} DB types, ${Object.keys(typeDefinitions).length - Object.keys(globalDbTypes).length} API types`)
   }
 
   // Analyze Vue components

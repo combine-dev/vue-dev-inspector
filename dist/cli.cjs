@@ -504,25 +504,52 @@ function analyzeApiComposable(content, filePath) {
     requestFields
   };
 }
-function analyzeTypeFile(content) {
+var globalDbTypes = {};
+function analyzeTypeFile(content, filePath) {
   const types = [];
-  const interfaceRegex = /(?:export\s+)?interface\s+(\w+)\s*\{([^}]+)\}/gs;
-  let match;
-  while ((match = interfaceRegex.exec(content)) !== null) {
-    const [, name, fieldsContent] = match;
-    const fields = [];
-    const fieldRegex = /(\w+)(\?)?:\s*([^;\n]+)/g;
-    let fieldMatch;
-    while ((fieldMatch = fieldRegex.exec(fieldsContent)) !== null) {
-      fields.push({
-        name: fieldMatch[1],
-        type: fieldMatch[3].trim(),
-        optional: !!fieldMatch[2]
-      });
+  const isApiType = filePath?.includes("/types/api/") || false;
+  let inferredTableName;
+  if (filePath && !isApiType) {
+    const fileName = path.basename(filePath, ".ts");
+    if (fileName !== "index") {
+      inferredTableName = fileName.endsWith("s") ? fileName : fileName + "s";
     }
-    types.push({ name, fields });
+  }
+  const interfaceStartRegex = /(?:export\s+)?(?:interface|type)\s+(\w+)\s*(?:=\s*)?\{/g;
+  let match;
+  while ((match = interfaceStartRegex.exec(content)) !== null) {
+    const name = match[1];
+    const braceStart = match.index + match[0].length - 1;
+    const interfaceContent = extractBalancedBraces(content, braceStart);
+    if (!interfaceContent)
+      continue;
+    const fields = parseTypeFields(interfaceContent, inferredTableName);
+    types.push({
+      name,
+      fields,
+      tableName: inferredTableName,
+      isDbType: !isApiType
+    });
   }
   return types;
+}
+function parseTypeFields(content, tableName) {
+  const fields = [];
+  const inner = content.slice(1, -1);
+  const fieldRegex = /(\w+)(\?)?:\s*([^;\n,]+)/g;
+  let fieldMatch;
+  while ((fieldMatch = fieldRegex.exec(inner)) !== null) {
+    const fieldName = fieldMatch[1];
+    const fieldType = fieldMatch[3].trim();
+    const dbColumn = camelToSnake(fieldName);
+    fields.push({
+      name: fieldName,
+      type: fieldType,
+      optional: !!fieldMatch[2],
+      dbColumn
+    });
+  }
+  return fields;
 }
 function extractScriptStaticStrings(script) {
   const results = [];
@@ -670,6 +697,8 @@ function mapToDatabase(binding, apiInfo) {
     cleanBinding = funcMatch[1];
   }
   const parts = cleanBinding.split(".");
+  const fieldName = parts[parts.length - 1];
+  const rootVar = parts[0];
   for (let i = parts.length - 1; i >= 0; i--) {
     const fieldPath = parts.slice(i).join(".");
     const field = apiInfo.responseFields.find(
@@ -691,6 +720,29 @@ function mapToDatabase(binding, apiInfo) {
         type: field.type,
         comment
       };
+    }
+  }
+  for (const [typeName, typeDef] of Object.entries(globalDbTypes)) {
+    const typeNameLower = typeName.toLowerCase();
+    const rootVarLower = rootVar.toLowerCase();
+    if (typeNameLower === rootVarLower || rootVarLower.includes(typeNameLower) || typeNameLower.includes(rootVarLower.replace(/s$/, ""))) {
+      const typeField = typeDef.fields.find(
+        (f) => f.name === fieldName || f.dbColumn === camelToSnake(fieldName)
+      );
+      if (typeField && typeDef.tableName) {
+        if (globalDbSchema) {
+          const table = globalDbSchema.tables[typeDef.tableName];
+          const dbColumn = typeField.dbColumn || camelToSnake(fieldName);
+          if (table && table.columns[dbColumn]) {
+            return {
+              table: typeDef.tableName,
+              column: dbColumn,
+              type: table.columns[dbColumn].type || typeField.type,
+              comment: table.columns[dbColumn].comment || void 0
+            };
+          }
+        }
+      }
     }
   }
   const lastPart = parts[parts.length - 1];
@@ -767,15 +819,25 @@ async function analyzeProject(projectPath, options = {}) {
   }
   console.log("\u{1F4CB} Analyzing type definitions...");
   const typeDefinitions = {};
+  globalDbTypes = {};
   for (const typeFile of allTypeFiles) {
     const content = fs.readFileSync(typeFile, "utf-8");
-    const types = analyzeTypeFile(content);
+    const types = analyzeTypeFile(content, typeFile);
+    const isApiType = typeFile.includes("/types/api/");
     for (const type of types) {
       typeDefinitions[type.name] = type;
-      if (verbose) {
-        console.log(`  \u2713 ${type.name}: ${type.fields.length} fields`);
+      if (type.isDbType && type.tableName) {
+        globalDbTypes[type.name] = type;
+        if (verbose) {
+          console.log(`  \u2713 [DB] ${type.name} -> ${type.tableName}: ${type.fields.length} fields`);
+        }
+      } else if (verbose) {
+        console.log(`  \u2713 [API] ${type.name}: ${type.fields.length} fields`);
       }
     }
+  }
+  if (verbose) {
+    console.log(`  Total: ${Object.keys(globalDbTypes).length} DB types, ${Object.keys(typeDefinitions).length - Object.keys(globalDbTypes).length} API types`);
   }
   console.log("\u{1F9E9} Analyzing Vue components...");
   const components = {};
