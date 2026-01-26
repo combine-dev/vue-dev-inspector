@@ -1063,28 +1063,25 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
         }
       }
 
-      // Strategy 3: Match by tag and class combination
+      // Strategy 3: Match by tag and class combination (strict - must match exactly)
       if (!matched && analysisEl.selector.includes('.')) {
         const parts = analysisEl.selector.match(/^(\w+)\.(.+)$/)
         if (parts) {
           const [, tag, className] = parts
-          const els = document.querySelectorAll(`${tag}.${className.split('.')[0]}`)
-          if (els.length > 0) {
-            matched = true
-            matchedSelector = generateSelector(els[0] as HTMLElement)
-          }
+          // Only match if the full class selector exists
+          try {
+            const el = document.querySelector(analysisEl.selector)
+            if (el) {
+              matched = true
+              matchedSelector = generateSelector(el as HTMLElement)
+            }
+          } catch { /* invalid selector */ }
         }
       }
 
-      // Strategy 4: For data-type elements, try to find by binding pattern in data attributes or content
+      // Strategy 4: For data-type elements, only match by explicit data attributes (no guessing)
       if (!matched && analysisEl.type === 'data' && analysisEl.binding) {
-        // Extract field name from binding (e.g., "notification.title" -> "title")
-        const bindingParts = analysisEl.binding.split('.')
-        const fieldName = bindingParts[bindingParts.length - 1]
-
-        // Look for elements that might display this data
-        // Check data attributes that might indicate the field
-        const dataAttrSelector = `[data-field="${fieldName}"], [data-bind="${analysisEl.binding}"]`
+        const dataAttrSelector = `[data-bind="${analysisEl.binding}"]`
         try {
           const el = document.querySelector(dataAttrSelector)
           if (el) {
@@ -1094,31 +1091,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
         } catch { /* invalid selector */ }
       }
 
-      // Strategy 5: For data elements with DB info, try matching by element context
-      if (!matched && analysisEl.db) {
-        // Elements with DB info are high-value - try more aggressive matching
-        // Look for any visible text that might be this field
-        const fieldName = analysisEl.db.column
-        const tableName = analysisEl.db.table
-
-        // Check if there's an element with class containing field or table reference
-        const potentialSelectors = [
-          `[class*="${fieldName}"]`,
-          `[class*="${tableName.replace(/s$/, '')}"]`,  // users -> user
-          `[data-testid*="${fieldName}"]`,
-        ]
-
-        for (const sel of potentialSelectors) {
-          try {
-            const el = document.querySelector(sel)
-            if (el) {
-              matched = true
-              matchedSelector = generateSelector(el as HTMLElement)
-              break
-            }
-          } catch { /* invalid selector */ }
-        }
-      }
+      // Note: Removed aggressive Strategy 5 (class-name guessing) to prevent false positives
 
       analysisResults.value.push({
         selector: matchedSelector,

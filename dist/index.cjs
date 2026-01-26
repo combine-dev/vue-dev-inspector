@@ -1,4 +1,4 @@
-"use strict";Object.defineProperties(exports,{__esModule:{value:!0},[Symbol.toStringTag]:{value:"Module"}});const e=require("vue"),j=require("./useDevInspector-5j-Qrqyu.cjs");/**
+"use strict";Object.defineProperties(exports,{__esModule:{value:!0},[Symbol.toStringTag]:{value:"Module"}});const e=require("vue"),j=require("./useDevInspector-Ck2C3Dol.cjs");/**
  * @license lucide-vue-next v0.300.0 - ISC
  *
  * This source code is licensed under the ISC license.
