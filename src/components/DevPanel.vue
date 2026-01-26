@@ -195,23 +195,8 @@ async function restoreHiddenElements() {
         </button>
       </div>
 
-      <!-- Edit Mode Toggle -->
+      <!-- Tools Section -->
       <div class="di-edit-section">
-        <div class="di-edit-row">
-          <div class="di-edit-label">
-            <Edit3 style="width: 16px; height: 16px; color: #fbbf24;" />
-            <span>編集モード</span>
-          </div>
-          <button
-            @click="store.toggleEditMode"
-            class="di-toggle"
-            :class="{ active: store.isEditMode }"
-          >
-            <span class="di-toggle-knob" :class="{ active: store.isEditMode }"></span>
-          </button>
-        </div>
-        <p class="di-edit-hint">ONにすると、要素をクリックして情報を編集できます</p>
-
         <!-- Pick Mode Button -->
         <button
           @click="store.togglePickMode"
@@ -461,7 +446,6 @@ async function restoreHiddenElements() {
     <div v-if="store.isEnabled" class="di-indicator" data-dev-inspector>
       <span class="di-indicator-dot"></span>
       Developer Mode
-      <span v-if="store.isEditMode" class="di-indicator-edit">• 編集中</span>
     </div>
   </Teleport>
 
