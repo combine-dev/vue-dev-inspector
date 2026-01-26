@@ -450,6 +450,8 @@ removeAnalysisResult: (selector: string) => void;
 clearHiddenSelectors: () => void;
 hiddenAnalysisSelectors: Ref<Set<string> & Omit<Set<string>, keyof Set<any>>, Set<string> | (Set<string> & Omit<Set<string>, keyof Set<any>>)>;
 analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "other" | "none", "static" | "data" | "all" | "db-api" | "other" | "none">;
+exportChangesForCli: () => string;
+downloadChanges: (filename?: string) => void;
 }, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -719,6 +721,8 @@ removeAnalysisResult: (selector: string) => void;
 clearHiddenSelectors: () => void;
 hiddenAnalysisSelectors: Ref<Set<string> & Omit<Set<string>, keyof Set<any>>, Set<string> | (Set<string> & Omit<Set<string>, keyof Set<any>>)>;
 analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "other" | "none", "static" | "data" | "all" | "db-api" | "other" | "none">;
+exportChangesForCli: () => string;
+downloadChanges: (filename?: string) => void;
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -988,7 +992,9 @@ removeAnalysisResult: (selector: string) => void;
 clearHiddenSelectors: () => void;
 hiddenAnalysisSelectors: Ref<Set<string> & Omit<Set<string>, keyof Set<any>>, Set<string> | (Set<string> & Omit<Set<string>, keyof Set<any>>)>;
 analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "other" | "none", "static" | "data" | "all" | "db-api" | "other" | "none">;
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors">>;
+exportChangesForCli: () => string;
+downloadChanges: (filename?: string) => void;
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges">>;
 
 export declare const useDevInspectorStore: StoreDefinition<"devInspector", Pick<{
 isEnabled: Ref<boolean, boolean>;
@@ -1259,6 +1265,8 @@ removeAnalysisResult: (selector: string) => void;
 clearHiddenSelectors: () => void;
 hiddenAnalysisSelectors: Ref<Set<string> & Omit<Set<string>, keyof Set<any>>, Set<string> | (Set<string> & Omit<Set<string>, keyof Set<any>>)>;
 analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "other" | "none", "static" | "data" | "all" | "db-api" | "other" | "none">;
+exportChangesForCli: () => string;
+downloadChanges: (filename?: string) => void;
 }, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -1528,6 +1536,8 @@ removeAnalysisResult: (selector: string) => void;
 clearHiddenSelectors: () => void;
 hiddenAnalysisSelectors: Ref<Set<string> & Omit<Set<string>, keyof Set<any>>, Set<string> | (Set<string> & Omit<Set<string>, keyof Set<any>>)>;
 analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "other" | "none", "static" | "data" | "all" | "db-api" | "other" | "none">;
+exportChangesForCli: () => string;
+downloadChanges: (filename?: string) => void;
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -1797,7 +1807,9 @@ removeAnalysisResult: (selector: string) => void;
 clearHiddenSelectors: () => void;
 hiddenAnalysisSelectors: Ref<Set<string> & Omit<Set<string>, keyof Set<any>>, Set<string> | (Set<string> & Omit<Set<string>, keyof Set<any>>)>;
 analysisFilter: Ref<"static" | "data" | "all" | "db-api" | "other" | "none", "static" | "data" | "all" | "db-api" | "other" | "none">;
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors">>;
+exportChangesForCli: () => string;
+downloadChanges: (filename?: string) => void;
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges">>;
 
 declare const VueDevInspector: Plugin_2<PluginOptions[]>;
 export { VueDevInspector }

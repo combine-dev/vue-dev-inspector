@@ -318,16 +318,25 @@ async function restoreHiddenElements() {
                 {{ opt.label }}
               </button>
             </div>
-            <button
-              v-if="store.hiddenAnalysisSelectors.size > 0"
-              @click="restoreHiddenElements"
-              class="di-restore-btn"
-              :disabled="isRestoringHidden"
-            >
-              <Loader2 v-if="isRestoringHidden" class="di-spin" style="width: 12px; height: 12px;" />
-              <span v-if="isRestoringHidden">リセット中...</span>
-              <span v-else>非表示 ({{ store.hiddenAnalysisSelectors.size }}) をリセット</span>
-            </button>
+            <div v-if="store.hiddenAnalysisSelectors.size > 0" class="di-hidden-actions">
+              <button
+                @click="restoreHiddenElements"
+                class="di-restore-btn"
+                :disabled="isRestoringHidden"
+              >
+                <Loader2 v-if="isRestoringHidden" class="di-spin" style="width: 12px; height: 12px;" />
+                <span v-if="isRestoringHidden">リセット中...</span>
+                <span v-else>非表示 ({{ store.hiddenAnalysisSelectors.size }}) をリセット</span>
+              </button>
+              <button
+                @click="store.downloadChanges()"
+                class="di-export-changes-btn"
+                title="削除した要素をエクスポート (CLI merge用)"
+              >
+                <Download style="width: 12px; height: 12px;" />
+                <span>変更をエクスポート</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -1262,8 +1271,13 @@ async function restoreHiddenElements() {
   color: white;
 }
 
-.di-restore-btn {
+.di-hidden-actions {
   margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.di-restore-btn {
   width: 100%;
   padding: 6px 10px;
   background: transparent;
@@ -1285,5 +1299,24 @@ async function restoreHiddenElements() {
 .di-restore-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+.di-export-changes-btn {
+  width: 100%;
+  padding: 6px 10px;
+  background: #1e293b;
+  border: 1px solid #3b82f6;
+  border-radius: 4px;
+  color: #60a5fa;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.di-export-changes-btn:hover {
+  background: #3b82f6;
+  color: white;
 }
 </style>

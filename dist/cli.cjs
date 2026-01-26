@@ -23,6 +23,9 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
   mod
 ));
 
+// src/cli/index.ts
+var fs2 = __toESM(require("fs"), 1);
+
 // src/cli/analyzer.ts
 var fs = __toESM(require("fs"), 1);
 var path = __toESM(require("path"), 1);
@@ -937,22 +940,63 @@ function printHelp() {
 vue-dev-inspector - \u30BD\u30FC\u30B9\u30B3\u30FC\u30C9\u89E3\u6790\u30C4\u30FC\u30EB
 
 \u4F7F\u3044\u65B9:
-  npx vue-dev-inspector analyze <project-path> [options]
+  npx vue-dev-inspector <command> [options]
 
 \u30B3\u30DE\u30F3\u30C9:
-  analyze    Vue \u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u3092\u89E3\u6790\u3057\u3066\u8981\u7D20\u30DE\u30C3\u30D4\u30F3\u30B0\u3092\u751F\u6210
+  analyze <path>         Vue \u30D7\u30ED\u30B8\u30A7\u30AF\u30C8\u3092\u89E3\u6790\u3057\u3066\u8981\u7D20\u30DE\u30C3\u30D4\u30F3\u30B0\u3092\u751F\u6210
+  merge <changes-file>   \u30D6\u30E9\u30A6\u30B6\u3067\u306E\u7DE8\u96C6\u5185\u5BB9\u3092 JSON \u306B\u53CD\u6620
 
-\u30AA\u30D7\u30B7\u30E7\u30F3:
+analyze \u30AA\u30D7\u30B7\u30E7\u30F3:
   -o, --output <file>    \u51FA\u529B\u30D5\u30A1\u30A4\u30EB (\u30C7\u30D5\u30A9\u30EB\u30C8: dev-inspector-analysis.json)
   -s, --schema <file>    Rails schema.rb\u306E\u30D1\u30B9 (\u81EA\u52D5\u691C\u51FA\u3082\u53EF\u80FD)
   -v, --verbose          \u8A73\u7D30\u30ED\u30B0\u3092\u51FA\u529B
-  -h, --help             \u30D8\u30EB\u30D7\u3092\u8868\u793A
+
+merge \u30AA\u30D7\u30B7\u30E7\u30F3:
+  -a, --analysis <file>  \u89E3\u6790JSON\u30D5\u30A1\u30A4\u30EB (\u30C7\u30D5\u30A9\u30EB\u30C8: dev-inspector-analysis.json)
+  -o, --output <file>    \u51FA\u529B\u30D5\u30A1\u30A4\u30EB (\u7701\u7565\u6642\u306F\u4E0A\u66F8\u304D)
 
 \u4F8B:
   npx vue-dev-inspector analyze ./src
   npx vue-dev-inspector analyze ./front -o analysis.json -v
-  npx vue-dev-inspector analyze /front -s /api/db/schema.rb -v
+  npx vue-dev-inspector merge changes.json -a public/dev-inspector-analysis.json
 `);
+}
+function mergeChanges(changesPath, analysisPath, outputPath) {
+  console.log(`
+\u{1F504} Merging browser changes...`);
+  console.log(`   Changes file: ${changesPath}`);
+  console.log(`   Analysis file: ${analysisPath}`);
+  if (!fs2.existsSync(changesPath)) {
+    console.error(`\u274C Changes file not found: ${changesPath}`);
+    process.exit(1);
+  }
+  const changes = JSON.parse(fs2.readFileSync(changesPath, "utf-8"));
+  if (!fs2.existsSync(analysisPath)) {
+    console.error(`\u274C Analysis file not found: ${analysisPath}`);
+    process.exit(1);
+  }
+  const analysis = JSON.parse(fs2.readFileSync(analysisPath, "utf-8"));
+  let removedCount = 0;
+  if (changes.removed && changes.removed.length > 0) {
+    console.log(`
+\u{1F5D1}\uFE0F  Removing ${changes.removed.length} elements...`);
+    for (const [componentPath, component] of Object.entries(analysis.components)) {
+      const comp = component;
+      const originalLength = comp.elements.length;
+      comp.elements = comp.elements.filter((el) => !changes.removed.includes(el.selector));
+      const removed = originalLength - comp.elements.length;
+      if (removed > 0) {
+        console.log(`   - ${componentPath}: ${removed} elements removed`);
+        removedCount += removed;
+      }
+    }
+  }
+  const finalOutput = outputPath || analysisPath;
+  fs2.writeFileSync(finalOutput, JSON.stringify(analysis, null, 2));
+  console.log(`
+\u2705 Merge complete!`);
+  console.log(`   Removed: ${removedCount} elements`);
+  console.log(`   Output: ${finalOutput}`);
 }
 async function main() {
   if (args.length === 0 || args.includes("-h") || args.includes("--help")) {
@@ -969,6 +1013,23 @@ async function main() {
     const verbose = args.includes("-v") || args.includes("--verbose");
     try {
       await analyzeProject(projectPath, { output, verbose, schemaPath });
+    } catch (error) {
+      console.error("Error:", error);
+      process.exit(1);
+    }
+  } else if (command === "merge") {
+    const changesPath = args[1];
+    if (!changesPath) {
+      console.error("\u274C Changes file path required");
+      printHelp();
+      process.exit(1);
+    }
+    const analysisFlagIndex = args.findIndex((a) => a === "-a" || a === "--analysis");
+    const analysisPath = analysisFlagIndex !== -1 ? args[analysisFlagIndex + 1] : "dev-inspector-analysis.json";
+    const outputFlagIndex = args.findIndex((a) => a === "-o" || a === "--output");
+    const outputPath = outputFlagIndex !== -1 ? args[outputFlagIndex + 1] : void 0;
+    try {
+      mergeChanges(changesPath, analysisPath, outputPath);
     } catch (error) {
       console.error("Error:", error);
       process.exit(1);

@@ -1143,6 +1143,29 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     localStorage.removeItem(HIDDEN_SELECTORS_KEY)
   }
 
+  // Export changes (hidden/removed selectors) for CLI merge
+  function exportChangesForCli(): string {
+    const changes = {
+      removed: [...hiddenAnalysisSelectors.value],
+      exportedAt: new Date().toISOString(),
+    }
+    return JSON.stringify(changes, null, 2)
+  }
+
+  // Download changes as JSON file
+  function downloadChanges(filename = 'dev-inspector-changes.json') {
+    const content = exportChangesForCli()
+    const blob = new Blob([content], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   function isAnalysisSelectorHidden(selector: string): boolean {
     return hiddenAnalysisSelectors.value.has(selector)
   }
@@ -1260,6 +1283,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     clearHiddenSelectors,
     hiddenAnalysisSelectors,
     analysisFilter,
+    exportChangesForCli,
+    downloadChanges,
   }
 })
 

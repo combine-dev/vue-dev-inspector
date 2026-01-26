@@ -1,11 +1,11 @@
-import { ref as d, computed as te, watch as xe, nextTick as F } from "vue";
-import { defineStore as Re } from "pinia";
-const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () => {
-  const P = d({}), b = d(!1), C = d(!1), $ = d(!1), B = d(!1), R = d(null), O = d(!1), u = d({}), N = d(null), z = d(null), M = te(() => P.value.storageKey || _e), m = d(null), ne = d("all"), T = d(/* @__PURE__ */ new Set()), J = "devInspector:hiddenAnalysisSelectors", k = te(() => P.value.enabledInProduction ? !0 : typeof import.meta < "u" && ke ? !1 : process.env.NODE_ENV === "development"), W = d(!1);
-  function oe(e = {}) {
-    P.value = e, le(), be(), e.analysisData && (m.value = e.analysisData);
+import { ref as f, computed as ne, watch as je, nextTick as F } from "vue";
+import { defineStore as ke } from "pinia";
+const Ue = {}, _e = "devInspector:elementConfigs", Fe = ke("devInspector", () => {
+  const P = f({}), N = f(!1), w = f(!1), $ = f(!1), B = f(!1), R = f(null), O = f(!1), u = f({}), T = f(null), z = f(null), M = ne(() => P.value.storageKey || _e), m = f(null), oe = f("all"), E = f(/* @__PURE__ */ new Set()), J = "devInspector:hiddenAnalysisSelectors", j = ne(() => P.value.enabledInProduction ? !0 : typeof import.meta < "u" && Ue ? !1 : process.env.NODE_ENV === "development"), W = f(!1);
+  function ae(e = {}) {
+    P.value = e, ce(), Ne(), e.analysisData && (m.value = e.analysisData);
     const n = e.analysisDataUrl ?? "/dev-inspector-analysis.json";
-    e.autoLoadAnalysis !== !1 && k.value && X(n);
+    e.autoLoadAnalysis !== !1 && j.value && X(n);
   }
   async function X(e) {
     var n;
@@ -18,7 +18,7 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
     }
     return !1;
   }
-  function ae(e) {
+  function se(e) {
     if (!m.value) return null;
     for (const n of Object.values(m.value.components)) {
       const t = n.elements.find((a) => a.selector === e);
@@ -26,14 +26,14 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
     }
     return null;
   }
-  function se(e) {
+  function le(e) {
     if (!m.value) return [];
     const n = [];
     for (const [t, a] of Object.entries(m.value.components))
       (!e || t.includes(e)) && n.push(...a.elements);
     return n;
   }
-  function le() {
+  function ce() {
     try {
       const e = P.value.initialAnnotations || {};
       if (typeof window < "u") {
@@ -45,7 +45,7 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
       console.error("[DevInspector] Failed to load configs:", e);
     }
   }
-  function _() {
+  function k() {
     try {
       if (typeof window < "u") {
         const e = JSON.stringify(u.value);
@@ -55,34 +55,34 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
       console.error("[DevInspector] Failed to save configs:", e);
     }
   }
-  xe(u, () => {
+  je(u, () => {
     F(() => {
-      _();
+      k();
     });
   }, { deep: !0 });
-  async function ce() {
-    k.value && (b.value ? (b.value = !1, C.value = !1, N.value = null) : await q());
+  async function re() {
+    j.value && (N.value ? (N.value = !1, w.value = !1, T.value = null) : await q());
   }
   async function q() {
-    if (!k.value) return;
+    if (!j.value) return;
     if (m.value && !W.value && P.value.autoApplyAnalysis !== !1) {
-      B.value = !0, b.value = !0;
+      B.value = !0, N.value = !0;
       try {
         await new Promise((n) => setTimeout(n, 300)), Q(), W.value = !0;
       } finally {
         B.value = !1;
       }
     } else
-      b.value = !0;
+      N.value = !0;
   }
   function ie() {
-    b.value = !1, C.value = !1, N.value = null;
-  }
-  function re() {
-    C.value = !C.value, C.value || (N.value = null), C.value && ($.value = !1);
+    N.value = !1, w.value = !1, T.value = null;
   }
   function ue() {
-    $.value = !$.value, $.value && (C.value = !1), z.value = null;
+    w.value = !w.value, w.value || (T.value = null), w.value && ($.value = !1);
+  }
+  function de() {
+    $.value = !$.value, $.value && (w.value = !1), z.value = null;
   }
   function fe(e) {
     z.value = e;
@@ -100,50 +100,50 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
         a = `#${t.id}`, n.unshift(a);
         break;
       }
-      const l = Array.from(t.classList).filter((o) => !o.startsWith("hover:") && !o.startsWith("focus:")).slice(0, 2);
-      l.length > 0 && (a += "." + l.join("."));
+      const s = Array.from(t.classList).filter((o) => !o.startsWith("hover:") && !o.startsWith("focus:")).slice(0, 2);
+      s.length > 0 && (a += "." + s.join("."));
       const c = t.parentElement;
       if (c) {
         const o = Array.from(c.children).filter(
-          (s) => s.tagName === t.tagName
+          (l) => l.tagName === t.tagName
         );
         if (o.length > 1) {
-          const s = o.indexOf(t) + 1;
-          a += `:nth-child(${s})`;
+          const l = o.indexOf(t) + 1;
+          a += `:nth-child(${l})`;
         }
       }
       n.unshift(a), t = t.parentElement;
     }
     return n.join(" > ");
   }
-  function de() {
+  function pe() {
     const e = typeof window < "u" ? window.location.pathname : "/";
     return Object.keys(u.value).filter((n) => {
       const t = u.value[n];
       return t ? (n.includes(">") || n.startsWith("#") || n.startsWith("[") || n.startsWith(".")) && (!t.componentPath || t.componentPath.includes(e) || e === "/") : !1;
     });
   }
-  function pe(e) {
+  function ve(e) {
     R.value = e;
   }
-  function ve() {
+  function me() {
     R.value = null;
   }
-  function me() {
+  function he() {
     O.value = !O.value;
   }
-  function he() {
+  function ge() {
     O.value = !0;
   }
-  function ge() {
+  function ye() {
     O.value = !1;
   }
-  function ye(e) {
+  function Se(e) {
     return u.value[e];
   }
   function Z(e, n) {
     var c;
-    const t = (/* @__PURE__ */ new Date()).toISOString(), a = u.value[e], l = {
+    const t = (/* @__PURE__ */ new Date()).toISOString(), a = u.value[e], s = {
       ...a,
       ...n,
       id: e,
@@ -153,16 +153,16 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
     };
     u.value = {
       ...u.value,
-      [e]: l
-    }, F(() => _());
+      [e]: s
+    }, F(() => k());
   }
-  function Se(e) {
+  function Ce(e) {
     const { [e]: n, ...t } = u.value;
-    u.value = t, F(() => _());
+    u.value = t, F(() => k());
   }
   function K(e) {
-    var U;
-    const n = ((U = e.textContent) == null ? void 0 : U.trim()) || "", t = e.tagName.toUpperCase();
+    var _;
+    const n = ((_ = e.textContent) == null ? void 0 : _.trim()) || "", t = e.tagName.toUpperCase();
     if (!n && t !== "INPUT" && t !== "SELECT" && t !== "TEXTAREA")
       return null;
     const a = e.__vueParentComponent;
@@ -183,11 +183,11 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
         isStatic: !1
       };
     }
-    const l = e.dataset.source || e.dataset.field || e.dataset.bind;
-    if (l)
+    const s = e.dataset.source || e.dataset.field || e.dataset.bind;
+    if (s)
       return {
         type: "prop",
-        source: l,
+        source: s,
         isStatic: !1
       };
     if (e.closest("tbody") || e.closest('[role="rowgroup"]'))
@@ -223,7 +223,7 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
       if (g) {
         const y = g.parentElement;
         if (y && Array.from(y.children).filter(
-          (w) => w !== g && w.className === g.className
+          (A) => A !== g && A.className === g.className
         ).length > 0)
           return {
             type: "api",
@@ -239,9 +239,9 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
         isStatic: !1
       };
     if (e.parentElement) {
-      const v = e.parentElement, y = Array.from(v.children).filter((E) => E.tagName === e.tagName);
+      const v = e.parentElement, y = Array.from(v.children).filter((C) => C.tagName === e.tagName);
       if (y.length >= 2 && y.filter(
-        (w) => w.children.length === e.children.length
+        (A) => A.children.length === e.children.length
       ).length >= 2)
         return {
           type: "api",
@@ -249,7 +249,7 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
           isStatic: !1
         };
     }
-    const f = [
+    const d = [
       /^\d+$/,
       // Just numbers (likely IDs or counts)
       /^\d{4}[-/]\d{1,2}[-/]\d{1,2}/,
@@ -279,14 +279,14 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
       /^第?\d+/
       // Numbered items
     ];
-    for (const v of f)
+    for (const v of d)
       if (v.test(n))
         return {
           type: "api",
           source: "dynamic data pattern",
           isStatic: !1
         };
-    const r = [
+    const i = [
       /^[\u4e00-\u9faf]{2,4}$/,
       // Japanese Kanji names (2-4 chars)
       /^[\u3040-\u309f\u30a0-\u30ff]{2,6}$/,
@@ -294,7 +294,7 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
       /^[A-Z][a-z]+ [A-Z][a-z]+$/
       // English names like "John Smith"
     ];
-    for (const v of r)
+    for (const v of i)
       if (v.test(n))
         return {
           type: "api",
@@ -313,8 +313,8 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
       // Ends with 設定
       /情報$/
       // Ends with 情報
-    ].some((v) => v.test(n)), x = t === "BUTTON" || e.closest("button") !== null || e.getAttribute("role") === "button";
-    return p || S || x && n.length < 20 ? {
+    ].some((v) => v.test(n)), D = t === "BUTTON" || e.closest("button") !== null || e.getAttribute("role") === "button";
+    return p || S || D && n.length < 20 ? {
       type: "static",
       source: n.substring(0, 50) + (n.length > 50 ? "..." : ""),
       isStatic: !0
@@ -329,44 +329,44 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
     } : null;
   }
   function G(e, n) {
-    var l, c, o, s, f;
+    var s, c, o, l, d;
     const t = K(e), a = {};
     if (t) {
       a.sourceBinding = t;
-      const r = ((l = e.textContent) == null ? void 0 : l.trim()) || "";
+      const i = ((s = e.textContent) == null ? void 0 : s.trim()) || "";
       if (t.isStatic)
         a.note = {
           type: "info",
-          text: `【固定文言】${r}`
+          text: `【固定文言】${i}`
         };
       else if (t.type === "v-model") {
-        const i = e.tagName.toUpperCase();
-        if (i === "INPUT" || i === "SELECT" || i === "TEXTAREA") {
-          const p = e.placeholder || "", h = ((o = (c = e.closest("label")) == null ? void 0 : c.textContent) == null ? void 0 : o.trim()) || e.getAttribute("aria-label") || ((f = (s = document.querySelector(`label[for="${e.id}"]`)) == null ? void 0 : s.textContent) == null ? void 0 : f.trim()) || "";
+        const r = e.tagName.toUpperCase();
+        if (r === "INPUT" || r === "SELECT" || r === "TEXTAREA") {
+          const p = e.placeholder || "", h = ((o = (c = e.closest("label")) == null ? void 0 : c.textContent) == null ? void 0 : o.trim()) || e.getAttribute("aria-label") || ((d = (l = document.querySelector(`label[for="${e.id}"]`)) == null ? void 0 : l.textContent) == null ? void 0 : d.trim()) || "";
           a.note = {
             type: "todo",
-            text: `【フォーム要素】${h || p || i.toLowerCase()}`
+            text: `【フォーム要素】${h || p || r.toLowerCase()}`
           };
         }
       } else t.type === "api" && (a.note = {
         type: "question",
-        text: `【動的データ】${r.substring(0, 100)}${r.length > 100 ? "..." : ""}`
+        text: `【動的データ】${i.substring(0, 100)}${i.length > 100 ? "..." : ""}`
       });
     }
     return a;
   }
-  const D = d(!1), L = d(0), j = d([]);
+  const L = f(!1), x = f(0), U = f([]);
   async function V(e = {}) {
-    D.value = !0, L.value = 0, j.value = [];
+    L.value = !0, x.value = 0, U.value = [];
     const { rescan: n = !1 } = e;
     if (n) {
-      const t = typeof window < "u" ? window.location.pathname : "/", a = Object.keys(u.value).filter((l) => {
-        const c = u.value[l];
+      const t = typeof window < "u" ? window.location.pathname : "/", a = Object.keys(u.value).filter((s) => {
+        const c = u.value[s];
         return !c.componentPath || c.componentPath.includes(t);
       });
-      for (const l of a)
-        delete u.value[l];
-      F(() => _());
+      for (const s of a)
+        delete u.value[s];
+      F(() => k());
     }
     try {
       const t = [
@@ -395,63 +395,63 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
         '[role="button"]',
         '[role="link"]',
         '[role="menuitem"]'
-      ].join(","), a = document.querySelectorAll(t), l = [];
-      a.forEach((r) => {
+      ].join(","), a = document.querySelectorAll(t), s = [];
+      a.forEach((i) => {
         var g;
-        const i = r;
-        if (i.closest("[data-dev-inspector]")) return;
-        const p = window.getComputedStyle(i);
+        const r = i;
+        if (r.closest("[data-dev-inspector]")) return;
+        const p = window.getComputedStyle(r);
         if (p.display === "none" || p.visibility === "hidden" || p.opacity === "0") return;
-        const h = I(i);
+        const h = I(r);
         if (u.value[h]) return;
-        const S = i.tagName.toUpperCase(), x = ((g = i.textContent) == null ? void 0 : g.trim()) || "";
+        const S = r.tagName.toUpperCase(), D = ((g = r.textContent) == null ? void 0 : g.trim()) || "";
         if (S === "INPUT" || S === "SELECT" || S === "TEXTAREA") {
-          l.push(i);
+          s.push(r);
           return;
         }
-        if (x.length > 300 || x.length === 0 || S === "DIV" && (Array.from(i.childNodes).filter((E) => E.nodeType === Node.TEXT_NODE).map((E) => {
-          var w;
-          return ((w = E.textContent) == null ? void 0 : w.trim()) || "";
-        }).join("").trim().length === 0 || i.children.length > 3))
+        if (D.length > 300 || D.length === 0 || S === "DIV" && (Array.from(r.childNodes).filter((C) => C.nodeType === Node.TEXT_NODE).map((C) => {
+          var A;
+          return ((A = C.textContent) == null ? void 0 : A.trim()) || "";
+        }).join("").trim().length === 0 || r.children.length > 3))
           return;
-        const U = Array.from(i.childNodes).some((y) => {
-          var E;
-          return y.nodeType === Node.TEXT_NODE && (((E = y.textContent) == null ? void 0 : E.trim()) || "").length > 0;
-        }), v = !Array.from(i.children).some((y) => ["DIV", "P", "UL", "OL", "TABLE", "SECTION", "ARTICLE"].includes(y.tagName));
-        (U || i.children.length === 0 && x.length > 0 || v) && l.push(i);
+        const _ = Array.from(r.childNodes).some((y) => {
+          var C;
+          return y.nodeType === Node.TEXT_NODE && (((C = y.textContent) == null ? void 0 : C.trim()) || "").length > 0;
+        }), v = !Array.from(r.children).some((y) => ["DIV", "P", "UL", "OL", "TABLE", "SECTION", "ARTICLE"].includes(y.tagName));
+        (_ || r.children.length === 0 && D.length > 0 || v) && s.push(r);
       });
-      const c = l.length;
-      let o = 0, s = 0;
-      const f = 20;
-      for (let r = 0; r < l.length; r += f) {
-        const i = l.slice(r, r + f);
-        for (const p of i) {
+      const c = s.length;
+      let o = 0, l = 0;
+      const d = 20;
+      for (let i = 0; i < s.length; i += d) {
+        const r = s.slice(i, i + d);
+        for (const p of r) {
           const h = I(p), S = G(p, h);
-          S.sourceBinding && (j.value.push({ selector: h, element: p, detected: S }), Z(h, S), s++), o++, L.value = Math.round(o / c * 100);
+          S.sourceBinding && (U.value.push({ selector: h, element: p, detected: S }), Z(h, S), l++), o++, x.value = Math.round(o / c * 100);
         }
         await new Promise((p) => setTimeout(p, 10));
       }
-      return s;
+      return l;
     } finally {
-      D.value = !1, L.value = 100;
+      L.value = !1, x.value = 100;
     }
   }
-  const Y = d([]), H = d("");
-  async function Ee(e) {
+  const Y = f([]), H = f("");
+  async function be(e) {
     var t;
     if (!e)
       return console.warn("[DevInspector] Router not provided for all pages scan"), [];
-    D.value = !0;
+    L.value = !0;
     const n = [];
     try {
-      const a = e.getRoutes(), l = [];
+      const a = e.getRoutes(), s = [];
       for (const c of a)
-        c.path.includes(":") && !c.path.includes("?") || c.redirect || c.path !== "/:pathMatch(.*)*" && ((t = c.meta) != null && t.devInspectorSkip || l.push(c.path));
-      Y.value = l;
-      for (const c of l) {
+        c.path.includes(":") && !c.path.includes("?") || c.redirect || c.path !== "/:pathMatch(.*)*" && ((t = c.meta) != null && t.devInspectorSkip || s.push(c.path));
+      Y.value = s;
+      for (const c of s) {
         H.value = c;
         try {
-          await e.push(c), await new Promise((s) => setTimeout(s, 500));
+          await e.push(c), await new Promise((l) => setTimeout(l, 500));
           const o = await V();
           n.push({ page: c, count: o });
         } catch (o) {
@@ -460,131 +460,142 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
       }
       return n;
     } finally {
-      D.value = !1, H.value = "";
+      L.value = !1, H.value = "";
     }
   }
-  function Ae() {
-    j.value = [], L.value = 0;
+  function we() {
+    U.value = [], x.value = 0;
   }
-  const A = d([]);
+  const b = f([]);
   async function Q() {
     var c;
     if (!m.value)
       return console.warn("[DevInspector] No analysis data loaded. Call loadAnalysisData first."), 0;
-    A.value = [];
+    b.value = [];
     const e = typeof window < "u" ? window.location.pathname : "/", n = (o) => {
       if (!m.value) return null;
-      for (const [s, f] of Object.entries(m.value.components))
-        if (f.componentName === o || f.componentName.toLowerCase() === o.toLowerCase() || s.toLowerCase().includes(`/${o.toLowerCase()}.vue`))
-          return f;
+      for (const [l, d] of Object.entries(m.value.components))
+        if (d.componentName === o || d.componentName.toLowerCase() === o.toLowerCase() || l.toLowerCase().includes(`/${o.toLowerCase()}.vue`))
+          return d;
       return null;
-    }, t = (o, s = /* @__PURE__ */ new Set()) => {
-      const f = [];
-      if (s.has(o.componentName)) return f;
-      if (s.add(o.componentName), f.push(...o.elements), o.usedComponents)
-        for (const r of o.usedComponents) {
-          const i = n(r);
-          i && f.push(...t(i, s));
+    }, t = (o, l = /* @__PURE__ */ new Set()) => {
+      const d = [];
+      if (l.has(o.componentName)) return d;
+      if (l.add(o.componentName), d.push(...o.elements), o.usedComponents)
+        for (const i of o.usedComponents) {
+          const r = n(i);
+          r && d.push(...t(r, l));
         }
-      return f;
-    }, a = [], l = /* @__PURE__ */ new Set();
-    for (const [o, s] of Object.entries(m.value.components)) {
-      const f = o.replace(/^pages/, "").replace(/\.vue$/, "").replace(/\/index$/, "").replace(/\[.*?\]/g, "[^/]+");
-      let r = !1;
-      if ((e === "/" && o.includes("index") || o.includes("pages/") && e.match(new RegExp(`^${f}$`))) && (r = !0), r) {
-        const i = t(s);
-        a.push(...i), l.add(s.componentName), s.usedComponents && s.usedComponents.forEach((p) => l.add(p));
+      return d;
+    }, a = [], s = /* @__PURE__ */ new Set();
+    for (const [o, l] of Object.entries(m.value.components)) {
+      const d = o.replace(/^pages/, "").replace(/\.vue$/, "").replace(/\/index$/, "").replace(/\[.*?\]/g, "[^/]+");
+      let i = !1;
+      if ((e === "/" && o.includes("index") || o.includes("pages/") && e.match(new RegExp(`^${d}$`))) && (i = !0), i) {
+        const r = t(l);
+        a.push(...r), s.add(l.componentName), l.usedComponents && l.usedComponents.forEach((p) => s.add(p));
       }
     }
-    for (const [o, s] of Object.entries(m.value.components))
-      o.includes("components/") && !l.has(s.componentName) && a.push(...s.elements);
+    for (const [o, l] of Object.entries(m.value.components))
+      o.includes("components/") && !s.has(l.componentName) && a.push(...l.elements);
     for (const o of a) {
-      if (T.value.has(o.selector))
+      if (E.value.has(o.selector))
         continue;
-      let s = !1, f = o.selector;
+      let l = !1, d = o.selector;
       try {
-        document.querySelector(o.selector) && (s = !0);
+        document.querySelector(o.selector) && (l = !0);
       } catch {
       }
-      if (!s && o.type === "static" && o.text) {
-        const r = o.text.replace(/\[コメント\]\s*/, ""), i = document.createTreeWalker(
+      if (!l && o.type === "static" && o.text) {
+        const i = o.text.replace(/\[コメント\]\s*/, ""), r = document.createTreeWalker(
           document.body,
           NodeFilter.SHOW_TEXT,
           null
         );
-        for (; i.nextNode(); ) {
-          const p = i.currentNode;
-          if ((c = p.textContent) != null && c.includes(r)) {
+        for (; r.nextNode(); ) {
+          const p = r.currentNode;
+          if ((c = p.textContent) != null && c.includes(i)) {
             const h = p.parentElement;
             if (h) {
-              s = !0, f = I(h);
+              l = !0, d = I(h);
               break;
             }
           }
         }
       }
-      if (!s && o.selector.includes(".")) {
-        const r = o.selector.match(/^(\w+)\.(.+)$/);
-        if (r) {
-          const [, i, p] = r;
+      if (!l && o.selector.includes(".")) {
+        const i = o.selector.match(/^(\w+)\.(.+)$/);
+        if (i) {
+          const [, r, p] = i;
           try {
             const h = document.querySelector(o.selector);
-            h && (s = !0, f = I(h));
+            h && (l = !0, d = I(h));
           } catch {
           }
         }
       }
-      if (!s && o.type === "data" && o.binding) {
-        const r = `[data-bind="${o.binding}"]`;
+      if (!l && o.type === "data" && o.binding) {
+        const i = `[data-bind="${o.binding}"]`;
         try {
-          const i = document.querySelector(r);
-          i && (s = !0, f = I(i));
+          const r = document.querySelector(i);
+          r && (l = !0, d = I(r));
         } catch {
         }
       }
-      A.value.push({
-        selector: f,
+      b.value.push({
+        selector: d,
         element: o,
-        matched: s
+        matched: l
       });
     }
-    return console.log(`[DevInspector] Applied analysis: ${A.value.filter((o) => o.matched).length}/${A.value.length} elements matched`), A.value.filter((o) => o.matched).length;
+    return console.log(`[DevInspector] Applied analysis: ${b.value.filter((o) => o.matched).length}/${b.value.length} elements matched`), b.value.filter((o) => o.matched).length;
   }
-  function Ce() {
-    A.value = [];
+  function Ee() {
+    b.value = [];
   }
-  function we(e) {
-    A.value = A.value.filter((n) => n.selector !== e), T.value.add(e), Ne();
-  }
-  function be() {
-    try {
-      const e = localStorage.getItem(J);
-      e && (T.value = new Set(JSON.parse(e)));
-    } catch {
-    }
+  function Ae(e) {
+    b.value = b.value.filter((n) => n.selector !== e), E.value.add(e), Te();
   }
   function Ne() {
     try {
-      localStorage.setItem(
-        J,
-        JSON.stringify([...T.value])
-      );
+      const e = localStorage.getItem(J);
+      e && (E.value = new Set(JSON.parse(e)));
     } catch {
     }
   }
   function Te() {
-    T.value.clear(), localStorage.removeItem(J);
+    try {
+      localStorage.setItem(
+        J,
+        JSON.stringify([...E.value])
+      );
+    } catch {
+    }
   }
-  function Ie(e) {
-    N.value = e;
-  }
-  function Pe() {
-    N.value = null;
-  }
-  function $e() {
-    return JSON.stringify(u.value, null, 2);
+  function Ie() {
+    E.value.clear(), localStorage.removeItem(J);
   }
   function ee() {
+    const e = {
+      removed: [...E.value],
+      exportedAt: (/* @__PURE__ */ new Date()).toISOString()
+    };
+    return JSON.stringify(e, null, 2);
+  }
+  function Pe(e = "dev-inspector-changes.json") {
+    const n = ee(), t = new Blob([n], { type: "application/json" }), a = URL.createObjectURL(t), s = document.createElement("a");
+    s.href = a, s.download = e, document.body.appendChild(s), s.click(), document.body.removeChild(s), URL.revokeObjectURL(a);
+  }
+  function $e(e) {
+    T.value = e;
+  }
+  function Oe() {
+    T.value = null;
+  }
+  function Le() {
+    return JSON.stringify(u.value, null, 2);
+  }
+  function te() {
     const e = {
       _meta: {
         version: "1.0.0",
@@ -595,9 +606,9 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
     };
     return JSON.stringify(e, null, 2);
   }
-  function Oe(e = "dev-annotations.json") {
-    const n = ee(), t = new Blob([n], { type: "application/json" }), a = URL.createObjectURL(t), l = document.createElement("a");
-    l.href = a, l.download = e, document.body.appendChild(l), l.click(), document.body.removeChild(l), URL.revokeObjectURL(a);
+  function xe(e = "dev-annotations.json") {
+    const n = te(), t = new Blob([n], { type: "application/json" }), a = URL.createObjectURL(t), s = document.createElement("a");
+    s.href = a, s.download = e, document.body.appendChild(s), s.click(), document.body.removeChild(s), URL.revokeObjectURL(a);
   }
   function De(e) {
     try {
@@ -607,75 +618,77 @@ const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () =>
       throw console.error("[DevInspector] Failed to import configs:", n), new Error("Invalid JSON format");
     }
   }
-  function Le() {
+  function Re() {
     u.value = {};
   }
   return {
     // State
-    isEnabled: b,
-    isAvailable: k,
-    isEditMode: C,
+    isEnabled: N,
+    isAvailable: j,
+    isEditMode: w,
     isPickMode: $,
     isInitializing: B,
     hoveredSelector: z,
     currentScreenSpec: R,
     isPanelOpen: O,
     elementConfigs: u,
-    editingElementId: N,
+    editingElementId: T,
     // Actions
-    init: oe,
-    toggle: ce,
+    init: ae,
+    toggle: re,
     enable: q,
     disable: ie,
-    toggleEditMode: re,
-    togglePickMode: ue,
+    toggleEditMode: ue,
+    togglePickMode: de,
     setHoveredSelector: fe,
     generateSelector: I,
-    getConfiguredSelectors: de,
-    setScreenSpec: pe,
-    clearScreenSpec: ve,
-    togglePanel: me,
-    openPanel: he,
-    closePanel: ge,
-    getElementConfig: ye,
+    getConfiguredSelectors: pe,
+    setScreenSpec: ve,
+    clearScreenSpec: me,
+    togglePanel: he,
+    openPanel: ge,
+    closePanel: ye,
+    getElementConfig: Se,
     setElementConfig: Z,
-    deleteElementConfig: Se,
-    startEditing: Ie,
-    stopEditing: Pe,
-    exportConfigs: $e,
-    exportAsFile: ee,
-    downloadAnnotations: Oe,
+    deleteElementConfig: Ce,
+    startEditing: $e,
+    stopEditing: Oe,
+    exportConfigs: Le,
+    exportAsFile: te,
+    downloadAnnotations: xe,
     importConfigs: De,
-    clearAllConfigs: Le,
+    clearAllConfigs: Re,
     detectSourceBinding: K,
     autoDetectElementInfo: G,
     // Scan
-    isScanning: D,
-    scanProgress: L,
-    scanResults: j,
+    isScanning: L,
+    scanProgress: x,
+    scanResults: U,
     scanCurrentPage: V,
-    scanAllPages: Ee,
+    scanAllPages: be,
     allPagesRoutes: Y,
     currentScanPage: H,
-    clearScanResults: Ae,
+    clearScanResults: we,
     // Analysis data
     analysisData: m,
     loadAnalysisData: X,
-    getAnalyzedElement: ae,
-    getAnalyzedElementsForPage: se,
-    analysisResults: A,
+    getAnalyzedElement: se,
+    getAnalyzedElementsForPage: le,
+    analysisResults: b,
     applyAnalysisToPage: Q,
-    clearAnalysisResults: Ce,
-    removeAnalysisResult: we,
-    clearHiddenSelectors: Te,
-    hiddenAnalysisSelectors: T,
-    analysisFilter: ne
+    clearAnalysisResults: Ee,
+    removeAnalysisResult: Ae,
+    clearHiddenSelectors: Ie,
+    hiddenAnalysisSelectors: E,
+    analysisFilter: oe,
+    exportChangesForCli: ee,
+    downloadChanges: Pe
   };
 });
-function Be() {
-  return je();
+function Je() {
+  return Fe();
 }
 export {
-  Be as a,
-  je as u
+  Je as a,
+  Fe as u
 };
