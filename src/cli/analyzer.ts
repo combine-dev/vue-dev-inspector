@@ -1029,17 +1029,38 @@ function mapToDatabase(binding: string, apiInfo: ApiComposableAnalysis): Element
   // Fallback: just use the last part with snake_case conversion
   // BUT only if the column actually exists in Rails schema (to avoid false positives)
   const lastPart = parts[parts.length - 1]
-  const snakeColumn = camelToSnake(lastPart)
 
   if (apiInfo.tableName && globalDbSchema) {
     const table = globalDbSchema.tables[apiInfo.tableName]
-    // Only set DB info if the column actually exists in the schema
-    if (table && table.columns[snakeColumn]) {
-      return {
-        table: apiInfo.tableName,
-        column: snakeColumn,
-        type: table.columns[snakeColumn].type || 'unknown',
-        comment: table.columns[snakeColumn].comment || undefined,
+    if (table) {
+      // Try multiple column name possibilities:
+      // 1. Full snake_case: userName -> user_name
+      // 2. Just the last word: userName -> name (user might be table prefix)
+      // 3. Without common prefixes: notificationTitle -> title
+      const snakeColumn = camelToSnake(lastPart)
+      const lastWord = lastPart.replace(/^[a-z]+(?=[A-Z])/, '').toLowerCase() // userName -> name
+      const candidates = [snakeColumn, lastWord]
+
+      // Also try removing table name prefix: userName with users table -> name
+      const singularTable = apiInfo.tableName.replace(/s$/, '') // users -> user
+      if (lastPart.toLowerCase().startsWith(singularTable)) {
+        const withoutPrefix = lastPart.slice(singularTable.length)
+        if (withoutPrefix) {
+          candidates.push(withoutPrefix.toLowerCase())
+          candidates.push(camelToSnake(withoutPrefix))
+        }
+      }
+
+      // Find first matching column
+      for (const candidate of candidates) {
+        if (table.columns[candidate]) {
+          return {
+            table: apiInfo.tableName,
+            column: candidate,
+            type: table.columns[candidate].type || 'unknown',
+            comment: table.columns[candidate].comment || undefined,
+          }
+        }
       }
     }
   }

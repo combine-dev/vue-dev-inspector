@@ -694,16 +694,30 @@ function mapToDatabase(binding, apiInfo) {
     }
   }
   const lastPart = parts[parts.length - 1];
-  const snakeColumn = camelToSnake(lastPart);
   if (apiInfo.tableName && globalDbSchema) {
     const table = globalDbSchema.tables[apiInfo.tableName];
-    if (table && table.columns[snakeColumn]) {
-      return {
-        table: apiInfo.tableName,
-        column: snakeColumn,
-        type: table.columns[snakeColumn].type || "unknown",
-        comment: table.columns[snakeColumn].comment || void 0
-      };
+    if (table) {
+      const snakeColumn = camelToSnake(lastPart);
+      const lastWord = lastPart.replace(/^[a-z]+(?=[A-Z])/, "").toLowerCase();
+      const candidates = [snakeColumn, lastWord];
+      const singularTable = apiInfo.tableName.replace(/s$/, "");
+      if (lastPart.toLowerCase().startsWith(singularTable)) {
+        const withoutPrefix = lastPart.slice(singularTable.length);
+        if (withoutPrefix) {
+          candidates.push(withoutPrefix.toLowerCase());
+          candidates.push(camelToSnake(withoutPrefix));
+        }
+      }
+      for (const candidate of candidates) {
+        if (table.columns[candidate]) {
+          return {
+            table: apiInfo.tableName,
+            column: candidate,
+            type: table.columns[candidate].type || "unknown",
+            comment: table.columns[candidate].comment || void 0
+          };
+        }
+      }
     }
   }
   return null;
