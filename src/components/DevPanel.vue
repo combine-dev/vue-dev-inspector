@@ -153,6 +153,14 @@ async function applyAnalysis() {
   }
   analysisMatchCount.value = await store.applyAnalysisToPage()
 }
+
+async function restoreHiddenElements() {
+  store.clearHiddenSelectors()
+  // Re-apply analysis to show restored elements
+  if (store.analysisData) {
+    await store.applyAnalysisToPage()
+  }
+}
 </script>
 
 <template>
@@ -319,6 +327,13 @@ async function applyAnalysis() {
                 {{ opt.label }}
               </button>
             </div>
+            <button
+              v-if="store.hiddenAnalysisSelectors.size > 0"
+              @click="restoreHiddenElements"
+              class="di-restore-btn"
+            >
+              非表示 ({{ store.hiddenAnalysisSelectors.size }}) をリセット
+            </button>
           </div>
         </div>
       </div>
@@ -1252,5 +1267,22 @@ async function applyAnalysis() {
   background: #3b82f6;
   border-color: #3b82f6;
   color: white;
+}
+
+.di-restore-btn {
+  margin-top: 8px;
+  width: 100%;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid #64748b;
+  border-radius: 4px;
+  color: #94a3b8;
+  font-size: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-restore-btn:hover {
+  border-color: #f59e0b;
+  color: #f59e0b;
 }
 </style>

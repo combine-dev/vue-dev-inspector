@@ -151,6 +151,10 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   // Analysis display filter
   const analysisFilter = ref<'all' | 'db-api' | 'static' | 'data' | 'other' | 'none'>('all')
 
+  // Hidden analysis selectors (persisted to localStorage)
+  const hiddenAnalysisSelectors = ref<Set<string>>(new Set())
+  const HIDDEN_SELECTORS_KEY = 'devInspector:hiddenAnalysisSelectors'
+
   const isAvailable = computed(() => {
     if (options.value.enabledInProduction) return true
     // Check for development environment
@@ -167,6 +171,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   function init(opts: DevInspectorOptions = {}) {
     options.value = opts
     loadConfigs()
+    loadHiddenSelectors()
 
     // Load analysis data if provided directly
     if (opts.analysisData) {
@@ -961,6 +966,11 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
 
     // Try to match analysis elements to actual DOM elements
     for (const analysisEl of matchingComponents) {
+      // Skip hidden selectors
+      if (hiddenAnalysisSelectors.value.has(analysisEl.selector)) {
+        continue
+      }
+
       let matched = false
       let matchedSelector = analysisEl.selector
 
@@ -1025,6 +1035,40 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
 
   function removeAnalysisResult(selector: string) {
     analysisResults.value = analysisResults.value.filter(r => r.selector !== selector)
+    // Persist to localStorage
+    hiddenAnalysisSelectors.value.add(selector)
+    saveHiddenSelectors()
+  }
+
+  function loadHiddenSelectors() {
+    try {
+      const stored = localStorage.getItem(HIDDEN_SELECTORS_KEY)
+      if (stored) {
+        hiddenAnalysisSelectors.value = new Set(JSON.parse(stored))
+      }
+    } catch {
+      // Ignore errors
+    }
+  }
+
+  function saveHiddenSelectors() {
+    try {
+      localStorage.setItem(
+        HIDDEN_SELECTORS_KEY,
+        JSON.stringify([...hiddenAnalysisSelectors.value])
+      )
+    } catch {
+      // Ignore errors
+    }
+  }
+
+  function clearHiddenSelectors() {
+    hiddenAnalysisSelectors.value.clear()
+    localStorage.removeItem(HIDDEN_SELECTORS_KEY)
+  }
+
+  function isAnalysisSelectorHidden(selector: string): boolean {
+    return hiddenAnalysisSelectors.value.has(selector)
   }
 
   function startEditing(id: string) {
@@ -1137,6 +1181,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     applyAnalysisToPage,
     clearAnalysisResults,
     removeAnalysisResult,
+    clearHiddenSelectors,
+    hiddenAnalysisSelectors,
     analysisFilter,
   }
 })

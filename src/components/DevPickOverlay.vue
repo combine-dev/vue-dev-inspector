@@ -421,8 +421,8 @@ watch(() => store.isPickMode, (isPicking) => {
         }"
         @click="store.startEditing(highlight.selector)"
       >
-        <div class="di-analysis-label" :class="'di-analysis-label-' + highlight.type">
-          <span class="di-analysis-type">{{ highlight.type === 'static' ? '固定' : highlight.type === 'data' ? 'DB' : highlight.type }}</span>
+        <div class="di-analysis-label" :class="'di-analysis-label-' + (highlight.dbInfo ? 'db' : highlight.type)">
+          <span class="di-analysis-type">{{ highlight.dbInfo ? 'DB' : highlight.type === 'static' ? '固定' : highlight.type === 'data' ? 'データ' : highlight.type }}</span>
           <span v-if="highlight.dbInfo" class="di-analysis-db">{{ highlight.dbInfo }}</span>
           <button
             class="di-analysis-delete"
@@ -694,6 +694,9 @@ watch(() => store.isPickMode, (isPicking) => {
   background: #10b981;
 }
 .di-analysis-label-data {
+  background: #94a3b8;
+}
+.di-analysis-label-db {
   background: #f59e0b;
   color: #1e293b;
 }

@@ -1,13 +1,13 @@
-import { ref as r, computed as Q, watch as Ie, nextTick as U } from "vue";
-import { defineStore as $e } from "pinia";
-const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () => {
-  const N = r({}), C = r(!1), E = r(!1), P = r(!1), F = r(!1), L = r(null), I = r(!1), l = r({}), T = r(null), z = r(null), W = Q(() => N.value.storageKey || De), h = r(null), ee = r("all"), k = Q(() => N.value.enabledInProduction ? !0 : typeof import.meta < "u" && xe ? !1 : process.env.NODE_ENV === "development"), X = r(!1);
-  function te(e = {}) {
-    N.value = e, ae(), e.analysisData && (h.value = e.analysisData);
+import { ref as r, computed as te, watch as Le, nextTick as F } from "vue";
+import { defineStore as Re } from "pinia";
+const ke = {}, _e = "devInspector:elementConfigs", je = Re("devInspector", () => {
+  const I = r({}), C = r(!1), E = r(!1), P = r(!1), z = r(!1), R = r(null), $ = r(!1), l = r({}), T = r(null), B = r(null), W = te(() => I.value.storageKey || _e), h = r(null), ne = r("all"), N = r(/* @__PURE__ */ new Set()), J = "devInspector:hiddenAnalysisSelectors", k = te(() => I.value.enabledInProduction ? !0 : typeof import.meta < "u" && ke ? !1 : process.env.NODE_ENV === "development"), X = r(!1);
+  function oe(e = {}) {
+    I.value = e, le(), Ce(), e.analysisData && (h.value = e.analysisData);
     const n = e.analysisDataUrl ?? "/dev-inspector-analysis.json";
-    e.autoLoadAnalysis !== !1 && k.value && J(n);
+    e.autoLoadAnalysis !== !1 && k.value && M(n);
   }
-  async function J(e) {
+  async function M(e) {
     var n;
     try {
       const t = await fetch(e);
@@ -18,7 +18,7 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
     }
     return !1;
   }
-  function ne(e) {
+  function ae(e) {
     if (!h.value) return null;
     for (const n of Object.values(h.value.components)) {
       const t = n.elements.find((o) => o.selector === e);
@@ -26,16 +26,16 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
     }
     return null;
   }
-  function oe(e) {
+  function se(e) {
     if (!h.value) return [];
     const n = [];
     for (const [t, o] of Object.entries(h.value.components))
       (!e || t.includes(e)) && n.push(...o.elements);
     return n;
   }
-  function ae() {
+  function le() {
     try {
-      const e = N.value.initialAnnotations || {};
+      const e = I.value.initialAnnotations || {};
       if (typeof window < "u") {
         const n = localStorage.getItem(W.value), t = n ? JSON.parse(n) : {};
         l.value = { ...e, ...t };
@@ -45,7 +45,7 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
       console.error("[DevInspector] Failed to load configs:", e);
     }
   }
-  function R() {
+  function _() {
     try {
       if (typeof window < "u") {
         const e = JSON.stringify(l.value);
@@ -55,39 +55,39 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
       console.error("[DevInspector] Failed to save configs:", e);
     }
   }
-  Ie(l, () => {
-    U(() => {
-      R();
+  Le(l, () => {
+    F(() => {
+      _();
     });
   }, { deep: !0 });
-  async function se() {
-    k.value && (C.value ? (C.value = !1, E.value = !1, T.value = null) : await M());
+  async function ce() {
+    k.value && (C.value ? (C.value = !1, E.value = !1, T.value = null) : await Z());
   }
-  async function M() {
+  async function Z() {
     if (!k.value) return;
-    if (h.value && !X.value && N.value.autoApplyAnalysis !== !1) {
-      F.value = !0, C.value = !0;
+    if (h.value && !X.value && I.value.autoApplyAnalysis !== !1) {
+      z.value = !0, C.value = !0;
       try {
-        await new Promise((n) => setTimeout(n, 300)), H(), X.value = !0;
+        await new Promise((n) => setTimeout(n, 300)), Q(), X.value = !0;
       } finally {
-        F.value = !1;
+        z.value = !1;
       }
     } else
       C.value = !0;
   }
-  function le() {
+  function ie() {
     C.value = !1, E.value = !1, T.value = null;
   }
-  function ie() {
+  function re() {
     E.value = !E.value, E.value || (T.value = null), E.value && (P.value = !1);
   }
-  function ce() {
-    P.value = !P.value, P.value && (E.value = !1), z.value = null;
+  function ue() {
+    P.value = !P.value, P.value && (E.value = !1), B.value = null;
   }
-  function re(e) {
-    z.value = e;
+  function fe(e) {
+    B.value = e;
   }
-  function $(e) {
+  function D(e) {
     if (e.id)
       return `#${e.id}`;
     if (e.dataset.devId)
@@ -100,15 +100,15 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
         o = `#${t.id}`, n.unshift(o);
         break;
       }
-      const a = Array.from(t.classList).filter((i) => !i.startsWith("hover:") && !i.startsWith("focus:")).slice(0, 2);
+      const a = Array.from(t.classList).filter((c) => !c.startsWith("hover:") && !c.startsWith("focus:")).slice(0, 2);
       a.length > 0 && (o += "." + a.join("."));
       const s = t.parentElement;
       if (s) {
-        const i = Array.from(s.children).filter(
+        const c = Array.from(s.children).filter(
           (f) => f.tagName === t.tagName
         );
-        if (i.length > 1) {
-          const f = i.indexOf(t) + 1;
+        if (c.length > 1) {
+          const f = c.indexOf(t) + 1;
           o += `:nth-child(${f})`;
         }
       }
@@ -116,53 +116,53 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
     }
     return n.join(" > ");
   }
-  function ue() {
+  function de() {
     const e = typeof window < "u" ? window.location.pathname : "/";
     return Object.keys(l.value).filter((n) => {
       const t = l.value[n];
       return t ? (n.includes(">") || n.startsWith("#") || n.startsWith("[") || n.startsWith(".")) && (!t.componentPath || t.componentPath.includes(e) || e === "/") : !1;
     });
   }
-  function fe(e) {
-    L.value = e;
-  }
-  function de() {
-    L.value = null;
-  }
-  function pe() {
-    I.value = !I.value;
+  function pe(e) {
+    R.value = e;
   }
   function ve() {
-    I.value = !0;
+    R.value = null;
   }
   function ge() {
-    I.value = !1;
+    $.value = !$.value;
   }
-  function he(e) {
+  function he() {
+    $.value = !0;
+  }
+  function me() {
+    $.value = !1;
+  }
+  function ye(e) {
     return l.value[e];
   }
-  function Z(e, n) {
+  function q(e, n) {
     var s;
     const t = (/* @__PURE__ */ new Date()).toISOString(), o = l.value[e], a = {
       ...o,
       ...n,
       id: e,
-      componentPath: n.componentPath || ((s = L.value) == null ? void 0 : s.componentPath) || "",
+      componentPath: n.componentPath || ((s = R.value) == null ? void 0 : s.componentPath) || "",
       createdAt: (o == null ? void 0 : o.createdAt) || t,
       updatedAt: t
     };
     l.value = {
       ...l.value,
       [e]: a
-    }, U(() => R());
+    }, F(() => _());
   }
-  function me(e) {
+  function Se(e) {
     const { [e]: n, ...t } = l.value;
-    l.value = t, U(() => R());
+    l.value = t, F(() => _());
   }
-  function q(e) {
-    var j;
-    const n = ((j = e.textContent) == null ? void 0 : j.trim()) || "", t = e.tagName.toUpperCase();
+  function K(e) {
+    var U;
+    const n = ((U = e.textContent) == null ? void 0 : U.trim()) || "", t = e.tagName.toUpperCase();
     if (!n && t !== "INPUT" && t !== "SELECT" && t !== "TEXTAREA")
       return null;
     const o = e.__vueParentComponent;
@@ -203,7 +203,7 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
         source: "list item",
         isStatic: !1
       };
-    const i = [
+    const c = [
       '[class*="card"]',
       '[class*="Card"]',
       '[class*="item"]',
@@ -218,12 +218,12 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
       '[role="row"]',
       '[role="gridcell"]'
     ];
-    for (const d of i) {
+    for (const d of c) {
       const v = e.closest(d);
       if (v) {
         const m = v.parentElement;
         if (m && Array.from(m.children).filter(
-          (w) => w !== v && w.className === v.className
+          (b) => b !== v && b.className === v.className
         ).length > 0)
           return {
             type: "api",
@@ -241,7 +241,7 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
     if (e.parentElement) {
       const d = e.parentElement, m = Array.from(d.children).filter((S) => S.tagName === e.tagName);
       if (m.length >= 2 && m.filter(
-        (w) => w.children.length === e.children.length
+        (b) => b.children.length === e.children.length
       ).length >= 2)
         return {
           type: "api",
@@ -313,8 +313,8 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
       // Ends with 設定
       /情報$/
       // Ends with 情報
-    ].some((d) => d.test(n)), O = t === "BUTTON" || e.closest("button") !== null || e.getAttribute("role") === "button";
-    return p || y || O && n.length < 20 ? {
+    ].some((d) => d.test(n)), L = t === "BUTTON" || e.closest("button") !== null || e.getAttribute("role") === "button";
+    return p || y || L && n.length < 20 ? {
       type: "static",
       source: n.substring(0, 50) + (n.length > 50 ? "..." : ""),
       isStatic: !0
@@ -329,8 +329,8 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
     } : null;
   }
   function G(e, n) {
-    var a, s, i, f, g;
-    const t = q(e), o = {};
+    var a, s, c, f, g;
+    const t = K(e), o = {};
     if (t) {
       o.sourceBinding = t;
       const u = ((a = e.textContent) == null ? void 0 : a.trim()) || "";
@@ -340,12 +340,12 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
           text: `【固定文言】${u}`
         };
       else if (t.type === "v-model") {
-        const c = e.tagName.toUpperCase();
-        if (c === "INPUT" || c === "SELECT" || c === "TEXTAREA") {
-          const p = e.placeholder || "", b = ((i = (s = e.closest("label")) == null ? void 0 : s.textContent) == null ? void 0 : i.trim()) || e.getAttribute("aria-label") || ((g = (f = document.querySelector(`label[for="${e.id}"]`)) == null ? void 0 : f.textContent) == null ? void 0 : g.trim()) || "";
+        const i = e.tagName.toUpperCase();
+        if (i === "INPUT" || i === "SELECT" || i === "TEXTAREA") {
+          const p = e.placeholder || "", w = ((c = (s = e.closest("label")) == null ? void 0 : s.textContent) == null ? void 0 : c.trim()) || e.getAttribute("aria-label") || ((g = (f = document.querySelector(`label[for="${e.id}"]`)) == null ? void 0 : f.textContent) == null ? void 0 : g.trim()) || "";
           o.note = {
             type: "todo",
-            text: `【フォーム要素】${b || p || c.toLowerCase()}`
+            text: `【フォーム要素】${w || p || i.toLowerCase()}`
           };
         }
       } else t.type === "api" && (o.note = {
@@ -355,9 +355,9 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
     }
     return o;
   }
-  const x = r(!1), D = r(0), _ = r([]);
-  async function K(e = {}) {
-    x.value = !0, D.value = 0, _.value = [];
+  const x = r(!1), O = r(0), j = r([]);
+  async function V(e = {}) {
+    x.value = !0, O.value = 0, j.value = [];
     const { rescan: n = !1 } = e;
     if (n) {
       const t = typeof window < "u" ? window.location.pathname : "/", o = Object.keys(l.value).filter((a) => {
@@ -366,7 +366,7 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
       });
       for (const a of o)
         delete l.value[a];
-      U(() => R());
+      F(() => _());
     }
     try {
       const t = [
@@ -398,46 +398,46 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
       ].join(","), o = document.querySelectorAll(t), a = [];
       o.forEach((u) => {
         var v;
-        const c = u;
-        if (c.closest("[data-dev-inspector]")) return;
-        const p = window.getComputedStyle(c);
+        const i = u;
+        if (i.closest("[data-dev-inspector]")) return;
+        const p = window.getComputedStyle(i);
         if (p.display === "none" || p.visibility === "hidden" || p.opacity === "0") return;
-        const b = $(c);
-        if (l.value[b]) return;
-        const y = c.tagName.toUpperCase(), O = ((v = c.textContent) == null ? void 0 : v.trim()) || "";
+        const w = D(i);
+        if (l.value[w]) return;
+        const y = i.tagName.toUpperCase(), L = ((v = i.textContent) == null ? void 0 : v.trim()) || "";
         if (y === "INPUT" || y === "SELECT" || y === "TEXTAREA") {
-          a.push(c);
+          a.push(i);
           return;
         }
-        if (O.length > 300 || O.length === 0 || y === "DIV" && (Array.from(c.childNodes).filter((S) => S.nodeType === Node.TEXT_NODE).map((S) => {
-          var w;
-          return ((w = S.textContent) == null ? void 0 : w.trim()) || "";
-        }).join("").trim().length === 0 || c.children.length > 3))
+        if (L.length > 300 || L.length === 0 || y === "DIV" && (Array.from(i.childNodes).filter((S) => S.nodeType === Node.TEXT_NODE).map((S) => {
+          var b;
+          return ((b = S.textContent) == null ? void 0 : b.trim()) || "";
+        }).join("").trim().length === 0 || i.children.length > 3))
           return;
-        const j = Array.from(c.childNodes).some((m) => {
+        const U = Array.from(i.childNodes).some((m) => {
           var S;
           return m.nodeType === Node.TEXT_NODE && (((S = m.textContent) == null ? void 0 : S.trim()) || "").length > 0;
-        }), d = !Array.from(c.children).some((m) => ["DIV", "P", "UL", "OL", "TABLE", "SECTION", "ARTICLE"].includes(m.tagName));
-        (j || c.children.length === 0 && O.length > 0 || d) && a.push(c);
+        }), d = !Array.from(i.children).some((m) => ["DIV", "P", "UL", "OL", "TABLE", "SECTION", "ARTICLE"].includes(m.tagName));
+        (U || i.children.length === 0 && L.length > 0 || d) && a.push(i);
       });
       const s = a.length;
-      let i = 0, f = 0;
+      let c = 0, f = 0;
       const g = 20;
       for (let u = 0; u < a.length; u += g) {
-        const c = a.slice(u, u + g);
-        for (const p of c) {
-          const b = $(p), y = G(p, b);
-          y.sourceBinding && (_.value.push({ selector: b, element: p, detected: y }), Z(b, y), f++), i++, D.value = Math.round(i / s * 100);
+        const i = a.slice(u, u + g);
+        for (const p of i) {
+          const w = D(p), y = G(p, w);
+          y.sourceBinding && (j.value.push({ selector: w, element: p, detected: y }), q(w, y), f++), c++, O.value = Math.round(c / s * 100);
         }
         await new Promise((p) => setTimeout(p, 10));
       }
       return f;
     } finally {
-      x.value = !1, D.value = 100;
+      x.value = !1, O.value = 100;
     }
   }
-  const V = r([]), B = r("");
-  async function ye(e) {
+  const Y = r([]), H = r("");
+  async function Ae(e) {
     var t;
     if (!e)
       return console.warn("[DevInspector] Router not provided for all pages scan"), [];
@@ -447,27 +447,27 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
       const o = e.getRoutes(), a = [];
       for (const s of o)
         s.path.includes(":") && !s.path.includes("?") || s.redirect || s.path !== "/:pathMatch(.*)*" && ((t = s.meta) != null && t.devInspectorSkip || a.push(s.path));
-      V.value = a;
+      Y.value = a;
       for (const s of a) {
-        B.value = s;
+        H.value = s;
         try {
           await e.push(s), await new Promise((f) => setTimeout(f, 500));
-          const i = await K();
-          n.push({ page: s, count: i });
-        } catch (i) {
-          console.warn(`[DevInspector] Failed to scan page ${s}:`, i), n.push({ page: s, count: 0 });
+          const c = await V();
+          n.push({ page: s, count: c });
+        } catch (c) {
+          console.warn(`[DevInspector] Failed to scan page ${s}:`, c), n.push({ page: s, count: 0 });
         }
       }
       return n;
     } finally {
-      x.value = !1, B.value = "";
+      x.value = !1, H.value = "";
     }
   }
-  function Se() {
-    _.value = [], D.value = 0;
+  function Ee() {
+    j.value = [], O.value = 0;
   }
   const A = r([]);
-  async function H() {
+  async function Q() {
     var t;
     if (!h.value)
       return console.warn("[DevInspector] No analysis data loaded. Call loadAnalysisData first."), 0;
@@ -478,33 +478,35 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
       e === "/" && o.includes("index") ? n.push(...a.elements) : o.includes("pages/") && e.match(new RegExp(`^${s}$`)) ? n.push(...a.elements) : o.includes("components/") && n.push(...a.elements);
     }
     for (const o of n) {
+      if (N.value.has(o.selector))
+        continue;
       let a = !1, s = o.selector;
       try {
         document.querySelector(o.selector) && (a = !0);
       } catch {
       }
       if (!a && o.type === "static" && o.text) {
-        const i = o.text.replace(/\[コメント\]\s*/, ""), f = document.createTreeWalker(
+        const c = o.text.replace(/\[コメント\]\s*/, ""), f = document.createTreeWalker(
           document.body,
           NodeFilter.SHOW_TEXT,
           null
         );
         for (; f.nextNode(); ) {
           const g = f.currentNode;
-          if ((t = g.textContent) != null && t.includes(i)) {
+          if ((t = g.textContent) != null && t.includes(c)) {
             const u = g.parentElement;
             if (u) {
-              a = !0, s = $(u);
+              a = !0, s = D(u);
               break;
             }
           }
         }
       }
       if (!a && o.selector.includes(".")) {
-        const i = o.selector.match(/^(\w+)\.(.+)$/);
-        if (i) {
-          const [, f, g] = i, u = document.querySelectorAll(`${f}.${g.split(".")[0]}`);
-          u.length > 0 && (a = !0, s = $(u[0]));
+        const c = o.selector.match(/^(\w+)\.(.+)$/);
+        if (c) {
+          const [, f, g] = c, u = document.querySelectorAll(`${f}.${g.split(".")[0]}`);
+          u.length > 0 && (a = !0, s = D(u[0]));
         }
       }
       A.value.push({
@@ -515,22 +517,41 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
     }
     return console.log(`[DevInspector] Applied analysis: ${A.value.filter((o) => o.matched).length}/${A.value.length} elements matched`), A.value.filter((o) => o.matched).length;
   }
-  function Ae() {
+  function we() {
     A.value = [];
   }
-  function Ee(e) {
-    A.value = A.value.filter((n) => n.selector !== e);
-  }
   function be(e) {
-    T.value = e;
-  }
-  function we() {
-    T.value = null;
+    A.value = A.value.filter((n) => n.selector !== e), N.value.add(e), Te();
   }
   function Ce() {
+    try {
+      const e = localStorage.getItem(J);
+      e && (N.value = new Set(JSON.parse(e)));
+    } catch {
+    }
+  }
+  function Te() {
+    try {
+      localStorage.setItem(
+        J,
+        JSON.stringify([...N.value])
+      );
+    } catch {
+    }
+  }
+  function Ne() {
+    N.value.clear(), localStorage.removeItem(J);
+  }
+  function Ie(e) {
+    T.value = e;
+  }
+  function Pe() {
+    T.value = null;
+  }
+  function $e() {
     return JSON.stringify(l.value, null, 2);
   }
-  function Y() {
+  function ee() {
     const e = {
       _meta: {
         version: "1.0.0",
@@ -541,11 +562,11 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
     };
     return JSON.stringify(e, null, 2);
   }
-  function Te(e = "dev-annotations.json") {
-    const n = Y(), t = new Blob([n], { type: "application/json" }), o = URL.createObjectURL(t), a = document.createElement("a");
+  function De(e = "dev-annotations.json") {
+    const n = ee(), t = new Blob([n], { type: "application/json" }), o = URL.createObjectURL(t), a = document.createElement("a");
     a.href = o, a.download = e, document.body.appendChild(a), a.click(), document.body.removeChild(a), URL.revokeObjectURL(o);
   }
-  function Ne(e) {
+  function xe(e) {
     try {
       const n = JSON.parse(e), t = n.annotations || n;
       l.value = { ...l.value, ...t };
@@ -553,7 +574,7 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
       throw console.error("[DevInspector] Failed to import configs:", n), new Error("Invalid JSON format");
     }
   }
-  function Pe() {
+  function Oe() {
     l.value = {};
   }
   return {
@@ -562,64 +583,66 @@ const xe = {}, De = "devInspector:elementConfigs", Oe = $e("devInspector", () =>
     isAvailable: k,
     isEditMode: E,
     isPickMode: P,
-    isInitializing: F,
-    hoveredSelector: z,
-    currentScreenSpec: L,
-    isPanelOpen: I,
+    isInitializing: z,
+    hoveredSelector: B,
+    currentScreenSpec: R,
+    isPanelOpen: $,
     elementConfigs: l,
     editingElementId: T,
     // Actions
-    init: te,
-    toggle: se,
-    enable: M,
-    disable: le,
-    toggleEditMode: ie,
-    togglePickMode: ce,
-    setHoveredSelector: re,
-    generateSelector: $,
-    getConfiguredSelectors: ue,
-    setScreenSpec: fe,
-    clearScreenSpec: de,
-    togglePanel: pe,
-    openPanel: ve,
-    closePanel: ge,
-    getElementConfig: he,
-    setElementConfig: Z,
-    deleteElementConfig: me,
-    startEditing: be,
-    stopEditing: we,
-    exportConfigs: Ce,
-    exportAsFile: Y,
-    downloadAnnotations: Te,
-    importConfigs: Ne,
-    clearAllConfigs: Pe,
-    detectSourceBinding: q,
+    init: oe,
+    toggle: ce,
+    enable: Z,
+    disable: ie,
+    toggleEditMode: re,
+    togglePickMode: ue,
+    setHoveredSelector: fe,
+    generateSelector: D,
+    getConfiguredSelectors: de,
+    setScreenSpec: pe,
+    clearScreenSpec: ve,
+    togglePanel: ge,
+    openPanel: he,
+    closePanel: me,
+    getElementConfig: ye,
+    setElementConfig: q,
+    deleteElementConfig: Se,
+    startEditing: Ie,
+    stopEditing: Pe,
+    exportConfigs: $e,
+    exportAsFile: ee,
+    downloadAnnotations: De,
+    importConfigs: xe,
+    clearAllConfigs: Oe,
+    detectSourceBinding: K,
     autoDetectElementInfo: G,
     // Scan
     isScanning: x,
-    scanProgress: D,
-    scanResults: _,
-    scanCurrentPage: K,
-    scanAllPages: ye,
-    allPagesRoutes: V,
-    currentScanPage: B,
-    clearScanResults: Se,
+    scanProgress: O,
+    scanResults: j,
+    scanCurrentPage: V,
+    scanAllPages: Ae,
+    allPagesRoutes: Y,
+    currentScanPage: H,
+    clearScanResults: Ee,
     // Analysis data
     analysisData: h,
-    loadAnalysisData: J,
-    getAnalyzedElement: ne,
-    getAnalyzedElementsForPage: oe,
+    loadAnalysisData: M,
+    getAnalyzedElement: ae,
+    getAnalyzedElementsForPage: se,
     analysisResults: A,
-    applyAnalysisToPage: H,
-    clearAnalysisResults: Ae,
-    removeAnalysisResult: Ee,
-    analysisFilter: ee
+    applyAnalysisToPage: Q,
+    clearAnalysisResults: we,
+    removeAnalysisResult: be,
+    clearHiddenSelectors: Ne,
+    hiddenAnalysisSelectors: N,
+    analysisFilter: ne
   };
 });
-function Re() {
-  return Oe();
+function ze() {
+  return je();
 }
 export {
-  Re as a,
-  Oe as u
+  ze as a,
+  je as u
 };
