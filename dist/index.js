@@ -1,6 +1,6 @@
 import { h as he, defineComponent as de, inject as Se, ref as p, computed as le, openBlock as d, createElementBlock as c, Fragment as B, createBlock as N, Teleport as te, unref as o, createVNode as C, createCommentVNode as w, createElementVNode as e, normalizeClass as K, toDisplayString as k, renderList as Q, withDirectives as E, vModelText as U, normalizeStyle as F, createTextVNode as j, withModifiers as me, watch as we, resolveDynamicComponent as De, vModelSelect as ce, onMounted as $e, onUnmounted as Ue } from "vue";
-import { u as ue } from "./useDevInspector-CZrBEzak.js";
-import { a as xs } from "./useDevInspector-CZrBEzak.js";
+import { u as ue } from "./useDevInspector-pHB7iLw4.js";
+import { a as xs } from "./useDevInspector-pHB7iLw4.js";
 /**
  * @license lucide-vue-next v0.300.0 - ISC
  *
@@ -24,7 +24,7 @@ var ae = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ve = (b) => b.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), M = (b, l) => ({ size: r, strokeWidth: x = 2, absoluteStrokeWidth: _, color: T, class: L, ...q }, { attrs: h, slots: m }) => he(
+const Ve = (b) => b.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), M = (b, l) => ({ size: r, strokeWidth: x = 2, absoluteStrokeWidth: _, color: T, class: A, ...q }, { attrs: h, slots: m }) => he(
   "svg",
   {
     ...ae,
@@ -47,7 +47,7 @@ const Ve = (b) => b.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), M = (b
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Le = M("AlertCircleIcon", [
+const Ae = M("AlertCircleIcon", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
@@ -58,7 +58,7 @@ const Le = M("AlertCircleIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ae = M("AlertTriangleIcon", [
+const Le = M("AlertTriangleIcon", [
   [
     "path",
     {
@@ -361,7 +361,7 @@ const We = M("ZapIcon", [
 ]);
 async function Qe(b, l, r = {}) {
   var f;
-  const x = await import("./xlsx-BopDBbWb.js"), { systemName: _ = "System", author: T = "" } = r, L = /* @__PURE__ */ new Date(), q = `${L.getFullYear()}/${L.getMonth() + 1}/${L.getDate()}`, h = x.utils.book_new(), m = [];
+  const x = await import("./xlsx-BopDBbWb.js"), { systemName: _ = "System", author: T = "" } = r, A = /* @__PURE__ */ new Date(), q = `${A.getFullYear()}/${A.getMonth() + 1}/${A.getDate()}`, h = x.utils.book_new(), m = [];
   m.push([
     "画面機能仕様書",
     "",
@@ -699,7 +699,7 @@ const et = {
 }, Dt = { class: "di-card-label" }, Ut = ["href"], Vt = {
   key: 1,
   class: "di-card"
-}, Lt = { class: "di-card-label" }, At = { class: "di-api-list" }, Bt = { class: "di-api-info" }, Rt = { class: "di-api-endpoint" }, jt = { class: "di-api-desc" }, Ot = {
+}, At = { class: "di-card-label" }, Lt = { class: "di-api-list" }, Bt = { class: "di-api-info" }, Rt = { class: "di-api-endpoint" }, jt = { class: "di-api-desc" }, Ot = {
   key: 2,
   class: "di-card"
 }, qt = { class: "di-card-label" }, Ht = { class: "di-notes-list" }, zt = {
@@ -724,7 +724,7 @@ const et = {
 }, nl = { class: "di-modal-actions" }, il = ["disabled"], al = /* @__PURE__ */ de({
   __name: "DevPanel",
   setup(b) {
-    const l = ue(), r = Se("router", null), x = p(!1), _ = p(!1), T = p(""), L = p(""), q = {
+    const l = ue(), r = Se("router", null), x = p(!1), _ = p(!1), T = p(""), A = p(""), q = {
       GET: "#10b981",
       POST: "#3b82f6",
       PUT: "#f59e0b",
@@ -736,8 +736,8 @@ const et = {
       navigator.clipboard.writeText(V), x.value = !1;
     }
     function X() {
-      const V = l.exportConfigs(), s = new Blob([V], { type: "application/json" }), A = URL.createObjectURL(s), v = document.createElement("a");
-      v.href = A, v.download = "dev-mode-configs.json", v.click(), URL.revokeObjectURL(A), x.value = !1;
+      const V = l.exportConfigs(), s = new Blob([V], { type: "application/json" }), L = URL.createObjectURL(s), v = document.createElement("a");
+      v.href = L, v.download = "dev-mode-configs.json", v.click(), URL.revokeObjectURL(L), x.value = !1;
     }
     function z() {
       l.downloadAnnotations();
@@ -755,20 +755,20 @@ const et = {
     }
     function f() {
       try {
-        l.importConfigs(T.value), T.value = "", L.value = "", _.value = !1;
+        l.importConfigs(T.value), T.value = "", A.value = "", _.value = !1;
       } catch {
-        L.value = "JSONの形式が正しくありません";
+        A.value = "JSONの形式が正しくありません";
       }
     }
     function a(V) {
       var Y;
-      const A = (Y = V.target.files) == null ? void 0 : Y[0];
-      if (!A) return;
+      const L = (Y = V.target.files) == null ? void 0 : Y[0];
+      if (!L) return;
       const v = new FileReader();
       v.onload = (re) => {
         var oe;
         T.value = (oe = re.target) == null ? void 0 : oe.result;
-      }, v.readAsText(A);
+      }, v.readAsText(L);
     }
     function i() {
       confirm("すべての要素設定を削除しますか？") && l.clearAllConfigs();
@@ -789,7 +789,7 @@ const et = {
       D.value = !0, I.value = "";
       try {
         if (await l.loadAnalysisData(S.value), l.analysisData) {
-          const V = Object.values(l.analysisData.components).reduce((s, A) => s + A.elements.length, 0);
+          const V = Object.values(l.analysisData.components).reduce((s, L) => s + L.elements.length, 0);
           alert(`分析データを読み込みました（${Object.keys(l.analysisData.components).length}コンポーネント、${V}要素）`);
         } else
           I.value = "分析データの読み込みに失敗しました";
@@ -807,7 +807,7 @@ const et = {
       J.value = await l.applyAnalysisToPage();
     }
     return (V, s) => {
-      var A;
+      var L;
       return d(), c(B, null, [
         (d(), N(te, { to: "body" }, [
           o(l).isEnabled && !o(l).isPanelOpen ? (d(), c("button", {
@@ -997,11 +997,11 @@ const et = {
                   }, k(h.value.figmaUrl), 9, Ut)
                 ])) : w("", !0),
                 h.value.apis.length ? (d(), c("div", Vt, [
-                  e("div", Lt, [
+                  e("div", At, [
                     C(o(ge), { style: { width: "16px", height: "16px" } }),
                     s[25] || (s[25] = e("span", null, "API Endpoints", -1))
                   ]),
-                  e("div", At, [
+                  e("div", Lt, [
                     (d(!0), c(B, null, Q(h.value.apis, (v, Y) => (d(), c("div", {
                       key: Y,
                       class: "di-api-item"
@@ -1017,9 +1017,9 @@ const et = {
                     ]))), 128))
                   ])
                 ])) : w("", !0),
-                (A = h.value.notes) != null && A.length ? (d(), c("div", Ot, [
+                (L = h.value.notes) != null && L.length ? (d(), c("div", Ot, [
                   e("div", qt, [
-                    C(o(Le), { style: { width: "16px", height: "16px" } }),
+                    C(o(Ae), { style: { width: "16px", height: "16px" } }),
                     s[26] || (s[26] = e("span", null, "Notes", -1))
                   ]),
                   e("ul", Ht, [
@@ -1170,11 +1170,11 @@ const et = {
               }, null, 512), [
                 [U, T.value]
               ]),
-              L.value ? (d(), c("p", ol, k(L.value), 1)) : w("", !0),
+              A.value ? (d(), c("p", ol, k(A.value), 1)) : w("", !0),
               e("div", nl, [
                 e("button", {
                   onClick: s[13] || (s[13] = (v) => {
-                    _.value = !1, T.value = "", L.value = "";
+                    _.value = !1, T.value = "", A.value = "";
                   }),
                   class: "di-btn-small"
                 }, " キャンセル "),
@@ -1213,45 +1213,45 @@ const et = {
 }, Ul = ["value"], Vl = {
   class: "di-form-group",
   style: { flex: "1" }
-}, Ll = {
+}, Al = {
   key: 1,
   class: "di-form-group"
-}, Al = { class: "di-form-label" }, Bl = ["placeholder"], Rl = { class: "di-form-group" }, jl = { class: "di-form-group" }, Ol = { class: "di-form-group" }, ql = { class: "di-form-row" }, Hl = { class: "di-form-group" }, zl = { class: "di-form-group" }, Nl = { class: "di-form-group" }, Fl = { class: "di-form-group" }, Gl = { class: "di-form-group" }, Xl = { class: "di-form-group" }, Kl = { class: "di-form-group" }, Yl = { class: "di-form-group" }, Zl = { class: "di-form-group" }, Jl = { class: "di-editor-footer" }, Wl = { class: "di-editor-actions" }, Ql = /* @__PURE__ */ de({
+}, Ll = { class: "di-form-label" }, Bl = ["placeholder"], Rl = { class: "di-form-group" }, jl = { class: "di-form-group" }, Ol = { class: "di-form-group" }, ql = { class: "di-form-row" }, Hl = { class: "di-form-group" }, zl = { class: "di-form-group" }, Nl = { class: "di-form-group" }, Fl = { class: "di-form-group" }, Gl = { class: "di-form-group" }, Xl = { class: "di-form-group" }, Kl = { class: "di-form-group" }, Yl = { class: "di-form-group" }, Zl = { class: "di-form-group" }, Jl = { class: "di-editor-footer" }, Wl = { class: "di-editor-actions" }, Ql = /* @__PURE__ */ de({
   __name: "DevElementEditor",
   setup(b) {
-    const l = ue(), r = p("note"), x = p(""), _ = p(""), T = p(""), L = p(""), q = p(""), h = p("navigate"), m = p(""), G = p("GET"), X = p(""), z = p(""), H = p(""), f = p("info"), a = p(""), i = p(""), g = p(""), $ = p(""), P = p(""), y = p(""), R = p(""), S = p(""), D = p(""), I = p(""), J = p(""), O = p(""), ee = p(""), V = p(!1), s = le(() => l.editingElementId !== null), A = le(() => l.editingElementId);
-    we(A, (W) => {
+    const l = ue(), r = p("note"), x = p(""), _ = p(""), T = p(""), A = p(""), q = p(""), h = p("navigate"), m = p(""), G = p("GET"), X = p(""), z = p(""), H = p(""), f = p("info"), a = p(""), i = p(""), g = p(""), $ = p(""), P = p(""), y = p(""), R = p(""), S = p(""), D = p(""), I = p(""), J = p(""), O = p(""), ee = p(""), V = p(!1), s = le(() => l.editingElementId !== null), L = le(() => l.editingElementId);
+    we(L, (W) => {
       var t, n, se, ne, ie, Z;
       if (W) {
         const u = l.getElementConfig(W);
-        u != null && u.fieldInfo && (x.value = u.fieldInfo.table || "", _.value = u.fieldInfo.column || "", T.value = u.fieldInfo.type || "", L.value = ((t = u.fieldInfo.validation) == null ? void 0 : t.join(", ")) || "", q.value = u.fieldInfo.description || ""), u != null && u.actionInfo && (h.value = u.actionInfo.type || "navigate", m.value = u.actionInfo.target || "", G.value = u.actionInfo.method || "GET", X.value = u.actionInfo.description || ""), u != null && u.note && (z.value = u.note.text || "", H.value = u.note.author || "", f.value = u.note.type || "info"), u != null && u.links && (a.value = u.links.testPath || "", i.value = u.links.figmaUrl || "", g.value = u.links.githubIssue || "", $.value = u.links.githubPr || "", P.value = u.links.relatedDocs || ""), u != null && u.devMeta && (y.value = ((n = u.devMeta.usedStores) == null ? void 0 : n.join(", ")) || "", R.value = ((se = u.devMeta.usedComponents) == null ? void 0 : se.join(", ")) || "", S.value = ((ne = u.devMeta.i18nKeys) == null ? void 0 : ne.join(", ")) || "", D.value = ((ie = u.devMeta.designTokens) == null ? void 0 : ie.join(", ")) || "", I.value = u.devMeta.accessibility || "", J.value = u.devMeta.responsive || ""), u != null && u.sourceBinding && (O.value = u.sourceBinding.type || "", ee.value = u.sourceBinding.source || "", V.value = u.sourceBinding.isStatic || !1), (Z = u == null ? void 0 : u.note) != null && Z.text ? r.value = "note" : u != null && u.fieldInfo ? r.value = "field" : u != null && u.actionInfo ? r.value = "action" : u != null && u.links ? r.value = "links" : u != null && u.devMeta ? r.value = "meta" : r.value = "note";
+        u != null && u.fieldInfo && (x.value = u.fieldInfo.table || "", _.value = u.fieldInfo.column || "", T.value = u.fieldInfo.type || "", A.value = ((t = u.fieldInfo.validation) == null ? void 0 : t.join(", ")) || "", q.value = u.fieldInfo.description || ""), u != null && u.actionInfo && (h.value = u.actionInfo.type || "navigate", m.value = u.actionInfo.target || "", G.value = u.actionInfo.method || "GET", X.value = u.actionInfo.description || ""), u != null && u.note && (z.value = u.note.text || "", H.value = u.note.author || "", f.value = u.note.type || "info"), u != null && u.links && (a.value = u.links.testPath || "", i.value = u.links.figmaUrl || "", g.value = u.links.githubIssue || "", $.value = u.links.githubPr || "", P.value = u.links.relatedDocs || ""), u != null && u.devMeta && (y.value = ((n = u.devMeta.usedStores) == null ? void 0 : n.join(", ")) || "", R.value = ((se = u.devMeta.usedComponents) == null ? void 0 : se.join(", ")) || "", S.value = ((ne = u.devMeta.i18nKeys) == null ? void 0 : ne.join(", ")) || "", D.value = ((ie = u.devMeta.designTokens) == null ? void 0 : ie.join(", ")) || "", I.value = u.devMeta.accessibility || "", J.value = u.devMeta.responsive || ""), u != null && u.sourceBinding && (O.value = u.sourceBinding.type || "", ee.value = u.sourceBinding.source || "", V.value = u.sourceBinding.isStatic || !1), (Z = u == null ? void 0 : u.note) != null && Z.text ? r.value = "note" : u != null && u.fieldInfo ? r.value = "field" : u != null && u.actionInfo ? r.value = "action" : u != null && u.links ? r.value = "links" : u != null && u.devMeta ? r.value = "meta" : r.value = "note";
       } else
         v();
     });
     function v() {
-      x.value = "", _.value = "", T.value = "", L.value = "", q.value = "", h.value = "navigate", m.value = "", G.value = "GET", X.value = "", z.value = "", H.value = "", f.value = "info", a.value = "", i.value = "", g.value = "", $.value = "", P.value = "", y.value = "", R.value = "", S.value = "", D.value = "", I.value = "", J.value = "", O.value = "", ee.value = "", V.value = !1, r.value = "note";
+      x.value = "", _.value = "", T.value = "", A.value = "", q.value = "", h.value = "navigate", m.value = "", G.value = "GET", X.value = "", z.value = "", H.value = "", f.value = "info", a.value = "", i.value = "", g.value = "", $.value = "", P.value = "", y.value = "", R.value = "", S.value = "", D.value = "", I.value = "", J.value = "", O.value = "", ee.value = "", V.value = !1, r.value = "note";
     }
     function Y() {
       l.stopEditing(), v();
     }
     function re() {
-      if (A.value)
+      if (L.value)
         try {
-          const W = document.querySelector(A.value);
+          const W = document.querySelector(L.value);
           if (!W) return;
-          const t = l.autoDetectElementInfo(W, A.value);
+          const t = l.autoDetectElementInfo(W, L.value);
           t.sourceBinding && (O.value = t.sourceBinding.type || "", ee.value = t.sourceBinding.source || "", V.value = t.sourceBinding.isStatic || !1, t.sourceBinding.isStatic && !z.value && (z.value = "固定文言", f.value = "info"));
         } catch (W) {
           console.error("[DevInspector] Auto-detect failed:", W);
         }
     }
     function oe() {
-      if (!A.value) return;
+      if (!L.value) return;
       const W = x.value && _.value ? {
         table: x.value,
         column: _.value,
         type: T.value || void 0,
-        validation: L.value ? L.value.split(",").map((Z) => Z.trim()) : void 0,
+        validation: A.value ? A.value.split(",").map((Z) => Z.trim()) : void 0,
         description: q.value || void 0
       } : void 0, t = m.value ? {
         type: h.value,
@@ -1280,7 +1280,7 @@ const et = {
         source: ee.value || void 0,
         isStatic: V.value
       } : void 0;
-      l.setElementConfig(A.value, {
+      l.setElementConfig(L.value, {
         fieldInfo: W,
         actionInfo: t,
         note: n,
@@ -1290,7 +1290,7 @@ const et = {
       }), Y();
     }
     function Me() {
-      A.value && (l.deleteElementConfig(A.value), Y());
+      L.value && (l.deleteElementConfig(L.value), Y());
     }
     const Ee = ["VARCHAR", "TEXT", "INT", "BIGINT", "BOOLEAN", "DATE", "DATETIME", "TIMESTAMP", "JSON"], _e = [
       { value: "navigate", label: "画面遷移" },
@@ -1300,7 +1300,7 @@ const et = {
       { value: "function", label: "関数実行" }
     ], Pe = ["GET", "POST", "PUT", "DELETE", "PATCH"], Te = [
       { value: "info", label: "情報", icon: Ne, color: "#60a5fa" },
-      { value: "warning", label: "注意", icon: Ae, color: "#fbbf24" },
+      { value: "warning", label: "注意", icon: Le, color: "#fbbf24" },
       { value: "todo", label: "TODO", icon: Be, color: "#10b981" },
       { value: "question", label: "質問", icon: ze, color: "#a78bfa" }
     ];
@@ -1467,12 +1467,12 @@ const et = {
               e("div", El, [
                 t[42] || (t[42] = e("label", { class: "di-form-label" }, "バリデーション (カンマ区切り)", -1)),
                 E(e("input", {
-                  "onUpdate:modelValue": t[10] || (t[10] = (n) => L.value = n),
+                  "onUpdate:modelValue": t[10] || (t[10] = (n) => A.value = n),
                   type: "text",
                   placeholder: "required, max:255",
                   class: "di-input"
                 }, null, 512), [
-                  [U, L.value]
+                  [U, A.value]
                 ])
               ]),
               e("div", _l, [
@@ -1528,8 +1528,8 @@ const et = {
                     [U, m.value]
                   ])
                 ])
-              ])) : (d(), c("div", Ll, [
-                e("label", Al, k(h.value === "navigate" ? "遷移先パス" : h.value === "modal" ? "モーダル名" : h.value === "emit" ? "イベント名" : "関数名"), 1),
+              ])) : (d(), c("div", Al, [
+                e("label", Ll, k(h.value === "navigate" ? "遷移先パス" : h.value === "modal" ? "モーダル名" : h.value === "emit" ? "イベント名" : "関数名"), 1),
                 E(e("input", {
                   "onUpdate:modelValue": t[15] || (t[15] = (n) => m.value = n),
                   type: "text",
@@ -1725,7 +1725,7 @@ const et = {
   __name: "DevPickOverlay",
   setup(b) {
     const l = ue(), r = p(null), x = p(null), _ = p(0), T = p(0);
-    function L(f) {
+    function A(f) {
       var i;
       const a = l.getElementConfig(f);
       if (!(a != null && a.sourceBinding)) {
@@ -1756,7 +1756,7 @@ const et = {
               left: `${S.left + a}px`,
               width: `${S.width}px`,
               height: `${S.height}px`,
-              color: L(y),
+              color: A(y),
               isStatic: I,
               label: O
             });
@@ -1964,7 +1964,10 @@ const et = {
     storageKey: { default: "devInspector:elementConfigs" },
     enabledInProduction: { type: Boolean, default: !1 },
     initialAnnotations: {},
-    analysisData: {}
+    analysisData: {},
+    analysisDataUrl: {},
+    autoLoadAnalysis: { type: Boolean },
+    autoApplyAnalysis: { type: Boolean }
   },
   setup(b) {
     const l = b, r = ue();

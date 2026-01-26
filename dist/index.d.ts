@@ -76,6 +76,12 @@ export declare interface DevInspectorOptions {
     enabledInProduction?: boolean;
     initialAnnotations?: Record<string, ElementConfig>;
     analysisData?: ProjectAnalysis;
+    /** URL to auto-load analysis data from (default: '/dev-inspector-analysis.json') */
+    analysisDataUrl?: string;
+    /** Auto-load analysis data on init (default: true) */
+    autoLoadAnalysis?: boolean;
+    /** Auto-apply analysis to page after loading (default: true) */
+    autoApplyAnalysis?: boolean;
 }
 
 export declare interface DevMeta {
@@ -384,7 +390,7 @@ type: string;
 }[];
 }>;
 } | null>;
-loadAnalysisData: (url: string) => Promise<void>;
+loadAnalysisData: (url: string) => Promise<boolean>;
 getAnalyzedElement: (selector: string) => AnalyzedElement | null;
 getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
 analysisResults: Ref<    {
@@ -646,7 +652,7 @@ type: string;
 }[];
 }>;
 } | null>;
-loadAnalysisData: (url: string) => Promise<void>;
+loadAnalysisData: (url: string) => Promise<boolean>;
 getAnalyzedElement: (selector: string) => AnalyzedElement | null;
 getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
 analysisResults: Ref<    {
@@ -908,7 +914,7 @@ type: string;
 }[];
 }>;
 } | null>;
-loadAnalysisData: (url: string) => Promise<void>;
+loadAnalysisData: (url: string) => Promise<boolean>;
 getAnalyzedElement: (selector: string) => AnalyzedElement | null;
 getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
 analysisResults: Ref<    {
@@ -1172,7 +1178,7 @@ type: string;
 }[];
 }>;
 } | null>;
-loadAnalysisData: (url: string) => Promise<void>;
+loadAnalysisData: (url: string) => Promise<boolean>;
 getAnalyzedElement: (selector: string) => AnalyzedElement | null;
 getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
 analysisResults: Ref<    {
@@ -1434,7 +1440,7 @@ type: string;
 }[];
 }>;
 } | null>;
-loadAnalysisData: (url: string) => Promise<void>;
+loadAnalysisData: (url: string) => Promise<boolean>;
 getAnalyzedElement: (selector: string) => AnalyzedElement | null;
 getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
 analysisResults: Ref<    {
@@ -1696,7 +1702,7 @@ type: string;
 }[];
 }>;
 } | null>;
-loadAnalysisData: (url: string) => Promise<void>;
+loadAnalysisData: (url: string) => Promise<boolean>;
 getAnalyzedElement: (selector: string) => AnalyzedElement | null;
 getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
 analysisResults: Ref<    {

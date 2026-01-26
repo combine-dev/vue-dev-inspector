@@ -116,6 +116,12 @@ export interface DevInspectorOptions {
   enabledInProduction?: boolean
   initialAnnotations?: Record<string, ElementConfig>
   analysisData?: ProjectAnalysis
+  /** URL to auto-load analysis data from (default: '/dev-inspector-analysis.json') */
+  analysisDataUrl?: string
+  /** Auto-load analysis data on init (default: true) */
+  autoLoadAnalysis?: boolean
+  /** Auto-apply analysis to page after loading (default: true) */
+  autoApplyAnalysis?: boolean
 }
 
 // ===== Store =====
@@ -155,23 +161,42 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     options.value = opts
     loadConfigs()
 
-    // Load analysis data if provided
+    // Load analysis data if provided directly
     if (opts.analysisData) {
       analysisData.value = opts.analysisData
+    }
+
+    // Auto-load analysis data from JSON file in development mode
+    const autoLoadUrl = opts.analysisDataUrl ?? '/dev-inspector-analysis.json'
+    const shouldAutoLoad = opts.autoLoadAnalysis !== false // Default: true
+
+    if (shouldAutoLoad && isAvailable.value) {
+      loadAnalysisData(autoLoadUrl).then(() => {
+        // Auto-apply to page after loading
+        if (analysisData.value && opts.autoApplyAnalysis !== false) {
+          // Small delay to ensure DOM is ready
+          setTimeout(() => {
+            applyAnalysisToPage()
+          }, 500)
+        }
+      })
     }
   }
 
   // Load analysis data from JSON file (can be called separately)
-  async function loadAnalysisData(url: string): Promise<void> {
+  async function loadAnalysisData(url: string): Promise<boolean> {
     try {
       const response = await fetch(url)
       if (response.ok) {
         analysisData.value = await response.json()
         console.log('[DevInspector] Analysis data loaded:', Object.keys(analysisData.value?.components || {}).length, 'components')
+        return true
       }
     } catch (e) {
-      console.warn('[DevInspector] Failed to load analysis data:', e)
+      // Silently fail - analysis data is optional
+      console.debug('[DevInspector] Analysis data not found at', url)
     }
+    return false
   }
 
   // Get analyzed element info for a selector
