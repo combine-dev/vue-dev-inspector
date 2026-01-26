@@ -132,6 +132,64 @@ const scannedHighlights = computed(() => {
   return highlights
 })
 
+// Analysis results highlights (from CLI analysis data)
+const analysisHighlights = computed(() => {
+  const _scrollY = scrollY.value
+  const _scrollX = scrollX.value
+
+  const highlights: Array<{
+    selector: string
+    top: string
+    left: string
+    width: string
+    height: string
+    type: string
+    text: string
+    dbInfo?: string
+    apiInfo?: string
+  }> = []
+
+  if (!store.isEnabled || store.analysisResults.length === 0) return highlights
+
+  for (const result of store.analysisResults) {
+    if (!result.matched) continue
+
+    try {
+      const element = document.querySelector(result.selector) as HTMLElement | null
+      if (element) {
+        const rect = element.getBoundingClientRect()
+        const el = result.element
+
+        let dbInfo = ''
+        if (el.db) {
+          dbInfo = `${el.db.table}.${el.db.column}`
+        }
+
+        let apiInfo = ''
+        if (el.api) {
+          apiInfo = `${el.api.method} ${el.api.endpoint}`
+        }
+
+        highlights.push({
+          selector: result.selector,
+          top: `${rect.top + _scrollY}px`,
+          left: `${rect.left + _scrollX}px`,
+          width: `${rect.width}px`,
+          height: `${rect.height}px`,
+          type: el.type,
+          text: el.text || el.binding || '',
+          dbInfo,
+          apiInfo,
+        })
+      }
+    } catch {
+      // Invalid selector, skip
+    }
+  }
+
+  return highlights
+})
+
 function handleMouseMove(e: MouseEvent) {
   if (!store.isPickMode) return
 
@@ -301,6 +359,44 @@ watch(() => store.isPickMode, (isPicking) => {
         <button @click="store.clearScanResults()" class="di-scan-banner-close">✕ 閉じる</button>
       </div>
     </template>
+
+    <!-- Analysis results highlights (from CLI data) -->
+    <template v-if="store.isEnabled && !store.editingElementId && analysisHighlights.length > 0">
+      <div
+        v-for="highlight in analysisHighlights"
+        :key="'analysis-' + highlight.selector"
+        data-dev-inspector
+        class="di-analysis-highlight"
+        :class="{
+          'di-analysis-static': highlight.type === 'static',
+          'di-analysis-data': highlight.type === 'data',
+          'di-analysis-form': highlight.type === 'form',
+          'di-analysis-button': highlight.type === 'button',
+          'di-analysis-link': highlight.type === 'link',
+        }"
+        :style="{
+          top: highlight.top,
+          left: highlight.left,
+          width: highlight.width,
+          height: highlight.height,
+        }"
+        @click="store.startEditing(highlight.selector)"
+      >
+        <div class="di-analysis-label" :class="'di-analysis-label-' + highlight.type">
+          <span class="di-analysis-type">{{ highlight.type === 'static' ? '固定' : highlight.type === 'data' ? 'DB' : highlight.type }}</span>
+          <span v-if="highlight.dbInfo" class="di-analysis-db">{{ highlight.dbInfo }}</span>
+        </div>
+        <div v-if="highlight.text && highlight.text.length < 30" class="di-analysis-text">
+          {{ highlight.text }}
+        </div>
+      </div>
+
+      <!-- Analysis results banner -->
+      <div data-dev-inspector class="di-analysis-banner">
+        <span>📊 分析データ: {{ analysisHighlights.length }}件の要素</span>
+        <button @click="store.clearAnalysisResults()" class="di-analysis-banner-close">✕ 閉じる</button>
+      </div>
+    </template>
   </Teleport>
 </template>
 
@@ -455,5 +551,136 @@ watch(() => store.isPickMode, (isPicking) => {
 }
 .di-scan-banner-close:hover {
   background: rgba(0, 0, 0, 0.2);
+}
+
+/* Analysis highlights (from CLI data) */
+.di-analysis-highlight {
+  position: absolute;
+  z-index: 9994;
+  border: 2px solid #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-analysis-highlight:hover {
+  background: rgba(59, 130, 246, 0.2);
+  border-color: #2563eb;
+}
+
+.di-analysis-static {
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.1);
+}
+.di-analysis-static:hover {
+  background: rgba(16, 185, 129, 0.2);
+}
+
+.di-analysis-data {
+  border-color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+.di-analysis-data:hover {
+  background: rgba(245, 158, 11, 0.2);
+}
+
+.di-analysis-form {
+  border-color: #8b5cf6;
+  background: rgba(139, 92, 246, 0.1);
+}
+
+.di-analysis-button,
+.di-analysis-link {
+  border-color: #ec4899;
+  background: rgba(236, 72, 153, 0.1);
+}
+
+.di-analysis-label {
+  position: absolute;
+  top: -22px;
+  left: 0;
+  padding: 2px 6px;
+  background: #3b82f6;
+  color: white;
+  font-size: 9px;
+  font-weight: 600;
+  border-radius: 3px;
+  white-space: nowrap;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.di-analysis-label-static {
+  background: #10b981;
+}
+.di-analysis-label-data {
+  background: #f59e0b;
+  color: #1e293b;
+}
+.di-analysis-label-form {
+  background: #8b5cf6;
+}
+.di-analysis-label-button,
+.di-analysis-label-link {
+  background: #ec4899;
+}
+
+.di-analysis-type {
+  font-weight: 700;
+}
+
+.di-analysis-db {
+  font-family: monospace;
+  font-size: 8px;
+  opacity: 0.9;
+}
+
+.di-analysis-text {
+  position: absolute;
+  bottom: -18px;
+  left: 0;
+  padding: 1px 4px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 8px;
+  border-radius: 2px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.di-analysis-banner {
+  position: fixed;
+  bottom: 80px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9998;
+  padding: 10px 16px;
+  background: #3b82f6;
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.di-analysis-banner-close {
+  padding: 4px 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  border-radius: 4px;
+  color: white;
+  font-size: 11px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.di-analysis-banner-close:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 </style>

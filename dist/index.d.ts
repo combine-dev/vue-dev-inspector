@@ -387,7 +387,56 @@ type: string;
 loadAnalysisData: (url: string) => Promise<void>;
 getAnalyzedElement: (selector: string) => AnalyzedElement | null;
 getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
-}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData">, Pick<{
+analysisResults: Ref<    {
+selector: string;
+element: {
+selector: string;
+type: "static" | "data" | "button" | "link" | "form" | "unknown";
+text?: string | undefined;
+binding?: string | undefined;
+api?: {
+endpoint: string;
+method: string;
+description?: string | undefined;
+} | undefined;
+db?: {
+table: string;
+column: string;
+type?: string | undefined;
+} | undefined;
+component?: string | undefined;
+line?: number | undefined;
+};
+matched: boolean;
+}[], {
+selector: string;
+element: AnalyzedElement;
+matched: boolean;
+}[] | {
+selector: string;
+element: {
+selector: string;
+type: "static" | "data" | "button" | "link" | "form" | "unknown";
+text?: string | undefined;
+binding?: string | undefined;
+api?: {
+endpoint: string;
+method: string;
+description?: string | undefined;
+} | undefined;
+db?: {
+table: string;
+column: string;
+type?: string | undefined;
+} | undefined;
+component?: string | undefined;
+line?: number | undefined;
+};
+matched: boolean;
+}[]>;
+applyAnalysisToPage: () => Promise<number>;
+clearAnalysisResults: () => void;
+}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -600,6 +649,55 @@ type: string;
 loadAnalysisData: (url: string) => Promise<void>;
 getAnalyzedElement: (selector: string) => AnalyzedElement | null;
 getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
+analysisResults: Ref<    {
+selector: string;
+element: {
+selector: string;
+type: "static" | "data" | "button" | "link" | "form" | "unknown";
+text?: string | undefined;
+binding?: string | undefined;
+api?: {
+endpoint: string;
+method: string;
+description?: string | undefined;
+} | undefined;
+db?: {
+table: string;
+column: string;
+type?: string | undefined;
+} | undefined;
+component?: string | undefined;
+line?: number | undefined;
+};
+matched: boolean;
+}[], {
+selector: string;
+element: AnalyzedElement;
+matched: boolean;
+}[] | {
+selector: string;
+element: {
+selector: string;
+type: "static" | "data" | "button" | "link" | "form" | "unknown";
+text?: string | undefined;
+binding?: string | undefined;
+api?: {
+endpoint: string;
+method: string;
+description?: string | undefined;
+} | undefined;
+db?: {
+table: string;
+column: string;
+type?: string | undefined;
+} | undefined;
+component?: string | undefined;
+line?: number | undefined;
+};
+matched: boolean;
+}[]>;
+applyAnalysisToPage: () => Promise<number>;
+clearAnalysisResults: () => void;
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -813,7 +911,56 @@ type: string;
 loadAnalysisData: (url: string) => Promise<void>;
 getAnalyzedElement: (selector: string) => AnalyzedElement | null;
 getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage">>;
+analysisResults: Ref<    {
+selector: string;
+element: {
+selector: string;
+type: "static" | "data" | "button" | "link" | "form" | "unknown";
+text?: string | undefined;
+binding?: string | undefined;
+api?: {
+endpoint: string;
+method: string;
+description?: string | undefined;
+} | undefined;
+db?: {
+table: string;
+column: string;
+type?: string | undefined;
+} | undefined;
+component?: string | undefined;
+line?: number | undefined;
+};
+matched: boolean;
+}[], {
+selector: string;
+element: AnalyzedElement;
+matched: boolean;
+}[] | {
+selector: string;
+element: {
+selector: string;
+type: "static" | "data" | "button" | "link" | "form" | "unknown";
+text?: string | undefined;
+binding?: string | undefined;
+api?: {
+endpoint: string;
+method: string;
+description?: string | undefined;
+} | undefined;
+db?: {
+table: string;
+column: string;
+type?: string | undefined;
+} | undefined;
+component?: string | undefined;
+line?: number | undefined;
+};
+matched: boolean;
+}[]>;
+applyAnalysisToPage: () => Promise<number>;
+clearAnalysisResults: () => void;
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults">>;
 
 export declare const useDevInspectorStore: StoreDefinition<"devInspector", Pick<{
 isEnabled: Ref<boolean, boolean>;
@@ -1028,7 +1175,56 @@ type: string;
 loadAnalysisData: (url: string) => Promise<void>;
 getAnalyzedElement: (selector: string) => AnalyzedElement | null;
 getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
-}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData">, Pick<{
+analysisResults: Ref<    {
+selector: string;
+element: {
+selector: string;
+type: "static" | "data" | "button" | "link" | "form" | "unknown";
+text?: string | undefined;
+binding?: string | undefined;
+api?: {
+endpoint: string;
+method: string;
+description?: string | undefined;
+} | undefined;
+db?: {
+table: string;
+column: string;
+type?: string | undefined;
+} | undefined;
+component?: string | undefined;
+line?: number | undefined;
+};
+matched: boolean;
+}[], {
+selector: string;
+element: AnalyzedElement;
+matched: boolean;
+}[] | {
+selector: string;
+element: {
+selector: string;
+type: "static" | "data" | "button" | "link" | "form" | "unknown";
+text?: string | undefined;
+binding?: string | undefined;
+api?: {
+endpoint: string;
+method: string;
+description?: string | undefined;
+} | undefined;
+db?: {
+table: string;
+column: string;
+type?: string | undefined;
+} | undefined;
+component?: string | undefined;
+line?: number | undefined;
+};
+matched: boolean;
+}[]>;
+applyAnalysisToPage: () => Promise<number>;
+clearAnalysisResults: () => void;
+}, "isEnabled" | "isEditMode" | "isPickMode" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -1241,6 +1437,55 @@ type: string;
 loadAnalysisData: (url: string) => Promise<void>;
 getAnalyzedElement: (selector: string) => AnalyzedElement | null;
 getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
+analysisResults: Ref<    {
+selector: string;
+element: {
+selector: string;
+type: "static" | "data" | "button" | "link" | "form" | "unknown";
+text?: string | undefined;
+binding?: string | undefined;
+api?: {
+endpoint: string;
+method: string;
+description?: string | undefined;
+} | undefined;
+db?: {
+table: string;
+column: string;
+type?: string | undefined;
+} | undefined;
+component?: string | undefined;
+line?: number | undefined;
+};
+matched: boolean;
+}[], {
+selector: string;
+element: AnalyzedElement;
+matched: boolean;
+}[] | {
+selector: string;
+element: {
+selector: string;
+type: "static" | "data" | "button" | "link" | "form" | "unknown";
+text?: string | undefined;
+binding?: string | undefined;
+api?: {
+endpoint: string;
+method: string;
+description?: string | undefined;
+} | undefined;
+db?: {
+table: string;
+column: string;
+type?: string | undefined;
+} | undefined;
+component?: string | undefined;
+line?: number | undefined;
+};
+matched: boolean;
+}[]>;
+applyAnalysisToPage: () => Promise<number>;
+clearAnalysisResults: () => void;
 }, "isAvailable">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
@@ -1454,7 +1699,56 @@ type: string;
 loadAnalysisData: (url: string) => Promise<void>;
 getAnalyzedElement: (selector: string) => AnalyzedElement | null;
 getAnalyzedElementsForPage: (componentPath?: string) => AnalyzedElement[];
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage">>;
+analysisResults: Ref<    {
+selector: string;
+element: {
+selector: string;
+type: "static" | "data" | "button" | "link" | "form" | "unknown";
+text?: string | undefined;
+binding?: string | undefined;
+api?: {
+endpoint: string;
+method: string;
+description?: string | undefined;
+} | undefined;
+db?: {
+table: string;
+column: string;
+type?: string | undefined;
+} | undefined;
+component?: string | undefined;
+line?: number | undefined;
+};
+matched: boolean;
+}[], {
+selector: string;
+element: AnalyzedElement;
+matched: boolean;
+}[] | {
+selector: string;
+element: {
+selector: string;
+type: "static" | "data" | "button" | "link" | "form" | "unknown";
+text?: string | undefined;
+binding?: string | undefined;
+api?: {
+endpoint: string;
+method: string;
+description?: string | undefined;
+} | undefined;
+db?: {
+table: string;
+column: string;
+type?: string | undefined;
+} | undefined;
+component?: string | undefined;
+line?: number | undefined;
+};
+matched: boolean;
+}[]>;
+applyAnalysisToPage: () => Promise<number>;
+clearAnalysisResults: () => void;
+}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults">>;
 
 declare const VueDevInspector: Plugin_2<PluginOptions[]>;
 export { VueDevInspector }

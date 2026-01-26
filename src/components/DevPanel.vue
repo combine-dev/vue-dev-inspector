@@ -110,6 +110,40 @@ async function handleScanAllPages() {
   showScanResults.value = true
   allPagesScanResults.value = await store.scanAllPages(router)
 }
+
+// Analysis data functions
+const analysisUrl = ref('/dev-inspector-analysis.json')
+const isLoadingAnalysis = ref(false)
+const analysisLoadError = ref('')
+const analysisMatchCount = ref(0)
+
+async function loadAnalysisData() {
+  isLoadingAnalysis.value = true
+  analysisLoadError.value = ''
+
+  try {
+    await store.loadAnalysisData(analysisUrl.value)
+    if (store.analysisData) {
+      const totalElements = Object.values(store.analysisData.components)
+        .reduce((sum, c) => sum + c.elements.length, 0)
+      alert(`分析データを読み込みました（${Object.keys(store.analysisData.components).length}コンポーネント、${totalElements}要素）`)
+    } else {
+      analysisLoadError.value = '分析データの読み込みに失敗しました'
+    }
+  } catch (e) {
+    analysisLoadError.value = `読み込みエラー: ${e}`
+  } finally {
+    isLoadingAnalysis.value = false
+  }
+}
+
+async function applyAnalysis() {
+  if (!store.analysisData) {
+    alert('先に分析データを読み込んでください')
+    return
+  }
+  analysisMatchCount.value = await store.applyAnalysisToPage()
+}
 </script>
 
 <template>
@@ -219,6 +253,48 @@ async function handleScanAllPages() {
           <button @click="showScanResults = false; allPagesScanResults = []" class="di-scan-close">
             閉じる
           </button>
+        </div>
+
+        <!-- Analysis Data Section -->
+        <div class="di-analysis-section">
+          <div class="di-analysis-header">
+            <Server style="width: 16px; height: 16px; color: #3b82f6;" />
+            <span>CLIソース解析</span>
+          </div>
+          <div class="di-analysis-input">
+            <input
+              v-model="analysisUrl"
+              type="text"
+              class="di-analysis-url"
+              placeholder="/dev-inspector-analysis.json"
+            />
+          </div>
+          <div class="di-analysis-buttons">
+            <button
+              @click="loadAnalysisData"
+              class="di-analysis-btn"
+              :disabled="isLoadingAnalysis"
+            >
+              <Loader2 v-if="isLoadingAnalysis" class="di-spin" style="width: 14px; height: 14px;" />
+              <Download v-else style="width: 14px; height: 14px;" />
+              <span>読み込み</span>
+            </button>
+            <button
+              @click="applyAnalysis"
+              class="di-analysis-btn di-analysis-btn-apply"
+              :disabled="!store.analysisData"
+            >
+              <Scan style="width: 14px; height: 14px;" />
+              <span>ページに適用</span>
+            </button>
+          </div>
+          <div v-if="analysisLoadError" class="di-analysis-error">
+            {{ analysisLoadError }}
+          </div>
+          <div v-if="store.analysisResults.length > 0" class="di-analysis-status">
+            <span class="di-analysis-count">{{ store.analysisResults.filter(r => r.matched).length }}</span>
+            <span>/ {{ store.analysisResults.length }} 要素がマッチ</span>
+          </div>
         </div>
       </div>
 
@@ -1018,5 +1094,100 @@ async function handleScanAllPages() {
   font-size: 10px;
   color: #ef4444;
   margin: 4px 0 0 0;
+}
+
+/* Analysis Section */
+.di-analysis-section {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #334155;
+}
+.di-analysis-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 12px;
+  margin-bottom: 10px;
+  color: #94a3b8;
+}
+.di-analysis-input {
+  margin-bottom: 10px;
+}
+.di-analysis-url {
+  width: 100%;
+  padding: 8px 10px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: white;
+  font-size: 11px;
+  font-family: monospace;
+  box-sizing: border-box;
+}
+.di-analysis-url:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+.di-analysis-url::placeholder {
+  color: #475569;
+}
+.di-analysis-buttons {
+  display: flex;
+  gap: 8px;
+}
+.di-analysis-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 12px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: white;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-analysis-btn:hover:not(:disabled) {
+  background: #334155;
+  border-color: #475569;
+}
+.di-analysis-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.di-analysis-btn-apply {
+  background: #1d4ed8;
+  border-color: #1d4ed8;
+}
+.di-analysis-btn-apply:hover:not(:disabled) {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+.di-analysis-error {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid #ef4444;
+  border-radius: 6px;
+  color: #ef4444;
+  font-size: 10px;
+}
+.di-analysis-status {
+  margin-top: 10px;
+  padding: 8px 10px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid #3b82f6;
+  border-radius: 6px;
+  font-size: 11px;
+  color: #93c5fd;
+}
+.di-analysis-count {
+  font-weight: 700;
+  color: #3b82f6;
 }
 </style>

@@ -871,6 +871,111 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     scanProgress.value = 0
   }
 
+  // Analysis results from CLI data
+  const analysisResults = ref<Array<{
+    selector: string
+    element: AnalyzedElement
+    matched: boolean
+  }>>([])
+
+  // Apply CLI analysis data to current page
+  async function applyAnalysisToPage(): Promise<number> {
+    if (!analysisData.value) {
+      console.warn('[DevInspector] No analysis data loaded. Call loadAnalysisData first.')
+      return 0
+    }
+
+    analysisResults.value = []
+
+    // Get current page path to find matching components
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
+
+    // Find components that might match current page
+    const matchingComponents: AnalyzedElement[] = []
+
+    for (const [componentPath, component] of Object.entries(analysisData.value.components)) {
+      // Match by page path or include all components for now
+      // pages/sign-in.vue -> /sign-in
+      const pagePath = componentPath
+        .replace(/^pages/, '')
+        .replace(/\.vue$/, '')
+        .replace(/\/index$/, '')
+        .replace(/\[.*?\]/g, '[^/]+') // Convert [id] to regex
+
+      if (currentPath === '/' && componentPath.includes('index')) {
+        matchingComponents.push(...component.elements)
+      } else if (componentPath.includes('pages/') && currentPath.match(new RegExp(`^${pagePath}$`))) {
+        matchingComponents.push(...component.elements)
+      } else if (componentPath.includes('components/')) {
+        // Include component elements too
+        matchingComponents.push(...component.elements)
+      }
+    }
+
+    // Try to match analysis elements to actual DOM elements
+    for (const analysisEl of matchingComponents) {
+      let matched = false
+      let matchedSelector = analysisEl.selector
+
+      // Try to find the element in DOM by various strategies
+      // Strategy 1: Direct selector match
+      try {
+        const el = document.querySelector(analysisEl.selector)
+        if (el) {
+          matched = true
+        }
+      } catch { /* invalid selector */ }
+
+      // Strategy 2: Match by text content for static elements
+      if (!matched && analysisEl.type === 'static' && analysisEl.text) {
+        const textToFind = analysisEl.text.replace(/\[コメント\]\s*/, '')
+        const walker = document.createTreeWalker(
+          document.body,
+          NodeFilter.SHOW_TEXT,
+          null
+        )
+        while (walker.nextNode()) {
+          const node = walker.currentNode
+          if (node.textContent?.includes(textToFind)) {
+            const parent = node.parentElement
+            if (parent) {
+              matched = true
+              matchedSelector = generateSelector(parent)
+              break
+            }
+          }
+        }
+      }
+
+      // Strategy 3: Match by tag and class combination
+      if (!matched && analysisEl.selector.includes('.')) {
+        const parts = analysisEl.selector.match(/^(\w+)\.(.+)$/)
+        if (parts) {
+          const [, tag, className] = parts
+          const els = document.querySelectorAll(`${tag}.${className.split('.')[0]}`)
+          if (els.length > 0) {
+            matched = true
+            matchedSelector = generateSelector(els[0] as HTMLElement)
+          }
+        }
+      }
+
+      analysisResults.value.push({
+        selector: matchedSelector,
+        element: analysisEl,
+        matched,
+      })
+    }
+
+    console.log(`[DevInspector] Applied analysis: ${analysisResults.value.filter(r => r.matched).length}/${analysisResults.value.length} elements matched`)
+    return analysisResults.value.filter(r => r.matched).length
+  }
+
+  // Clear analysis results
+  function clearAnalysisResults() {
+    analysisResults.value = []
+  }
+
   function startEditing(id: string) {
     editingElementId.value = id
   }
@@ -976,6 +1081,9 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     loadAnalysisData,
     getAnalyzedElement,
     getAnalyzedElementsForPage,
+    analysisResults,
+    applyAnalysisToPage,
+    clearAnalysisResults,
   }
 })
 

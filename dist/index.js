@@ -1,13 +1,13 @@
-import { h as ce, defineComponent as ie, inject as Te, ref as y, computed as Q, openBlock as d, createElementBlock as c, Fragment as B, createBlock as F, Teleport as W, unref as n, createVNode as k, createCommentVNode as w, createElementVNode as e, normalizeClass as G, toDisplayString as $, renderList as K, normalizeStyle as H, createTextVNode as L, withModifiers as de, withDirectives as P, vModelText as V, watch as fe, resolveDynamicComponent as Se, vModelSelect as ae, onMounted as ke, onUnmounted as Ue } from "vue";
-import { u as ne } from "./useDevInspector-CzlEakrQ.js";
-import { a as no } from "./useDevInspector-CzlEakrQ.js";
+import { h as he, defineComponent as de, inject as Se, ref as p, computed as le, openBlock as d, createElementBlock as c, Fragment as B, createBlock as N, Teleport as te, unref as o, createVNode as C, createCommentVNode as w, createElementVNode as e, normalizeClass as K, toDisplayString as k, renderList as Q, withDirectives as E, vModelText as U, normalizeStyle as F, createTextVNode as j, withModifiers as me, watch as we, resolveDynamicComponent as De, vModelSelect as ce, onMounted as $e, onUnmounted as Ue } from "vue";
+import { u as ue } from "./useDevInspector-CZrBEzak.js";
+import { a as xs } from "./useDevInspector-CZrBEzak.js";
 /**
  * @license lucide-vue-next v0.300.0 - ISC
  *
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-var se = {
+var ae = {
   xmlns: "http://www.w3.org/2000/svg",
   width: 24,
   height: 24,
@@ -24,21 +24,21 @@ var se = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ve = (v) => v.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), C = (v, l) => ({ size: u, strokeWidth: b = 2, absoluteStrokeWidth: _, color: U, class: D, ...R }, { attrs: h, slots: p }) => ce(
+const Ve = (b) => b.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), M = (b, l) => ({ size: r, strokeWidth: x = 2, absoluteStrokeWidth: _, color: T, class: L, ...q }, { attrs: h, slots: m }) => he(
   "svg",
   {
-    ...se,
-    width: u || se.width,
-    height: u || se.height,
-    stroke: U || se.stroke,
-    "stroke-width": _ ? Number(b) * 24 / Number(u) : b,
+    ...ae,
+    width: r || ae.width,
+    height: r || ae.height,
+    stroke: T || ae.stroke,
+    "stroke-width": _ ? Number(x) * 24 / Number(r) : x,
     ...h,
-    class: ["lucide", `lucide-${Ve(v)}`],
-    ...R
+    class: ["lucide", `lucide-${Ve(b)}`],
+    ...q
   },
   [
-    ...l.map((O) => ce(...O)),
-    ...p.default ? [p.default()] : []
+    ...l.map((G) => he(...G)),
+    ...m.default ? [m.default()] : []
   ]
 );
 /**
@@ -47,7 +47,7 @@ const Ve = (v) => v.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), C = (v
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const De = C("AlertCircleIcon", [
+const Le = M("AlertCircleIcon", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["line", { x1: "12", x2: "12", y1: "8", y2: "12", key: "1pkeuh" }],
   ["line", { x1: "12", x2: "12.01", y1: "16", y2: "16", key: "4dfq90" }]
@@ -58,7 +58,7 @@ const De = C("AlertCircleIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Le = C("AlertTriangleIcon", [
+const Ae = M("AlertTriangleIcon", [
   [
     "path",
     {
@@ -75,7 +75,7 @@ const Le = C("AlertTriangleIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ae = C("CheckSquareIcon", [
+const Be = M("CheckSquareIcon", [
   ["path", { d: "m9 11 3 3L22 4", key: "1pflzl" }],
   ["path", { d: "M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11", key: "1jnkn4" }]
 ]);
@@ -85,7 +85,7 @@ const Ae = C("CheckSquareIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ve = C("CodeIcon", [
+const fe = M("CodeIcon", [
   ["polyline", { points: "16 18 22 12 16 6", key: "z7tu5w" }],
   ["polyline", { points: "8 6 2 12 8 18", key: "1eg1df" }]
 ]);
@@ -95,7 +95,7 @@ const ve = C("CodeIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Be = C("DatabaseIcon", [
+const Re = M("DatabaseIcon", [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
@@ -106,7 +106,7 @@ const Be = C("DatabaseIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const pe = C("DownloadIcon", [
+const ve = M("DownloadIcon", [
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["polyline", { points: "7 10 12 15 17 10", key: "2ggqvy" }],
   ["line", { x1: "12", x2: "12", y1: "15", y2: "3", key: "1vk2je" }]
@@ -117,7 +117,7 @@ const pe = C("DownloadIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const je = C("ExternalLinkIcon", [
+const je = M("ExternalLinkIcon", [
   ["path", { d: "M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6", key: "a6xqqp" }],
   ["polyline", { points: "15 3 21 3 21 9", key: "mznyad" }],
   ["line", { x1: "10", x2: "21", y1: "14", y2: "3", key: "18c3s4" }]
@@ -128,7 +128,7 @@ const je = C("ExternalLinkIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Re = C("FileSpreadsheetIcon", [
+const Oe = M("FileSpreadsheetIcon", [
   [
     "path",
     { d: "M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z", key: "1nnpy2" }
@@ -145,7 +145,7 @@ const Re = C("FileSpreadsheetIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ye = C("FileTextIcon", [
+const ke = M("FileTextIcon", [
   [
     "path",
     { d: "M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z", key: "1nnpy2" }
@@ -161,7 +161,7 @@ const ye = C("FileTextIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const qe = C("GitBranchIcon", [
+const qe = M("GitBranchIcon", [
   ["line", { x1: "6", x2: "6", y1: "3", y2: "15", key: "17qcm7" }],
   ["circle", { cx: "18", cy: "6", r: "3", key: "1h7g24" }],
   ["circle", { cx: "6", cy: "18", r: "3", key: "fqmcym" }],
@@ -173,7 +173,7 @@ const qe = C("GitBranchIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Oe = C("GlobeIcon", [
+const He = M("GlobeIcon", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20", key: "13o1zl" }],
   ["path", { d: "M2 12h20", key: "9i4pu4" }]
@@ -184,7 +184,7 @@ const Oe = C("GlobeIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ze = C("HelpCircleIcon", [
+const ze = M("HelpCircleIcon", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3", key: "1u773s" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
@@ -195,7 +195,7 @@ const ze = C("HelpCircleIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const He = C("InfoIcon", [
+const Ne = M("InfoIcon", [
   ["circle", { cx: "12", cy: "12", r: "10", key: "1mglay" }],
   ["path", { d: "M12 16v-4", key: "1dtifu" }],
   ["path", { d: "M12 8h.01", key: "e9boi3" }]
@@ -206,7 +206,7 @@ const He = C("InfoIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ne = C("LinkIcon", [
+const Fe = M("LinkIcon", [
   ["path", { d: "M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71", key: "1cjeqo" }],
   ["path", { d: "M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71", key: "19qd67" }]
 ]);
@@ -216,7 +216,7 @@ const Ne = C("LinkIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const he = C("Loader2Icon", [
+const pe = M("Loader2Icon", [
   ["path", { d: "M21 12a9 9 0 1 1-6.219-8.56", key: "13zald" }]
 ]);
 /**
@@ -225,7 +225,7 @@ const he = C("Loader2Icon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Fe = C("MessageSquareIcon", [
+const Ge = M("MessageSquareIcon", [
   ["path", { d: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z", key: "1lielz" }]
 ]);
 /**
@@ -234,7 +234,7 @@ const Fe = C("MessageSquareIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ge = C("MousePointer2Icon", [
+const Xe = M("MousePointer2Icon", [
   ["path", { d: "m4 4 7.07 17 2.51-7.39L21 11.07z", key: "1vqm48" }]
 ]);
 /**
@@ -243,7 +243,7 @@ const Ge = C("MousePointer2Icon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const me = C("PenLineIcon", [
+const xe = M("PenLineIcon", [
   ["path", { d: "M12 20h9", key: "t2du7b" }],
   ["path", { d: "M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z", key: "ymcmye" }]
 ]);
@@ -253,7 +253,7 @@ const me = C("PenLineIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Xe = C("SaveIcon", [
+const Ke = M("SaveIcon", [
   ["path", { d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z", key: "1owoqh" }],
   ["polyline", { points: "17 21 17 13 7 13 7 21", key: "1md35c" }],
   ["polyline", { points: "7 3 7 8 15 8", key: "8nz8an" }]
@@ -264,7 +264,7 @@ const Xe = C("SaveIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const be = C("ScanIcon", [
+const ye = M("ScanIcon", [
   ["path", { d: "M3 7V5a2 2 0 0 1 2-2h2", key: "aa7l1z" }],
   ["path", { d: "M17 3h2a2 2 0 0 1 2 2v2", key: "4qcy5o" }],
   ["path", { d: "M21 17v2a2 2 0 0 1-2 2h-2", key: "6vwrx8" }],
@@ -276,7 +276,7 @@ const be = C("ScanIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ke = C("ServerIcon", [
+const ge = M("ServerIcon", [
   ["rect", { width: "20", height: "8", x: "2", y: "2", rx: "2", ry: "2", key: "ngkwjq" }],
   ["rect", { width: "20", height: "8", x: "2", y: "14", rx: "2", ry: "2", key: "iecqi9" }],
   ["line", { x1: "6", x2: "6.01", y1: "6", y2: "6", key: "16zg32" }],
@@ -288,7 +288,7 @@ const Ke = C("ServerIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ye = C("Settings2Icon", [
+const Ye = M("Settings2Icon", [
   ["path", { d: "M20 7h-9", key: "3s1dr2" }],
   ["path", { d: "M14 17H5", key: "gfn3mx" }],
   ["circle", { cx: "17", cy: "17", r: "3", key: "18b49y" }],
@@ -300,7 +300,7 @@ const Ye = C("Settings2Icon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ge = C("Trash2Icon", [
+const Ce = M("Trash2Icon", [
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }],
   ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }],
@@ -313,7 +313,7 @@ const ge = C("Trash2Icon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ze = C("UploadIcon", [
+const Ze = M("UploadIcon", [
   ["path", { d: "M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4", key: "ih7n3h" }],
   ["polyline", { points: "17 8 12 3 7 8", key: "t8dd8p" }],
   ["line", { x1: "12", x2: "12", y1: "3", y2: "15", key: "widbto" }]
@@ -324,7 +324,7 @@ const Ze = C("UploadIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Je = C("Wand2Icon", [
+const Je = M("Wand2Icon", [
   [
     "path",
     {
@@ -346,7 +346,7 @@ const Je = C("Wand2Icon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const xe = C("XIcon", [
+const Ie = M("XIcon", [
   ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
   ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
 ]);
@@ -356,13 +356,13 @@ const xe = C("XIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const We = C("ZapIcon", [
+const We = M("ZapIcon", [
   ["polygon", { points: "13 2 3 14 12 14 11 22 21 10 12 10 13 2", key: "45s27k" }]
 ]);
-async function Qe(v, l, u = {}) {
-  var m;
-  const b = await import("./xlsx-BopDBbWb.js"), { systemName: _ = "System", author: U = "" } = u, D = /* @__PURE__ */ new Date(), R = `${D.getFullYear()}/${D.getMonth() + 1}/${D.getDate()}`, h = b.utils.book_new(), p = [];
-  p.push([
+async function Qe(b, l, r = {}) {
+  var f;
+  const x = await import("./xlsx-BopDBbWb.js"), { systemName: _ = "System", author: T = "" } = r, L = /* @__PURE__ */ new Date(), q = `${L.getFullYear()}/${L.getMonth() + 1}/${L.getDate()}`, h = x.utils.book_new(), m = [];
+  m.push([
     "画面機能仕様書",
     "",
     "",
@@ -390,7 +390,7 @@ async function Qe(v, l, u = {}) {
     "",
     "",
     "",
-    (v == null ? void 0 : v.name) || "",
+    (b == null ? void 0 : b.name) || "",
     "",
     "",
     "",
@@ -401,15 +401,15 @@ async function Qe(v, l, u = {}) {
     "",
     "",
     "",
-    U,
+    T,
     "",
     "作成日",
     "",
     "",
     "",
     "",
-    R
-  ]), p.push([]), p.push([
+    q
+  ]), m.push([]), m.push([
     "URL",
     "",
     "",
@@ -437,7 +437,7 @@ async function Qe(v, l, u = {}) {
     "",
     "",
     "",
-    (v == null ? void 0 : v.componentPath) || "",
+    (b == null ? void 0 : b.componentPath) || "",
     "",
     "",
     "",
@@ -448,10 +448,10 @@ async function Qe(v, l, u = {}) {
     "",
     "",
     "",
-    (v == null ? void 0 : v.figmaUrl) || ""
-  ]), p.push([]), p.push(["機能概要"]), p.push([(v == null ? void 0 : v.description) || ""]), p.push([]), p.push(["画面レイアウト　figmaURL"]), p.push([(v == null ? void 0 : v.figmaUrl) || ""]), p.push([]), v != null && v.apis && v.apis.length > 0 && (p.push(["API一覧"]), p.push(["", "メソッド", "", "エンドポイント", "", "", "", "", "", "", "", "説明"]), v.apis.forEach((s) => {
-    p.push(["", s.method, "", s.endpoint, "", "", "", "", "", "", "", s.description]);
-  }), p.push([])), p.push(["画面項目　ヘッダーフッターは省く"]), p.push([
+    (b == null ? void 0 : b.figmaUrl) || ""
+  ]), m.push([]), m.push(["機能概要"]), m.push([(b == null ? void 0 : b.description) || ""]), m.push([]), m.push(["画面レイアウト　figmaURL"]), m.push([(b == null ? void 0 : b.figmaUrl) || ""]), m.push([]), b != null && b.apis && b.apis.length > 0 && (m.push(["API一覧"]), m.push(["", "メソッド", "", "エンドポイント", "", "", "", "", "", "", "", "説明"]), b.apis.forEach((a) => {
+    m.push(["", a.method, "", a.endpoint, "", "", "", "", "", "", "", a.description]);
+  }), m.push([])), m.push(["画面項目　ヘッダーフッターは省く"]), m.push([
     "",
     "No.",
     "",
@@ -499,51 +499,39 @@ async function Qe(v, l, u = {}) {
     "",
     "",
     "備考"
-  ]), Object.values(l).forEach((s, M) => {
-    var A, x, o;
-    const T = s.id;
-    let I = "", S = "", E = "";
-    if ((A = s.note) != null && A.text && (I = s.note.text), s.fieldInfo && (I += I ? `
-` : "", I += `DB: ${s.fieldInfo.table}.${s.fieldInfo.column}`, s.fieldInfo.type && (I += ` (${s.fieldInfo.type})`), s.fieldInfo.description && (I += `
-${s.fieldInfo.description}`)), s.actionInfo && (E = `[${{
+  ]), Object.values(l).forEach((a, i) => {
+    var R, S, D;
+    const g = a.id;
+    let $ = "", P = "", y = "";
+    if ((R = a.note) != null && R.text && ($ = a.note.text), a.fieldInfo && ($ += $ ? `
+` : "", $ += `DB: ${a.fieldInfo.table}.${a.fieldInfo.column}`, a.fieldInfo.type && ($ += ` (${a.fieldInfo.type})`), a.fieldInfo.description && ($ += `
+${a.fieldInfo.description}`)), a.actionInfo && (y = `[${{
       navigate: "画面遷移",
       api: "API呼び出し",
       modal: "モーダル表示",
       emit: "イベント発火",
       function: "関数実行"
-    }[s.actionInfo.type] || s.actionInfo.type}]`, s.actionInfo.target && (E += ` ${s.actionInfo.method || ""} ${s.actionInfo.target}`), s.actionInfo.description && (E += `
-${s.actionInfo.description}`)), s.links) {
-      const f = [];
-      s.links.testPath && f.push(`テスト: ${s.links.testPath}`), s.links.figmaUrl && f.push(`Figma: ${s.links.figmaUrl}`), s.links.githubIssue && f.push(`Issue: ${s.links.githubIssue}`), s.links.githubPr && f.push(`PR: ${s.links.githubPr}`), f.length > 0 && (E += E ? `
+    }[a.actionInfo.type] || a.actionInfo.type}]`, a.actionInfo.target && (y += ` ${a.actionInfo.method || ""} ${a.actionInfo.target}`), a.actionInfo.description && (y += `
+${a.actionInfo.description}`)), a.links) {
+      const I = [];
+      a.links.testPath && I.push(`テスト: ${a.links.testPath}`), a.links.figmaUrl && I.push(`Figma: ${a.links.figmaUrl}`), a.links.githubIssue && I.push(`Issue: ${a.links.githubIssue}`), a.links.githubPr && I.push(`PR: ${a.links.githubPr}`), I.length > 0 && (y += y ? `
 
-` : "", E += f.join(`
+` : "", y += I.join(`
 `));
     }
-    if (s.devMeta) {
-      const f = [];
-      (x = s.devMeta.usedStores) != null && x.length && f.push(`Store: ${s.devMeta.usedStores.join(", ")}`), (o = s.devMeta.usedComponents) != null && o.length && f.push(`Components: ${s.devMeta.usedComponents.join(", ")}`), s.devMeta.accessibility && f.push(`A11y: ${s.devMeta.accessibility}`), s.devMeta.responsive && f.push(`Responsive: ${s.devMeta.responsive}`), f.length > 0 && (E += E ? `
+    if (a.devMeta) {
+      const I = [];
+      (S = a.devMeta.usedStores) != null && S.length && I.push(`Store: ${a.devMeta.usedStores.join(", ")}`), (D = a.devMeta.usedComponents) != null && D.length && I.push(`Components: ${a.devMeta.usedComponents.join(", ")}`), a.devMeta.accessibility && I.push(`A11y: ${a.devMeta.accessibility}`), a.devMeta.responsive && I.push(`Responsive: ${a.devMeta.responsive}`), I.length > 0 && (y += y ? `
 
-` : "", E += `[開発情報]
-` + f.join(`
+` : "", y += `[開発情報]
+` + I.join(`
 `));
     }
-    p.push([
+    m.push([
       "",
-      M + 1,
+      i + 1,
       "",
-      T,
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      I,
+      g,
       "",
       "",
       "",
@@ -555,11 +543,7 @@ ${s.actionInfo.description}`)), s.links) {
       "",
       "",
       "",
-      "",
-      "",
-      "",
-      "",
-      S,
+      $,
       "",
       "",
       "",
@@ -574,11 +558,27 @@ ${s.actionInfo.description}`)), s.links) {
       "",
       "",
       "",
-      E
+      "",
+      P,
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      y
     ]);
   });
-  const z = b.utils.aoa_to_sheet(p);
-  z["!cols"] = [
+  const X = x.utils.aoa_to_sheet(m);
+  X["!cols"] = [
     { wch: 3 },
     // A
     { wch: 5 },
@@ -673,355 +673,429 @@ ${s.actionInfo.description}`)), s.links) {
     // AT
     { wch: 30 }
     // AU - 備考
-  ], b.utils.book_append_sheet(h, z, "画面設計書");
-  const g = `画面仕様書_${((m = v == null ? void 0 : v.name) == null ? void 0 : m.replace(/[/\\?%*:|"<>]/g, "-")) || "screen"}_${R.replace(/\//g, "")}.xlsx`;
-  return b.writeFile(h, g), g;
+  ], x.utils.book_append_sheet(h, X, "画面設計書");
+  const H = `画面仕様書_${((f = b == null ? void 0 : b.name) == null ? void 0 : f.replace(/[/\\?%*:|"<>]/g, "-")) || "screen"}_${q.replace(/\//g, "")}.xlsx`;
+  return x.writeFile(h, H), H;
 }
 const et = {
   key: 0,
   class: "di-panel",
   "data-dev-inspector": ""
-}, tt = { class: "di-header" }, lt = { class: "di-header-title" }, ot = { class: "di-edit-section" }, st = { class: "di-edit-row" }, it = { class: "di-edit-label" }, nt = { class: "di-scan-section" }, at = ["disabled"], dt = ["disabled"], ut = { class: "di-scan-section" }, rt = ["disabled", "title"], ct = {
+}, tt = { class: "di-header" }, lt = { class: "di-header-title" }, st = { class: "di-edit-section" }, ot = { class: "di-edit-row" }, nt = { class: "di-edit-label" }, it = { class: "di-scan-section" }, at = ["disabled"], dt = ["disabled"], ut = { class: "di-scan-section" }, rt = ["disabled", "title"], ct = {
   key: 0,
   class: "di-scan-results"
 }, vt = {
   key: 0,
   class: "di-scan-result-item"
-}, pt = { class: "di-scan-result-count" }, yt = { class: "di-scan-result-count" }, ht = { class: "di-content" }, mt = { class: "di-section" }, bt = { class: "di-screen-name" }, ft = { class: "di-screen-desc" }, kt = { class: "di-card" }, gt = { class: "di-card-label" }, xt = { class: "di-code-blue" }, wt = {
+}, pt = { class: "di-scan-result-count" }, yt = { class: "di-scan-result-count" }, mt = { class: "di-analysis-section" }, bt = { class: "di-analysis-header" }, ht = { class: "di-analysis-input" }, ft = { class: "di-analysis-buttons" }, kt = ["disabled"], xt = ["disabled"], gt = {
+  key: 0,
+  class: "di-analysis-error"
+}, wt = {
+  key: 1,
+  class: "di-analysis-status"
+}, $t = { class: "di-analysis-count" }, Ct = { class: "di-content" }, It = { class: "di-section" }, Mt = { class: "di-screen-name" }, Et = { class: "di-screen-desc" }, _t = { class: "di-card" }, Pt = { class: "di-card-label" }, Tt = { class: "di-code-blue" }, St = {
   key: 0,
   class: "di-card"
-}, $t = { class: "di-card-label" }, Ct = ["href"], It = {
+}, Dt = { class: "di-card-label" }, Ut = ["href"], Vt = {
   key: 1,
   class: "di-card"
-}, Mt = { class: "di-card-label" }, Et = { class: "di-api-list" }, Pt = { class: "di-api-info" }, _t = { class: "di-api-endpoint" }, Tt = { class: "di-api-desc" }, St = {
+}, Lt = { class: "di-card-label" }, At = { class: "di-api-list" }, Bt = { class: "di-api-info" }, Rt = { class: "di-api-endpoint" }, jt = { class: "di-api-desc" }, Ot = {
   key: 2,
   class: "di-card"
-}, Ut = { class: "di-card-label" }, Vt = { class: "di-notes-list" }, Dt = {
+}, qt = { class: "di-card-label" }, Ht = { class: "di-notes-list" }, zt = {
   key: 1,
   class: "di-no-spec"
-}, Lt = { class: "di-card" }, At = { class: "di-card-header" }, Bt = { class: "di-card-label" }, jt = { class: "di-count-badge" }, Rt = {
+}, Nt = { class: "di-card" }, Ft = { class: "di-card-header" }, Gt = { class: "di-card-label" }, Xt = { class: "di-count-badge" }, Kt = {
   key: 0,
   class: "di-export-buttons"
-}, qt = {
+}, Yt = {
   key: 1,
   class: "di-export-hint"
-}, Ot = { class: "di-action-buttons" }, zt = {
+}, Zt = { class: "di-action-buttons" }, Jt = {
   key: 0,
   class: "di-indicator",
   "data-dev-inspector": ""
-}, Ht = {
+}, Wt = {
   key: 0,
   class: "di-indicator-edit"
-}, Nt = { class: "di-modal" }, Ft = ["value"], Gt = { class: "di-modal-actions" }, Xt = { class: "di-modal" }, Kt = { class: "di-file-drop" }, Yt = {
+}, Qt = { class: "di-modal" }, el = ["value"], tl = { class: "di-modal-actions" }, ll = { class: "di-modal" }, sl = { class: "di-file-drop" }, ol = {
   key: 0,
   class: "di-error"
-}, Zt = { class: "di-modal-actions" }, Jt = ["disabled"], Wt = /* @__PURE__ */ ie({
+}, nl = { class: "di-modal-actions" }, il = ["disabled"], al = /* @__PURE__ */ de({
   __name: "DevPanel",
-  setup(v) {
-    const l = ne(), u = Te("router", null), b = y(!1), _ = y(!1), U = y(""), D = y(""), R = {
+  setup(b) {
+    const l = ue(), r = Se("router", null), x = p(!1), _ = p(!1), T = p(""), L = p(""), q = {
       GET: "#10b981",
       POST: "#3b82f6",
       PUT: "#f59e0b",
       DELETE: "#ef4444",
       PATCH: "#8b5cf6"
-    }, h = Q(() => l.currentScreenSpec), p = Q(() => Object.keys(l.elementConfigs).length);
-    function O() {
-      const x = l.exportConfigs();
-      navigator.clipboard.writeText(x), b.value = !1;
+    }, h = le(() => l.currentScreenSpec), m = le(() => Object.keys(l.elementConfigs).length);
+    function G() {
+      const V = l.exportConfigs();
+      navigator.clipboard.writeText(V), x.value = !1;
+    }
+    function X() {
+      const V = l.exportConfigs(), s = new Blob([V], { type: "application/json" }), A = URL.createObjectURL(s), v = document.createElement("a");
+      v.href = A, v.download = "dev-mode-configs.json", v.click(), URL.revokeObjectURL(A), x.value = !1;
     }
     function z() {
-      const x = l.exportConfigs(), o = new Blob([x], { type: "application/json" }), f = URL.createObjectURL(o), r = document.createElement("a");
-      r.href = f, r.download = "dev-mode-configs.json", r.click(), URL.revokeObjectURL(f), b.value = !1;
-    }
-    function j() {
       l.downloadAnnotations();
     }
-    async function g() {
+    async function H() {
       try {
         await Qe(
           l.currentScreenSpec,
           l.elementConfigs,
           { systemName: "System" }
         );
-      } catch (x) {
-        console.error("Failed to export xlsx:", x), alert("xlsx export failed. Make sure xlsx package is installed.");
+      } catch (V) {
+        console.error("Failed to export xlsx:", V), alert("xlsx export failed. Make sure xlsx package is installed.");
       }
     }
-    function m() {
+    function f() {
       try {
-        l.importConfigs(U.value), U.value = "", D.value = "", _.value = !1;
+        l.importConfigs(T.value), T.value = "", L.value = "", _.value = !1;
       } catch {
-        D.value = "JSONの形式が正しくありません";
+        L.value = "JSONの形式が正しくありません";
       }
     }
-    function s(x) {
-      var q;
-      const f = (q = x.target.files) == null ? void 0 : q[0];
-      if (!f) return;
-      const r = new FileReader();
-      r.onload = (Y) => {
-        var Z;
-        U.value = (Z = Y.target) == null ? void 0 : Z.result;
-      }, r.readAsText(f);
+    function a(V) {
+      var Y;
+      const A = (Y = V.target.files) == null ? void 0 : Y[0];
+      if (!A) return;
+      const v = new FileReader();
+      v.onload = (re) => {
+        var oe;
+        T.value = (oe = re.target) == null ? void 0 : oe.result;
+      }, v.readAsText(A);
     }
-    function M() {
+    function i() {
       confirm("すべての要素設定を削除しますか？") && l.clearAllConfigs();
     }
-    const T = y(0), I = y(!1), S = y([]);
-    async function E(x = !1) {
-      I.value = !0, T.value = await l.scanCurrentPage({ rescan: x });
+    const g = p(0), $ = p(!1), P = p([]);
+    async function y(V = !1) {
+      $.value = !0, g.value = await l.scanCurrentPage({ rescan: V });
     }
-    async function A() {
-      if (!u) {
+    async function R() {
+      if (!r) {
         alert("Vue Routerが見つかりません。全ページスキャンにはVue Routerが必要です。");
         return;
       }
-      confirm("全ページをスキャンします。ページ遷移が発生しますがよろしいですか？") && (I.value = !0, S.value = await l.scanAllPages(u));
+      confirm("全ページをスキャンします。ページ遷移が発生しますがよろしいですか？") && ($.value = !0, P.value = await l.scanAllPages(r));
     }
-    return (x, o) => {
-      var f;
+    const S = p("/dev-inspector-analysis.json"), D = p(!1), I = p(""), J = p(0);
+    async function O() {
+      D.value = !0, I.value = "";
+      try {
+        if (await l.loadAnalysisData(S.value), l.analysisData) {
+          const V = Object.values(l.analysisData.components).reduce((s, A) => s + A.elements.length, 0);
+          alert(`分析データを読み込みました（${Object.keys(l.analysisData.components).length}コンポーネント、${V}要素）`);
+        } else
+          I.value = "分析データの読み込みに失敗しました";
+      } catch (V) {
+        I.value = `読み込みエラー: ${V}`;
+      } finally {
+        D.value = !1;
+      }
+    }
+    async function ee() {
+      if (!l.analysisData) {
+        alert("先に分析データを読み込んでください");
+        return;
+      }
+      J.value = await l.applyAnalysisToPage();
+    }
+    return (V, s) => {
+      var A;
       return d(), c(B, null, [
-        (d(), F(W, { to: "body" }, [
-          n(l).isEnabled && !n(l).isPanelOpen ? (d(), c("button", {
+        (d(), N(te, { to: "body" }, [
+          o(l).isEnabled && !o(l).isPanelOpen ? (d(), c("button", {
             key: 0,
-            onClick: o[0] || (o[0] = //@ts-ignore
-            (...r) => n(l).openPanel && n(l).openPanel(...r)),
+            onClick: s[0] || (s[0] = //@ts-ignore
+            (...v) => o(l).openPanel && o(l).openPanel(...v)),
             class: "di-fab",
             title: "画面仕様を表示",
             "data-dev-inspector": ""
           }, [
-            k(n(ye), { style: { width: "20px", height: "20px" } })
+            C(o(ke), { style: { width: "20px", height: "20px" } })
           ])) : w("", !0)
         ])),
-        (d(), F(W, { to: "body" }, [
-          n(l).isEnabled && n(l).isPanelOpen ? (d(), c("div", et, [
+        (d(), N(te, { to: "body" }, [
+          o(l).isEnabled && o(l).isPanelOpen ? (d(), c("div", et, [
             e("div", tt, [
               e("div", lt, [
-                k(n(ve), { style: { width: "20px", height: "20px", color: "#60a5fa" } }),
-                o[14] || (o[14] = e("span", null, "Developer Mode", -1))
+                C(o(fe), { style: { width: "20px", height: "20px", color: "#60a5fa" } }),
+                s[15] || (s[15] = e("span", null, "Developer Mode", -1))
               ]),
               e("button", {
-                onClick: o[1] || (o[1] = //@ts-ignore
-                (...r) => n(l).closePanel && n(l).closePanel(...r)),
+                onClick: s[1] || (s[1] = //@ts-ignore
+                (...v) => o(l).closePanel && o(l).closePanel(...v)),
                 class: "di-close-btn"
               }, [
-                k(n(xe), { style: { width: "20px", height: "20px" } })
+                C(o(Ie), { style: { width: "20px", height: "20px" } })
               ])
             ]),
-            e("div", ot, [
-              e("div", st, [
-                e("div", it, [
-                  k(n(me), { style: { width: "16px", height: "16px", color: "#fbbf24" } }),
-                  o[15] || (o[15] = e("span", null, "編集モード", -1))
+            e("div", st, [
+              e("div", ot, [
+                e("div", nt, [
+                  C(o(xe), { style: { width: "16px", height: "16px", color: "#fbbf24" } }),
+                  s[16] || (s[16] = e("span", null, "編集モード", -1))
                 ]),
                 e("button", {
-                  onClick: o[2] || (o[2] = //@ts-ignore
-                  (...r) => n(l).toggleEditMode && n(l).toggleEditMode(...r)),
-                  class: G(["di-toggle", { active: n(l).isEditMode }])
+                  onClick: s[2] || (s[2] = //@ts-ignore
+                  (...v) => o(l).toggleEditMode && o(l).toggleEditMode(...v)),
+                  class: K(["di-toggle", { active: o(l).isEditMode }])
                 }, [
                   e("span", {
-                    class: G(["di-toggle-knob", { active: n(l).isEditMode }])
+                    class: K(["di-toggle-knob", { active: o(l).isEditMode }])
                   }, null, 2)
                 ], 2)
               ]),
-              o[18] || (o[18] = e("p", { class: "di-edit-hint" }, "ONにすると、要素をクリックして情報を編集できます", -1)),
+              s[22] || (s[22] = e("p", { class: "di-edit-hint" }, "ONにすると、要素をクリックして情報を編集できます", -1)),
               e("button", {
-                onClick: o[3] || (o[3] = //@ts-ignore
-                (...r) => n(l).togglePickMode && n(l).togglePickMode(...r)),
-                class: G(["di-pick-btn", { active: n(l).isPickMode }])
+                onClick: s[3] || (s[3] = //@ts-ignore
+                (...v) => o(l).togglePickMode && o(l).togglePickMode(...v)),
+                class: K(["di-pick-btn", { active: o(l).isPickMode }])
               }, [
-                k(n(Ge), { style: { width: "16px", height: "16px" } }),
-                e("span", null, $(n(l).isPickMode ? "要素選択中..." : "任意の要素にメモを追加"), 1)
+                C(o(Xe), { style: { width: "16px", height: "16px" } }),
+                e("span", null, k(o(l).isPickMode ? "要素選択中..." : "任意の要素にメモを追加"), 1)
               ], 2),
-              e("div", nt, [
+              e("div", it, [
                 e("button", {
-                  onClick: o[4] || (o[4] = (r) => E(!1)),
+                  onClick: s[4] || (s[4] = (v) => y(!1)),
                   class: "di-scan-btn",
-                  disabled: n(l).isScanning,
+                  disabled: o(l).isScanning,
                   title: "新規要素のみスキャン"
                 }, [
-                  n(l).isScanning && !n(l).currentScanPage ? (d(), F(n(he), {
+                  o(l).isScanning && !o(l).currentScanPage ? (d(), N(o(pe), {
                     key: 0,
                     class: "di-spin",
                     style: { width: "16px", height: "16px" }
-                  })) : (d(), F(n(be), {
+                  })) : (d(), N(o(ye), {
                     key: 1,
                     style: { width: "16px", height: "16px" }
                   })),
-                  e("span", null, $(n(l).isScanning && !n(l).currentScanPage ? `${n(l).scanProgress}%` : "スキャン"), 1)
+                  e("span", null, k(o(l).isScanning && !o(l).currentScanPage ? `${o(l).scanProgress}%` : "スキャン"), 1)
                 ], 8, at),
                 e("button", {
-                  onClick: o[5] || (o[5] = (r) => E(!0)),
+                  onClick: s[5] || (s[5] = (v) => y(!0)),
                   class: "di-scan-btn di-scan-btn-rescan",
-                  disabled: n(l).isScanning,
+                  disabled: o(l).isScanning,
                   title: "既存の設定をクリアして再スキャン"
                 }, [
-                  k(n(be), { style: { width: "16px", height: "16px" } }),
-                  o[16] || (o[16] = e("span", null, "再スキャン", -1))
+                  C(o(ye), { style: { width: "16px", height: "16px" } }),
+                  s[17] || (s[17] = e("span", null, "再スキャン", -1))
                 ], 8, dt)
               ]),
               e("div", ut, [
                 e("button", {
-                  onClick: A,
+                  onClick: R,
                   class: "di-scan-btn di-scan-btn-all",
-                  disabled: n(l).isScanning,
-                  title: n(u) ? "全ページをスキャン" : "Vue Routerが必要です"
+                  disabled: o(l).isScanning,
+                  title: o(r) ? "全ページをスキャン" : "Vue Routerが必要です"
                 }, [
-                  n(l).isScanning && n(l).currentScanPage ? (d(), F(n(he), {
+                  o(l).isScanning && o(l).currentScanPage ? (d(), N(o(pe), {
                     key: 0,
                     class: "di-spin",
                     style: { width: "16px", height: "16px" }
-                  })) : (d(), F(n(Oe), {
+                  })) : (d(), N(o(He), {
                     key: 1,
                     style: { width: "16px", height: "16px" }
                   })),
-                  e("span", null, $(n(l).currentScanPage ? `${n(l).currentScanPage}` : "全ページスキャン"), 1)
+                  e("span", null, k(o(l).currentScanPage ? `${o(l).currentScanPage}` : "全ページスキャン"), 1)
                 ], 8, rt)
               ]),
-              I.value && (T.value > 0 || S.value.length > 0) ? (d(), c("div", ct, [
-                T.value > 0 ? (d(), c("div", vt, [
-                  e("span", pt, $(T.value), 1),
-                  o[17] || (o[17] = e("span", null, "件の要素を検出・登録しました", -1))
+              $.value && (g.value > 0 || P.value.length > 0) ? (d(), c("div", ct, [
+                g.value > 0 ? (d(), c("div", vt, [
+                  e("span", pt, k(g.value), 1),
+                  s[18] || (s[18] = e("span", null, "件の要素を検出・登録しました", -1))
                 ])) : w("", !0),
-                (d(!0), c(B, null, K(S.value, (r) => (d(), c("div", {
-                  key: r.page,
+                (d(!0), c(B, null, Q(P.value, (v) => (d(), c("div", {
+                  key: v.page,
                   class: "di-scan-result-item"
                 }, [
-                  e("code", null, $(r.page), 1),
-                  e("span", yt, $(r.count), 1)
+                  e("code", null, k(v.page), 1),
+                  e("span", yt, k(v.count), 1)
                 ]))), 128)),
                 e("button", {
-                  onClick: o[6] || (o[6] = (r) => {
-                    I.value = !1, S.value = [];
+                  onClick: s[6] || (s[6] = (v) => {
+                    $.value = !1, P.value = [];
                   }),
                   class: "di-scan-close"
                 }, " 閉じる ")
-              ])) : w("", !0)
+              ])) : w("", !0),
+              e("div", mt, [
+                e("div", bt, [
+                  C(o(ge), { style: { width: "16px", height: "16px", color: "#3b82f6" } }),
+                  s[19] || (s[19] = e("span", null, "CLIソース解析", -1))
+                ]),
+                e("div", ht, [
+                  E(e("input", {
+                    "onUpdate:modelValue": s[7] || (s[7] = (v) => S.value = v),
+                    type: "text",
+                    class: "di-analysis-url",
+                    placeholder: "/dev-inspector-analysis.json"
+                  }, null, 512), [
+                    [U, S.value]
+                  ])
+                ]),
+                e("div", ft, [
+                  e("button", {
+                    onClick: O,
+                    class: "di-analysis-btn",
+                    disabled: D.value
+                  }, [
+                    D.value ? (d(), N(o(pe), {
+                      key: 0,
+                      class: "di-spin",
+                      style: { width: "14px", height: "14px" }
+                    })) : (d(), N(o(ve), {
+                      key: 1,
+                      style: { width: "14px", height: "14px" }
+                    })),
+                    s[20] || (s[20] = e("span", null, "読み込み", -1))
+                  ], 8, kt),
+                  e("button", {
+                    onClick: ee,
+                    class: "di-analysis-btn di-analysis-btn-apply",
+                    disabled: !o(l).analysisData
+                  }, [
+                    C(o(ye), { style: { width: "14px", height: "14px" } }),
+                    s[21] || (s[21] = e("span", null, "ページに適用", -1))
+                  ], 8, xt)
+                ]),
+                I.value ? (d(), c("div", gt, k(I.value), 1)) : w("", !0),
+                o(l).analysisResults.length > 0 ? (d(), c("div", wt, [
+                  e("span", $t, k(o(l).analysisResults.filter((v) => v.matched).length), 1),
+                  e("span", null, "/ " + k(o(l).analysisResults.length) + " 要素がマッチ", 1)
+                ])) : w("", !0)
+              ])
             ]),
-            e("div", ht, [
+            e("div", Ct, [
               h.value ? (d(), c(B, { key: 0 }, [
-                e("div", mt, [
-                  e("h2", bt, $(h.value.name), 1),
-                  e("p", ft, $(h.value.description), 1)
+                e("div", It, [
+                  e("h2", Mt, k(h.value.name), 1),
+                  e("p", Et, k(h.value.description), 1)
                 ]),
-                e("div", kt, [
-                  e("div", gt, [
-                    k(n(ve), { style: { width: "16px", height: "16px" } }),
-                    o[19] || (o[19] = e("span", null, "Component Path", -1))
+                e("div", _t, [
+                  e("div", Pt, [
+                    C(o(fe), { style: { width: "16px", height: "16px" } }),
+                    s[23] || (s[23] = e("span", null, "Component Path", -1))
                   ]),
-                  e("code", xt, $(h.value.componentPath), 1)
+                  e("code", Tt, k(h.value.componentPath), 1)
                 ]),
-                h.value.figmaUrl ? (d(), c("div", wt, [
-                  e("div", $t, [
-                    k(n(je), { style: { width: "16px", height: "16px" } }),
-                    o[20] || (o[20] = e("span", null, "Figma Design", -1))
+                h.value.figmaUrl ? (d(), c("div", St, [
+                  e("div", Dt, [
+                    C(o(je), { style: { width: "16px", height: "16px" } }),
+                    s[24] || (s[24] = e("span", null, "Figma Design", -1))
                   ]),
                   e("a", {
                     href: h.value.figmaUrl,
                     target: "_blank",
                     class: "di-link-purple"
-                  }, $(h.value.figmaUrl), 9, Ct)
+                  }, k(h.value.figmaUrl), 9, Ut)
                 ])) : w("", !0),
-                h.value.apis.length ? (d(), c("div", It, [
-                  e("div", Mt, [
-                    k(n(Ke), { style: { width: "16px", height: "16px" } }),
-                    o[21] || (o[21] = e("span", null, "API Endpoints", -1))
+                h.value.apis.length ? (d(), c("div", Vt, [
+                  e("div", Lt, [
+                    C(o(ge), { style: { width: "16px", height: "16px" } }),
+                    s[25] || (s[25] = e("span", null, "API Endpoints", -1))
                   ]),
-                  e("div", Et, [
-                    (d(!0), c(B, null, K(h.value.apis, (r, q) => (d(), c("div", {
-                      key: q,
+                  e("div", At, [
+                    (d(!0), c(B, null, Q(h.value.apis, (v, Y) => (d(), c("div", {
+                      key: Y,
                       class: "di-api-item"
                     }, [
                       e("span", {
                         class: "di-method-badge",
-                        style: H({ backgroundColor: R[r.method] + "20", color: R[r.method] })
-                      }, $(r.method), 5),
-                      e("div", Pt, [
-                        e("code", _t, $(r.endpoint), 1),
-                        e("p", Tt, $(r.description), 1)
+                        style: F({ backgroundColor: q[v.method] + "20", color: q[v.method] })
+                      }, k(v.method), 5),
+                      e("div", Bt, [
+                        e("code", Rt, k(v.endpoint), 1),
+                        e("p", jt, k(v.description), 1)
                       ])
                     ]))), 128))
                   ])
                 ])) : w("", !0),
-                (f = h.value.notes) != null && f.length ? (d(), c("div", St, [
-                  e("div", Ut, [
-                    k(n(De), { style: { width: "16px", height: "16px" } }),
-                    o[22] || (o[22] = e("span", null, "Notes", -1))
+                (A = h.value.notes) != null && A.length ? (d(), c("div", Ot, [
+                  e("div", qt, [
+                    C(o(Le), { style: { width: "16px", height: "16px" } }),
+                    s[26] || (s[26] = e("span", null, "Notes", -1))
                   ]),
-                  e("ul", Vt, [
-                    (d(!0), c(B, null, K(h.value.notes, (r, q) => (d(), c("li", {
-                      key: q,
+                  e("ul", Ht, [
+                    (d(!0), c(B, null, Q(h.value.notes, (v, Y) => (d(), c("li", {
+                      key: Y,
                       class: "di-note-item"
                     }, [
-                      o[23] || (o[23] = e("span", { class: "di-bullet" }, "•", -1)),
-                      e("span", null, $(r), 1)
+                      s[27] || (s[27] = e("span", { class: "di-bullet" }, "•", -1)),
+                      e("span", null, k(v), 1)
                     ]))), 128))
                   ])
                 ])) : w("", !0)
-              ], 64)) : (d(), c("div", Dt, [
-                k(n(ye), { style: { width: "48px", height: "48px", color: "#334155" } }),
-                o[24] || (o[24] = e("p", null, [
-                  L("この画面の仕様情報は"),
+              ], 64)) : (d(), c("div", zt, [
+                C(o(ke), { style: { width: "48px", height: "48px", color: "#334155" } }),
+                s[28] || (s[28] = e("p", null, [
+                  j("この画面の仕様情報は"),
                   e("br"),
-                  L("まだ登録されていません")
+                  j("まだ登録されていません")
                 ], -1))
               ])),
-              e("div", Lt, [
-                e("div", At, [
-                  e("div", Bt, [
-                    k(n(me), { style: { width: "16px", height: "16px" } }),
-                    o[25] || (o[25] = e("span", null, "登録済み要素", -1)),
-                    e("span", jt, $(p.value), 1)
+              e("div", Nt, [
+                e("div", Ft, [
+                  e("div", Gt, [
+                    C(o(xe), { style: { width: "16px", height: "16px" } }),
+                    s[29] || (s[29] = e("span", null, "登録済み要素", -1)),
+                    e("span", Xt, k(m.value), 1)
                   ])
                 ]),
-                p.value > 0 ? (d(), c("div", Rt, [
+                m.value > 0 ? (d(), c("div", Kt, [
                   e("button", {
-                    onClick: j,
+                    onClick: z,
                     class: "di-btn-green"
                   }, [
-                    k(n(qe), { style: { width: "16px", height: "16px" } }),
-                    o[26] || (o[26] = L(" Git管理用に保存 ", -1))
+                    C(o(qe), { style: { width: "16px", height: "16px" } }),
+                    s[30] || (s[30] = j(" Git管理用に保存 ", -1))
                   ]),
                   e("button", {
-                    onClick: g,
+                    onClick: H,
                     class: "di-btn-blue"
                   }, [
-                    k(n(Re), { style: { width: "16px", height: "16px" } }),
-                    o[27] || (o[27] = L(" 画面仕様書 (xlsx) 出力 ", -1))
+                    C(o(Oe), { style: { width: "16px", height: "16px" } }),
+                    s[31] || (s[31] = j(" 画面仕様書 (xlsx) 出力 ", -1))
                   ])
                 ])) : w("", !0),
-                p.value > 0 ? (d(), c("p", qt, [...o[28] || (o[28] = [
-                  L(" JSON: ", -1),
+                m.value > 0 ? (d(), c("p", Yt, [...s[32] || (s[32] = [
+                  j(" JSON: ", -1),
                   e("code", null, "dev-annotations.json", -1),
-                  L(" に配置してcommit ", -1)
+                  j(" に配置してcommit ", -1)
                 ])])) : w("", !0),
-                e("div", Ot, [
+                e("div", Zt, [
                   e("button", {
-                    onClick: o[7] || (o[7] = (r) => b.value = !0),
+                    onClick: s[8] || (s[8] = (v) => x.value = !0),
                     class: "di-btn-small"
                   }, [
-                    k(n(pe), { style: { width: "14px", height: "14px" } }),
-                    o[29] || (o[29] = L(" エクスポート ", -1))
+                    C(o(ve), { style: { width: "14px", height: "14px" } }),
+                    s[33] || (s[33] = j(" エクスポート ", -1))
                   ]),
                   e("button", {
-                    onClick: o[8] || (o[8] = (r) => _.value = !0),
+                    onClick: s[9] || (s[9] = (v) => _.value = !0),
                     class: "di-btn-small"
                   }, [
-                    k(n(Ze), { style: { width: "14px", height: "14px" } }),
-                    o[30] || (o[30] = L(" インポート ", -1))
+                    C(o(Ze), { style: { width: "14px", height: "14px" } }),
+                    s[34] || (s[34] = j(" インポート ", -1))
                   ]),
-                  p.value > 0 ? (d(), c("button", {
+                  m.value > 0 ? (d(), c("button", {
                     key: 0,
-                    onClick: M,
+                    onClick: i,
                     class: "di-btn-small di-btn-danger"
                   }, [
-                    k(n(ge), { style: { width: "14px", height: "14px" } }),
-                    o[31] || (o[31] = L(" 全削除 ", -1))
+                    C(o(Ce), { style: { width: "14px", height: "14px" } }),
+                    s[35] || (s[35] = j(" 全削除 ", -1))
                   ])) : w("", !0)
                 ])
               ])
             ]),
-            o[32] || (o[32] = e("div", { class: "di-footer" }, [
+            s[36] || (s[36] = e("div", { class: "di-footer" }, [
               e("kbd", null, "Ctrl"),
               e("span", null, "+"),
               e("kbd", null, "Shift"),
@@ -1031,84 +1105,84 @@ const et = {
             ], -1))
           ])) : w("", !0)
         ])),
-        (d(), F(W, { to: "body" }, [
-          n(l).isEnabled ? (d(), c("div", zt, [
-            o[33] || (o[33] = e("span", { class: "di-indicator-dot" }, null, -1)),
-            o[34] || (o[34] = L(" Developer Mode ", -1)),
-            n(l).isEditMode ? (d(), c("span", Ht, "• 編集中")) : w("", !0)
+        (d(), N(te, { to: "body" }, [
+          o(l).isEnabled ? (d(), c("div", Jt, [
+            s[37] || (s[37] = e("span", { class: "di-indicator-dot" }, null, -1)),
+            s[38] || (s[38] = j(" Developer Mode ", -1)),
+            o(l).isEditMode ? (d(), c("span", Wt, "• 編集中")) : w("", !0)
           ])) : w("", !0)
         ])),
-        (d(), F(W, { to: "body" }, [
-          b.value ? (d(), c("div", {
+        (d(), N(te, { to: "body" }, [
+          x.value ? (d(), c("div", {
             key: 0,
             class: "di-modal-overlay",
-            onClick: o[10] || (o[10] = de((r) => b.value = !1, ["self"])),
+            onClick: s[11] || (s[11] = me((v) => x.value = !1, ["self"])),
             "data-dev-inspector": ""
           }, [
-            e("div", Nt, [
-              o[36] || (o[36] = e("h3", { class: "di-modal-title" }, "設定をエクスポート", -1)),
+            e("div", Qt, [
+              s[40] || (s[40] = e("h3", { class: "di-modal-title" }, "設定をエクスポート", -1)),
               e("textarea", {
                 readonly: "",
-                value: n(l).exportConfigs(),
+                value: o(l).exportConfigs(),
                 class: "di-modal-textarea"
-              }, null, 8, Ft),
-              e("div", Gt, [
+              }, null, 8, el),
+              e("div", tl, [
                 e("button", {
-                  onClick: o[9] || (o[9] = (r) => b.value = !1),
+                  onClick: s[10] || (s[10] = (v) => x.value = !1),
                   class: "di-btn-small"
                 }, "閉じる"),
                 e("button", {
-                  onClick: z,
+                  onClick: X,
                   class: "di-btn-small di-btn-gray"
                 }, [
-                  k(n(pe), { style: { width: "14px", height: "14px" } }),
-                  o[35] || (o[35] = L(" ファイル保存 ", -1))
+                  C(o(ve), { style: { width: "14px", height: "14px" } }),
+                  s[39] || (s[39] = j(" ファイル保存 ", -1))
                 ]),
                 e("button", {
-                  onClick: O,
+                  onClick: G,
                   class: "di-btn-small di-btn-primary"
                 }, "コピー")
               ])
             ])
           ])) : w("", !0)
         ])),
-        (d(), F(W, { to: "body" }, [
+        (d(), N(te, { to: "body" }, [
           _.value ? (d(), c("div", {
             key: 0,
             class: "di-modal-overlay",
-            onClick: o[13] || (o[13] = de((r) => _.value = !1, ["self"])),
+            onClick: s[14] || (s[14] = me((v) => _.value = !1, ["self"])),
             "data-dev-inspector": ""
           }, [
-            e("div", Xt, [
-              o[38] || (o[38] = e("h3", { class: "di-modal-title" }, "設定をインポート", -1)),
-              e("label", Kt, [
+            e("div", ll, [
+              s[42] || (s[42] = e("h3", { class: "di-modal-title" }, "設定をインポート", -1)),
+              e("label", sl, [
                 e("input", {
                   type: "file",
                   accept: ".json",
-                  onChange: s
+                  onChange: a
                 }, null, 32),
-                o[37] || (o[37] = e("span", null, "JSONファイルをドラッグまたはクリック", -1))
+                s[41] || (s[41] = e("span", null, "JSONファイルをドラッグまたはクリック", -1))
               ]),
-              P(e("textarea", {
-                "onUpdate:modelValue": o[11] || (o[11] = (r) => U.value = r),
+              E(e("textarea", {
+                "onUpdate:modelValue": s[12] || (s[12] = (v) => T.value = v),
                 placeholder: "またはJSONを直接貼り付け...",
                 class: "di-modal-textarea di-modal-textarea-input"
               }, null, 512), [
-                [V, U.value]
+                [U, T.value]
               ]),
-              D.value ? (d(), c("p", Yt, $(D.value), 1)) : w("", !0),
-              e("div", Zt, [
+              L.value ? (d(), c("p", ol, k(L.value), 1)) : w("", !0),
+              e("div", nl, [
                 e("button", {
-                  onClick: o[12] || (o[12] = (r) => {
-                    _.value = !1, U.value = "", D.value = "";
+                  onClick: s[13] || (s[13] = (v) => {
+                    _.value = !1, T.value = "", L.value = "";
                   }),
                   class: "di-btn-small"
                 }, " キャンセル "),
                 e("button", {
-                  onClick: m,
-                  disabled: !U.value,
+                  onClick: f,
+                  disabled: !T.value,
                   class: "di-btn-small di-btn-primary"
-                }, " インポート ", 8, Jt)
+                }, " インポート ", 8, il)
               ])
             ])
           ])) : w("", !0)
@@ -1116,514 +1190,514 @@ const et = {
       ], 64);
     };
   }
-}), ue = (v, l) => {
-  const u = v.__vccOpts || v;
-  for (const [b, _] of l)
-    u[b] = _;
-  return u;
-}, Qt = /* @__PURE__ */ ue(Wt, [["__scopeId", "data-v-d1679917"]]), el = { class: "di-editor-modal" }, tl = { class: "di-editor-header" }, ll = { class: "di-header-actions" }, ol = {
+}), be = (b, l) => {
+  const r = b.__vccOpts || b;
+  for (const [x, _] of l)
+    r[x] = _;
+  return r;
+}, dl = /* @__PURE__ */ be(al, [["__scopeId", "data-v-c2cf18da"]]), ul = { class: "di-editor-modal" }, rl = { class: "di-editor-header" }, cl = { class: "di-header-actions" }, vl = {
   key: 0,
   class: "di-static-indicator"
-}, sl = {
+}, pl = {
   key: 1,
   class: "di-binding-indicator"
-}, il = {
+}, yl = {
   key: 0,
   class: "di-binding-source"
-}, nl = { class: "di-editor-tabs" }, al = { class: "di-editor-content" }, dl = { class: "di-form-group" }, ul = { class: "di-note-types" }, rl = ["onClick"], cl = { class: "di-form-group" }, vl = { class: "di-form-group" }, pl = { class: "di-form-row" }, yl = { class: "di-form-group" }, hl = { class: "di-form-group" }, ml = { class: "di-form-group" }, bl = ["value"], fl = { class: "di-form-group" }, kl = { class: "di-form-group" }, gl = { class: "di-form-group" }, xl = ["value"], wl = {
+}, ml = { class: "di-editor-tabs" }, bl = { class: "di-editor-content" }, hl = { class: "di-form-group" }, fl = { class: "di-note-types" }, kl = ["onClick"], xl = { class: "di-form-group" }, gl = { class: "di-form-group" }, wl = { class: "di-form-row" }, $l = { class: "di-form-group" }, Cl = { class: "di-form-group" }, Il = { class: "di-form-group" }, Ml = ["value"], El = { class: "di-form-group" }, _l = { class: "di-form-group" }, Pl = { class: "di-form-group" }, Tl = ["value"], Sl = {
   key: 0,
   class: "di-form-row"
-}, $l = {
+}, Dl = {
   class: "di-form-group",
   style: { flex: "0 0 100px" }
-}, Cl = ["value"], Il = {
+}, Ul = ["value"], Vl = {
   class: "di-form-group",
   style: { flex: "1" }
-}, Ml = {
+}, Ll = {
   key: 1,
   class: "di-form-group"
-}, El = { class: "di-form-label" }, Pl = ["placeholder"], _l = { class: "di-form-group" }, Tl = { class: "di-form-group" }, Sl = { class: "di-form-group" }, Ul = { class: "di-form-row" }, Vl = { class: "di-form-group" }, Dl = { class: "di-form-group" }, Ll = { class: "di-form-group" }, Al = { class: "di-form-group" }, Bl = { class: "di-form-group" }, jl = { class: "di-form-group" }, Rl = { class: "di-form-group" }, ql = { class: "di-form-group" }, Ol = { class: "di-form-group" }, zl = { class: "di-editor-footer" }, Hl = { class: "di-editor-actions" }, Nl = /* @__PURE__ */ ie({
+}, Al = { class: "di-form-label" }, Bl = ["placeholder"], Rl = { class: "di-form-group" }, jl = { class: "di-form-group" }, Ol = { class: "di-form-group" }, ql = { class: "di-form-row" }, Hl = { class: "di-form-group" }, zl = { class: "di-form-group" }, Nl = { class: "di-form-group" }, Fl = { class: "di-form-group" }, Gl = { class: "di-form-group" }, Xl = { class: "di-form-group" }, Kl = { class: "di-form-group" }, Yl = { class: "di-form-group" }, Zl = { class: "di-form-group" }, Jl = { class: "di-editor-footer" }, Wl = { class: "di-editor-actions" }, Ql = /* @__PURE__ */ de({
   __name: "DevElementEditor",
-  setup(v) {
-    const l = ne(), u = y("note"), b = y(""), _ = y(""), U = y(""), D = y(""), R = y(""), h = y("navigate"), p = y(""), O = y("GET"), z = y(""), j = y(""), g = y(""), m = y("info"), s = y(""), M = y(""), T = y(""), I = y(""), S = y(""), E = y(""), A = y(""), x = y(""), o = y(""), f = y(""), r = y(""), q = y(""), Y = y(""), Z = y(!1), we = Q(() => l.editingElementId !== null), J = Q(() => l.editingElementId);
-    fe(J, (X) => {
-      var t, i, te, le, oe, N;
-      if (X) {
-        const a = l.getElementConfig(X);
-        a != null && a.fieldInfo && (b.value = a.fieldInfo.table || "", _.value = a.fieldInfo.column || "", U.value = a.fieldInfo.type || "", D.value = ((t = a.fieldInfo.validation) == null ? void 0 : t.join(", ")) || "", R.value = a.fieldInfo.description || ""), a != null && a.actionInfo && (h.value = a.actionInfo.type || "navigate", p.value = a.actionInfo.target || "", O.value = a.actionInfo.method || "GET", z.value = a.actionInfo.description || ""), a != null && a.note && (j.value = a.note.text || "", g.value = a.note.author || "", m.value = a.note.type || "info"), a != null && a.links && (s.value = a.links.testPath || "", M.value = a.links.figmaUrl || "", T.value = a.links.githubIssue || "", I.value = a.links.githubPr || "", S.value = a.links.relatedDocs || ""), a != null && a.devMeta && (E.value = ((i = a.devMeta.usedStores) == null ? void 0 : i.join(", ")) || "", A.value = ((te = a.devMeta.usedComponents) == null ? void 0 : te.join(", ")) || "", x.value = ((le = a.devMeta.i18nKeys) == null ? void 0 : le.join(", ")) || "", o.value = ((oe = a.devMeta.designTokens) == null ? void 0 : oe.join(", ")) || "", f.value = a.devMeta.accessibility || "", r.value = a.devMeta.responsive || ""), a != null && a.sourceBinding && (q.value = a.sourceBinding.type || "", Y.value = a.sourceBinding.source || "", Z.value = a.sourceBinding.isStatic || !1), (N = a == null ? void 0 : a.note) != null && N.text ? u.value = "note" : a != null && a.fieldInfo ? u.value = "field" : a != null && a.actionInfo ? u.value = "action" : a != null && a.links ? u.value = "links" : a != null && a.devMeta ? u.value = "meta" : u.value = "note";
+  setup(b) {
+    const l = ue(), r = p("note"), x = p(""), _ = p(""), T = p(""), L = p(""), q = p(""), h = p("navigate"), m = p(""), G = p("GET"), X = p(""), z = p(""), H = p(""), f = p("info"), a = p(""), i = p(""), g = p(""), $ = p(""), P = p(""), y = p(""), R = p(""), S = p(""), D = p(""), I = p(""), J = p(""), O = p(""), ee = p(""), V = p(!1), s = le(() => l.editingElementId !== null), A = le(() => l.editingElementId);
+    we(A, (W) => {
+      var t, n, se, ne, ie, Z;
+      if (W) {
+        const u = l.getElementConfig(W);
+        u != null && u.fieldInfo && (x.value = u.fieldInfo.table || "", _.value = u.fieldInfo.column || "", T.value = u.fieldInfo.type || "", L.value = ((t = u.fieldInfo.validation) == null ? void 0 : t.join(", ")) || "", q.value = u.fieldInfo.description || ""), u != null && u.actionInfo && (h.value = u.actionInfo.type || "navigate", m.value = u.actionInfo.target || "", G.value = u.actionInfo.method || "GET", X.value = u.actionInfo.description || ""), u != null && u.note && (z.value = u.note.text || "", H.value = u.note.author || "", f.value = u.note.type || "info"), u != null && u.links && (a.value = u.links.testPath || "", i.value = u.links.figmaUrl || "", g.value = u.links.githubIssue || "", $.value = u.links.githubPr || "", P.value = u.links.relatedDocs || ""), u != null && u.devMeta && (y.value = ((n = u.devMeta.usedStores) == null ? void 0 : n.join(", ")) || "", R.value = ((se = u.devMeta.usedComponents) == null ? void 0 : se.join(", ")) || "", S.value = ((ne = u.devMeta.i18nKeys) == null ? void 0 : ne.join(", ")) || "", D.value = ((ie = u.devMeta.designTokens) == null ? void 0 : ie.join(", ")) || "", I.value = u.devMeta.accessibility || "", J.value = u.devMeta.responsive || ""), u != null && u.sourceBinding && (O.value = u.sourceBinding.type || "", ee.value = u.sourceBinding.source || "", V.value = u.sourceBinding.isStatic || !1), (Z = u == null ? void 0 : u.note) != null && Z.text ? r.value = "note" : u != null && u.fieldInfo ? r.value = "field" : u != null && u.actionInfo ? r.value = "action" : u != null && u.links ? r.value = "links" : u != null && u.devMeta ? r.value = "meta" : r.value = "note";
       } else
-        re();
+        v();
     });
+    function v() {
+      x.value = "", _.value = "", T.value = "", L.value = "", q.value = "", h.value = "navigate", m.value = "", G.value = "GET", X.value = "", z.value = "", H.value = "", f.value = "info", a.value = "", i.value = "", g.value = "", $.value = "", P.value = "", y.value = "", R.value = "", S.value = "", D.value = "", I.value = "", J.value = "", O.value = "", ee.value = "", V.value = !1, r.value = "note";
+    }
+    function Y() {
+      l.stopEditing(), v();
+    }
     function re() {
-      b.value = "", _.value = "", U.value = "", D.value = "", R.value = "", h.value = "navigate", p.value = "", O.value = "GET", z.value = "", j.value = "", g.value = "", m.value = "info", s.value = "", M.value = "", T.value = "", I.value = "", S.value = "", E.value = "", A.value = "", x.value = "", o.value = "", f.value = "", r.value = "", q.value = "", Y.value = "", Z.value = !1, u.value = "note";
-    }
-    function ee() {
-      l.stopEditing(), re();
-    }
-    function $e() {
-      if (J.value)
+      if (A.value)
         try {
-          const X = document.querySelector(J.value);
-          if (!X) return;
-          const t = l.autoDetectElementInfo(X, J.value);
-          t.sourceBinding && (q.value = t.sourceBinding.type || "", Y.value = t.sourceBinding.source || "", Z.value = t.sourceBinding.isStatic || !1, t.sourceBinding.isStatic && !j.value && (j.value = "固定文言", m.value = "info"));
-        } catch (X) {
-          console.error("[DevInspector] Auto-detect failed:", X);
+          const W = document.querySelector(A.value);
+          if (!W) return;
+          const t = l.autoDetectElementInfo(W, A.value);
+          t.sourceBinding && (O.value = t.sourceBinding.type || "", ee.value = t.sourceBinding.source || "", V.value = t.sourceBinding.isStatic || !1, t.sourceBinding.isStatic && !z.value && (z.value = "固定文言", f.value = "info"));
+        } catch (W) {
+          console.error("[DevInspector] Auto-detect failed:", W);
         }
     }
-    function Ce() {
-      if (!J.value) return;
-      const X = b.value && _.value ? {
-        table: b.value,
+    function oe() {
+      if (!A.value) return;
+      const W = x.value && _.value ? {
+        table: x.value,
         column: _.value,
-        type: U.value || void 0,
-        validation: D.value ? D.value.split(",").map((N) => N.trim()) : void 0,
-        description: R.value || void 0
-      } : void 0, t = p.value ? {
+        type: T.value || void 0,
+        validation: L.value ? L.value.split(",").map((Z) => Z.trim()) : void 0,
+        description: q.value || void 0
+      } : void 0, t = m.value ? {
         type: h.value,
-        target: p.value,
-        method: h.value === "api" ? O.value : void 0,
-        description: z.value || void 0
-      } : void 0, i = j.value ? {
-        text: j.value,
-        author: g.value || void 0,
-        type: m.value
-      } : void 0, te = s.value || M.value || T.value || I.value || S.value ? {
-        testPath: s.value || void 0,
-        figmaUrl: M.value || void 0,
-        githubIssue: T.value || void 0,
-        githubPr: I.value || void 0,
-        relatedDocs: S.value || void 0
-      } : void 0, le = E.value || A.value || x.value || o.value || f.value || r.value ? {
-        usedStores: E.value ? E.value.split(",").map((N) => N.trim()) : void 0,
-        usedComponents: A.value ? A.value.split(",").map((N) => N.trim()) : void 0,
-        i18nKeys: x.value ? x.value.split(",").map((N) => N.trim()) : void 0,
-        designTokens: o.value ? o.value.split(",").map((N) => N.trim()) : void 0,
-        accessibility: f.value || void 0,
-        responsive: r.value || void 0
-      } : void 0, oe = q.value ? {
-        type: q.value,
-        source: Y.value || void 0,
-        isStatic: Z.value
+        target: m.value,
+        method: h.value === "api" ? G.value : void 0,
+        description: X.value || void 0
+      } : void 0, n = z.value ? {
+        text: z.value,
+        author: H.value || void 0,
+        type: f.value
+      } : void 0, se = a.value || i.value || g.value || $.value || P.value ? {
+        testPath: a.value || void 0,
+        figmaUrl: i.value || void 0,
+        githubIssue: g.value || void 0,
+        githubPr: $.value || void 0,
+        relatedDocs: P.value || void 0
+      } : void 0, ne = y.value || R.value || S.value || D.value || I.value || J.value ? {
+        usedStores: y.value ? y.value.split(",").map((Z) => Z.trim()) : void 0,
+        usedComponents: R.value ? R.value.split(",").map((Z) => Z.trim()) : void 0,
+        i18nKeys: S.value ? S.value.split(",").map((Z) => Z.trim()) : void 0,
+        designTokens: D.value ? D.value.split(",").map((Z) => Z.trim()) : void 0,
+        accessibility: I.value || void 0,
+        responsive: J.value || void 0
+      } : void 0, ie = O.value ? {
+        type: O.value,
+        source: ee.value || void 0,
+        isStatic: V.value
       } : void 0;
-      l.setElementConfig(J.value, {
-        fieldInfo: X,
+      l.setElementConfig(A.value, {
+        fieldInfo: W,
         actionInfo: t,
-        note: i,
-        links: te,
-        devMeta: le,
-        sourceBinding: oe
-      }), ee();
+        note: n,
+        links: se,
+        devMeta: ne,
+        sourceBinding: ie
+      }), Y();
     }
-    function Ie() {
-      J.value && (l.deleteElementConfig(J.value), ee());
+    function Me() {
+      A.value && (l.deleteElementConfig(A.value), Y());
     }
-    const Me = ["VARCHAR", "TEXT", "INT", "BIGINT", "BOOLEAN", "DATE", "DATETIME", "TIMESTAMP", "JSON"], Ee = [
+    const Ee = ["VARCHAR", "TEXT", "INT", "BIGINT", "BOOLEAN", "DATE", "DATETIME", "TIMESTAMP", "JSON"], _e = [
       { value: "navigate", label: "画面遷移" },
       { value: "api", label: "API呼び出し" },
       { value: "modal", label: "モーダル表示" },
       { value: "emit", label: "イベント発火" },
       { value: "function", label: "関数実行" }
-    ], Pe = ["GET", "POST", "PUT", "DELETE", "PATCH"], _e = [
-      { value: "info", label: "情報", icon: He, color: "#60a5fa" },
-      { value: "warning", label: "注意", icon: Le, color: "#fbbf24" },
-      { value: "todo", label: "TODO", icon: Ae, color: "#10b981" },
+    ], Pe = ["GET", "POST", "PUT", "DELETE", "PATCH"], Te = [
+      { value: "info", label: "情報", icon: Ne, color: "#60a5fa" },
+      { value: "warning", label: "注意", icon: Ae, color: "#fbbf24" },
+      { value: "todo", label: "TODO", icon: Be, color: "#10b981" },
       { value: "question", label: "質問", icon: ze, color: "#a78bfa" }
     ];
-    return (X, t) => (d(), F(W, { to: "body" }, [
-      we.value ? (d(), c("div", {
+    return (W, t) => (d(), N(te, { to: "body" }, [
+      s.value ? (d(), c("div", {
         key: 0,
         class: "di-editor-overlay",
-        onClick: de(ee, ["self"]),
+        onClick: me(Y, ["self"]),
         "data-dev-inspector": ""
       }, [
-        e("div", el, [
-          e("div", tl, [
+        e("div", ul, [
+          e("div", rl, [
             t[28] || (t[28] = e("h3", null, "要素情報を編集", -1)),
-            e("div", ll, [
+            e("div", cl, [
               e("button", {
-                onClick: $e,
+                onClick: re,
                 class: "di-btn-auto",
                 title: "自動検出"
               }, [
-                k(n(Je), { style: { width: "16px", height: "16px" } })
+                C(o(Je), { style: { width: "16px", height: "16px" } })
               ]),
               e("button", {
-                onClick: ee,
+                onClick: Y,
                 class: "di-editor-close"
               }, [
-                k(n(xe), { style: { width: "20px", height: "20px" } })
+                C(o(Ie), { style: { width: "20px", height: "20px" } })
               ])
             ])
           ]),
-          Z.value ? (d(), c("div", ol, [...t[29] || (t[29] = [
+          V.value ? (d(), c("div", vl, [...t[29] || (t[29] = [
             e("span", { class: "di-static-badge" }, "固定文言", -1),
             e("span", { class: "di-static-hint" }, "このテキストはソースコードに直接記述されています", -1)
-          ])])) : q.value ? (d(), c("div", sl, [
+          ])])) : O.value ? (d(), c("div", pl, [
             e("span", {
-              class: G(["di-binding-badge", "di-binding-" + q.value])
-            }, $(q.value), 3),
-            Y.value ? (d(), c("span", il, $(Y.value), 1)) : w("", !0)
+              class: K(["di-binding-badge", "di-binding-" + O.value])
+            }, k(O.value), 3),
+            ee.value ? (d(), c("span", yl, k(ee.value), 1)) : w("", !0)
           ])) : w("", !0),
-          e("div", nl, [
+          e("div", ml, [
             e("button", {
-              onClick: t[0] || (t[0] = (i) => u.value = "note"),
-              class: G(["di-editor-tab", { active: u.value === "note" }]),
-              style: H(u.value === "note" ? { color: "#10b981", borderColor: "#10b981", background: "rgba(16, 185, 129, 0.1)" } : {})
+              onClick: t[0] || (t[0] = (n) => r.value = "note"),
+              class: K(["di-editor-tab", { active: r.value === "note" }]),
+              style: F(r.value === "note" ? { color: "#10b981", borderColor: "#10b981", background: "rgba(16, 185, 129, 0.1)" } : {})
             }, [
-              k(n(Fe), { style: { width: "12px", height: "12px" } }),
-              t[30] || (t[30] = L(" メモ ", -1))
+              C(o(Ge), { style: { width: "12px", height: "12px" } }),
+              t[30] || (t[30] = j(" メモ ", -1))
             ], 6),
             e("button", {
-              onClick: t[1] || (t[1] = (i) => u.value = "field"),
-              class: G(["di-editor-tab", { active: u.value === "field" }]),
-              style: H(u.value === "field" ? { color: "#60a5fa", borderColor: "#60a5fa", background: "rgba(96, 165, 250, 0.1)" } : {})
+              onClick: t[1] || (t[1] = (n) => r.value = "field"),
+              class: K(["di-editor-tab", { active: r.value === "field" }]),
+              style: F(r.value === "field" ? { color: "#60a5fa", borderColor: "#60a5fa", background: "rgba(96, 165, 250, 0.1)" } : {})
             }, [
-              k(n(Be), { style: { width: "12px", height: "12px" } }),
-              t[31] || (t[31] = L(" データ ", -1))
+              C(o(Re), { style: { width: "12px", height: "12px" } }),
+              t[31] || (t[31] = j(" データ ", -1))
             ], 6),
             e("button", {
-              onClick: t[2] || (t[2] = (i) => u.value = "action"),
-              class: G(["di-editor-tab", { active: u.value === "action" }]),
-              style: H(u.value === "action" ? { color: "#a78bfa", borderColor: "#a78bfa", background: "rgba(167, 139, 250, 0.1)" } : {})
+              onClick: t[2] || (t[2] = (n) => r.value = "action"),
+              class: K(["di-editor-tab", { active: r.value === "action" }]),
+              style: F(r.value === "action" ? { color: "#a78bfa", borderColor: "#a78bfa", background: "rgba(167, 139, 250, 0.1)" } : {})
             }, [
-              k(n(We), { style: { width: "12px", height: "12px" } }),
-              t[32] || (t[32] = L(" アクション ", -1))
+              C(o(We), { style: { width: "12px", height: "12px" } }),
+              t[32] || (t[32] = j(" アクション ", -1))
             ], 6),
             e("button", {
-              onClick: t[3] || (t[3] = (i) => u.value = "links"),
-              class: G(["di-editor-tab", { active: u.value === "links" }]),
-              style: H(u.value === "links" ? { color: "#f59e0b", borderColor: "#f59e0b", background: "rgba(245, 158, 11, 0.1)" } : {})
+              onClick: t[3] || (t[3] = (n) => r.value = "links"),
+              class: K(["di-editor-tab", { active: r.value === "links" }]),
+              style: F(r.value === "links" ? { color: "#f59e0b", borderColor: "#f59e0b", background: "rgba(245, 158, 11, 0.1)" } : {})
             }, [
-              k(n(Ne), { style: { width: "12px", height: "12px" } }),
-              t[33] || (t[33] = L(" リンク ", -1))
+              C(o(Fe), { style: { width: "12px", height: "12px" } }),
+              t[33] || (t[33] = j(" リンク ", -1))
             ], 6),
             e("button", {
-              onClick: t[4] || (t[4] = (i) => u.value = "meta"),
-              class: G(["di-editor-tab", { active: u.value === "meta" }]),
-              style: H(u.value === "meta" ? { color: "#ec4899", borderColor: "#ec4899", background: "rgba(236, 72, 153, 0.1)" } : {})
+              onClick: t[4] || (t[4] = (n) => r.value = "meta"),
+              class: K(["di-editor-tab", { active: r.value === "meta" }]),
+              style: F(r.value === "meta" ? { color: "#ec4899", borderColor: "#ec4899", background: "rgba(236, 72, 153, 0.1)" } : {})
             }, [
-              k(n(Ye), { style: { width: "12px", height: "12px" } }),
-              t[34] || (t[34] = L(" 開発情報 ", -1))
+              C(o(Ye), { style: { width: "12px", height: "12px" } }),
+              t[34] || (t[34] = j(" 開発情報 ", -1))
             ], 6)
           ]),
-          e("div", al, [
-            u.value === "note" ? (d(), c(B, { key: 0 }, [
-              e("div", dl, [
+          e("div", bl, [
+            r.value === "note" ? (d(), c(B, { key: 0 }, [
+              e("div", hl, [
                 t[35] || (t[35] = e("label", { class: "di-form-label" }, "タイプ", -1)),
-                e("div", ul, [
-                  (d(), c(B, null, K(_e, (i) => e("button", {
-                    key: i.value,
-                    onClick: (te) => m.value = i.value,
+                e("div", fl, [
+                  (d(), c(B, null, Q(Te, (n) => e("button", {
+                    key: n.value,
+                    onClick: (se) => f.value = n.value,
                     class: "di-note-type-btn",
-                    style: H(m.value === i.value ? { color: i.color, borderColor: i.color, background: i.color + "15" } : {})
+                    style: F(f.value === n.value ? { color: n.color, borderColor: n.color, background: n.color + "15" } : {})
                   }, [
-                    (d(), F(Se(i.icon), {
-                      style: H([{ width: "16px", height: "16px" }, { color: m.value === i.value ? i.color : "#64748b" }])
+                    (d(), N(De(n.icon), {
+                      style: F([{ width: "16px", height: "16px" }, { color: f.value === n.value ? n.color : "#64748b" }])
                     }, null, 8, ["style"])),
                     e("span", {
-                      style: H({ color: m.value === i.value ? i.color : "#94a3b8" })
-                    }, $(i.label), 5)
-                  ], 12, rl)), 64))
+                      style: F({ color: f.value === n.value ? n.color : "#94a3b8" })
+                    }, k(n.label), 5)
+                  ], 12, kl)), 64))
                 ])
               ]),
-              e("div", cl, [
+              e("div", xl, [
                 t[36] || (t[36] = e("label", { class: "di-form-label" }, "メモ内容 *", -1)),
-                P(e("textarea", {
-                  "onUpdate:modelValue": t[5] || (t[5] = (i) => j.value = i),
+                E(e("textarea", {
+                  "onUpdate:modelValue": t[5] || (t[5] = (n) => z.value = n),
                   rows: "4",
                   placeholder: "この要素についてのメモ、説明、注意事項など...",
                   class: "di-textarea"
                 }, null, 512), [
-                  [V, j.value]
+                  [U, z.value]
                 ])
               ]),
-              e("div", vl, [
+              e("div", gl, [
                 t[37] || (t[37] = e("label", { class: "di-form-label" }, "記入者（オプション）", -1)),
-                P(e("input", {
-                  "onUpdate:modelValue": t[6] || (t[6] = (i) => g.value = i),
+                E(e("input", {
+                  "onUpdate:modelValue": t[6] || (t[6] = (n) => H.value = n),
                   type: "text",
                   placeholder: "名前",
                   class: "di-input"
                 }, null, 512), [
-                  [V, g.value]
+                  [U, H.value]
                 ])
               ])
             ], 64)) : w("", !0),
-            u.value === "field" ? (d(), c(B, { key: 1 }, [
-              e("div", pl, [
-                e("div", yl, [
+            r.value === "field" ? (d(), c(B, { key: 1 }, [
+              e("div", wl, [
+                e("div", $l, [
                   t[38] || (t[38] = e("label", { class: "di-form-label" }, "テーブル名 *", -1)),
-                  P(e("input", {
-                    "onUpdate:modelValue": t[7] || (t[7] = (i) => b.value = i),
+                  E(e("input", {
+                    "onUpdate:modelValue": t[7] || (t[7] = (n) => x.value = n),
                     type: "text",
                     placeholder: "users",
                     class: "di-input"
                   }, null, 512), [
-                    [V, b.value]
+                    [U, x.value]
                   ])
                 ]),
-                e("div", hl, [
+                e("div", Cl, [
                   t[39] || (t[39] = e("label", { class: "di-form-label" }, "カラム名 *", -1)),
-                  P(e("input", {
-                    "onUpdate:modelValue": t[8] || (t[8] = (i) => _.value = i),
+                  E(e("input", {
+                    "onUpdate:modelValue": t[8] || (t[8] = (n) => _.value = n),
                     type: "text",
                     placeholder: "name",
                     class: "di-input"
                   }, null, 512), [
-                    [V, _.value]
+                    [U, _.value]
                   ])
                 ])
               ]),
-              e("div", ml, [
+              e("div", Il, [
                 t[41] || (t[41] = e("label", { class: "di-form-label" }, "データ型", -1)),
-                P(e("select", {
-                  "onUpdate:modelValue": t[9] || (t[9] = (i) => U.value = i),
+                E(e("select", {
+                  "onUpdate:modelValue": t[9] || (t[9] = (n) => T.value = n),
                   class: "di-select"
                 }, [
                   t[40] || (t[40] = e("option", { value: "" }, "選択してください", -1)),
-                  (d(), c(B, null, K(Me, (i) => e("option", {
-                    key: i,
-                    value: i
-                  }, $(i), 9, bl)), 64))
+                  (d(), c(B, null, Q(Ee, (n) => e("option", {
+                    key: n,
+                    value: n
+                  }, k(n), 9, Ml)), 64))
                 ], 512), [
-                  [ae, U.value]
+                  [ce, T.value]
                 ])
               ]),
-              e("div", fl, [
+              e("div", El, [
                 t[42] || (t[42] = e("label", { class: "di-form-label" }, "バリデーション (カンマ区切り)", -1)),
-                P(e("input", {
-                  "onUpdate:modelValue": t[10] || (t[10] = (i) => D.value = i),
+                E(e("input", {
+                  "onUpdate:modelValue": t[10] || (t[10] = (n) => L.value = n),
                   type: "text",
                   placeholder: "required, max:255",
                   class: "di-input"
                 }, null, 512), [
-                  [V, D.value]
+                  [U, L.value]
                 ])
               ]),
-              e("div", kl, [
+              e("div", _l, [
                 t[43] || (t[43] = e("label", { class: "di-form-label" }, "説明", -1)),
-                P(e("textarea", {
-                  "onUpdate:modelValue": t[11] || (t[11] = (i) => R.value = i),
+                E(e("textarea", {
+                  "onUpdate:modelValue": t[11] || (t[11] = (n) => q.value = n),
                   rows: "2",
                   placeholder: "このフィールドの説明...",
                   class: "di-textarea"
                 }, null, 512), [
-                  [V, R.value]
+                  [U, q.value]
                 ])
               ])
             ], 64)) : w("", !0),
-            u.value === "action" ? (d(), c(B, { key: 2 }, [
-              e("div", gl, [
+            r.value === "action" ? (d(), c(B, { key: 2 }, [
+              e("div", Pl, [
                 t[44] || (t[44] = e("label", { class: "di-form-label" }, "アクションタイプ", -1)),
-                P(e("select", {
-                  "onUpdate:modelValue": t[12] || (t[12] = (i) => h.value = i),
+                E(e("select", {
+                  "onUpdate:modelValue": t[12] || (t[12] = (n) => h.value = n),
                   class: "di-select"
                 }, [
-                  (d(), c(B, null, K(Ee, (i) => e("option", {
-                    key: i.value,
-                    value: i.value
-                  }, $(i.label), 9, xl)), 64))
+                  (d(), c(B, null, Q(_e, (n) => e("option", {
+                    key: n.value,
+                    value: n.value
+                  }, k(n.label), 9, Tl)), 64))
                 ], 512), [
-                  [ae, h.value]
+                  [ce, h.value]
                 ])
               ]),
-              h.value === "api" ? (d(), c("div", wl, [
-                e("div", $l, [
+              h.value === "api" ? (d(), c("div", Sl, [
+                e("div", Dl, [
                   t[45] || (t[45] = e("label", { class: "di-form-label" }, "メソッド", -1)),
-                  P(e("select", {
-                    "onUpdate:modelValue": t[13] || (t[13] = (i) => O.value = i),
+                  E(e("select", {
+                    "onUpdate:modelValue": t[13] || (t[13] = (n) => G.value = n),
                     class: "di-select"
                   }, [
-                    (d(), c(B, null, K(Pe, (i) => e("option", {
-                      key: i,
-                      value: i
-                    }, $(i), 9, Cl)), 64))
+                    (d(), c(B, null, Q(Pe, (n) => e("option", {
+                      key: n,
+                      value: n
+                    }, k(n), 9, Ul)), 64))
                   ], 512), [
-                    [ae, O.value]
+                    [ce, G.value]
                   ])
                 ]),
-                e("div", Il, [
+                e("div", Vl, [
                   t[46] || (t[46] = e("label", { class: "di-form-label" }, "エンドポイント", -1)),
-                  P(e("input", {
-                    "onUpdate:modelValue": t[14] || (t[14] = (i) => p.value = i),
+                  E(e("input", {
+                    "onUpdate:modelValue": t[14] || (t[14] = (n) => m.value = n),
                     type: "text",
                     placeholder: "/api/tasks",
                     class: "di-input"
                   }, null, 512), [
-                    [V, p.value]
+                    [U, m.value]
                   ])
                 ])
-              ])) : (d(), c("div", Ml, [
-                e("label", El, $(h.value === "navigate" ? "遷移先パス" : h.value === "modal" ? "モーダル名" : h.value === "emit" ? "イベント名" : "関数名"), 1),
-                P(e("input", {
-                  "onUpdate:modelValue": t[15] || (t[15] = (i) => p.value = i),
+              ])) : (d(), c("div", Ll, [
+                e("label", Al, k(h.value === "navigate" ? "遷移先パス" : h.value === "modal" ? "モーダル名" : h.value === "emit" ? "イベント名" : "関数名"), 1),
+                E(e("input", {
+                  "onUpdate:modelValue": t[15] || (t[15] = (n) => m.value = n),
                   type: "text",
                   placeholder: h.value === "navigate" ? "/tasks" : h.value === "modal" ? "ConfirmDialog" : h.value === "emit" ? "onSubmit" : "handleClick",
                   class: "di-input"
-                }, null, 8, Pl), [
-                  [V, p.value]
+                }, null, 8, Bl), [
+                  [U, m.value]
                 ])
               ])),
-              e("div", _l, [
+              e("div", Rl, [
                 t[47] || (t[47] = e("label", { class: "di-form-label" }, "説明", -1)),
-                P(e("textarea", {
-                  "onUpdate:modelValue": t[16] || (t[16] = (i) => z.value = i),
+                E(e("textarea", {
+                  "onUpdate:modelValue": t[16] || (t[16] = (n) => X.value = n),
                   rows: "2",
                   placeholder: "このアクションの説明...",
                   class: "di-textarea"
                 }, null, 512), [
-                  [V, z.value]
+                  [U, X.value]
                 ])
               ])
             ], 64)) : w("", !0),
-            u.value === "links" ? (d(), c(B, { key: 3 }, [
-              e("div", Tl, [
+            r.value === "links" ? (d(), c(B, { key: 3 }, [
+              e("div", jl, [
                 t[48] || (t[48] = e("label", { class: "di-form-label" }, "テストファイルパス", -1)),
-                P(e("input", {
-                  "onUpdate:modelValue": t[17] || (t[17] = (i) => s.value = i),
+                E(e("input", {
+                  "onUpdate:modelValue": t[17] || (t[17] = (n) => a.value = n),
                   type: "text",
                   placeholder: "src/__tests__/components/MyComponent.test.ts",
                   class: "di-input di-input-mono"
                 }, null, 512), [
-                  [V, s.value]
+                  [U, a.value]
                 ])
               ]),
-              e("div", Sl, [
+              e("div", Ol, [
                 t[49] || (t[49] = e("label", { class: "di-form-label" }, "Figma URL", -1)),
-                P(e("input", {
-                  "onUpdate:modelValue": t[18] || (t[18] = (i) => M.value = i),
+                E(e("input", {
+                  "onUpdate:modelValue": t[18] || (t[18] = (n) => i.value = n),
                   type: "text",
                   placeholder: "https://www.figma.com/design/...",
                   class: "di-input"
                 }, null, 512), [
-                  [V, M.value]
+                  [U, i.value]
                 ])
               ]),
-              e("div", Ul, [
-                e("div", Vl, [
+              e("div", ql, [
+                e("div", Hl, [
                   t[50] || (t[50] = e("label", { class: "di-form-label" }, "GitHub Issue", -1)),
-                  P(e("input", {
-                    "onUpdate:modelValue": t[19] || (t[19] = (i) => T.value = i),
+                  E(e("input", {
+                    "onUpdate:modelValue": t[19] || (t[19] = (n) => g.value = n),
                     type: "text",
                     placeholder: "#123",
                     class: "di-input"
                   }, null, 512), [
-                    [V, T.value]
+                    [U, g.value]
                   ])
                 ]),
-                e("div", Dl, [
+                e("div", zl, [
                   t[51] || (t[51] = e("label", { class: "di-form-label" }, "GitHub PR", -1)),
-                  P(e("input", {
-                    "onUpdate:modelValue": t[20] || (t[20] = (i) => I.value = i),
+                  E(e("input", {
+                    "onUpdate:modelValue": t[20] || (t[20] = (n) => $.value = n),
                     type: "text",
                     placeholder: "#456",
                     class: "di-input"
                   }, null, 512), [
-                    [V, I.value]
+                    [U, $.value]
                   ])
                 ])
               ]),
-              e("div", Ll, [
+              e("div", Nl, [
                 t[52] || (t[52] = e("label", { class: "di-form-label" }, "関連ドキュメント", -1)),
-                P(e("input", {
-                  "onUpdate:modelValue": t[21] || (t[21] = (i) => S.value = i),
+                E(e("input", {
+                  "onUpdate:modelValue": t[21] || (t[21] = (n) => P.value = n),
                   type: "text",
                   placeholder: "https://docs.example.com/...",
                   class: "di-input"
                 }, null, 512), [
-                  [V, S.value]
+                  [U, P.value]
                 ])
               ])
             ], 64)) : w("", !0),
-            u.value === "meta" ? (d(), c(B, { key: 4 }, [
-              e("div", Al, [
+            r.value === "meta" ? (d(), c(B, { key: 4 }, [
+              e("div", Fl, [
                 t[53] || (t[53] = e("label", { class: "di-form-label" }, "使用Piniaストア (カンマ区切り)", -1)),
-                P(e("input", {
-                  "onUpdate:modelValue": t[22] || (t[22] = (i) => E.value = i),
+                E(e("input", {
+                  "onUpdate:modelValue": t[22] || (t[22] = (n) => y.value = n),
                   type: "text",
                   placeholder: "useUserStore, useThemeStore",
                   class: "di-input di-input-mono"
                 }, null, 512), [
-                  [V, E.value]
+                  [U, y.value]
                 ])
               ]),
-              e("div", Bl, [
+              e("div", Gl, [
                 t[54] || (t[54] = e("label", { class: "di-form-label" }, "使用コンポーネント (カンマ区切り)", -1)),
-                P(e("input", {
-                  "onUpdate:modelValue": t[23] || (t[23] = (i) => A.value = i),
+                E(e("input", {
+                  "onUpdate:modelValue": t[23] || (t[23] = (n) => R.value = n),
                   type: "text",
                   placeholder: "Button, Modal, Input",
                   class: "di-input di-input-mono"
                 }, null, 512), [
-                  [V, A.value]
+                  [U, R.value]
                 ])
               ]),
-              e("div", jl, [
+              e("div", Xl, [
                 t[55] || (t[55] = e("label", { class: "di-form-label" }, "i18nキー (カンマ区切り)", -1)),
-                P(e("input", {
-                  "onUpdate:modelValue": t[24] || (t[24] = (i) => x.value = i),
+                E(e("input", {
+                  "onUpdate:modelValue": t[24] || (t[24] = (n) => S.value = n),
                   type: "text",
                   placeholder: "common.save, errors.required",
                   class: "di-input di-input-mono"
                 }, null, 512), [
-                  [V, x.value]
+                  [U, S.value]
                 ])
               ]),
-              e("div", Rl, [
+              e("div", Kl, [
                 t[56] || (t[56] = e("label", { class: "di-form-label" }, "デザイントークン (カンマ区切り)", -1)),
-                P(e("input", {
-                  "onUpdate:modelValue": t[25] || (t[25] = (i) => o.value = i),
+                E(e("input", {
+                  "onUpdate:modelValue": t[25] || (t[25] = (n) => D.value = n),
                   type: "text",
                   placeholder: "primaryColor, secondaryColor",
                   class: "di-input di-input-mono"
                 }, null, 512), [
-                  [V, o.value]
+                  [U, D.value]
                 ])
               ]),
-              e("div", ql, [
+              e("div", Yl, [
                 t[57] || (t[57] = e("label", { class: "di-form-label" }, "アクセシビリティ", -1)),
-                P(e("textarea", {
-                  "onUpdate:modelValue": t[26] || (t[26] = (i) => f.value = i),
+                E(e("textarea", {
+                  "onUpdate:modelValue": t[26] || (t[26] = (n) => I.value = n),
                   rows: "2",
                   placeholder: "キーボード操作、スクリーンリーダー対応などのメモ...",
                   class: "di-textarea"
                 }, null, 512), [
-                  [V, f.value]
+                  [U, I.value]
                 ])
               ]),
-              e("div", Ol, [
+              e("div", Zl, [
                 t[58] || (t[58] = e("label", { class: "di-form-label" }, "レスポンシブ動作", -1)),
-                P(e("textarea", {
-                  "onUpdate:modelValue": t[27] || (t[27] = (i) => r.value = i),
+                E(e("textarea", {
+                  "onUpdate:modelValue": t[27] || (t[27] = (n) => J.value = n),
                   rows: "2",
                   placeholder: "モバイルでの表示変更、ブレークポイントなど...",
                   class: "di-textarea"
                 }, null, 512), [
-                  [V, r.value]
+                  [U, J.value]
                 ])
               ])
             ], 64)) : w("", !0)
           ]),
-          e("div", zl, [
+          e("div", Jl, [
             e("button", {
-              onClick: Ie,
+              onClick: Me,
               class: "di-btn-delete"
             }, [
-              k(n(ge), { style: { width: "14px", height: "14px" } }),
-              t[59] || (t[59] = L(" 削除 ", -1))
+              C(o(Ce), { style: { width: "14px", height: "14px" } }),
+              t[59] || (t[59] = j(" 削除 ", -1))
             ]),
-            e("div", Hl, [
+            e("div", Wl, [
               e("button", {
-                onClick: ee,
+                onClick: Y,
                 class: "di-btn-cancel"
               }, "キャンセル"),
               e("button", {
-                onClick: Ce,
+                onClick: oe,
                 class: "di-btn-save"
               }, [
-                k(n(Xe), { style: { width: "14px", height: "14px" } }),
-                t[60] || (t[60] = L(" 保存 ", -1))
+                C(o(Ke), { style: { width: "14px", height: "14px" } }),
+                t[60] || (t[60] = j(" 保存 ", -1))
               ])
             ])
           ])
@@ -1631,189 +1705,260 @@ const et = {
       ])) : w("", !0)
     ]));
   }
-}), Fl = /* @__PURE__ */ ue(Nl, [["__scopeId", "data-v-fdafa9a6"]]), Gl = { class: "di-highlight-label" }, Xl = {
+}), es = /* @__PURE__ */ be(Ql, [["__scopeId", "data-v-fdafa9a6"]]), ts = { class: "di-highlight-label" }, ls = {
   key: 1,
   "data-dev-inspector": "",
   class: "di-pick-banner"
-}, Kl = ["onClick"], Yl = ["onClick"], Zl = {
+}, ss = ["onClick"], os = ["onClick"], ns = {
   "data-dev-inspector": "",
   class: "di-scan-banner"
-}, Jl = /* @__PURE__ */ ie({
+}, is = ["onClick"], as = { class: "di-analysis-type" }, ds = {
+  key: 0,
+  class: "di-analysis-db"
+}, us = {
+  key: 0,
+  class: "di-analysis-text"
+}, rs = {
+  "data-dev-inspector": "",
+  class: "di-analysis-banner"
+}, cs = /* @__PURE__ */ de({
   __name: "DevPickOverlay",
-  setup(v) {
-    const l = ne(), u = y(null), b = y(null), _ = y(0), U = y(0);
-    function D(g) {
-      var s;
-      const m = l.getElementConfig(g);
-      if (!(m != null && m.sourceBinding)) {
-        const M = ((s = m == null ? void 0 : m.note) == null ? void 0 : s.type) || "info";
+  setup(b) {
+    const l = ue(), r = p(null), x = p(null), _ = p(0), T = p(0);
+    function L(f) {
+      var i;
+      const a = l.getElementConfig(f);
+      if (!(a != null && a.sourceBinding)) {
+        const g = ((i = a == null ? void 0 : a.note) == null ? void 0 : i.type) || "info";
         return {
           info: "#60a5fa",
           warning: "#fbbf24",
           todo: "#10b981",
           question: "#a78bfa"
-        }[M] || "#60a5fa";
+        }[g] || "#60a5fa";
       }
-      return m.sourceBinding.isStatic ? "#10b981" : m.sourceBinding.type === "v-model" ? "#8b5cf6" : m.sourceBinding.type === "api" ? "#f59e0b" : "#60a5fa";
+      return a.sourceBinding.isStatic ? "#10b981" : a.sourceBinding.type === "v-model" ? "#8b5cf6" : a.sourceBinding.type === "api" ? "#f59e0b" : "#60a5fa";
     }
-    const R = Q(() => {
-      var T, I;
-      const g = _.value, m = U.value, s = [];
-      if (!l.isEnabled) return s;
-      const M = l.getConfiguredSelectors();
-      for (const S of M)
+    const q = le(() => {
+      var $, P;
+      const f = _.value, a = T.value, i = [];
+      if (!l.isEnabled) return i;
+      const g = l.getConfiguredSelectors();
+      for (const y of g)
         try {
-          const E = document.querySelector(S);
-          if (E) {
-            const A = E.getBoundingClientRect(), x = l.getElementConfig(S), o = ((T = x == null ? void 0 : x.sourceBinding) == null ? void 0 : T.isStatic) || !1, f = ((I = x == null ? void 0 : x.sourceBinding) == null ? void 0 : I.type) || "";
-            let r = "";
-            o ? r = "固定" : f === "v-model" ? r = "フォーム" : f === "api" ? r = "データ" : r = "メモ", s.push({
-              selector: S,
-              top: `${A.top + g}px`,
-              left: `${A.left + m}px`,
-              width: `${A.width}px`,
-              height: `${A.height}px`,
-              color: D(S),
-              isStatic: o,
-              label: r
-            });
-          }
-        } catch {
-        }
-      return s;
-    }), h = Q(() => {
-      var M;
-      const g = _.value, m = U.value, s = [];
-      if (!l.isEnabled || l.scanResults.length === 0) return s;
-      for (const T of l.scanResults)
-        try {
-          const I = document.querySelector(T.selector);
-          if (I) {
-            const S = I.getBoundingClientRect();
-            s.push({
-              selector: T.selector,
-              top: `${S.top + g}px`,
-              left: `${S.left + m}px`,
+          const R = document.querySelector(y);
+          if (R) {
+            const S = R.getBoundingClientRect(), D = l.getElementConfig(y), I = (($ = D == null ? void 0 : D.sourceBinding) == null ? void 0 : $.isStatic) || !1, J = ((P = D == null ? void 0 : D.sourceBinding) == null ? void 0 : P.type) || "";
+            let O = "";
+            I ? O = "固定" : J === "v-model" ? O = "フォーム" : J === "api" ? O = "データ" : O = "メモ", i.push({
+              selector: y,
+              top: `${S.top + f}px`,
+              left: `${S.left + a}px`,
               width: `${S.width}px`,
               height: `${S.height}px`,
-              isStatic: ((M = T.detected.sourceBinding) == null ? void 0 : M.isStatic) || !1
+              color: L(y),
+              isStatic: I,
+              label: O
             });
           }
         } catch {
         }
-      return s;
+      return i;
+    }), h = le(() => {
+      var g;
+      const f = _.value, a = T.value, i = [];
+      if (!l.isEnabled || l.scanResults.length === 0) return i;
+      for (const $ of l.scanResults)
+        try {
+          const P = document.querySelector($.selector);
+          if (P) {
+            const y = P.getBoundingClientRect();
+            i.push({
+              selector: $.selector,
+              top: `${y.top + f}px`,
+              left: `${y.left + a}px`,
+              width: `${y.width}px`,
+              height: `${y.height}px`,
+              isStatic: ((g = $.detected.sourceBinding) == null ? void 0 : g.isStatic) || !1
+            });
+          }
+        } catch {
+        }
+      return i;
+    }), m = le(() => {
+      const f = _.value, a = T.value, i = [];
+      if (!l.isEnabled || l.analysisResults.length === 0) return i;
+      for (const g of l.analysisResults)
+        if (g.matched)
+          try {
+            const $ = document.querySelector(g.selector);
+            if ($) {
+              const P = $.getBoundingClientRect(), y = g.element;
+              let R = "";
+              y.db && (R = `${y.db.table}.${y.db.column}`);
+              let S = "";
+              y.api && (S = `${y.api.method} ${y.api.endpoint}`), i.push({
+                selector: g.selector,
+                top: `${P.top + f}px`,
+                left: `${P.left + a}px`,
+                width: `${P.width}px`,
+                height: `${P.height}px`,
+                type: y.type,
+                text: y.text || y.binding || "",
+                dbInfo: R,
+                apiInfo: S
+              });
+            }
+          } catch {
+          }
+      return i;
     });
-    function p(g) {
+    function G(f) {
       if (!l.isPickMode) return;
-      if (g.target.closest("[data-dev-inspector]")) {
-        u.value = null, b.value = null, l.setHoveredSelector(null);
+      if (f.target.closest("[data-dev-inspector]")) {
+        r.value = null, x.value = null, l.setHoveredSelector(null);
         return;
       }
-      const s = document.elementFromPoint(g.clientX, g.clientY);
-      if (!s || s === document.body || s === document.documentElement) {
-        u.value = null, b.value = null, l.setHoveredSelector(null);
+      const i = document.elementFromPoint(f.clientX, f.clientY);
+      if (!i || i === document.body || i === document.documentElement) {
+        r.value = null, x.value = null, l.setHoveredSelector(null);
         return;
       }
-      if (s.closest("[data-dev-inspector]"))
+      if (i.closest("[data-dev-inspector]"))
         return;
-      b.value = s;
-      const M = s.getBoundingClientRect();
-      u.value = {
-        top: `${M.top + window.scrollY}px`,
-        left: `${M.left + window.scrollX}px`,
-        width: `${M.width}px`,
-        height: `${M.height}px`
+      x.value = i;
+      const g = i.getBoundingClientRect();
+      r.value = {
+        top: `${g.top + window.scrollY}px`,
+        left: `${g.left + window.scrollX}px`,
+        width: `${g.width}px`,
+        height: `${g.height}px`
       };
-      const T = l.generateSelector(s);
-      l.setHoveredSelector(T);
+      const $ = l.generateSelector(i);
+      l.setHoveredSelector($);
     }
-    function O(g) {
-      if (!(!l.isPickMode || g.target.closest("[data-dev-inspector]")) && (g.preventDefault(), g.stopPropagation(), b.value)) {
-        const s = l.generateSelector(b.value);
-        l.startEditing(s), l.togglePickMode();
+    function X(f) {
+      if (!(!l.isPickMode || f.target.closest("[data-dev-inspector]")) && (f.preventDefault(), f.stopPropagation(), x.value)) {
+        const i = l.generateSelector(x.value);
+        l.startEditing(i), l.togglePickMode();
       }
     }
-    function z(g) {
-      g.key === "Escape" && l.isPickMode && l.togglePickMode();
+    function z(f) {
+      f.key === "Escape" && l.isPickMode && l.togglePickMode();
     }
-    function j() {
-      _.value = window.scrollY, U.value = window.scrollX;
+    function H() {
+      _.value = window.scrollY, T.value = window.scrollX;
     }
-    return ke(() => {
-      window.addEventListener("mousemove", p, !0), window.addEventListener("click", O, !0), window.addEventListener("keydown", z), window.addEventListener("scroll", j), window.addEventListener("resize", j);
+    return $e(() => {
+      window.addEventListener("mousemove", G, !0), window.addEventListener("click", X, !0), window.addEventListener("keydown", z), window.addEventListener("scroll", H), window.addEventListener("resize", H);
     }), Ue(() => {
-      window.removeEventListener("mousemove", p, !0), window.removeEventListener("click", O, !0), window.removeEventListener("keydown", z), window.removeEventListener("scroll", j), window.removeEventListener("resize", j);
-    }), fe(() => l.isPickMode, (g) => {
-      g || (u.value = null, b.value = null);
-    }), (g, m) => (d(), F(W, { to: "body" }, [
-      n(l).isPickMode && u.value ? (d(), c("div", {
+      window.removeEventListener("mousemove", G, !0), window.removeEventListener("click", X, !0), window.removeEventListener("keydown", z), window.removeEventListener("scroll", H), window.removeEventListener("resize", H);
+    }), we(() => l.isPickMode, (f) => {
+      f || (r.value = null, x.value = null);
+    }), (f, a) => (d(), N(te, { to: "body" }, [
+      o(l).isPickMode && r.value ? (d(), c("div", {
         key: 0,
         "data-dev-inspector": "",
         class: "di-highlight",
-        style: H({
-          top: u.value.top,
-          left: u.value.left,
-          width: u.value.width,
-          height: u.value.height
+        style: F({
+          top: r.value.top,
+          left: r.value.left,
+          width: r.value.width,
+          height: r.value.height
         })
       }, [
-        e("div", Gl, $(n(l).hoveredSelector), 1)
+        e("div", ts, k(o(l).hoveredSelector), 1)
       ], 4)) : w("", !0),
-      n(l).isPickMode ? (d(), c("div", Xl, [...m[1] || (m[1] = [
+      o(l).isPickMode ? (d(), c("div", ls, [...a[2] || (a[2] = [
         e("span", null, "要素をクリックしてメモを追加", -1),
         e("kbd", null, "ESC", -1),
         e("span", { class: "di-pick-hint" }, "でキャンセル", -1)
       ])])) : w("", !0),
-      n(l).isEnabled && !n(l).isPickMode && !n(l).isEditMode && !n(l).editingElementId && n(l).scanResults.length === 0 ? (d(!0), c(B, { key: 2 }, K(R.value, (s) => (d(), c("div", {
-        key: s.selector,
+      o(l).isEnabled && !o(l).isPickMode && !o(l).isEditMode && !o(l).editingElementId && o(l).scanResults.length === 0 ? (d(!0), c(B, { key: 2 }, Q(q.value, (i) => (d(), c("div", {
+        key: i.selector,
         "data-dev-inspector": "",
         class: "di-annotation-box",
-        style: H({
-          top: s.top,
-          left: s.left,
-          width: s.width,
-          height: s.height,
-          borderColor: s.color,
-          backgroundColor: s.color + "15"
+        style: F({
+          top: i.top,
+          left: i.left,
+          width: i.width,
+          height: i.height,
+          borderColor: i.color,
+          backgroundColor: i.color + "15"
         }),
-        onClick: (M) => n(l).startEditing(s.selector)
+        onClick: (g) => o(l).startEditing(i.selector)
       }, [
         e("div", {
           class: "di-annotation-label",
-          style: H({ backgroundColor: s.color })
-        }, $(s.label), 5)
-      ], 12, Kl))), 128)) : w("", !0),
-      n(l).isEnabled && !n(l).editingElementId && h.value.length > 0 ? (d(), c(B, { key: 3 }, [
-        (d(!0), c(B, null, K(h.value, (s) => (d(), c("div", {
-          key: "scan-" + s.selector,
+          style: F({ backgroundColor: i.color })
+        }, k(i.label), 5)
+      ], 12, ss))), 128)) : w("", !0),
+      o(l).isEnabled && !o(l).editingElementId && h.value.length > 0 ? (d(), c(B, { key: 3 }, [
+        (d(!0), c(B, null, Q(h.value, (i) => (d(), c("div", {
+          key: "scan-" + i.selector,
           "data-dev-inspector": "",
-          class: G(["di-scan-highlight", { "di-scan-static": s.isStatic }]),
-          style: H({
-            top: s.top,
-            left: s.left,
-            width: s.width,
-            height: s.height
+          class: K(["di-scan-highlight", { "di-scan-static": i.isStatic }]),
+          style: F({
+            top: i.top,
+            left: i.left,
+            width: i.width,
+            height: i.height
           }),
-          onClick: (M) => n(l).startEditing(s.selector)
+          onClick: (g) => o(l).startEditing(i.selector)
         }, [
           e("div", {
-            class: G(["di-scan-label", { "di-scan-label-static": s.isStatic }])
-          }, $(s.isStatic ? "固定文言" : "動的データ"), 3)
-        ], 14, Yl))), 128)),
-        e("div", Zl, [
-          e("span", null, $(h.value.length) + "件の要素を検出", 1),
+            class: K(["di-scan-label", { "di-scan-label-static": i.isStatic }])
+          }, k(i.isStatic ? "固定文言" : "動的データ"), 3)
+        ], 14, os))), 128)),
+        e("div", ns, [
+          e("span", null, k(h.value.length) + "件の要素を検出", 1),
           e("button", {
-            onClick: m[0] || (m[0] = (s) => n(l).clearScanResults()),
+            onClick: a[0] || (a[0] = (i) => o(l).clearScanResults()),
             class: "di-scan-banner-close"
+          }, "✕ 閉じる")
+        ])
+      ], 64)) : w("", !0),
+      o(l).isEnabled && !o(l).editingElementId && m.value.length > 0 ? (d(), c(B, { key: 4 }, [
+        (d(!0), c(B, null, Q(m.value, (i) => (d(), c("div", {
+          key: "analysis-" + i.selector,
+          "data-dev-inspector": "",
+          class: K(["di-analysis-highlight", {
+            "di-analysis-static": i.type === "static",
+            "di-analysis-data": i.type === "data",
+            "di-analysis-form": i.type === "form",
+            "di-analysis-button": i.type === "button",
+            "di-analysis-link": i.type === "link"
+          }]),
+          style: F({
+            top: i.top,
+            left: i.left,
+            width: i.width,
+            height: i.height
+          }),
+          onClick: (g) => o(l).startEditing(i.selector)
+        }, [
+          e("div", {
+            class: K(["di-analysis-label", "di-analysis-label-" + i.type])
+          }, [
+            e("span", as, k(i.type === "static" ? "固定" : i.type === "data" ? "DB" : i.type), 1),
+            i.dbInfo ? (d(), c("span", ds, k(i.dbInfo), 1)) : w("", !0)
+          ], 2),
+          i.text && i.text.length < 30 ? (d(), c("div", us, k(i.text), 1)) : w("", !0)
+        ], 14, is))), 128)),
+        e("div", rs, [
+          e("span", null, "📊 分析データ: " + k(m.value.length) + "件の要素", 1),
+          e("button", {
+            onClick: a[1] || (a[1] = (i) => o(l).clearAnalysisResults()),
+            class: "di-analysis-banner-close"
           }, "✕ 閉じる")
         ])
       ], 64)) : w("", !0)
     ]));
   }
-}), Wl = /* @__PURE__ */ ue(Jl, [["__scopeId", "data-v-355cdd92"]]), Ql = {
+}), vs = /* @__PURE__ */ be(cs, [["__scopeId", "data-v-5af39d12"]]), ps = {
   key: 0,
   "data-dev-inspector": ""
-}, eo = /* @__PURE__ */ ie({
+}, ys = /* @__PURE__ */ de({
   __name: "DevInspector",
   props: {
     storageKey: { default: "devInspector:elementConfigs" },
@@ -1821,33 +1966,33 @@ const et = {
     initialAnnotations: {},
     analysisData: {}
   },
-  setup(v) {
-    const l = v, u = ne();
-    return ke(() => {
-      u.init({
+  setup(b) {
+    const l = b, r = ue();
+    return $e(() => {
+      r.init({
         storageKey: l.storageKey,
         enabledInProduction: l.enabledInProduction,
         initialAnnotations: l.initialAnnotations
       });
-    }), (b, _) => n(u).isAvailable ? (d(), c("div", Ql, [
-      k(Qt),
-      k(Fl),
-      k(Wl)
+    }), (x, _) => o(r).isAvailable ? (d(), c("div", ps, [
+      C(dl),
+      C(es),
+      C(vs)
     ])) : w("", !0);
   }
-}), oo = {
-  install(v, l = {}) {
-    const { autoRegister: u = !0, ...b } = l;
-    u && v.component("DevInspector", eo), v.provide("devInspectorOptions", b);
+}), hs = {
+  install(b, l = {}) {
+    const { autoRegister: r = !0, ...x } = l;
+    r && b.component("DevInspector", ys), b.provide("devInspectorOptions", x);
   }
 };
 export {
-  Fl as DevElementEditor,
-  eo as DevInspector,
-  Qt as DevPanel,
-  Wl as DevPickOverlay,
-  oo as VueDevInspector,
-  oo as default,
-  no as useDevInspector,
-  ne as useDevInspectorStore
+  es as DevElementEditor,
+  ys as DevInspector,
+  dl as DevPanel,
+  vs as DevPickOverlay,
+  hs as VueDevInspector,
+  hs as default,
+  xs as useDevInspector,
+  ue as useDevInspectorStore
 };
