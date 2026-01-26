@@ -173,6 +173,7 @@ export function vitePluginDevInspector(options: DevInspectorVitePluginOptions = 
 
   return {
     name: 'vite-plugin-dev-inspector',
+    enforce: 'pre',  // Run before @vitejs/plugin-vue processes templates
 
     configResolved() {
       if (!enabled) {

@@ -6,8 +6,8 @@ function x(n) {
     if (!v.existsSync(n))
       return console.warn(`[vue-dev-inspector] Analysis file not found: ${n}`), e;
     const t = JSON.parse(v.readFileSync(n, "utf-8"));
-    for (const [, r] of Object.entries(t.components))
-      for (const i of r.elements)
+    for (const [, l] of Object.entries(t.components))
+      for (const i of l.elements)
         if (i.binding && i.db) {
           const o = i.binding.replace(/^\./, "");
           e.has(o) || e.set(o, i.db);
@@ -19,12 +19,12 @@ function x(n) {
   return e;
 }
 function $(n, e, t) {
-  let r = n;
+  let l = n;
   const i = /\{\{\s*([^{}]+?)\s*\}\}/g, o = [];
-  let l;
-  for (; (l = i.exec(n)) !== null; ) {
-    const a = l[0], c = l[1].trim();
-    if (n.slice(Math.max(0, l.index - 100), l.index).includes("data-di-binding") || c.includes("?") || c.includes("|") || /\([^)]*\)/.test(c))
+  let r;
+  for (; (r = i.exec(n)) !== null; ) {
+    const a = r[0], c = r[1].trim();
+    if (n.slice(Math.max(0, r.index - 100), r.index).includes("data-di-binding") || c.includes("?") || c.includes("|") || /\([^)]*\)/.test(c))
       continue;
     const d = c.replace(/\?\.?/g, ".").replace(/\s+/g, "").replace(/^\(|\)$/g, "");
     let u = `data-di-binding="${d}"`;
@@ -43,8 +43,8 @@ function $(n, e, t) {
     o.push({ original: a, replacement: g });
   }
   for (const { original: a, replacement: c } of o.reverse())
-    r = r.replace(a, c);
-  return r;
+    l = l.replace(a, c);
+  return l;
 }
 function w(n) {
   return m.basename(n, ".vue");
@@ -54,11 +54,13 @@ function y(n = {}) {
     enabled: e = process.env.NODE_ENV !== "production",
     analysisPath: t,
     // include = ['**/*.vue'],  // TODO: implement include pattern matching
-    exclude: r = ["node_modules/**", "**/node_modules/**"]
+    exclude: l = ["node_modules/**", "**/node_modules/**"]
   } = n;
   let i = /* @__PURE__ */ new Map();
   return {
     name: "vite-plugin-dev-inspector",
+    enforce: "pre",
+    // Run before @vitejs/plugin-vue processes templates
     configResolved() {
       if (!e) {
         console.log("[vue-dev-inspector] Plugin disabled");
@@ -69,13 +71,13 @@ function y(n = {}) {
         i = x(o);
       }
     },
-    transform(o, l) {
-      if (!e || !l.endsWith(".vue")) return null;
-      const a = m.relative(process.cwd(), l);
-      if (r.some((p) => p.includes("**") ? a.includes(p.replace("**/", "").replace("/**", "")) : a.startsWith(p))) return null;
+    transform(o, r) {
+      if (!e || !r.endsWith(".vue")) return null;
+      const a = m.relative(process.cwd(), r);
+      if (l.some((p) => p.includes("**") ? a.includes(p.replace("**/", "").replace("/**", "")) : a.startsWith(p))) return null;
       const f = o.match(/<template[^>]*>([\s\S]*?)<\/template>/i);
       if (!f) return null;
-      const d = f[1], u = w(l), s = $(d, i, u);
+      const d = f[1], u = w(r), s = $(d, i, u);
       return s === d ? null : {
         code: o.replace(
           /<template([^>]*)>([\s\S]*?)<\/template>/i,
