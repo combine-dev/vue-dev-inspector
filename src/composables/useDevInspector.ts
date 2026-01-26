@@ -685,23 +685,79 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   }
 
   // Try to auto-fill element config based on detection
+  // Priority: 1. data-di-* attributes (from Vite plugin), 2. heuristic detection
   function autoDetectElementInfo(element: HTMLElement, id: string): Partial<ElementConfig> {
-    const binding = detectSourceBinding(element)
     const result: Partial<ElementConfig> = {}
+    const textContent = element.textContent?.trim() || ''
 
-    if (binding) {
-      result.sourceBinding = binding
+    // ========== PRIORITY 1: Check data-di-* attributes from Vite plugin ==========
+    const diBinding = element.getAttribute('data-di-binding')
+    const diDb = element.getAttribute('data-di-db')
+    const diComponent = element.getAttribute('data-di-component')
+    const diDbComment = element.getAttribute('data-di-db-comment')
 
-      // Get the actual text content
-      const textContent = element.textContent?.trim() || ''
+    // Also check parent elements (the span might wrap the text)
+    let targetElement = element
+    if (!diBinding) {
+      const parentWithBinding = element.closest('[data-di-binding]') as HTMLElement
+      if (parentWithBinding) {
+        targetElement = parentWithBinding
+      }
+    }
+
+    const binding = targetElement.getAttribute('data-di-binding')
+    const db = targetElement.getAttribute('data-di-db')
+    const component = targetElement.getAttribute('data-di-component')
+    const dbComment = targetElement.getAttribute('data-di-db-comment')
+
+    if (binding || db) {
+      // Use Vite plugin injected data (100% reliable)
+      result.sourceBinding = {
+        type: 'api',
+        source: binding || undefined,
+        isStatic: false,
+      }
+
+      // Parse DB info (format: "table.column")
+      if (db) {
+        const [table, column] = db.split('.')
+        if (table && column) {
+          result.fieldInfo = {
+            table,
+            column,
+            description: dbComment || undefined,
+          }
+        }
+      }
+
+      // Add component info to devMeta
+      if (component) {
+        result.devMeta = {
+          usedComponents: [component],
+        }
+      }
+
+      result.note = {
+        type: 'info',
+        text: `【データバインディング】${binding}${db ? ` → ${db}` : ''}`,
+      }
+
+      return result
+    }
+
+    // ========== PRIORITY 2: Fallback to heuristic detection ==========
+    const heuristicBinding = detectSourceBinding(element)
+
+    if (heuristicBinding) {
+      result.sourceBinding = heuristicBinding
 
       // If static, add a note with the actual text content
-      if (binding.isStatic) {
+      if (heuristicBinding.isStatic) {
         result.note = {
           type: 'info',
           text: `【固定文言】${textContent}`,
         }
-      } else if (binding.type === 'v-model') {
+      } else if (heuristicBinding.type === 'v-model') {
         // For form elements, note the binding type
         const tagName = element.tagName.toUpperCase()
         if (tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA') {
@@ -714,7 +770,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
             text: `【フォーム要素】${label || placeholder || tagName.toLowerCase()}`,
           }
         }
-      } else if (binding.type === 'api') {
+      } else if (heuristicBinding.type === 'api') {
         // For dynamic data
         result.note = {
           type: 'question',

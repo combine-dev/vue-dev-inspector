@@ -52,12 +52,62 @@ const elementId = computed(() => store.editingElementId)
 watch(elementId, (id) => {
   if (id) {
     const config = store.getElementConfig(id)
+    let hasDataFromDom = false
+
+    // First, try to read data-di-* attributes from DOM (Vite plugin injected)
+    try {
+      const element = document.querySelector(id) as HTMLElement
+      if (element) {
+        // Check element and its children for data-di-* attributes
+        const targetEl = element.querySelector('[data-di-binding]') ||
+                        (element.hasAttribute('data-di-binding') ? element : null) ||
+                        element.closest('[data-di-binding]')
+
+        if (targetEl) {
+          const binding = targetEl.getAttribute('data-di-binding')
+          const db = targetEl.getAttribute('data-di-db')
+          const component = targetEl.getAttribute('data-di-component')
+          const dbComment = targetEl.getAttribute('data-di-db-comment')
+
+          if (binding) {
+            sourceBindingSource.value = binding
+            sourceBindingType.value = 'api'
+            sourceBindingIsStatic.value = false
+            hasDataFromDom = true
+          }
+
+          if (db) {
+            const [table, column] = db.split('.')
+            if (table && column) {
+              fieldTable.value = table
+              fieldColumn.value = column
+              fieldDescription.value = dbComment || ''
+              hasDataFromDom = true
+            }
+          }
+
+          if (component) {
+            metaUsedComponents.value = component
+          }
+
+          if (hasDataFromDom) {
+            noteText.value = `【データバインディング】${binding}${db ? ` → ${db}` : ''}`
+            noteType.value = 'info'
+            activeTab.value = 'field'
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('[DevInspector] Failed to read data-di-* attributes:', e)
+    }
+
+    // Then, load existing config (may override DOM data if user saved custom values)
     if (config?.fieldInfo) {
-      fieldTable.value = config.fieldInfo.table || ''
-      fieldColumn.value = config.fieldInfo.column || ''
+      fieldTable.value = config.fieldInfo.table || fieldTable.value
+      fieldColumn.value = config.fieldInfo.column || fieldColumn.value
       fieldType.value = config.fieldInfo.type || ''
       fieldValidation.value = config.fieldInfo.validation?.join(', ') || ''
-      fieldDescription.value = config.fieldInfo.description || ''
+      fieldDescription.value = config.fieldInfo.description || fieldDescription.value
     }
     if (config?.actionInfo) {
       actionType.value = config.actionInfo.type || 'navigate'
@@ -66,7 +116,7 @@ watch(elementId, (id) => {
       actionDescription.value = config.actionInfo.description || ''
     }
     if (config?.note) {
-      noteText.value = config.note.text || ''
+      noteText.value = config.note.text || noteText.value
       noteAuthor.value = config.note.author || ''
       noteType.value = config.note.type || 'info'
     }
@@ -79,30 +129,32 @@ watch(elementId, (id) => {
     }
     if (config?.devMeta) {
       metaUsedStores.value = config.devMeta.usedStores?.join(', ') || ''
-      metaUsedComponents.value = config.devMeta.usedComponents?.join(', ') || ''
+      metaUsedComponents.value = config.devMeta.usedComponents?.join(', ') || metaUsedComponents.value
       metaI18nKeys.value = config.devMeta.i18nKeys?.join(', ') || ''
       metaDesignTokens.value = config.devMeta.designTokens?.join(', ') || ''
       metaAccessibility.value = config.devMeta.accessibility || ''
       metaResponsive.value = config.devMeta.responsive || ''
     }
     if (config?.sourceBinding) {
-      sourceBindingType.value = config.sourceBinding.type || ''
-      sourceBindingSource.value = config.sourceBinding.source || ''
+      sourceBindingType.value = config.sourceBinding.type || sourceBindingType.value
+      sourceBindingSource.value = config.sourceBinding.source || sourceBindingSource.value
       sourceBindingIsStatic.value = config.sourceBinding.isStatic || false
     }
     // Set default tab based on what data exists
-    if (config?.note?.text) {
-      activeTab.value = 'note'
-    } else if (config?.fieldInfo) {
-      activeTab.value = 'field'
-    } else if (config?.actionInfo) {
-      activeTab.value = 'action'
-    } else if (config?.links) {
-      activeTab.value = 'links'
-    } else if (config?.devMeta) {
-      activeTab.value = 'meta'
-    } else {
-      activeTab.value = 'note'
+    if (!hasDataFromDom) {
+      if (config?.note?.text) {
+        activeTab.value = 'note'
+      } else if (config?.fieldInfo) {
+        activeTab.value = 'field'
+      } else if (config?.actionInfo) {
+        activeTab.value = 'action'
+      } else if (config?.links) {
+        activeTab.value = 'links'
+      } else if (config?.devMeta) {
+        activeTab.value = 'meta'
+      } else {
+        activeTab.value = 'note'
+      }
     }
   } else {
     resetForm()
@@ -154,6 +206,7 @@ function autoDetect() {
 
     const detected = store.autoDetectElementInfo(element, elementId.value)
 
+    // Apply detected sourceBinding
     if (detected.sourceBinding) {
       sourceBindingType.value = detected.sourceBinding.type || ''
       sourceBindingSource.value = detected.sourceBinding.source || ''
@@ -164,6 +217,25 @@ function autoDetect() {
         noteText.value = '固定文言'
         noteType.value = 'info'
       }
+    }
+
+    // Apply detected fieldInfo (from data-di-db attribute)
+    if (detected.fieldInfo) {
+      fieldTable.value = detected.fieldInfo.table || ''
+      fieldColumn.value = detected.fieldInfo.column || ''
+      fieldDescription.value = detected.fieldInfo.description || ''
+      activeTab.value = 'field'
+    }
+
+    // Apply detected note
+    if (detected.note) {
+      noteText.value = detected.note.text || ''
+      noteType.value = detected.note.type || 'info'
+    }
+
+    // Apply detected devMeta
+    if (detected.devMeta?.usedComponents) {
+      metaUsedComponents.value = detected.devMeta.usedComponents.join(', ')
     }
   } catch (e) {
     console.error('[DevInspector] Auto-detect failed:', e)
