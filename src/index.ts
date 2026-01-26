@@ -2,6 +2,10 @@
 export { VueDevInspector, default } from './plugin'
 export type { PluginOptions } from './plugin'
 
+// Vite Plugin (build-time attribute injection)
+export { vitePluginDevInspector } from './vite/plugin'
+export type { DevInspectorVitePluginOptions } from './vite/plugin'
+
 // Composable
 export {
   useDevInspector,

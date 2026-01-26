@@ -15,6 +15,7 @@ export default defineConfig({
     lib: {
       entry: {
         index: resolve(__dirname, 'src/index.ts'),
+        vite: resolve(__dirname, 'src/vite/plugin.ts'),
         nuxt: resolve(__dirname, 'src/nuxt/module.ts'),
         plugin: resolve(__dirname, 'src/nuxt/plugin.ts'),
       },
@@ -25,7 +26,7 @@ export default defineConfig({
       },
     },
     rollupOptions: {
-      external: ['vue', 'pinia', 'vue-router', '#imports', '#app', '@nuxt/kit'],
+      external: ['vue', 'pinia', 'vue-router', '#imports', '#app', '@nuxt/kit', 'fs', 'path'],
       output: {
         globals: {
           vue: 'Vue',

@@ -1,6 +1,7 @@
 import { h as $e, defineComponent as ye, inject as Le, ref as p, computed as se, openBlock as a, createElementBlock as u, Fragment as L, createBlock as F, Teleport as ie, unref as s, createVNode as I, createCommentVNode as m, createElementVNode as e, normalizeClass as Y, toDisplayString as y, renderList as Q, withDirectives as E, vModelText as U, normalizeStyle as G, createTextVNode as B, withModifiers as pe, watch as Ee, resolveDynamicComponent as Ve, vModelSelect as ke, onMounted as Pe, onUnmounted as Be } from "vue";
 import { u as be } from "./useDevInspector-DexQzn4e.js";
 import { a as Os } from "./useDevInspector-DexQzn4e.js";
+import { default as zs } from "./vite.js";
 /**
  * @license lucide-vue-next v0.300.0 - ISC
  *
@@ -300,7 +301,7 @@ const Qe = M("Settings2Icon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Se = M("Trash2Icon", [
+const De = M("Trash2Icon", [
   ["path", { d: "M3 6h18", key: "d0wm0j" }],
   ["path", { d: "M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6", key: "4alrt4" }],
   ["path", { d: "M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2", key: "v07s0e" }],
@@ -500,7 +501,7 @@ async function st(h, l, c = {}) {
     "",
     "備考"
   ]), Object.values(l).forEach((d, o) => {
-    var R, A, S;
+    var R, A, D;
     const k = d.id;
     let $ = "", f = "", C = "";
     if ((R = d.note) != null && R.text && ($ = d.note.text), d.fieldInfo && ($ += $ ? `
@@ -521,7 +522,7 @@ ${d.actionInfo.description}`)), d.links) {
     }
     if (d.devMeta) {
       const _ = [];
-      (A = d.devMeta.usedStores) != null && A.length && _.push(`Store: ${d.devMeta.usedStores.join(", ")}`), (S = d.devMeta.usedComponents) != null && S.length && _.push(`Components: ${d.devMeta.usedComponents.join(", ")}`), d.devMeta.accessibility && _.push(`A11y: ${d.devMeta.accessibility}`), d.devMeta.responsive && _.push(`Responsive: ${d.devMeta.responsive}`), _.length > 0 && (C += C ? `
+      (A = d.devMeta.usedStores) != null && A.length && _.push(`Store: ${d.devMeta.usedStores.join(", ")}`), (D = d.devMeta.usedComponents) != null && D.length && _.push(`Components: ${d.devMeta.usedComponents.join(", ")}`), d.devMeta.accessibility && _.push(`A11y: ${d.devMeta.accessibility}`), d.devMeta.responsive && _.push(`Responsive: ${d.devMeta.responsive}`), _.length > 0 && (C += C ? `
 
 ` : "", C += `[開発情報]
 ` + _.join(`
@@ -699,7 +700,7 @@ const nt = {
 }, Mt = { class: "di-filter-buttons" }, Et = ["onClick"], Pt = {
   key: 0,
   class: "di-hidden-actions"
-}, St = ["disabled"], Dt = { key: 1 }, Tt = { key: 2 }, Ut = { class: "di-content" }, At = { class: "di-section" }, Lt = { class: "di-screen-name" }, Vt = { class: "di-screen-desc" }, Bt = { class: "di-card" }, Rt = { class: "di-card-label" }, jt = { class: "di-code-blue" }, Ht = {
+}, Dt = ["disabled"], St = { key: 1 }, Tt = { key: 2 }, Ut = { class: "di-content" }, At = { class: "di-section" }, Lt = { class: "di-screen-name" }, Vt = { class: "di-screen-desc" }, Bt = { class: "di-card" }, Rt = { class: "di-card-label" }, jt = { class: "di-code-blue" }, Ht = {
   key: 0,
   class: "di-card"
 }, Ot = { class: "di-card-label" }, qt = ["href"], zt = {
@@ -787,7 +788,7 @@ const nt = {
       }
       confirm("全ページをスキャンします。ページ遷移が発生しますがよろしいですか？") && ($.value = !0, f.value = await l.scanAllPages(c));
     }
-    const A = p("/dev-inspector-analysis.json"), S = p(!1), _ = p(""), j = p(0), D = p(!1), Z = [
+    const A = p("/dev-inspector-analysis.json"), D = p(!1), _ = p(""), j = p(0), S = p(!1), Z = [
       { value: "all", label: "すべて" },
       { value: "db-api", label: "DB/API" },
       { value: "static", label: "固定文言" },
@@ -796,7 +797,7 @@ const nt = {
       { value: "none", label: "非表示" }
     ];
     async function ne() {
-      S.value = !0, _.value = "";
+      D.value = !0, _.value = "";
       try {
         if (await l.loadAnalysisData(A.value), l.analysisData) {
           const H = Object.values(l.analysisData.components).reduce((n, J) => n + J.elements.length, 0);
@@ -806,7 +807,7 @@ const nt = {
       } catch (H) {
         _.value = `読み込みエラー: ${H}`;
       } finally {
-        S.value = !1;
+        D.value = !1;
       }
     }
     async function me() {
@@ -817,11 +818,11 @@ const nt = {
       j.value = await l.applyAnalysisToPage();
     }
     async function ee() {
-      D.value = !0;
+      S.value = !0;
       try {
         l.clearHiddenSelectors(), l.analysisData && await l.applyAnalysisToPage();
       } finally {
-        D.value = !1;
+        S.value = !1;
       }
     }
     return (H, n) => {
@@ -946,9 +947,9 @@ const nt = {
                   e("button", {
                     onClick: ne,
                     class: "di-analysis-btn",
-                    disabled: S.value
+                    disabled: D.value
                   }, [
-                    S.value ? (a(), F(s(ve), {
+                    D.value ? (a(), F(s(ve), {
                       key: 0,
                       class: "di-spin",
                       style: { width: "14px", height: "14px" }
@@ -985,15 +986,15 @@ const nt = {
                     e("button", {
                       onClick: ee,
                       class: "di-restore-btn",
-                      disabled: D.value
+                      disabled: S.value
                     }, [
-                      D.value ? (a(), F(s(ve), {
+                      S.value ? (a(), F(s(ve), {
                         key: 0,
                         class: "di-spin",
                         style: { width: "12px", height: "12px" }
                       })) : m("", !0),
-                      D.value ? (a(), u("span", Dt, "リセット中...")) : (a(), u("span", Tt, "非表示 (" + y(s(l).hiddenAnalysisSelectors.size) + ") をリセット", 1))
-                    ], 8, St),
+                      S.value ? (a(), u("span", St, "リセット中...")) : (a(), u("span", Tt, "非表示 (" + y(s(l).hiddenAnalysisSelectors.size) + ") をリセット", 1))
+                    ], 8, Dt),
                     e("button", {
                       onClick: n[7] || (n[7] = (v) => s(l).downloadChanges()),
                       class: "di-export-changes-btn",
@@ -1123,7 +1124,7 @@ const nt = {
                     onClick: o,
                     class: "di-btn-small di-btn-danger"
                   }, [
-                    I(s(Se), { style: { width: "14px", height: "14px" } }),
+                    I(s(De), { style: { width: "14px", height: "14px" } }),
                     n[35] || (n[35] = B(" 全削除 ", -1))
                   ])) : m("", !0)
                 ])
@@ -1237,7 +1238,7 @@ const nt = {
 }, wl = {
   key: 0,
   class: "di-binding-source"
-}, $l = { class: "di-editor-tabs" }, Cl = { class: "di-editor-content" }, Il = { class: "di-form-group" }, _l = { class: "di-note-types" }, Ml = ["onClick"], El = { class: "di-form-group" }, Pl = { class: "di-form-group" }, Sl = { class: "di-binding-selector" }, Dl = { class: "di-form-group" }, Tl = { class: "di-form-label" }, Ul = { class: "di-binding-search-wrapper" }, Al = {
+}, $l = { class: "di-editor-tabs" }, Cl = { class: "di-editor-content" }, Il = { class: "di-form-group" }, _l = { class: "di-note-types" }, Ml = ["onClick"], El = { class: "di-form-group" }, Pl = { class: "di-form-group" }, Dl = { class: "di-binding-selector" }, Sl = { class: "di-form-group" }, Tl = { class: "di-form-label" }, Ul = { class: "di-binding-search-wrapper" }, Al = {
   key: 0,
   class: "di-binding-list"
 }, Ll = ["onClick"], Vl = { class: "di-binding-item-main" }, Bl = { class: "di-binding-name" }, Rl = {
@@ -1261,17 +1262,17 @@ const nt = {
 }, ts = { class: "di-form-label" }, ls = ["placeholder"], ss = { class: "di-form-group" }, ns = { class: "di-form-group" }, is = { class: "di-form-group" }, os = { class: "di-form-row" }, as = { class: "di-form-group" }, ds = { class: "di-form-group" }, us = { class: "di-form-group" }, rs = { class: "di-form-group" }, cs = { class: "di-form-group" }, vs = { class: "di-form-group" }, ps = { class: "di-form-group" }, ys = { class: "di-form-group" }, bs = { class: "di-form-group" }, ms = { class: "di-editor-footer" }, hs = { class: "di-editor-actions" }, fs = /* @__PURE__ */ ye({
   __name: "DevElementEditor",
   setup(h) {
-    const l = be(), c = p("note"), g = p(""), P = p(""), T = p(""), V = p(""), q = p(""), x = p("navigate"), b = p(""), X = p("GET"), K = p(""), N = p(""), z = p(""), w = p("info"), d = p(""), o = p(""), k = p(""), $ = p(""), f = p(""), C = p(""), R = p(""), A = p(""), S = p(""), _ = p(""), j = p(""), D = p(""), Z = p(""), ne = p(!1), me = se(() => l.editingElementId !== null), ee = se(() => l.editingElementId);
+    const l = be(), c = p("note"), g = p(""), P = p(""), T = p(""), V = p(""), q = p(""), x = p("navigate"), b = p(""), X = p("GET"), K = p(""), N = p(""), z = p(""), w = p("info"), d = p(""), o = p(""), k = p(""), $ = p(""), f = p(""), C = p(""), R = p(""), A = p(""), D = p(""), _ = p(""), j = p(""), S = p(""), Z = p(""), ne = p(!1), me = se(() => l.editingElementId !== null), ee = se(() => l.editingElementId);
     Ee(ee, (O) => {
       var t, i, oe, de, ue, W;
       if (O) {
         const r = l.getElementConfig(O);
-        r != null && r.fieldInfo && (g.value = r.fieldInfo.table || "", P.value = r.fieldInfo.column || "", T.value = r.fieldInfo.type || "", V.value = ((t = r.fieldInfo.validation) == null ? void 0 : t.join(", ")) || "", q.value = r.fieldInfo.description || ""), r != null && r.actionInfo && (x.value = r.actionInfo.type || "navigate", b.value = r.actionInfo.target || "", X.value = r.actionInfo.method || "GET", K.value = r.actionInfo.description || ""), r != null && r.note && (N.value = r.note.text || "", z.value = r.note.author || "", w.value = r.note.type || "info"), r != null && r.links && (d.value = r.links.testPath || "", o.value = r.links.figmaUrl || "", k.value = r.links.githubIssue || "", $.value = r.links.githubPr || "", f.value = r.links.relatedDocs || ""), r != null && r.devMeta && (C.value = ((i = r.devMeta.usedStores) == null ? void 0 : i.join(", ")) || "", R.value = ((oe = r.devMeta.usedComponents) == null ? void 0 : oe.join(", ")) || "", A.value = ((de = r.devMeta.i18nKeys) == null ? void 0 : de.join(", ")) || "", S.value = ((ue = r.devMeta.designTokens) == null ? void 0 : ue.join(", ")) || "", _.value = r.devMeta.accessibility || "", j.value = r.devMeta.responsive || ""), r != null && r.sourceBinding && (D.value = r.sourceBinding.type || "", Z.value = r.sourceBinding.source || "", ne.value = r.sourceBinding.isStatic || !1), (W = r == null ? void 0 : r.note) != null && W.text ? c.value = "note" : r != null && r.fieldInfo ? c.value = "field" : r != null && r.actionInfo ? c.value = "action" : r != null && r.links ? c.value = "links" : r != null && r.devMeta ? c.value = "meta" : c.value = "note";
+        r != null && r.fieldInfo && (g.value = r.fieldInfo.table || "", P.value = r.fieldInfo.column || "", T.value = r.fieldInfo.type || "", V.value = ((t = r.fieldInfo.validation) == null ? void 0 : t.join(", ")) || "", q.value = r.fieldInfo.description || ""), r != null && r.actionInfo && (x.value = r.actionInfo.type || "navigate", b.value = r.actionInfo.target || "", X.value = r.actionInfo.method || "GET", K.value = r.actionInfo.description || ""), r != null && r.note && (N.value = r.note.text || "", z.value = r.note.author || "", w.value = r.note.type || "info"), r != null && r.links && (d.value = r.links.testPath || "", o.value = r.links.figmaUrl || "", k.value = r.links.githubIssue || "", $.value = r.links.githubPr || "", f.value = r.links.relatedDocs || ""), r != null && r.devMeta && (C.value = ((i = r.devMeta.usedStores) == null ? void 0 : i.join(", ")) || "", R.value = ((oe = r.devMeta.usedComponents) == null ? void 0 : oe.join(", ")) || "", A.value = ((de = r.devMeta.i18nKeys) == null ? void 0 : de.join(", ")) || "", D.value = ((ue = r.devMeta.designTokens) == null ? void 0 : ue.join(", ")) || "", _.value = r.devMeta.accessibility || "", j.value = r.devMeta.responsive || ""), r != null && r.sourceBinding && (S.value = r.sourceBinding.type || "", Z.value = r.sourceBinding.source || "", ne.value = r.sourceBinding.isStatic || !1), (W = r == null ? void 0 : r.note) != null && W.text ? c.value = "note" : r != null && r.fieldInfo ? c.value = "field" : r != null && r.actionInfo ? c.value = "action" : r != null && r.links ? c.value = "links" : r != null && r.devMeta ? c.value = "meta" : c.value = "note";
       } else
         H();
     });
     function H() {
-      g.value = "", P.value = "", T.value = "", V.value = "", q.value = "", x.value = "navigate", b.value = "", X.value = "GET", K.value = "", N.value = "", z.value = "", w.value = "info", d.value = "", o.value = "", k.value = "", $.value = "", f.value = "", C.value = "", R.value = "", A.value = "", S.value = "", _.value = "", j.value = "", D.value = "", Z.value = "", ne.value = !1, c.value = "note";
+      g.value = "", P.value = "", T.value = "", V.value = "", q.value = "", x.value = "navigate", b.value = "", X.value = "GET", K.value = "", N.value = "", z.value = "", w.value = "info", d.value = "", o.value = "", k.value = "", $.value = "", f.value = "", C.value = "", R.value = "", A.value = "", D.value = "", _.value = "", j.value = "", S.value = "", Z.value = "", ne.value = !1, c.value = "note";
     }
     function n() {
       l.stopEditing(), H();
@@ -1282,7 +1283,7 @@ const nt = {
           const O = document.querySelector(ee.value);
           if (!O) return;
           const t = l.autoDetectElementInfo(O, ee.value);
-          t.sourceBinding && (D.value = t.sourceBinding.type || "", Z.value = t.sourceBinding.source || "", ne.value = t.sourceBinding.isStatic || !1, t.sourceBinding.isStatic && !N.value && (N.value = "固定文言", w.value = "info"));
+          t.sourceBinding && (S.value = t.sourceBinding.type || "", Z.value = t.sourceBinding.source || "", ne.value = t.sourceBinding.isStatic || !1, t.sourceBinding.isStatic && !N.value && (N.value = "固定文言", w.value = "info"));
         } catch (O) {
           console.error("[DevInspector] Auto-detect failed:", O);
         }
@@ -1310,15 +1311,15 @@ const nt = {
         githubIssue: k.value || void 0,
         githubPr: $.value || void 0,
         relatedDocs: f.value || void 0
-      } : void 0, de = C.value || R.value || A.value || S.value || _.value || j.value ? {
+      } : void 0, de = C.value || R.value || A.value || D.value || _.value || j.value ? {
         usedStores: C.value ? C.value.split(",").map((W) => W.trim()) : void 0,
         usedComponents: R.value ? R.value.split(",").map((W) => W.trim()) : void 0,
         i18nKeys: A.value ? A.value.split(",").map((W) => W.trim()) : void 0,
-        designTokens: S.value ? S.value.split(",").map((W) => W.trim()) : void 0,
+        designTokens: D.value ? D.value.split(",").map((W) => W.trim()) : void 0,
         accessibility: _.value || void 0,
         responsive: j.value || void 0
-      } : void 0, ue = D.value ? {
-        type: D.value,
+      } : void 0, ue = S.value ? {
+        type: S.value,
         source: Z.value || void 0,
         isStatic: ne.value
       } : void 0;
@@ -1335,8 +1336,8 @@ const nt = {
       ee.value && (l.deleteElementConfig(ee.value), n());
     }
     const he = ["VARCHAR", "TEXT", "INT", "BIGINT", "BOOLEAN", "DATE", "DATETIME", "TIMESTAMP", "JSON"], te = p(""), ae = p(!1), fe = se(() => l.searchBindings(te.value).slice(0, 20));
-    function De(O) {
-      O.db && (g.value = O.db.table, P.value = O.db.column, T.value = O.db.type || ""), Z.value = O.binding, D.value = "api", ae.value = !1, te.value = "";
+    function Se(O) {
+      O.db && (g.value = O.db.table, P.value = O.db.column, T.value = O.db.type || ""), Z.value = O.binding, S.value = "api", ae.value = !1, te.value = "";
     }
     const Te = [
       { value: "navigate", label: "画面遷移" },
@@ -1379,10 +1380,10 @@ const nt = {
           ne.value ? (a(), u("div", gl, [...t[32] || (t[32] = [
             e("span", { class: "di-static-badge" }, "固定文言", -1),
             e("span", { class: "di-static-hint" }, "このテキストはソースコードに直接記述されています", -1)
-          ])])) : D.value ? (a(), u("div", xl, [
+          ])])) : S.value ? (a(), u("div", xl, [
             e("span", {
-              class: Y(["di-binding-badge", "di-binding-" + D.value])
-            }, y(D.value), 3),
+              class: Y(["di-binding-badge", "di-binding-" + S.value])
+            }, y(S.value), 3),
             Z.value ? (a(), u("span", wl, y(Z.value), 1)) : m("", !0)
           ])) : m("", !0),
           e("div", $l, [
@@ -1471,8 +1472,8 @@ const nt = {
               ])
             ], 64)) : m("", !0),
             c.value === "field" ? (a(), u(L, { key: 1 }, [
-              e("div", Sl, [
-                e("div", Dl, [
+              e("div", Dl, [
+                e("div", Sl, [
                   e("label", Tl, [
                     I(s(Ie), { style: { width: "12px", height: "12px", display: "inline", "vertical-align": "middle" } }),
                     t[41] || (t[41] = B(" CLI解析から選択 ", -1))
@@ -1500,7 +1501,7 @@ const nt = {
                   ae.value && fe.value.length > 0 ? (a(), u("div", Al, [
                     (a(!0), u(L, null, Q(fe.value, (i) => (a(), u("button", {
                       key: i.binding,
-                      onClick: (oe) => De(i),
+                      onClick: (oe) => Se(i),
                       class: Y(["di-binding-item", { "has-db": !!i.db }])
                     }, [
                       e("div", Vl, [
@@ -1737,12 +1738,12 @@ const nt = {
               e("div", ps, [
                 t[61] || (t[61] = e("label", { class: "di-form-label" }, "デザイントークン (カンマ区切り)", -1)),
                 E(e("input", {
-                  "onUpdate:modelValue": t[28] || (t[28] = (i) => S.value = i),
+                  "onUpdate:modelValue": t[28] || (t[28] = (i) => D.value = i),
                   type: "text",
                   placeholder: "primaryColor, secondaryColor",
                   class: "di-input di-input-mono"
                 }, null, 512), [
-                  [U, S.value]
+                  [U, D.value]
                 ])
               ]),
               e("div", ys, [
@@ -1774,7 +1775,7 @@ const nt = {
               onClick: le,
               class: "di-btn-delete"
             }, [
-              I(s(Se), { style: { width: "14px", height: "14px" } }),
+              I(s(De), { style: { width: "14px", height: "14px" } }),
               t[64] || (t[64] = B(" 削除 ", -1))
             ]),
             e("div", hs, [
@@ -1809,10 +1810,10 @@ const nt = {
 }, _s = ["onClick"], Ms = { class: "di-analysis-type" }, Es = {
   key: 0,
   class: "di-analysis-db"
-}, Ps = ["onClick"], Ss = {
+}, Ps = ["onClick"], Ds = {
   key: 0,
   class: "di-analysis-text"
-}, Ds = {
+}, Ss = {
   "data-dev-inspector": "",
   class: "di-analysis-banner"
 }, Ts = /* @__PURE__ */ ye({
@@ -1842,9 +1843,9 @@ const nt = {
         try {
           const R = document.querySelector(C);
           if (R) {
-            const A = R.getBoundingClientRect(), S = l.getElementConfig(C), _ = (($ = S == null ? void 0 : S.sourceBinding) == null ? void 0 : $.isStatic) || !1, j = ((f = S == null ? void 0 : S.sourceBinding) == null ? void 0 : f.type) || "";
-            let D = "";
-            _ ? D = "固定" : j === "v-model" ? D = "フォーム" : j === "api" ? D = "データ" : D = "メモ", o.push({
+            const A = R.getBoundingClientRect(), D = l.getElementConfig(C), _ = (($ = D == null ? void 0 : D.sourceBinding) == null ? void 0 : $.isStatic) || !1, j = ((f = D == null ? void 0 : D.sourceBinding) == null ? void 0 : f.type) || "";
+            let S = "";
+            _ ? S = "固定" : j === "v-model" ? S = "フォーム" : j === "api" ? S = "データ" : S = "メモ", o.push({
               selector: C,
               top: `${A.top + w}px`,
               left: `${A.left + d}px`,
@@ -1852,7 +1853,7 @@ const nt = {
               height: `${A.height}px`,
               color: V(C),
               isStatic: _,
-              label: D
+              label: S
             });
           }
         } catch {
@@ -1884,14 +1885,14 @@ const nt = {
       if (k === "none" || !l.isEnabled || l.analysisResults.length === 0) return o;
       for (const $ of l.analysisResults) {
         if (!$.matched) continue;
-        const f = $.element, C = f.db && (f.db.table || f.db.column), R = f.api && f.api.endpoint, A = f.type === "static", S = f.type === "data";
+        const f = $.element, C = f.db && (f.db.table || f.db.column), R = f.api && f.api.endpoint, A = f.type === "static", D = f.type === "data";
         if (k === "db-api") {
           if (!C && !R) continue;
         } else if (k === "static") {
           if (!A) continue;
         } else if (k === "data") {
-          if (!S) continue;
-        } else if (k === "other" && (C || R || A || S))
+          if (!D) continue;
+        } else if (k === "other" && (C || R || A || D))
           continue;
         try {
           const _ = document.querySelector($.selector);
@@ -1899,8 +1900,8 @@ const nt = {
             const j = _.getBoundingClientRect();
             if (j.width > window.innerWidth * 0.8 || j.height > window.innerHeight * 0.5)
               continue;
-            let D = "";
-            f.db && (D = `${f.db.table}.${f.db.column}`);
+            let S = "";
+            f.db && (S = `${f.db.table}.${f.db.column}`);
             let Z = "";
             f.api && (Z = `${f.api.method} ${f.api.endpoint}`), o.push({
               selector: $.selector,
@@ -1910,7 +1911,7 @@ const nt = {
               height: `${j.height}px`,
               type: f.type,
               text: f.text || f.binding || "",
-              dbInfo: D,
+              dbInfo: S,
               apiInfo: Z
             });
           }
@@ -2060,9 +2061,9 @@ const nt = {
               title: "この要素を非表示"
             }, "×", 8, Ps)
           ], 2),
-          o.text && o.text.length < 30 ? (a(), u("div", Ss, y(o.text), 1)) : m("", !0)
+          o.text && o.text.length < 30 ? (a(), u("div", Ds, y(o.text), 1)) : m("", !0)
         ], 14, _s))), 128)),
-        e("div", Ds, [
+        e("div", Ss, [
           e("span", null, "📊 分析データ: " + y(b.value.length) + "件の要素", 1),
           e("button", {
             onClick: d[1] || (d[1] = (o) => s(l).clearAnalysisResults()),
@@ -2114,5 +2115,6 @@ export {
   Rs as VueDevInspector,
   Rs as default,
   Os as useDevInspector,
-  be as useDevInspectorStore
+  be as useDevInspectorStore,
+  zs as vitePluginDevInspector
 };
