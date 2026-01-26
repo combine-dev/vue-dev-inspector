@@ -125,30 +125,23 @@ function analyzeTemplate(template: string): TemplateElement[] {
   const elements: TemplateElement[] = []
   const seen = new Set<string>() // Avoid duplicates
 
-  // Helper to check if text is meaningful (not placeholder or empty)
-  const isMeaningfulText = (text: string): boolean => {
-    if (!text || text.trim().length === 0) return false
-    // Skip placeholder patterns like [コンポーネント名], [コメント], etc.
-    if (/^\[.+\]$/.test(text.trim())) return false
-    if (/^\[.+コンポーネント\]$/.test(text.trim())) return false
-    // Skip very short text that's likely just punctuation or symbols
-    if (text.trim().length < 2) return false
-    // Skip text that's only whitespace, numbers, or symbols
-    if (/^[\s\d\W]+$/.test(text)) return false
-    return true
-  }
-
-  // Check if tag is a Vue component (PascalCase or contains hyphen for kebab-case custom elements)
-  const isVueComponent = (tag: string): boolean => {
-    return /^[A-Z]/.test(tag) || tag.includes('-')
+  // Helper to check if text is placeholder (should be skipped)
+  const isPlaceholderText = (text: string): boolean => {
+    if (!text) return true
+    const trimmed = text.trim()
+    // Skip placeholder patterns like [コンポーネント名], [XXXコンポーネント]
+    if (/^\[[^\]]+コンポーネント\]$/.test(trimmed)) return true
+    // Skip empty or whitespace only
+    if (trimmed.length === 0) return true
+    return false
   }
 
   // Helper to add element if unique
   const addElement = (el: TemplateElement) => {
     const key = `${el.line}:${el.tag}:${el.text}:${el.binding || ''}`
     if (!seen.has(key) && (el.text || el.binding)) {
-      // For static elements, verify text is meaningful
-      if (el.isStatic && !isMeaningfulText(el.text)) {
+      // Skip placeholder text for static elements
+      if (el.isStatic && isPlaceholderText(el.text)) {
         return
       }
       seen.add(key)
@@ -325,18 +318,18 @@ function analyzeTemplate(template: string): TemplateElement[] {
     }
   }
 
-  // 8. Find self-closing Vue components (PascalCase) - only if they have bindings
+  // 8. Find self-closing Vue components (PascalCase) with bindings
   const selfClosingRegex = /<([A-Z][\w]*)([^>]*)\s*\/>/g
 
   while ((match = selfClosingRegex.exec(template)) !== null) {
-    const [fullMatch, tag, attrs] = match
+    const [, tag, attrs] = match
     const line = template.substring(0, match.index).split('\n').length
     const parsedAttrs = parseAttributes(attrs)
 
     // Check for dynamic props (bindings)
     const hasBinding = attrs.includes(':') || attrs.includes('v-')
 
-    // Skip components without bindings - they're just structural/layout components
+    // Only include components with bindings (data components)
     if (!hasBinding) continue
 
     const bindingAttrs = attrs.match(/:(\w+)="([^"]+)"/g)
@@ -345,7 +338,6 @@ function analyzeTemplate(template: string): TemplateElement[] {
       return m ? `${m[1]}=${m[2]}` : ''
     }).filter(Boolean).join(', ')
 
-    // Only add if there are actual bindings
     if (bindings) {
       addElement({
         tag,
@@ -990,8 +982,8 @@ function analyzeComponent(filePath: string, apiMappings: Record<string, ApiCompo
   for (const el of templateElements) {
     const elementType = determineElementType(el)
 
-    // Skip unknown type elements - they're not useful for spec
-    if (elementType === 'unknown') {
+    // Skip truly useless elements (unknown type Vue components without text or binding)
+    if (elementType === 'unknown' && /^[A-Z]/.test(el.tag) && !el.text && !el.binding) {
       continue
     }
 
@@ -1058,9 +1050,6 @@ function generateSelector(el: TemplateElement): string {
 }
 
 function determineElementType(el: TemplateElement): ElementMapping['type'] {
-  // Vue components (PascalCase) should be 'data' if they have bindings, otherwise skip
-  const isVueComponent = /^[A-Z]/.test(el.tag)
-
   if (el.tag === 'button' || el.attributes['@click'] || el.attributes.role === 'button') {
     return 'button'
   }
@@ -1075,11 +1064,6 @@ function determineElementType(el: TemplateElement): ElementMapping['type'] {
 
   if (el.binding) {
     return 'data'
-  }
-
-  // Vue components without bindings shouldn't be marked as static
-  if (isVueComponent) {
-    return 'unknown'
   }
 
   if (el.isStatic) {

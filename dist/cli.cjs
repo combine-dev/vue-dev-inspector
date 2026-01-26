@@ -59,26 +59,20 @@ function parseSFC(content) {
 function analyzeTemplate(template) {
   const elements = [];
   const seen = /* @__PURE__ */ new Set();
-  const isMeaningfulText = (text) => {
-    if (!text || text.trim().length === 0)
-      return false;
-    if (/^\[.+\]$/.test(text.trim()))
-      return false;
-    if (/^\[.+コンポーネント\]$/.test(text.trim()))
-      return false;
-    if (text.trim().length < 2)
-      return false;
-    if (/^[\s\d\W]+$/.test(text))
-      return false;
-    return true;
-  };
-  const isVueComponent = (tag) => {
-    return /^[A-Z]/.test(tag) || tag.includes("-");
+  const isPlaceholderText = (text) => {
+    if (!text)
+      return true;
+    const trimmed = text.trim();
+    if (/^\[[^\]]+コンポーネント\]$/.test(trimmed))
+      return true;
+    if (trimmed.length === 0)
+      return true;
+    return false;
   };
   const addElement = (el) => {
     const key = `${el.line}:${el.tag}:${el.text}:${el.binding || ""}`;
     if (!seen.has(key) && (el.text || el.binding)) {
-      if (el.isStatic && !isMeaningfulText(el.text)) {
+      if (el.isStatic && isPlaceholderText(el.text)) {
         return;
       }
       seen.add(key);
@@ -212,7 +206,7 @@ function analyzeTemplate(template) {
   }
   const selfClosingRegex = /<([A-Z][\w]*)([^>]*)\s*\/>/g;
   while ((match = selfClosingRegex.exec(template)) !== null) {
-    const [fullMatch, tag, attrs] = match;
+    const [, tag, attrs] = match;
     const line = template.substring(0, match.index).split("\n").length;
     const parsedAttrs = parseAttributes(attrs);
     const hasBinding = attrs.includes(":") || attrs.includes("v-");
@@ -627,7 +621,7 @@ function analyzeComponent(filePath, apiMappings) {
   }
   for (const el of templateElements) {
     const elementType = determineElementType(el);
-    if (elementType === "unknown") {
+    if (elementType === "unknown" && /^[A-Z]/.test(el.tag) && !el.text && !el.binding) {
       continue;
     }
     const mapping = {
@@ -681,7 +675,6 @@ function generateSelector(el) {
   return parts.join("");
 }
 function determineElementType(el) {
-  const isVueComponent = /^[A-Z]/.test(el.tag);
   if (el.tag === "button" || el.attributes["@click"] || el.attributes.role === "button") {
     return "button";
   }
@@ -693,9 +686,6 @@ function determineElementType(el) {
   }
   if (el.binding) {
     return "data";
-  }
-  if (isVueComponent) {
-    return "unknown";
   }
   if (el.isStatic) {
     return "static";
