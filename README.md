@@ -9,6 +9,8 @@ Vue 3 / Nuxt 3 対応の開発者モードインスペクター。UI要素にAPI
 - **永続化**: localStorage + JSONエクスポートで情報を保存
 - **開発環境限定**: 本番ビルドでは自動的に無効化
 - **キーボードショートカット**: `Ctrl+Shift+D` でパネル開閉
+- **CLIソースコード解析**: Vueファイルを静的解析してDB/API情報を自動抽出
+- **自動ハイライト**: 解析結果を画面上に自動表示（固定文言/DBデータを色分け）
 
 ## Installation
 
@@ -121,6 +123,55 @@ export default defineNuxtConfig({
 </template>
 ```
 
+## CLI ソースコード解析
+
+Vueプロジェクトのソースコードを静的解析し、各要素がDBのどのテーブル・カラムに紐づくかを自動検出します。
+
+### 基本的な使い方
+
+```bash
+# プロジェクトを解析
+npx vue-dev-inspector analyze ./front
+
+# 出力先を指定（publicフォルダに置くと自動読み込みされる）
+npx vue-dev-inspector analyze ./front -o public/dev-inspector-analysis.json
+
+# 詳細出力
+npx vue-dev-inspector analyze ./front -v
+```
+
+### 解析される内容
+
+- **静的テキスト**: テンプレート内の固定文言、placeholder、ラベル等
+- **動的データ**: `{{ binding }}` や `v-model` のバインディング
+- **APIマッピング**: `useApi().resource.action()` パターンからエンドポイントを抽出
+- **DBカラム**: APIレスポンス型定義からテーブル・カラム名を推定（camelCase → snake_case変換）
+- **Railsスキーマ連携**: `schema.rb` があればDBコメントも取得
+
+### 解析結果の自動表示
+
+`public/dev-inspector-analysis.json` に配置すると、開発モードで自動的に読み込まれ、画面上にハイライト表示されます。
+
+- 🟢 **緑枠**: 固定文言（static）
+- 🟠 **オレンジ枠**: DBデータ（data）
+- 🟣 **紫枠**: フォーム入力（form）
+- 枠の上に `テーブル名.カラム名` が表示される
+
+### オプション
+
+```typescript
+store.init({
+  // カスタムURL（デフォルト: '/dev-inspector-analysis.json'）
+  analysisDataUrl: '/custom-path/analysis.json',
+
+  // 自動読み込みを無効化
+  autoLoadAnalysis: false,
+
+  // 読み込み後の自動適用を無効化（手動で適用）
+  autoApplyAnalysis: false,
+})
+```
+
 ## Keyboard Shortcuts
 
 | Shortcut | Action |
@@ -156,6 +207,9 @@ inspector.importConfigs(jsonString)
 | `storageKey` | `string` | `'devInspector:elementConfigs'` | localStorage key |
 | `enabledInProduction` | `boolean` | `false` | Enable in production build |
 | `initialAnnotations` | `Record<string, ElementConfig>` | `{}` | Pre-loaded annotations |
+| `analysisDataUrl` | `string` | `'/dev-inspector-analysis.json'` | URL to load CLI analysis data |
+| `autoLoadAnalysis` | `boolean` | `true` | Auto-load analysis data on init |
+| `autoApplyAnalysis` | `boolean` | `true` | Auto-apply analysis to page after loading |
 
 ### Element Config
 
