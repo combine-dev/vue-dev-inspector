@@ -132,7 +132,7 @@ const scannedHighlights = computed(() => {
   return highlights
 })
 
-// Analysis results highlights (from CLI analysis data)
+// Analysis results highlights (from CLI analysis data + DOM data-di-* attributes)
 const analysisHighlights = computed(() => {
   const _scrollY = scrollY.value
   const _scrollX = scrollX.value
@@ -159,60 +159,80 @@ const analysisHighlights = computed(() => {
 
     const el = result.element
 
-    // Check element properties
-    const hasDb = el.db && (el.db.table || el.db.column)
-    const hasApi = el.api && el.api.endpoint
-    const isStatic = el.type === 'static'
-    const isData = el.type === 'data'
-
-    // Apply filter
-    if (filter === 'db-api') {
-      // Only show elements with actual DB or API info
-      if (!hasDb && !hasApi) continue
-    } else if (filter === 'static') {
-      // Only static elements
-      if (!isStatic) continue
-    } else if (filter === 'data') {
-      // Only data elements
-      if (!isData) continue
-    } else if (filter === 'other') {
-      // Elements that are not DB/API, not static, not data
-      if (hasDb || hasApi || isStatic || isData) continue
-    }
-    // 'all' shows everything
-
     try {
       const element = document.querySelector(result.selector) as HTMLElement | null
-      if (element) {
-        const rect = element.getBoundingClientRect()
+      if (!element) continue
 
-        // Skip very large elements (likely containers)
-        if (rect.width > window.innerWidth * 0.8 || rect.height > window.innerHeight * 0.5) {
-          continue
-        }
+      const rect = element.getBoundingClientRect()
 
-        let dbInfo = ''
-        if (el.db) {
-          dbInfo = `${el.db.table}.${el.db.column}`
-        }
-
-        let apiInfo = ''
-        if (el.api) {
-          apiInfo = `${el.api.method} ${el.api.endpoint}`
-        }
-
-        highlights.push({
-          selector: result.selector,
-          top: `${rect.top + _scrollY}px`,
-          left: `${rect.left + _scrollX}px`,
-          width: `${rect.width}px`,
-          height: `${rect.height}px`,
-          type: el.type,
-          text: el.text || el.binding || '',
-          dbInfo,
-          apiInfo,
-        })
+      // Skip very large elements (likely containers)
+      if (rect.width > window.innerWidth * 0.8 || rect.height > window.innerHeight * 0.5) {
+        continue
       }
+
+      // PRIORITY: Check DOM data-di-* attributes (from Vite plugin)
+      const diBindingEl = element.querySelector('[data-di-binding]') ||
+                          (element.hasAttribute('data-di-binding') ? element : null)
+
+      let dbInfo = ''
+      let finalType = el.type
+      let binding = el.binding || ''
+
+      if (diBindingEl) {
+        const diDb = diBindingEl.getAttribute('data-di-db')
+        const diBinding = diBindingEl.getAttribute('data-di-binding')
+
+        if (diDb) {
+          dbInfo = diDb
+          finalType = 'data'  // Override type to 'data' if has DB info
+        }
+        if (diBinding) {
+          binding = diBinding
+          if (!dbInfo) {
+            finalType = 'data'  // Has binding = dynamic data
+          }
+        }
+      }
+
+      // Fallback to CLI analysis data if no DOM attributes
+      if (!dbInfo && el.db) {
+        dbInfo = `${el.db.table}.${el.db.column}`
+      }
+
+      let apiInfo = ''
+      if (el.api) {
+        apiInfo = `${el.api.method} ${el.api.endpoint}`
+      }
+
+      // Check element properties for filtering
+      const hasDb = !!dbInfo
+      const hasApi = !!apiInfo
+      const isStatic = finalType === 'static'
+      const isData = finalType === 'data'
+
+      // Apply filter
+      if (filter === 'db-api') {
+        if (!hasDb && !hasApi) continue
+      } else if (filter === 'static') {
+        if (!isStatic) continue
+      } else if (filter === 'data') {
+        if (!isData) continue
+      } else if (filter === 'other') {
+        if (hasDb || hasApi || isStatic || isData) continue
+      }
+      // 'all' shows everything
+
+      highlights.push({
+        selector: result.selector,
+        top: `${rect.top + _scrollY}px`,
+        left: `${rect.left + _scrollX}px`,
+        width: `${rect.width}px`,
+        height: `${rect.height}px`,
+        type: finalType,
+        text: el.text || binding || '',
+        dbInfo,
+        apiInfo,
+      })
     } catch {
       // Invalid selector, skip
     }
