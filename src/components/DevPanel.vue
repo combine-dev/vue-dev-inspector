@@ -116,6 +116,7 @@ const analysisUrl = ref('/dev-inspector-analysis.json')
 const isLoadingAnalysis = ref(false)
 const analysisLoadError = ref('')
 const analysisMatchCount = ref(0)
+const isRestoringHidden = ref(false)
 
 const filterOptions = [
   { value: 'all', label: 'すべて' },
@@ -155,10 +156,15 @@ async function applyAnalysis() {
 }
 
 async function restoreHiddenElements() {
-  store.clearHiddenSelectors()
-  // Re-apply analysis to show restored elements
-  if (store.analysisData) {
-    await store.applyAnalysisToPage()
+  isRestoringHidden.value = true
+  try {
+    store.clearHiddenSelectors()
+    // Re-apply analysis to show restored elements
+    if (store.analysisData) {
+      await store.applyAnalysisToPage()
+    }
+  } finally {
+    isRestoringHidden.value = false
   }
 }
 </script>
@@ -316,8 +322,11 @@ async function restoreHiddenElements() {
               v-if="store.hiddenAnalysisSelectors.size > 0"
               @click="restoreHiddenElements"
               class="di-restore-btn"
+              :disabled="isRestoringHidden"
             >
-              非表示 ({{ store.hiddenAnalysisSelectors.size }}) をリセット
+              <Loader2 v-if="isRestoringHidden" class="di-spin" style="width: 12px; height: 12px;" />
+              <span v-if="isRestoringHidden">リセット中...</span>
+              <span v-else>非表示 ({{ store.hiddenAnalysisSelectors.size }}) をリセット</span>
             </button>
           </div>
         </div>
@@ -1264,9 +1273,17 @@ async function restoreHiddenElements() {
   font-size: 10px;
   cursor: pointer;
   transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
-.di-restore-btn:hover {
+.di-restore-btn:hover:not(:disabled) {
   border-color: #f59e0b;
   color: #f59e0b;
+}
+.di-restore-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 </style>

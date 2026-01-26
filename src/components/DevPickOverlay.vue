@@ -694,11 +694,11 @@ watch(() => store.isPickMode, (isPicking) => {
   background: #10b981;
 }
 .di-analysis-label-data {
-  background: #94a3b8;
-}
-.di-analysis-label-db {
   background: #f59e0b;
   color: #1e293b;
+}
+.di-analysis-label-db {
+  background: #3b82f6;
 }
 .di-analysis-label-form {
   background: #8b5cf6;

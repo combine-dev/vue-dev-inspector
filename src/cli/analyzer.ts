@@ -53,6 +53,7 @@ interface ComponentAnalysis {
     responseType?: string
   }[]
   imports: string[]
+  usedComponents: string[]  // Component names used in this file (e.g., ['NotificationList', 'UserCard'])
 }
 
 interface ProjectAnalysis {
@@ -394,12 +395,13 @@ interface ScriptAnalysis {
   imports: string[]
 }
 
-function analyzeScript(script: string, scriptSetup: string): ScriptAnalysis {
+function analyzeScript(script: string, scriptSetup: string): ScriptAnalysis & { componentImports: string[] } {
   const combined = script + '\n' + scriptSetup
 
   const apiCalls: ScriptAnalysis['apiCalls'] = []
   const dataBindings: ScriptAnalysis['dataBindings'] = []
   const imports: string[] = []
+  const componentImports: string[] = []
 
   // Find imports
   const importRegex = /import\s+(?:\{[^}]+\}|\w+)\s+from\s+['"]([^'"]+)['"]/g
@@ -407,6 +409,26 @@ function analyzeScript(script: string, scriptSetup: string): ScriptAnalysis {
 
   while ((match = importRegex.exec(combined)) !== null) {
     imports.push(match[1])
+  }
+
+  // Find component imports (PascalCase default imports from .vue files or component paths)
+  // Pattern: import ComponentName from '...'
+  const componentImportRegex = /import\s+([A-Z][a-zA-Z0-9]*)\s+from\s+['"]([^'"]+)['"]/g
+  while ((match = componentImportRegex.exec(combined)) !== null) {
+    const componentName = match[1]
+    componentImports.push(componentName)
+  }
+
+  // Also find named imports that look like components
+  const namedImportRegex = /import\s+\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]/g
+  while ((match = namedImportRegex.exec(combined)) !== null) {
+    const names = match[1].split(',').map(n => n.trim().split(' as ').pop()?.trim() || '')
+    for (const name of names) {
+      // PascalCase = likely a component
+      if (name && /^[A-Z][a-zA-Z0-9]*$/.test(name)) {
+        componentImports.push(name)
+      }
+    }
   }
 
   // Find API calls - multiple patterns
@@ -497,7 +519,7 @@ function analyzeScript(script: string, scriptSetup: string): ScriptAnalysis {
     }
   }
 
-  return { apiCalls, dataBindings, imports }
+  return { apiCalls, dataBindings, imports, componentImports }
 }
 
 // ===== API Composable Analyzer =====
@@ -876,6 +898,32 @@ function resolveTypeToDbFields(
   return { tableName, fields: typeDef.fields }
 }
 
+// ===== Component Usage Extraction =====
+
+// Extract component names used in template (PascalCase or kebab-case)
+function extractUsedComponents(template: string): string[] {
+  const components = new Set<string>()
+
+  // Find PascalCase components: <ComponentName> or <ComponentName />
+  const pascalRegex = /<([A-Z][a-zA-Z0-9]+)[\s/>]/g
+  let match
+  while ((match = pascalRegex.exec(template)) !== null) {
+    components.add(match[1])
+  }
+
+  // Find kebab-case components that might be custom: <my-component>
+  // Convert to PascalCase and add
+  const kebabRegex = /<([a-z]+-[a-z-]+)[\s/>]/g
+  while ((match = kebabRegex.exec(template)) !== null) {
+    const kebab = match[1]
+    // Convert kebab-case to PascalCase: notification-list -> NotificationList
+    const pascal = kebab.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join('')
+    components.add(pascal)
+  }
+
+  return [...components]
+}
+
 // ===== Main Analyzer =====
 
 // Extract static strings from script (useHead, definePageMeta, etc.)
@@ -914,6 +962,11 @@ function analyzeComponent(filePath: string, apiMappings: Record<string, ApiCompo
 
   const templateElements = analyzeTemplate(sfc.template)
   const scriptAnalysis = analyzeScript(sfc.script, sfc.scriptSetup)
+
+  // Extract used components from template and script
+  const templateComponents = extractUsedComponents(sfc.template)
+  const scriptComponents = scriptAnalysis.componentImports || []
+  const usedComponents = [...new Set([...templateComponents, ...scriptComponents])]
 
   // Extract static strings from script
   const scriptStaticStrings = extractScriptStaticStrings(sfc.script + '\n' + sfc.scriptSetup)
@@ -975,6 +1028,7 @@ function analyzeComponent(filePath: string, apiMappings: Record<string, ApiCompo
       responseType: api.variable,
     })),
     imports: scriptAnalysis.imports,
+    usedComponents,
   }
 }
 

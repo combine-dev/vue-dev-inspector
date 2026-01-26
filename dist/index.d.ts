@@ -147,6 +147,7 @@ export declare interface ProjectAnalysis {
         filePath: string;
         componentName: string;
         elements: AnalyzedElement[];
+        usedComponents?: string[];
     }>;
     apiMappings: Record<string, {
         endpoint: string;
@@ -365,6 +366,7 @@ components: Record<string, {
 filePath: string;
 componentName: string;
 elements: AnalyzedElement[];
+usedComponents?: string[];
 }>;
 apiMappings: Record<string, {
 endpoint: string;
@@ -381,6 +383,7 @@ components: Record<string, {
 filePath: string;
 componentName: string;
 elements: AnalyzedElement[];
+usedComponents?: string[];
 }>;
 apiMappings: Record<string, {
 endpoint: string;
@@ -632,6 +635,7 @@ components: Record<string, {
 filePath: string;
 componentName: string;
 elements: AnalyzedElement[];
+usedComponents?: string[];
 }>;
 apiMappings: Record<string, {
 endpoint: string;
@@ -648,6 +652,7 @@ components: Record<string, {
 filePath: string;
 componentName: string;
 elements: AnalyzedElement[];
+usedComponents?: string[];
 }>;
 apiMappings: Record<string, {
 endpoint: string;
@@ -899,6 +904,7 @@ components: Record<string, {
 filePath: string;
 componentName: string;
 elements: AnalyzedElement[];
+usedComponents?: string[];
 }>;
 apiMappings: Record<string, {
 endpoint: string;
@@ -915,6 +921,7 @@ components: Record<string, {
 filePath: string;
 componentName: string;
 elements: AnalyzedElement[];
+usedComponents?: string[];
 }>;
 apiMappings: Record<string, {
 endpoint: string;
@@ -1168,6 +1175,7 @@ components: Record<string, {
 filePath: string;
 componentName: string;
 elements: AnalyzedElement[];
+usedComponents?: string[];
 }>;
 apiMappings: Record<string, {
 endpoint: string;
@@ -1184,6 +1192,7 @@ components: Record<string, {
 filePath: string;
 componentName: string;
 elements: AnalyzedElement[];
+usedComponents?: string[];
 }>;
 apiMappings: Record<string, {
 endpoint: string;
@@ -1435,6 +1444,7 @@ components: Record<string, {
 filePath: string;
 componentName: string;
 elements: AnalyzedElement[];
+usedComponents?: string[];
 }>;
 apiMappings: Record<string, {
 endpoint: string;
@@ -1451,6 +1461,7 @@ components: Record<string, {
 filePath: string;
 componentName: string;
 elements: AnalyzedElement[];
+usedComponents?: string[];
 }>;
 apiMappings: Record<string, {
 endpoint: string;
@@ -1702,6 +1713,7 @@ components: Record<string, {
 filePath: string;
 componentName: string;
 elements: AnalyzedElement[];
+usedComponents?: string[];
 }>;
 apiMappings: Record<string, {
 endpoint: string;
@@ -1718,6 +1730,7 @@ components: Record<string, {
 filePath: string;
 componentName: string;
 elements: AnalyzedElement[];
+usedComponents?: string[];
 }>;
 apiMappings: Record<string, {
 endpoint: string;

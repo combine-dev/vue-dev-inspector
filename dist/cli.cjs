@@ -246,10 +246,25 @@ function analyzeScript(script, scriptSetup) {
   const apiCalls = [];
   const dataBindings = [];
   const imports = [];
+  const componentImports = [];
   const importRegex = /import\s+(?:\{[^}]+\}|\w+)\s+from\s+['"]([^'"]+)['"]/g;
   let match;
   while ((match = importRegex.exec(combined)) !== null) {
     imports.push(match[1]);
+  }
+  const componentImportRegex = /import\s+([A-Z][a-zA-Z0-9]*)\s+from\s+['"]([^'"]+)['"]/g;
+  while ((match = componentImportRegex.exec(combined)) !== null) {
+    const componentName = match[1];
+    componentImports.push(componentName);
+  }
+  const namedImportRegex = /import\s+\{\s*([^}]+)\s*\}\s+from\s+['"]([^'"]+)['"]/g;
+  while ((match = namedImportRegex.exec(combined)) !== null) {
+    const names = match[1].split(",").map((n) => n.trim().split(" as ").pop()?.trim() || "");
+    for (const name of names) {
+      if (name && /^[A-Z][a-zA-Z0-9]*$/.test(name)) {
+        componentImports.push(name);
+      }
+    }
   }
   const apiCallRegex1 = /(?:const|let)\s+(\w+)(?::\s*\w+)?\s*=\s*(?:await\s+)?(?:api|useApi\(\))\.(\w+)\.(\w+)\s*\(/g;
   while ((match = apiCallRegex1.exec(combined)) !== null) {
@@ -319,7 +334,7 @@ function analyzeScript(script, scriptSetup) {
       });
     }
   }
-  return { apiCalls, dataBindings, imports };
+  return { apiCalls, dataBindings, imports, componentImports };
 }
 function extractBalancedBraces(content, startIndex) {
   let depth = 0;
@@ -551,6 +566,21 @@ function parseTypeFields(content, tableName) {
   }
   return fields;
 }
+function extractUsedComponents(template) {
+  const components = /* @__PURE__ */ new Set();
+  const pascalRegex = /<([A-Z][a-zA-Z0-9]+)[\s/>]/g;
+  let match;
+  while ((match = pascalRegex.exec(template)) !== null) {
+    components.add(match[1]);
+  }
+  const kebabRegex = /<([a-z]+-[a-z-]+)[\s/>]/g;
+  while ((match = kebabRegex.exec(template)) !== null) {
+    const kebab = match[1];
+    const pascal = kebab.split("-").map((s) => s.charAt(0).toUpperCase() + s.slice(1)).join("");
+    components.add(pascal);
+  }
+  return [...components];
+}
 function extractScriptStaticStrings(script) {
   const results = [];
   const useHeadRegex = /useHead\s*\(\s*\{[^}]*title:\s*['"]([^'"]+)['"]/g;
@@ -577,6 +607,9 @@ function analyzeComponent(filePath, apiMappings) {
   const componentName = path.basename(filePath, ".vue");
   const templateElements = analyzeTemplate(sfc.template);
   const scriptAnalysis = analyzeScript(sfc.script, sfc.scriptSetup);
+  const templateComponents = extractUsedComponents(sfc.template);
+  const scriptComponents = scriptAnalysis.componentImports || [];
+  const usedComponents = [.../* @__PURE__ */ new Set([...templateComponents, ...scriptComponents])];
   const scriptStaticStrings = extractScriptStaticStrings(sfc.script + "\n" + sfc.scriptSetup);
   const elements = [];
   for (const ss of scriptStaticStrings) {
@@ -624,7 +657,8 @@ function analyzeComponent(filePath, apiMappings) {
       composable: api.composable,
       responseType: api.variable
     })),
-    imports: scriptAnalysis.imports
+    imports: scriptAnalysis.imports,
+    usedComponents
   };
 }
 function generateSelector(el) {

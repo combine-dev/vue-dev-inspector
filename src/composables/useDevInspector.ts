@@ -103,6 +103,7 @@ export interface ProjectAnalysis {
     filePath: string
     componentName: string
     elements: AnalyzedElement[]
+    usedComponents?: string[]  // Component names used in this file (e.g., ['NotificationList', 'UserCard'])
   }>
   apiMappings: Record<string, {
     endpoint: string
@@ -942,8 +943,47 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     // Get current page path to find matching components
     const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
 
+    // Helper: find component by name (case-insensitive, handles partial matches)
+    const findComponentByName = (name: string): typeof analysisData.value.components[string] | null => {
+      if (!analysisData.value) return null
+      for (const [path, comp] of Object.entries(analysisData.value.components)) {
+        if (comp.componentName === name ||
+            comp.componentName.toLowerCase() === name.toLowerCase() ||
+            path.toLowerCase().includes(`/${name.toLowerCase()}.vue`)) {
+          return comp
+        }
+      }
+      return null
+    }
+
+    // Helper: recursively collect elements from a component and its children
+    const collectComponentElements = (
+      component: typeof analysisData.value.components[string],
+      visited: Set<string> = new Set()
+    ): AnalyzedElement[] => {
+      const elements: AnalyzedElement[] = []
+      if (visited.has(component.componentName)) return elements
+      visited.add(component.componentName)
+
+      // Add this component's elements
+      elements.push(...component.elements)
+
+      // Recursively add child component elements
+      if (component.usedComponents) {
+        for (const childName of component.usedComponents) {
+          const childComponent = findComponentByName(childName)
+          if (childComponent) {
+            elements.push(...collectComponentElements(childComponent, visited))
+          }
+        }
+      }
+
+      return elements
+    }
+
     // Find components that might match current page
     const matchingComponents: AnalyzedElement[] = []
+    const includedComponentNames = new Set<string>()
 
     for (const [componentPath, component] of Object.entries(analysisData.value.components)) {
       // Match by page path or include all components for now
@@ -954,12 +994,31 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
         .replace(/\/index$/, '')
         .replace(/\[.*?\]/g, '[^/]+') // Convert [id] to regex
 
+      let isMatchingPage = false
+
       if (currentPath === '/' && componentPath.includes('index')) {
-        matchingComponents.push(...component.elements)
+        isMatchingPage = true
       } else if (componentPath.includes('pages/') && currentPath.match(new RegExp(`^${pagePath}$`))) {
-        matchingComponents.push(...component.elements)
-      } else if (componentPath.includes('components/')) {
-        // Include component elements too
+        isMatchingPage = true
+      }
+
+      if (isMatchingPage) {
+        // This is the matching page - include its elements and all child components recursively
+        const elements = collectComponentElements(component)
+        matchingComponents.push(...elements)
+        includedComponentNames.add(component.componentName)
+
+        // Mark child components as included
+        if (component.usedComponents) {
+          component.usedComponents.forEach(name => includedComponentNames.add(name))
+        }
+      }
+    }
+
+    // Also include standalone components that weren't already included via page dependencies
+    // This handles global/shared components that might be rendered on the page
+    for (const [componentPath, component] of Object.entries(analysisData.value.components)) {
+      if (componentPath.includes('components/') && !includedComponentNames.has(component.componentName)) {
         matchingComponents.push(...component.elements)
       }
     }
@@ -1014,6 +1073,50 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
             matched = true
             matchedSelector = generateSelector(els[0] as HTMLElement)
           }
+        }
+      }
+
+      // Strategy 4: For data-type elements, try to find by binding pattern in data attributes or content
+      if (!matched && analysisEl.type === 'data' && analysisEl.binding) {
+        // Extract field name from binding (e.g., "notification.title" -> "title")
+        const bindingParts = analysisEl.binding.split('.')
+        const fieldName = bindingParts[bindingParts.length - 1]
+
+        // Look for elements that might display this data
+        // Check data attributes that might indicate the field
+        const dataAttrSelector = `[data-field="${fieldName}"], [data-bind="${analysisEl.binding}"]`
+        try {
+          const el = document.querySelector(dataAttrSelector)
+          if (el) {
+            matched = true
+            matchedSelector = generateSelector(el as HTMLElement)
+          }
+        } catch { /* invalid selector */ }
+      }
+
+      // Strategy 5: For data elements with DB info, try matching by element context
+      if (!matched && analysisEl.db) {
+        // Elements with DB info are high-value - try more aggressive matching
+        // Look for any visible text that might be this field
+        const fieldName = analysisEl.db.column
+        const tableName = analysisEl.db.table
+
+        // Check if there's an element with class containing field or table reference
+        const potentialSelectors = [
+          `[class*="${fieldName}"]`,
+          `[class*="${tableName.replace(/s$/, '')}"]`,  // users -> user
+          `[data-testid*="${fieldName}"]`,
+        ]
+
+        for (const sel of potentialSelectors) {
+          try {
+            const el = document.querySelector(sel)
+            if (el) {
+              matched = true
+              matchedSelector = generateSelector(el as HTMLElement)
+              break
+            }
+          } catch { /* invalid selector */ }
         }
       }
 
