@@ -695,20 +695,16 @@ function mapToDatabase(binding, apiInfo) {
   }
   const lastPart = parts[parts.length - 1];
   const snakeColumn = camelToSnake(lastPart);
-  if (apiInfo.tableName) {
-    let comment;
-    if (globalDbSchema) {
-      const table = globalDbSchema.tables[apiInfo.tableName];
-      if (table && table.columns[snakeColumn]) {
-        comment = table.columns[snakeColumn].comment || void 0;
-      }
+  if (apiInfo.tableName && globalDbSchema) {
+    const table = globalDbSchema.tables[apiInfo.tableName];
+    if (table && table.columns[snakeColumn]) {
+      return {
+        table: apiInfo.tableName,
+        column: snakeColumn,
+        type: table.columns[snakeColumn].type || "unknown",
+        comment: table.columns[snakeColumn].comment || void 0
+      };
     }
-    return {
-      table: apiInfo.tableName,
-      column: snakeColumn,
-      type: "unknown",
-      comment
-    };
   }
   return null;
 }

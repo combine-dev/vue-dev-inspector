@@ -1027,27 +1027,24 @@ function mapToDatabase(binding: string, apiInfo: ApiComposableAnalysis): Element
   }
 
   // Fallback: just use the last part with snake_case conversion
+  // BUT only if the column actually exists in Rails schema (to avoid false positives)
   const lastPart = parts[parts.length - 1]
   const snakeColumn = camelToSnake(lastPart)
 
-  if (apiInfo.tableName) {
-    // Try to get comment from Rails schema even for fallback
-    let comment: string | undefined
-    if (globalDbSchema) {
-      const table = globalDbSchema.tables[apiInfo.tableName]
-      if (table && table.columns[snakeColumn]) {
-        comment = table.columns[snakeColumn].comment || undefined
+  if (apiInfo.tableName && globalDbSchema) {
+    const table = globalDbSchema.tables[apiInfo.tableName]
+    // Only set DB info if the column actually exists in the schema
+    if (table && table.columns[snakeColumn]) {
+      return {
+        table: apiInfo.tableName,
+        column: snakeColumn,
+        type: table.columns[snakeColumn].type || 'unknown',
+        comment: table.columns[snakeColumn].comment || undefined,
       }
-    }
-
-    return {
-      table: apiInfo.tableName,
-      column: snakeColumn,
-      type: 'unknown',
-      comment,
     }
   }
 
+  // No valid DB mapping found
   return null
 }
 
