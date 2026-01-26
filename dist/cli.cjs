@@ -59,9 +59,28 @@ function parseSFC(content) {
 function analyzeTemplate(template) {
   const elements = [];
   const seen = /* @__PURE__ */ new Set();
+  const isMeaningfulText = (text) => {
+    if (!text || text.trim().length === 0)
+      return false;
+    if (/^\[.+\]$/.test(text.trim()))
+      return false;
+    if (/^\[.+コンポーネント\]$/.test(text.trim()))
+      return false;
+    if (text.trim().length < 2)
+      return false;
+    if (/^[\s\d\W]+$/.test(text))
+      return false;
+    return true;
+  };
+  const isVueComponent = (tag) => {
+    return /^[A-Z]/.test(tag) || tag.includes("-");
+  };
   const addElement = (el) => {
     const key = `${el.line}:${el.tag}:${el.text}:${el.binding || ""}`;
     if (!seen.has(key) && (el.text || el.binding)) {
+      if (el.isStatic && !isMeaningfulText(el.text)) {
+        return;
+      }
       seen.add(key);
       elements.push(el);
     }
@@ -196,39 +215,21 @@ function analyzeTemplate(template) {
     const [fullMatch, tag, attrs] = match;
     const line = template.substring(0, match.index).split("\n").length;
     const parsedAttrs = parseAttributes(attrs);
-    const meaningfulAttrs = ["type", "title", "label", "name", "placeholder"];
-    let description = "";
-    for (const attr of meaningfulAttrs) {
-      if (parsedAttrs[attr]) {
-        description = parsedAttrs[attr];
-        break;
-      }
-    }
     const hasBinding = attrs.includes(":") || attrs.includes("v-");
+    if (!hasBinding)
+      continue;
     const bindingAttrs = attrs.match(/:(\w+)="([^"]+)"/g);
     const bindings = bindingAttrs?.map((b) => {
       const m = b.match(/:(\w+)="([^"]+)"/);
       return m ? `${m[1]}=${m[2]}` : "";
     }).filter(Boolean).join(", ");
-    addElement({
-      tag,
-      text: description || `[${tag}\u30B3\u30F3\u30DD\u30FC\u30CD\u30F3\u30C8]`,
-      isStatic: !hasBinding,
-      binding: bindings || void 0,
-      attributes: parsedAttrs,
-      line
-    });
-  }
-  const commentRegex = /<!--\s*(.+?)\s*-->/g;
-  while ((match = commentRegex.exec(template)) !== null) {
-    const commentText = match[1].trim();
-    const line = template.substring(0, match.index).split("\n").length;
-    if (commentText && commentText.length > 1 && !commentText.match(/^-+$/)) {
+    if (bindings) {
       addElement({
-        tag: "comment",
-        text: `[\u30B3\u30E1\u30F3\u30C8] ${commentText}`,
-        isStatic: true,
-        attributes: {},
+        tag,
+        text: `{{ ${bindings} }}`,
+        isStatic: false,
+        binding: bindings,
+        attributes: parsedAttrs,
         line
       });
     }
@@ -625,13 +626,17 @@ function analyzeComponent(filePath, apiMappings) {
     });
   }
   for (const el of templateElements) {
+    const elementType = determineElementType(el);
+    if (elementType === "unknown") {
+      continue;
+    }
     const mapping = {
       selector: generateSelector(el),
-      type: determineElementType(el),
+      type: elementType,
       line: el.line,
       component: componentName
     };
-    if (el.isStatic) {
+    if (el.isStatic && elementType === "static") {
       mapping.text = el.text;
     } else if (el.binding) {
       mapping.binding = el.binding;
@@ -676,6 +681,7 @@ function generateSelector(el) {
   return parts.join("");
 }
 function determineElementType(el) {
+  const isVueComponent = /^[A-Z]/.test(el.tag);
   if (el.tag === "button" || el.attributes["@click"] || el.attributes.role === "button") {
     return "button";
   }
@@ -685,11 +691,14 @@ function determineElementType(el) {
   if (["input", "select", "textarea"].includes(el.tag)) {
     return "form";
   }
-  if (el.isStatic) {
-    return "static";
-  }
   if (el.binding) {
     return "data";
+  }
+  if (isVueComponent) {
+    return "unknown";
+  }
+  if (el.isStatic) {
+    return "static";
   }
   return "unknown";
 }

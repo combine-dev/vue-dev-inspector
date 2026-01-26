@@ -125,10 +125,32 @@ function analyzeTemplate(template: string): TemplateElement[] {
   const elements: TemplateElement[] = []
   const seen = new Set<string>() // Avoid duplicates
 
+  // Helper to check if text is meaningful (not placeholder or empty)
+  const isMeaningfulText = (text: string): boolean => {
+    if (!text || text.trim().length === 0) return false
+    // Skip placeholder patterns like [コンポーネント名], [コメント], etc.
+    if (/^\[.+\]$/.test(text.trim())) return false
+    if (/^\[.+コンポーネント\]$/.test(text.trim())) return false
+    // Skip very short text that's likely just punctuation or symbols
+    if (text.trim().length < 2) return false
+    // Skip text that's only whitespace, numbers, or symbols
+    if (/^[\s\d\W]+$/.test(text)) return false
+    return true
+  }
+
+  // Check if tag is a Vue component (PascalCase or contains hyphen for kebab-case custom elements)
+  const isVueComponent = (tag: string): boolean => {
+    return /^[A-Z]/.test(tag) || tag.includes('-')
+  }
+
   // Helper to add element if unique
   const addElement = (el: TemplateElement) => {
     const key = `${el.line}:${el.tag}:${el.text}:${el.binding || ''}`
     if (!seen.has(key) && (el.text || el.binding)) {
+      // For static elements, verify text is meaningful
+      if (el.isStatic && !isMeaningfulText(el.text)) {
+        return
+      }
       seen.add(key)
       elements.push(el)
     }
@@ -303,7 +325,7 @@ function analyzeTemplate(template: string): TemplateElement[] {
     }
   }
 
-  // 8. Find self-closing Vue components (PascalCase)
+  // 8. Find self-closing Vue components (PascalCase) - only if they have bindings
   const selfClosingRegex = /<([A-Z][\w]*)([^>]*)\s*\/>/g
 
   while ((match = selfClosingRegex.exec(template)) !== null) {
@@ -311,52 +333,33 @@ function analyzeTemplate(template: string): TemplateElement[] {
     const line = template.substring(0, match.index).split('\n').length
     const parsedAttrs = parseAttributes(attrs)
 
-    // Extract meaningful attributes for description
-    const meaningfulAttrs = ['type', 'title', 'label', 'name', 'placeholder']
-    let description = ''
-    for (const attr of meaningfulAttrs) {
-      if (parsedAttrs[attr]) {
-        description = parsedAttrs[attr]
-        break
-      }
-    }
-
     // Check for dynamic props (bindings)
     const hasBinding = attrs.includes(':') || attrs.includes('v-')
+
+    // Skip components without bindings - they're just structural/layout components
+    if (!hasBinding) continue
+
     const bindingAttrs = attrs.match(/:(\w+)="([^"]+)"/g)
     const bindings = bindingAttrs?.map(b => {
       const m = b.match(/:(\w+)="([^"]+)"/)
       return m ? `${m[1]}=${m[2]}` : ''
     }).filter(Boolean).join(', ')
 
-    addElement({
-      tag,
-      text: description || `[${tag}コンポーネント]`,
-      isStatic: !hasBinding,
-      binding: bindings || undefined,
-      attributes: parsedAttrs,
-      line,
-    })
-  }
-
-  // 9. Find HTML comments (useful for section markers)
-  const commentRegex = /<!--\s*(.+?)\s*-->/g
-
-  while ((match = commentRegex.exec(template)) !== null) {
-    const commentText = match[1].trim()
-    const line = template.substring(0, match.index).split('\n').length
-
-    // Only capture meaningful comments (not empty or just dashes)
-    if (commentText && commentText.length > 1 && !commentText.match(/^-+$/)) {
+    // Only add if there are actual bindings
+    if (bindings) {
       addElement({
-        tag: 'comment',
-        text: `[コメント] ${commentText}`,
-        isStatic: true,
-        attributes: {},
+        tag,
+        text: `{{ ${bindings} }}`,
+        isStatic: false,
+        binding: bindings,
+        attributes: parsedAttrs,
         line,
       })
     }
   }
+
+  // 9. Find HTML comments - skip for now, they're usually not useful for UI spec
+  // Comments are developer notes, not user-facing content
 
   return elements
 }
@@ -985,14 +988,21 @@ function analyzeComponent(filePath: string, apiMappings: Record<string, ApiCompo
   }
 
   for (const el of templateElements) {
+    const elementType = determineElementType(el)
+
+    // Skip unknown type elements - they're not useful for spec
+    if (elementType === 'unknown') {
+      continue
+    }
+
     const mapping: ElementMapping = {
       selector: generateSelector(el),
-      type: determineElementType(el),
+      type: elementType,
       line: el.line,
       component: componentName,
     }
 
-    if (el.isStatic) {
+    if (el.isStatic && elementType === 'static') {
       mapping.text = el.text
     } else if (el.binding) {
       mapping.binding = el.binding
@@ -1048,6 +1058,9 @@ function generateSelector(el: TemplateElement): string {
 }
 
 function determineElementType(el: TemplateElement): ElementMapping['type'] {
+  // Vue components (PascalCase) should be 'data' if they have bindings, otherwise skip
+  const isVueComponent = /^[A-Z]/.test(el.tag)
+
   if (el.tag === 'button' || el.attributes['@click'] || el.attributes.role === 'button') {
     return 'button'
   }
@@ -1060,12 +1073,17 @@ function determineElementType(el: TemplateElement): ElementMapping['type'] {
     return 'form'
   }
 
-  if (el.isStatic) {
-    return 'static'
-  }
-
   if (el.binding) {
     return 'data'
+  }
+
+  // Vue components without bindings shouldn't be marked as static
+  if (isVueComponent) {
+    return 'unknown'
+  }
+
+  if (el.isStatic) {
+    return 'static'
   }
 
   return 'unknown'
