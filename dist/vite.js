@@ -1,62 +1,62 @@
-import * as v from "fs";
+import * as b from "fs";
 import * as m from "path";
-function x(n) {
+function $(n) {
   const e = /* @__PURE__ */ new Map();
   try {
-    if (!v.existsSync(n))
+    if (!b.existsSync(n))
       return console.warn(`[vue-dev-inspector] Analysis file not found: ${n}`), e;
-    const t = JSON.parse(v.readFileSync(n, "utf-8"));
-    for (const [, l] of Object.entries(t.components))
-      for (const i of l.elements)
-        if (i.binding && i.db) {
-          const o = i.binding.replace(/^\./, "");
-          e.has(o) || e.set(o, i.db);
+    const o = JSON.parse(b.readFileSync(n, "utf-8"));
+    for (const [, c] of Object.entries(o.components))
+      for (const r of c.elements)
+        if (r.binding && r.db) {
+          const s = r.binding.replace(/^\./, "");
+          e.has(s) || e.set(s, r.db);
         }
     console.log(`[vue-dev-inspector] Loaded ${e.size} binding->DB mappings from analysis`);
-  } catch (t) {
-    console.warn("[vue-dev-inspector] Failed to load analysis file:", t);
+  } catch (o) {
+    console.warn("[vue-dev-inspector] Failed to load analysis file:", o);
   }
   return e;
 }
-function $(n, e, t) {
-  let l = n;
-  const i = /\{\{\s*([^{}]+?)\s*\}\}/g, o = [];
-  let r;
-  for (; (r = i.exec(n)) !== null; ) {
-    const a = r[0], c = r[1].trim();
-    if (n.slice(Math.max(0, r.index - 100), r.index).includes("data-di-binding") || c.includes("?") || c.includes("|") || /\([^)]*\)/.test(c))
+function x(n, e, o) {
+  let c = n;
+  const r = /\{\{\s*([^{}]+?)\s*\}\}/g, s = [];
+  let t;
+  for (; (t = r.exec(n)) !== null; ) {
+    const a = t[0], d = t[1].trim();
+    if (n.slice(Math.max(0, t.index - 100), t.index).includes("data-di-binding") || d.includes("?") || d.includes("|") || /\([^)]*\)/.test(d))
       continue;
-    const d = c.replace(/\?\.?/g, ".").replace(/\s+/g, "").replace(/^\(|\)$/g, "");
-    let u = `data-di-binding="${d}"`;
-    u += ` data-di-component="${t}"`;
-    let s = e.get(d);
-    if (!s && d.includes(".")) {
-      const p = d.split(".").pop();
-      for (const [b, h] of e.entries())
-        if (b.endsWith("." + p) || b === p) {
-          s = h;
+    const u = d.replace(/\?\.?/g, ".").replace(/\s+/g, "").replace(/^\(|\)$/g, "");
+    let i = `data-di-binding="${u}"`;
+    i += ` data-di-component="${o}"`;
+    let l = e.get(u);
+    if (!l && u.includes(".")) {
+      const p = u.split(".").pop();
+      for (const [v, h] of e.entries())
+        if (v.endsWith("." + p) || v === p) {
+          l = h;
           break;
         }
     }
-    s && (u += ` data-di-db="${s.table}.${s.column}"`, s.comment && (u += ` data-di-db-comment="${s.comment.replace(/"/g, "&quot;")}"`));
-    const g = `<span ${u}>${a}</span>`;
-    o.push({ original: a, replacement: g });
+    l && (i += ` data-di-db="${l.table}.${l.column}"`, l.comment && (i += ` data-di-db-comment="${l.comment.replace(/"/g, "&quot;")}"`));
+    const g = `<span ${i}>${a}</span>`;
+    s.push({ original: a, replacement: g });
   }
-  for (const { original: a, replacement: c } of o.reverse())
-    l = l.replace(a, c);
-  return l;
+  for (const { original: a, replacement: d } of s.reverse())
+    c = c.replace(a, d);
+  return c;
 }
 function w(n) {
   return m.basename(n, ".vue");
 }
-function y(n = {}) {
+function P(n = {}) {
   const {
     enabled: e = process.env.NODE_ENV !== "production",
-    analysisPath: t,
+    analysisPath: o,
     // include = ['**/*.vue'],  // TODO: implement include pattern matching
-    exclude: l = ["node_modules/**", "**/node_modules/**"]
+    exclude: c = ["node_modules/**", "**/node_modules/**"]
   } = n;
-  let i = /* @__PURE__ */ new Map();
+  let r = /* @__PURE__ */ new Map();
   return {
     name: "vite-plugin-dev-inspector",
     enforce: "pre",
@@ -66,30 +66,34 @@ function y(n = {}) {
         console.log("[vue-dev-inspector] Plugin disabled");
         return;
       }
-      if (console.log("[vue-dev-inspector] Plugin enabled"), t) {
-        const o = m.isAbsolute(t) ? t : m.resolve(process.cwd(), t);
-        i = x(o);
+      if (console.log("[vue-dev-inspector] Plugin enabled"), o) {
+        const s = m.isAbsolute(o) ? o : m.resolve(process.cwd(), o);
+        r = $(s);
       }
     },
-    transform(o, r) {
-      if (!e || !r.endsWith(".vue")) return null;
-      const a = m.relative(process.cwd(), r);
-      if (l.some((p) => p.includes("**") ? a.includes(p.replace("**/", "").replace("/**", "")) : a.startsWith(p))) return null;
-      const f = o.match(/<template[^>]*>([\s\S]*?)<\/template>/i);
-      if (!f) return null;
-      const d = f[1], u = w(r), s = $(d, i, u);
-      return s === d ? null : {
-        code: o.replace(
+    transform(s, t) {
+      if (!e || !t.endsWith(".vue")) return null;
+      console.log(`[vue-dev-inspector] transform called: ${t}`);
+      const a = m.relative(process.cwd(), t);
+      if (c.some((p) => p.includes("**") ? a.includes(p.replace("**/", "").replace("/**", "")) : a.startsWith(p))) return null;
+      const f = s.match(/<template[^>]*>([\s\S]*?)<\/template>/i);
+      if (!f)
+        return console.log(`[vue-dev-inspector] No template found in: ${t}`), null;
+      const u = f[1], i = w(t);
+      console.log(`[vue-dev-inspector] Processing template for: ${i}`);
+      const l = x(u, r, i);
+      return l === u ? (console.log(`[vue-dev-inspector] No changes for: ${i}`), null) : (console.log(`[vue-dev-inspector] Transformed: ${i}`), {
+        code: s.replace(
           /<template([^>]*)>([\s\S]*?)<\/template>/i,
-          `<template$1>${s}</template>`
+          `<template$1>${l}</template>`
         ),
         map: null
         // TODO: proper source map support
-      };
+      });
     }
   };
 }
 export {
-  y as default,
-  y as vitePluginDevInspector
+  P as default,
+  P as vitePluginDevInspector
 };

@@ -9,6 +9,10 @@ export declare interface ModuleOptions extends DevInspectorOptions {
      * @default true in development
      */
     enabled?: boolean;
+    /**
+     * Path to analysis JSON file for DB mapping
+     */
+    analysisPath?: string;
 }
 
 export { }

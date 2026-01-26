@@ -198,6 +198,8 @@ export function vitePluginDevInspector(options: DevInspectorVitePluginOptions = 
       // Only process .vue files
       if (!id.endsWith('.vue')) return null
 
+      console.log(`[vue-dev-inspector] transform called: ${id}`)
+
       // Check include/exclude patterns
       const relativePath = path.relative(process.cwd(), id)
 
@@ -213,16 +215,26 @@ export function vitePluginDevInspector(options: DevInspectorVitePluginOptions = 
 
       // Extract template section
       const templateMatch = code.match(/<template[^>]*>([\s\S]*?)<\/template>/i)
-      if (!templateMatch) return null
+      if (!templateMatch) {
+        console.log(`[vue-dev-inspector] No template found in: ${id}`)
+        return null
+      }
 
       const originalTemplate = templateMatch[1]
       const componentName = getComponentName(id)
+
+      console.log(`[vue-dev-inspector] Processing template for: ${componentName}`)
 
       // Transform template
       const transformedTemplate = transformTemplate(originalTemplate, bindingToDb, componentName)
 
       // If no changes, return null
-      if (transformedTemplate === originalTemplate) return null
+      if (transformedTemplate === originalTemplate) {
+        console.log(`[vue-dev-inspector] No changes for: ${componentName}`)
+        return null
+      }
+
+      console.log(`[vue-dev-inspector] Transformed: ${componentName}`)
 
       // Replace template in code
       const newCode = code.replace(

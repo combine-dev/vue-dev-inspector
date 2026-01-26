@@ -1,5 +1,6 @@
-import { defineNuxtModule as r, createResolver as s, addImports as t, addComponent as c, addPlugin as l } from "@nuxt/kit";
-const d = r({
+import { defineNuxtModule as r, createResolver as s, addVitePlugin as t, addImports as a, addComponent as l, addPlugin as c } from "@nuxt/kit";
+import d from "./vite.js";
+const u = r({
   meta: {
     name: "vue-dev-inspector",
     configKey: "devInspector",
@@ -12,31 +13,34 @@ const d = r({
     storageKey: "devInspector:elementConfigs",
     enabledInProduction: !1
   },
-  setup(o, n) {
-    if (!o.enabled)
+  setup(e, n) {
+    if (!e.enabled)
       return;
-    const e = s(import.meta.url);
-    t([
+    const o = s(import.meta.url);
+    t(d({
+      enabled: e.enabled,
+      analysisPath: e.analysisPath
+    })), a([
       {
         name: "useDevInspector",
-        from: e.resolve("../src/composables/useDevInspector")
+        from: o.resolve("../src/composables/useDevInspector")
       },
       {
         name: "useDevInspectorStore",
-        from: e.resolve("../src/composables/useDevInspector")
+        from: o.resolve("../src/composables/useDevInspector")
       }
-    ]), c({
+    ]), l({
       name: "DevInspector",
-      filePath: e.resolve("../src/components/DevInspector.vue")
-    }), l({
-      src: e.resolve("./plugin"),
+      filePath: o.resolve("../src/components/DevInspector.vue")
+    }), c({
+      src: o.resolve("./plugin"),
       mode: "client"
     }), n.options.runtimeConfig.public.devInspector = {
-      storageKey: o.storageKey,
-      enabledInProduction: o.enabledInProduction
+      storageKey: e.storageKey,
+      enabledInProduction: e.enabledInProduction
     };
   }
 });
 export {
-  d as default
+  u as default
 };

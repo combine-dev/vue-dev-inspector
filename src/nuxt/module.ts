@@ -1,5 +1,6 @@
-import { defineNuxtModule, addComponent, addPlugin, createResolver, addImports } from '@nuxt/kit'
+import { defineNuxtModule, addComponent, addPlugin, createResolver, addImports, addVitePlugin } from '@nuxt/kit'
 import type { DevInspectorOptions } from '../composables/useDevInspector'
+import { vitePluginDevInspector } from '../vite/plugin'
 
 export interface ModuleOptions extends DevInspectorOptions {
   /**
@@ -7,6 +8,11 @@ export interface ModuleOptions extends DevInspectorOptions {
    * @default true in development
    */
   enabled?: boolean
+
+  /**
+   * Path to analysis JSON file for DB mapping
+   */
+  analysisPath?: string
 }
 
 export default defineNuxtModule<ModuleOptions>({
@@ -28,6 +34,12 @@ export default defineNuxtModule<ModuleOptions>({
     }
 
     const resolver = createResolver(import.meta.url)
+
+    // Add Vite plugin for template transformation
+    addVitePlugin(vitePluginDevInspector({
+      enabled: options.enabled,
+      analysisPath: options.analysisPath,
+    }))
 
     // Add auto-imports for composables
     addImports([
