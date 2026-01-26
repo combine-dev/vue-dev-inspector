@@ -248,6 +248,26 @@ function deleteConfig() {
 }
 
 const typeOptions = ['VARCHAR', 'TEXT', 'INT', 'BIGINT', 'BOOLEAN', 'DATE', 'DATETIME', 'TIMESTAMP', 'JSON']
+
+// Binding candidates from CLI analysis
+const bindingSearch = ref('')
+const showBindingList = ref(false)
+
+const filteredBindings = computed(() => {
+  return store.searchBindings(bindingSearch.value).slice(0, 20) // Limit to 20 results
+})
+
+function selectBinding(binding: ReturnType<typeof store.searchBindings>[0]) {
+  if (binding.db) {
+    fieldTable.value = binding.db.table
+    fieldColumn.value = binding.db.column
+    fieldType.value = binding.db.type || ''
+  }
+  sourceBindingSource.value = binding.binding
+  sourceBindingType.value = 'api'
+  showBindingList.value = false
+  bindingSearch.value = ''
+}
 const actionTypeOptions: { value: ActionInfo['type']; label: string }[] = [
   { value: 'navigate', label: '画面遷移' },
   { value: 'api', label: 'API呼び出し' },
@@ -373,6 +393,56 @@ const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof
 
           <!-- Field Tab -->
           <template v-if="activeTab === 'field'">
+            <!-- Binding Selector from CLI Analysis -->
+            <div class="di-binding-selector">
+              <div class="di-form-group">
+                <label class="di-form-label">
+                  <Database style="width: 12px; height: 12px; display: inline; vertical-align: middle;" />
+                  CLI解析から選択
+                </label>
+                <div class="di-binding-search-wrapper">
+                  <input
+                    v-model="bindingSearch"
+                    @focus="showBindingList = true"
+                    type="text"
+                    placeholder="バインディングを検索... (例: notification, user.name)"
+                    class="di-input di-binding-search"
+                  />
+                  <button
+                    v-if="bindingSearch"
+                    @click="bindingSearch = ''; showBindingList = false"
+                    class="di-binding-clear"
+                  >
+                    <X style="width: 14px; height: 14px;" />
+                  </button>
+                </div>
+                <div v-if="showBindingList && filteredBindings.length > 0" class="di-binding-list">
+                  <button
+                    v-for="b in filteredBindings"
+                    :key="b.binding"
+                    @click="selectBinding(b)"
+                    class="di-binding-item"
+                    :class="{ 'has-db': !!b.db }"
+                  >
+                    <div class="di-binding-item-main">
+                      <span class="di-binding-name">{{ b.binding }}</span>
+                      <span v-if="b.db" class="di-binding-db">
+                        {{ b.db.table }}.{{ b.db.column }}
+                      </span>
+                    </div>
+                    <span class="di-binding-component">{{ b.component }}</span>
+                  </button>
+                </div>
+                <div v-else-if="showBindingList && bindingSearch && filteredBindings.length === 0" class="di-binding-empty">
+                  該当するバインディングが見つかりません
+                </div>
+              </div>
+            </div>
+
+            <div class="di-form-divider">
+              <span>または手動入力</span>
+            </div>
+
             <div class="di-form-row">
               <div class="di-form-group">
                 <label class="di-form-label">テーブル名 *</label>
@@ -795,5 +865,114 @@ const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof
 }
 .di-btn-save:hover {
   background: #2563eb;
+}
+
+/* Binding Selector */
+.di-binding-selector {
+  padding: 12px;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+.di-binding-search-wrapper {
+  position: relative;
+}
+.di-binding-search {
+  padding-right: 32px;
+}
+.di-binding-clear {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 2px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 4px;
+}
+.di-binding-clear:hover {
+  color: #94a3b8;
+  background: #334155;
+}
+.di-binding-list {
+  margin-top: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+}
+.di-binding-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #1e293b;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+}
+.di-binding-item:last-child {
+  border-bottom: none;
+}
+.di-binding-item:hover {
+  background: #1e293b;
+}
+.di-binding-item.has-db {
+  border-left: 3px solid #3b82f6;
+}
+.di-binding-item-main {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+.di-binding-name {
+  color: #e2e8f0;
+  font-size: 12px;
+  font-family: monospace;
+}
+.di-binding-db {
+  padding: 2px 6px;
+  background: #3b82f6;
+  color: white;
+  font-size: 10px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+.di-binding-component {
+  color: #64748b;
+  font-size: 10px;
+  margin-top: 2px;
+}
+.di-binding-empty {
+  padding: 12px;
+  color: #64748b;
+  font-size: 11px;
+  text-align: center;
+}
+.di-form-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0;
+}
+.di-form-divider::before,
+.di-form-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: #334155;
+}
+.di-form-divider span {
+  color: #64748b;
+  font-size: 10px;
+  white-space: nowrap;
 }
 </style>

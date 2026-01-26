@@ -1166,6 +1166,63 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     URL.revokeObjectURL(url)
   }
 
+  // Get all unique bindings with DB info from analysis data (for manual mapping UI)
+  interface BindingCandidate {
+    binding: string
+    db?: {
+      table: string
+      column: string
+      type?: string
+    }
+    api?: {
+      endpoint: string
+      method: string
+    }
+    component: string
+  }
+
+  function getAvailableBindings(): BindingCandidate[] {
+    if (!analysisData.value) return []
+
+    const bindings: BindingCandidate[] = []
+    const seen = new Set<string>()
+
+    for (const component of Object.values(analysisData.value.components)) {
+      for (const el of component.elements) {
+        if (el.binding && !seen.has(el.binding)) {
+          seen.add(el.binding)
+          bindings.push({
+            binding: el.binding,
+            db: el.db,
+            api: el.api,
+            component: component.componentName,
+          })
+        }
+      }
+    }
+
+    // Sort: DB bindings first, then by binding name
+    return bindings.sort((a, b) => {
+      if (a.db && !b.db) return -1
+      if (!a.db && b.db) return 1
+      return a.binding.localeCompare(b.binding)
+    })
+  }
+
+  // Search bindings by keyword
+  function searchBindings(query: string): BindingCandidate[] {
+    const all = getAvailableBindings()
+    if (!query) return all
+
+    const q = query.toLowerCase()
+    return all.filter(b =>
+      b.binding.toLowerCase().includes(q) ||
+      b.db?.table.toLowerCase().includes(q) ||
+      b.db?.column.toLowerCase().includes(q) ||
+      b.component.toLowerCase().includes(q)
+    )
+  }
+
   function isAnalysisSelectorHidden(selector: string): boolean {
     return hiddenAnalysisSelectors.value.has(selector)
   }
@@ -1285,6 +1342,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     analysisFilter,
     exportChangesForCli,
     downloadChanges,
+    getAvailableBindings,
+    searchBindings,
   }
 })
 
