@@ -302,6 +302,61 @@ function analyzeTemplate(template: string): TemplateElement[] {
     }
   }
 
+  // 8. Find self-closing Vue components (PascalCase)
+  const selfClosingRegex = /<([A-Z][\w]*)([^>]*)\s*\/>/g
+
+  while ((match = selfClosingRegex.exec(template)) !== null) {
+    const [fullMatch, tag, attrs] = match
+    const line = template.substring(0, match.index).split('\n').length
+    const parsedAttrs = parseAttributes(attrs)
+
+    // Extract meaningful attributes for description
+    const meaningfulAttrs = ['type', 'title', 'label', 'name', 'placeholder']
+    let description = ''
+    for (const attr of meaningfulAttrs) {
+      if (parsedAttrs[attr]) {
+        description = parsedAttrs[attr]
+        break
+      }
+    }
+
+    // Check for dynamic props (bindings)
+    const hasBinding = attrs.includes(':') || attrs.includes('v-')
+    const bindingAttrs = attrs.match(/:(\w+)="([^"]+)"/g)
+    const bindings = bindingAttrs?.map(b => {
+      const m = b.match(/:(\w+)="([^"]+)"/)
+      return m ? `${m[1]}=${m[2]}` : ''
+    }).filter(Boolean).join(', ')
+
+    addElement({
+      tag,
+      text: description || `[${tag}コンポーネント]`,
+      isStatic: !hasBinding,
+      binding: bindings || undefined,
+      attributes: parsedAttrs,
+      line,
+    })
+  }
+
+  // 9. Find HTML comments (useful for section markers)
+  const commentRegex = /<!--\s*(.+?)\s*-->/g
+
+  while ((match = commentRegex.exec(template)) !== null) {
+    const commentText = match[1].trim()
+    const line = template.substring(0, match.index).split('\n').length
+
+    // Only capture meaningful comments (not empty or just dashes)
+    if (commentText && commentText.length > 1 && !commentText.match(/^-+$/)) {
+      addElement({
+        tag: 'comment',
+        text: `[コメント] ${commentText}`,
+        isStatic: true,
+        attributes: {},
+        line,
+      })
+    }
+  }
+
   return elements
 }
 
@@ -737,6 +792,35 @@ function analyzeTypeFile(content: string): TypeDefinition[] {
 
 // ===== Main Analyzer =====
 
+// Extract static strings from script (useHead, definePageMeta, etc.)
+function extractScriptStaticStrings(script: string): { text: string; source: string; line: number }[] {
+  const results: { text: string; source: string; line: number }[] = []
+
+  // useHead({ title: '...' })
+  const useHeadRegex = /useHead\s*\(\s*\{[^}]*title:\s*['"]([^'"]+)['"]/g
+  let match
+  while ((match = useHeadRegex.exec(script)) !== null) {
+    const line = script.substring(0, match.index).split('\n').length
+    results.push({ text: match[1], source: 'useHead.title', line })
+  }
+
+  // definePageMeta({ title: '...' })
+  const pageMetaRegex = /definePageMeta\s*\(\s*\{[^}]*title:\s*['"]([^'"]+)['"]/g
+  while ((match = pageMetaRegex.exec(script)) !== null) {
+    const line = script.substring(0, match.index).split('\n').length
+    results.push({ text: match[1], source: 'definePageMeta.title', line })
+  }
+
+  // useSeoMeta({ title: '...' })
+  const seoMetaRegex = /useSeoMeta\s*\(\s*\{[^}]*title:\s*['"]([^'"]+)['"]/g
+  while ((match = seoMetaRegex.exec(script)) !== null) {
+    const line = script.substring(0, match.index).split('\n').length
+    results.push({ text: match[1], source: 'useSeoMeta.title', line })
+  }
+
+  return results
+}
+
 function analyzeComponent(filePath: string, apiMappings: Record<string, ApiComposableAnalysis>): ComponentAnalysis {
   const content = fs.readFileSync(filePath, 'utf-8')
   const sfc = parseSFC(content)
@@ -745,7 +829,21 @@ function analyzeComponent(filePath: string, apiMappings: Record<string, ApiCompo
   const templateElements = analyzeTemplate(sfc.template)
   const scriptAnalysis = analyzeScript(sfc.script, sfc.scriptSetup)
 
+  // Extract static strings from script
+  const scriptStaticStrings = extractScriptStaticStrings(sfc.script + '\n' + sfc.scriptSetup)
+
   const elements: ElementMapping[] = []
+
+  // Add script static strings as elements
+  for (const ss of scriptStaticStrings) {
+    elements.push({
+      selector: `script:${ss.source}`,
+      type: 'static',
+      text: ss.text,
+      line: ss.line,
+      component: componentName,
+    })
+  }
 
   for (const el of templateElements) {
     const mapping: ElementMapping = {

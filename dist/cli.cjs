@@ -188,6 +188,48 @@ function analyzeTemplate(template) {
       });
     }
   }
+  const selfClosingRegex = /<([A-Z][\w]*)([^>]*)\s*\/>/g;
+  while ((match = selfClosingRegex.exec(template)) !== null) {
+    const [fullMatch, tag, attrs] = match;
+    const line = template.substring(0, match.index).split("\n").length;
+    const parsedAttrs = parseAttributes(attrs);
+    const meaningfulAttrs = ["type", "title", "label", "name", "placeholder"];
+    let description = "";
+    for (const attr of meaningfulAttrs) {
+      if (parsedAttrs[attr]) {
+        description = parsedAttrs[attr];
+        break;
+      }
+    }
+    const hasBinding = attrs.includes(":") || attrs.includes("v-");
+    const bindingAttrs = attrs.match(/:(\w+)="([^"]+)"/g);
+    const bindings = bindingAttrs?.map((b) => {
+      const m = b.match(/:(\w+)="([^"]+)"/);
+      return m ? `${m[1]}=${m[2]}` : "";
+    }).filter(Boolean).join(", ");
+    addElement({
+      tag,
+      text: description || `[${tag}\u30B3\u30F3\u30DD\u30FC\u30CD\u30F3\u30C8]`,
+      isStatic: !hasBinding,
+      binding: bindings || void 0,
+      attributes: parsedAttrs,
+      line
+    });
+  }
+  const commentRegex = /<!--\s*(.+?)\s*-->/g;
+  while ((match = commentRegex.exec(template)) !== null) {
+    const commentText = match[1].trim();
+    const line = template.substring(0, match.index).split("\n").length;
+    if (commentText && commentText.length > 1 && !commentText.match(/^-+$/)) {
+      addElement({
+        tag: "comment",
+        text: `[\u30B3\u30E1\u30F3\u30C8] ${commentText}`,
+        isStatic: true,
+        attributes: {},
+        line
+      });
+    }
+  }
   return elements;
 }
 function parseAttributes(attrString) {
@@ -482,13 +524,43 @@ function analyzeTypeFile(content) {
   }
   return types;
 }
+function extractScriptStaticStrings(script) {
+  const results = [];
+  const useHeadRegex = /useHead\s*\(\s*\{[^}]*title:\s*['"]([^'"]+)['"]/g;
+  let match;
+  while ((match = useHeadRegex.exec(script)) !== null) {
+    const line = script.substring(0, match.index).split("\n").length;
+    results.push({ text: match[1], source: "useHead.title", line });
+  }
+  const pageMetaRegex = /definePageMeta\s*\(\s*\{[^}]*title:\s*['"]([^'"]+)['"]/g;
+  while ((match = pageMetaRegex.exec(script)) !== null) {
+    const line = script.substring(0, match.index).split("\n").length;
+    results.push({ text: match[1], source: "definePageMeta.title", line });
+  }
+  const seoMetaRegex = /useSeoMeta\s*\(\s*\{[^}]*title:\s*['"]([^'"]+)['"]/g;
+  while ((match = seoMetaRegex.exec(script)) !== null) {
+    const line = script.substring(0, match.index).split("\n").length;
+    results.push({ text: match[1], source: "useSeoMeta.title", line });
+  }
+  return results;
+}
 function analyzeComponent(filePath, apiMappings) {
   const content = fs.readFileSync(filePath, "utf-8");
   const sfc = parseSFC(content);
   const componentName = path.basename(filePath, ".vue");
   const templateElements = analyzeTemplate(sfc.template);
   const scriptAnalysis = analyzeScript(sfc.script, sfc.scriptSetup);
+  const scriptStaticStrings = extractScriptStaticStrings(sfc.script + "\n" + sfc.scriptSetup);
   const elements = [];
+  for (const ss of scriptStaticStrings) {
+    elements.push({
+      selector: `script:${ss.source}`,
+      type: "static",
+      text: ss.text,
+      line: ss.line,
+      component: componentName
+    });
+  }
   for (const el of templateElements) {
     const mapping = {
       selector: generateSelector(el),

@@ -1,18 +1,34 @@
 {
   "projectPath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front",
-  "analyzedAt": "2026-01-23T15:45:43.851Z",
+  "analyzedAt": "2026-01-26T03:38:24.213Z",
   "components": {
     "app.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/app.vue",
       "componentName": "app",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "NuxtPage",
+          "type": "static",
+          "line": 4,
+          "component": "app",
+          "text": "[NuxtPageコンポーネント]"
+        }
+      ],
       "apis": [],
       "imports": []
     },
     "components/atoms/BallBeatLoading.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/components/atoms/BallBeatLoading.vue",
       "componentName": "BallBeatLoading",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 5,
+          "component": "BallBeatLoading",
+          "text": "[コメント] loading animation"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -61,6 +77,48 @@
           "line": 52,
           "component": "BasicInput",
           "binding": "maxTextLength"
+        },
+        {
+          "selector": "CustomIconButton.input-icon",
+          "type": "data",
+          "line": 11,
+          "component": "BasicInput",
+          "binding": "icon=customIcon"
+        },
+        {
+          "selector": "SearchIcon.input-icon",
+          "type": "data",
+          "line": 18,
+          "component": "BasicInput",
+          "binding": "hover=false"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 10,
+          "component": "BasicInput",
+          "text": "[コメント] カスタムアイコン指定の場合"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 17,
+          "component": "BasicInput",
+          "text": "[コメント] type: searchの場合検索アイコン表示"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 25,
+          "component": "BasicInput",
+          "text": "[コメント] アイコン指定の場合"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 47,
+          "component": "BasicInput",
+          "text": "[コメント] テキストカウンター"
         }
       ],
       "apis": [],
@@ -69,7 +127,22 @@
     "components/atoms/BasicLink.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/components/atoms/BasicLink.vue",
       "componentName": "BasicLink",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 6,
+          "component": "BasicLink",
+          "text": "[コメント] location"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 12,
+          "component": "BasicLink",
+          "text": "[コメント] router"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -127,6 +200,13 @@
           "line": 3,
           "component": "DatePicker",
           "binding": "selectedDate"
+        },
+        {
+          "selector": "VueDatePicker",
+          "type": "data",
+          "line": 3,
+          "component": "DatePicker",
+          "binding": "inline=inline"
         }
       ],
       "apis": [],
@@ -185,6 +265,20 @@
           "type": "unknown",
           "line": 45,
           "component": "DropDownMenu"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 24,
+          "component": "DropDownMenu",
+          "text": "[コメント] 選択パネル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 35,
+          "component": "DropDownMenu",
+          "text": "[コメント] セクション別に表示する場合"
         }
       ],
       "apis": [],
@@ -229,6 +323,13 @@
           "line": 5,
           "component": "FormRowLayout",
           "binding": "fieldName"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 2,
+          "component": "FormRowLayout",
+          "text": "[コメント] 縦並びコンテンツ fieldName <br> input"
         }
       ],
       "apis": [],
@@ -244,7 +345,15 @@
     "components/atoms/HeaderMenuIcon.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/components/atoms/HeaderMenuIcon.vue",
       "componentName": "HeaderMenuIcon",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 6,
+          "component": "HeaderMenuIcon",
+          "text": "[コメント] メニュー三本線アイコン"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -279,7 +388,15 @@
     "components/atoms/Loading.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/components/atoms/Loading.vue",
       "componentName": "Loading",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 2,
+          "component": "Loading",
+          "text": "[コメント] loading animation"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -322,6 +439,32 @@
           "line": 26,
           "component": "MoreView",
           "binding": "moreText"
+        },
+        {
+          "selector": "SearchIcon.search-icon",
+          "type": "unknown",
+          "line": 20,
+          "component": "MoreView"
+        },
+        {
+          "selector": "SearchIcon.hover-search-icon",
+          "type": "unknown",
+          "line": 31,
+          "component": "MoreView"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 11,
+          "component": "MoreView",
+          "text": "[コメント] 「詳細を見る」マスクエリア"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 30,
+          "component": "MoreView",
+          "text": "[コメント] hover時のアイコン"
         }
       ],
       "apis": [],
@@ -374,7 +517,15 @@
     "components/atoms/Separator.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/components/atoms/Separator.vue",
       "componentName": "Separator",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 2,
+          "component": "Separator",
+          "text": "[コメント] separator"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -447,7 +598,22 @@
     "components/atoms/Tab.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/components/atoms/Tab.vue",
       "componentName": "Tab",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 2,
+          "component": "Tab",
+          "text": "[コメント] シングルタブ用"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 11,
+          "component": "Tab",
+          "text": "[コメント] マルチタブ用"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -475,6 +641,27 @@
           "line": 26,
           "component": "Toaster",
           "binding": "data.message"
+        },
+        {
+          "selector": "CloseButton.close-button",
+          "type": "static",
+          "line": 28,
+          "component": "Toaster",
+          "text": "[CloseButtonコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 12,
+          "component": "Toaster",
+          "text": "[コメント] successの場合"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 17,
+          "component": "Toaster",
+          "text": "[コメント] success/warning以外の場合"
         }
       ],
       "apis": [],
@@ -492,7 +679,22 @@
     "components/atoms/button/BasicButton.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/components/atoms/button/BasicButton.vue",
       "componentName": "BasicButton",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 2,
+          "component": "BasicButton",
+          "text": "[コメント] 戻る back"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 20,
+          "component": "BasicButton",
+          "text": "[コメント] それ以外"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -519,6 +721,13 @@
           "type": "unknown",
           "line": 3,
           "component": "FilterButton"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 2,
+          "component": "FilterButton",
+          "text": "[コメント] メニュー開閉アイコン"
         }
       ],
       "apis": [],
@@ -562,6 +771,41 @@
           "line": 11,
           "component": "Answer",
           "binding": "sortNoToString(sortNo)"
+        },
+        {
+          "selector": "Answer",
+          "type": "data",
+          "line": 25,
+          "component": "Answer",
+          "binding": "key=child.id, answer=child.answer, type=type, children=isQl2(child) ? child.ql3 : undefined, ancestry=ancestry + 1"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 2,
+          "component": "Answer",
+          "text": "[コメント] eslint-disable vue/no-v-html"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 6,
+          "component": "Answer",
+          "text": "[コメント] ソート番号（あれば表示する）"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "Answer",
+          "text": "[コメント] 解答（ネストされた解答がなければ表示する）"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 20,
+          "component": "Answer",
+          "text": "[コメント] ネストされた解答"
         }
       ],
       "apis": [],
@@ -779,6 +1023,61 @@
           "line": 50,
           "component": "FileSelector",
           "binding": "fileData.size"
+        },
+        {
+          "selector": "CustomIconButton.icon",
+          "type": "data",
+          "line": 24,
+          "component": "FileSelector",
+          "binding": "hover=false"
+        },
+        {
+          "selector": "CustomIconButton.icon",
+          "type": "static",
+          "line": 41,
+          "component": "FileSelector",
+          "text": "[CustomIconButtonコンポーネント]"
+        },
+        {
+          "selector": "CloseButton.remove-button",
+          "type": "static",
+          "line": 53,
+          "component": "FileSelector",
+          "text": "[CloseButtonコンポーネント]"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 60,
+          "component": "FileSelector"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 11,
+          "component": "FileSelector",
+          "text": "[コメント] 未選択の場合"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 22,
+          "component": "FileSelector",
+          "text": "[コメント] アイコン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 35,
+          "component": "FileSelector",
+          "text": "[コメント] 選択時または保存データがある場合"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 59,
+          "component": "FileSelector",
+          "text": "[コメント] エラーテキスト"
         }
       ],
       "apis": [],
@@ -792,6 +1091,25 @@
           "selector": "div.image-preview-container",
           "type": "unknown",
           "line": 2,
+          "component": "ImagePreviewModal"
+        },
+        {
+          "selector": "CloseButton.close-button",
+          "type": "static",
+          "line": 6,
+          "component": "ImagePreviewModal",
+          "text": "[CloseButtonコンポーネント]"
+        },
+        {
+          "selector": "SheetPreviewContents",
+          "type": "unknown",
+          "line": 10,
+          "component": "ImagePreviewModal"
+        },
+        {
+          "selector": "ImagePreview",
+          "type": "unknown",
+          "line": 15,
           "component": "ImagePreviewModal"
         }
       ],
@@ -822,6 +1140,27 @@
           "line": 27,
           "component": "ModalDatePicker",
           "binding": "datePickerDate"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 3,
+          "component": "ModalDatePicker",
+          "binding": "width=width, height=height, error=error, placeholder=placeholder, disabled=disabled"
+        },
+        {
+          "selector": "DatePicker",
+          "type": "data",
+          "line": 27,
+          "component": "ModalDatePicker",
+          "binding": "inline=true"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 15,
+          "component": "ModalDatePicker",
+          "text": "[コメント] datepickerダイアログ"
         }
       ],
       "apis": [],
@@ -898,6 +1237,47 @@
           "type": "unknown",
           "line": 55,
           "component": "ModalDialog"
+        },
+        {
+          "selector": "CloseButton.modal-close-button",
+          "type": "unknown",
+          "line": 22,
+          "component": "ModalDialog"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 16,
+          "component": "ModalDialog",
+          "text": "[コメント] タイトル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 29,
+          "component": "ModalDialog",
+          "text": "[コメント] ボディ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 43,
+          "component": "ModalDialog",
+          "text": "[コメント] キャンセルボタン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 54,
+          "component": "ModalDialog",
+          "text": "[コメント] ボタン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 66,
+          "component": "ModalDialog",
+          "text": "[コメント] フッター"
         }
       ],
       "apis": [],
@@ -976,6 +1356,96 @@
           "line": 120,
           "component": "Table",
           "binding": "row[column.field]"
+        },
+        {
+          "selector": "ModalDialog",
+          "type": "data",
+          "line": 4,
+          "component": "Table",
+          "binding": "body=modalConfirmDeleteData.body, closable=true"
+        },
+        {
+          "selector": "PrimaryCheckbox",
+          "type": "data",
+          "line": 30,
+          "component": "Table",
+          "binding": "disabled=sortedRows.length === 0"
+        },
+        {
+          "selector": "PrimaryCheckbox",
+          "type": "unknown",
+          "line": 73,
+          "component": "Table"
+        },
+        {
+          "selector": "IconButton",
+          "type": "static",
+          "line": 104,
+          "component": "Table",
+          "text": "[IconButtonコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "Table",
+          "text": "[コメント] 個別データ削除確認モーダル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 24,
+          "component": "Table",
+          "text": "[コメント] checkbox"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 36,
+          "component": "Table",
+          "text": "[コメント] others"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 47,
+          "component": "Table",
+          "text": "[コメント] others"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 66,
+          "component": "Table",
+          "text": "[コメント] checkbox"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 78,
+          "component": "Table",
+          "text": "[コメント] button"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 97,
+          "component": "Table",
+          "text": "[コメント] delete"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 109,
+          "component": "Table",
+          "text": "[コメント] empty"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 115,
+          "component": "Table",
+          "text": "[コメント] others"
         }
       ],
       "apis": [],
@@ -984,7 +1454,15 @@
     "components/molecules/ToastList.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/components/molecules/ToastList.vue",
       "componentName": "ToastList",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "Toaster",
+          "type": "data",
+          "line": 3,
+          "component": "ToastList",
+          "binding": "id=toast.id, key=toast.id"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -1020,6 +1498,12 @@
           "line": 2,
           "component": "AdminMenu",
           "binding": "selectedMenu"
+        },
+        {
+          "selector": "SmallMenu",
+          "type": "unknown",
+          "line": 2,
+          "component": "AdminMenu"
         }
       ],
       "apis": [],
@@ -1055,6 +1539,38 @@
           "line": 18,
           "component": "ListFilterActionsContainer",
           "text": "Clear"
+        },
+        {
+          "selector": "CustomIconButton",
+          "type": "unknown",
+          "line": 32,
+          "component": "ListFilterActionsContainer"
+        },
+        {
+          "selector": "CustomIconButton",
+          "type": "unknown",
+          "line": 40,
+          "component": "ListFilterActionsContainer"
+        },
+        {
+          "selector": "CustomIconButton",
+          "type": "unknown",
+          "line": 54,
+          "component": "ListFilterActionsContainer"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "ListFilterActionsContainer",
+          "text": "[コメント] 検索フィールド"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 30,
+          "component": "ListFilterActionsContainer",
+          "text": "[コメント] アクションフィールド"
         }
       ],
       "apis": [],
@@ -1205,6 +1721,53 @@
           "line": 42,
           "component": "Ql2Section",
           "text": "出題する"
+        },
+        {
+          "selector": "IconButton.icon",
+          "type": "unknown",
+          "line": 53,
+          "component": "Ql2Section"
+        },
+        {
+          "selector": "QlImage.image",
+          "type": "unknown",
+          "line": 75,
+          "component": "Ql2Section"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 8,
+          "component": "Ql2Section",
+          "text": "[コメント] 連番"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 16,
+          "component": "Ql2Section",
+          "text": "[コメント] ソート順入れ替え"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 41,
+          "component": "Ql2Section",
+          "text": "[コメント] 出題するボタン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 52,
+          "component": "Ql2Section",
+          "text": "[コメント] 削除ボタン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 66,
+          "component": "Ql2Section",
+          "text": "[コメント] 画像"
         }
       ],
       "apis": [],
@@ -1248,6 +1811,53 @@
           "line": 43,
           "component": "Ql2SectionJapanese",
           "text": "出題する"
+        },
+        {
+          "selector": "IconButton.icon",
+          "type": "unknown",
+          "line": 55,
+          "component": "Ql2SectionJapanese"
+        },
+        {
+          "selector": "QlImage.image",
+          "type": "unknown",
+          "line": 77,
+          "component": "Ql2SectionJapanese"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 9,
+          "component": "Ql2SectionJapanese",
+          "text": "[コメント] 連番"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 17,
+          "component": "Ql2SectionJapanese",
+          "text": "[コメント] ソート順入れ替え"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 42,
+          "component": "Ql2SectionJapanese",
+          "text": "[コメント] 出題するボタン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 54,
+          "component": "Ql2SectionJapanese",
+          "text": "[コメント] 削除ボタン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 68,
+          "component": "Ql2SectionJapanese",
+          "text": "[コメント] 画像"
         }
       ],
       "apis": [],
@@ -1256,7 +1866,15 @@
     "components/molecules/sheets/QlImage.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/components/molecules/sheets/QlImage.vue",
       "componentName": "QlImage",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 24,
+          "component": "QlImage",
+          "text": "[コメント] first_question_level"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -1276,6 +1894,18 @@
           "line": 27,
           "component": "QlSection",
           "text": "出題する"
+        },
+        {
+          "selector": "QlImage.image",
+          "type": "unknown",
+          "line": 16,
+          "component": "QlSection"
+        },
+        {
+          "selector": "QuestionSummary",
+          "type": "unknown",
+          "line": 24,
+          "component": "QlSection"
         }
       ],
       "apis": [],
@@ -1326,6 +1956,34 @@
           "line": 9,
           "component": "QuestionSummary",
           "binding": "title"
+        },
+        {
+          "selector": "Separator",
+          "type": "static",
+          "line": 16,
+          "component": "QuestionSummary",
+          "text": "[Separatorコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 7,
+          "component": "QuestionSummary",
+          "text": "[コメント] タイトル：学年・分野 + 単元 + ページ範囲"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "QuestionSummary",
+          "text": "[コメント] 教材"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 17,
+          "component": "QuestionSummary",
+          "text": "[コメント] 難易度：技術・家庭以外"
         }
       ],
       "apis": [],
@@ -1395,6 +2053,55 @@
           "line": 11,
           "component": "SideMenuSection",
           "binding": "name"
+        },
+        {
+          "selector": "CustomIconButton.icon.icon-down",
+          "type": "data",
+          "line": 17,
+          "component": "SideMenuSection",
+          "binding": "class={ hidden: isOpen }"
+        },
+        {
+          "selector": "CustomIconButton.icon.icon-up",
+          "type": "data",
+          "line": 24,
+          "component": "SideMenuSection",
+          "binding": "class={ hidden: !isOpen }"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 9,
+          "component": "SideMenuSection",
+          "text": "[コメント] 名前"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "SideMenuSection",
+          "text": "[コメント] 開閉アイコン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 16,
+          "component": "SideMenuSection",
+          "text": "[コメント] down icon"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 23,
+          "component": "SideMenuSection",
+          "text": "[コメント] up icon"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 33,
+          "component": "SideMenuSection",
+          "text": "[コメント] コンテンツ"
         }
       ],
       "apis": [],
@@ -1445,6 +2152,61 @@
           "line": 37,
           "component": "AllotPointEditRow",
           "binding": "answerCount"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 16,
+          "component": "AllotPointEditRow",
+          "binding": "options=pointOptions"
+        },
+        {
+          "selector": "BasicInput.count",
+          "type": "data",
+          "line": 25,
+          "component": "AllotPointEditRow",
+          "binding": "error=errors.point, min=0, max=100"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 42,
+          "component": "AllotPointEditRow"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 2,
+          "component": "AllotPointEditRow",
+          "text": "[コメント] 行コンテンツ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 4,
+          "component": "AllotPointEditRow",
+          "text": "[コメント] 連番"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 12,
+          "component": "AllotPointEditRow",
+          "text": "[コメント] 観点配点設定"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 15,
+          "component": "AllotPointEditRow",
+          "text": "[コメント] 観点選択プルダウン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 23,
+          "component": "AllotPointEditRow",
+          "text": "[コメント] 配点数"
         }
       ],
       "apis": [],
@@ -1495,6 +2257,27 @@
           "line": 23,
           "component": "QuestionInfoHeader",
           "binding": "unitName"
+        },
+        {
+          "selector": "Separator",
+          "type": "static",
+          "line": 13,
+          "component": "QuestionInfoHeader",
+          "text": "[Separatorコンポーネント]"
+        },
+        {
+          "selector": "Separator",
+          "type": "static",
+          "line": 16,
+          "component": "QuestionInfoHeader",
+          "text": "[Separatorコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 2,
+          "component": "QuestionInfoHeader",
+          "text": "[コメント] ヘッダー情報"
         }
       ],
       "apis": [],
@@ -1517,6 +2300,33 @@
           "line": 13,
           "component": "QuestionInfoRow",
           "binding": "no"
+        },
+        {
+          "selector": "QlImage",
+          "type": "unknown",
+          "line": 22,
+          "component": "QuestionInfoRow"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "QuestionInfoRow",
+          "text": "[コメント] 行コンテンツ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 8,
+          "component": "QuestionInfoRow",
+          "text": "[コメント] 連番"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 15,
+          "component": "QuestionInfoRow",
+          "text": "[コメント] 画像欄"
         }
       ],
       "apis": [],
@@ -1539,6 +2349,33 @@
           "line": 13,
           "component": "QuestionInfoRowJapanese",
           "binding": "no"
+        },
+        {
+          "selector": "QlImage",
+          "type": "unknown",
+          "line": 22,
+          "component": "QuestionInfoRowJapanese"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "QuestionInfoRowJapanese",
+          "text": "[コメント] 行コンテンツ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 8,
+          "component": "QuestionInfoRowJapanese",
+          "text": "[コメント] 連番"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 15,
+          "component": "QuestionInfoRowJapanese",
+          "text": "[コメント] 画像欄"
         }
       ],
       "apis": [],
@@ -1610,6 +2447,34 @@
           "line": 46,
           "component": "SheetPreviewContents",
           "binding": "countPerPointAllot(Number(value))"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "SheetPreviewContents",
+          "text": "[コメント] 表示・非表示切り替えボタン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 34,
+          "component": "SheetPreviewContents",
+          "text": "[コメント] 観点"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 41,
+          "component": "SheetPreviewContents",
+          "text": "[コメント] 問題数"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 44,
+          "component": "SheetPreviewContents",
+          "text": "[コメント] 配点"
         }
       ],
       "apis": [],
@@ -1646,6 +2511,78 @@
           "line": 64,
           "component": "SheetListItem",
           "text": "編集"
+        },
+        {
+          "selector": "IconButton.icon",
+          "type": "static",
+          "line": 12,
+          "component": "SheetListItem",
+          "text": "[IconButtonコンポーネント]"
+        },
+        {
+          "selector": "ItemRow",
+          "type": "unknown",
+          "line": 24,
+          "component": "SheetListItem"
+        },
+        {
+          "selector": "SearchButton.search-button",
+          "type": "static",
+          "line": 28,
+          "component": "SheetListItem",
+          "text": "[SearchButtonコンポーネント]"
+        },
+        {
+          "selector": "ItemRow",
+          "type": "unknown",
+          "line": 33,
+          "component": "SheetListItem"
+        },
+        {
+          "selector": "ItemRow",
+          "type": "unknown",
+          "line": 37,
+          "component": "SheetListItem"
+        },
+        {
+          "selector": "ItemRow",
+          "type": "unknown",
+          "line": 41,
+          "component": "SheetListItem"
+        },
+        {
+          "selector": "ItemRow",
+          "type": "unknown",
+          "line": 45,
+          "component": "SheetListItem"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 7,
+          "component": "SheetListItem",
+          "text": "[コメント] テスト名"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 20,
+          "component": "SheetListItem",
+          "text": "[コメント] 概要"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 22,
+          "component": "SheetListItem",
+          "text": "[コメント] 名前"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 51,
+          "component": "SheetListItem",
+          "text": "[コメント] 編集ボタン"
         }
       ],
       "apis": [],
@@ -1654,7 +2591,43 @@
     "components/organisms/BaseHeader.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/components/organisms/BaseHeader.vue",
       "componentName": "BaseHeader",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "Logo",
+          "type": "data",
+          "line": 34,
+          "component": "BaseHeader",
+          "binding": "width=200, height=50"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 6,
+          "component": "BaseHeader",
+          "text": "[コメント] ヘッダー開閉用部品"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 33,
+          "component": "BaseHeader",
+          "text": "[コメント] ロゴ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 40,
+          "component": "BaseHeader",
+          "text": "[コメント] コンテンツ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 43,
+          "component": "BaseHeader",
+          "text": "[コメント] 右コンテンツ"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -1745,6 +2718,88 @@
           "line": 21,
           "component": "LicenceEditList",
           "binding": "licence.trialSubject ? '(T)' : ''"
+        },
+        {
+          "selector": "DropDownMenu.publisher-id",
+          "type": "data",
+          "line": 25,
+          "component": "LicenceEditList",
+          "binding": "options=publisherOptions, disabled=disabled"
+        },
+        {
+          "selector": "ModalDatePicker.expired-at",
+          "type": "data",
+          "line": 34,
+          "component": "LicenceEditList",
+          "binding": "disabled=disabled"
+        },
+        {
+          "selector": "BasicInput.remaining-count",
+          "type": "data",
+          "line": 43,
+          "component": "LicenceEditList",
+          "binding": "disabled=disabled"
+        },
+        {
+          "selector": "CustomIconButton.delete-button",
+          "type": "unknown",
+          "line": 54,
+          "component": "LicenceEditList"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 63,
+          "component": "LicenceEditList"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "LicenceEditList",
+          "text": "[コメント] ライセンス情報"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 10,
+          "component": "LicenceEditList",
+          "text": "[コメント] 教科名/学年ラベル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 24,
+          "component": "LicenceEditList",
+          "text": "[コメント] 出版社リスト"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 33,
+          "component": "LicenceEditList",
+          "text": "[コメント] ライセンス期限日"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 42,
+          "component": "LicenceEditList",
+          "text": "[コメント] 残り回数"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 53,
+          "component": "LicenceEditList",
+          "text": "[コメント] 削除ボタン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 62,
+          "component": "LicenceEditList",
+          "text": "[コメント] エラー情報"
         }
       ],
       "apis": [],
@@ -1808,6 +2863,44 @@
           "line": 39,
           "component": "LoginForm",
           "binding": "password"
+        },
+        {
+          "selector": "#loginId",
+          "type": "unknown",
+          "line": 19,
+          "component": "LoginForm"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 29,
+          "component": "LoginForm"
+        },
+        {
+          "selector": "#password",
+          "type": "unknown",
+          "line": 39,
+          "component": "LoginForm"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 49,
+          "component": "LoginForm"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 11,
+          "component": "LoginForm",
+          "text": "[コメント] ログインフォーム"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "LoginForm",
+          "text": "[コメント] お名前"
         }
       ],
       "apis": [],
@@ -1874,6 +2967,20 @@
             "column": "title",
             "type": "string"
           }
+        },
+        {
+          "selector": "NotificationModal",
+          "type": "data",
+          "line": 38,
+          "component": "NotificationList",
+          "binding": "open=isOpenDetailModal"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 37,
+          "component": "NotificationList",
+          "text": "[コメント] お知らせ詳細モーダル"
         }
       ],
       "apis": [
@@ -1951,6 +3058,34 @@
           "type": "link",
           "line": 29,
           "component": "NotificationModal"
+        },
+        {
+          "selector": "CustomIconButton",
+          "type": "static",
+          "line": 30,
+          "component": "NotificationModal",
+          "text": "[CustomIconButtonコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 18,
+          "component": "NotificationModal",
+          "text": "[コメント] eslint-disable vue/no-v-html"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 23,
+          "component": "NotificationModal",
+          "text": "[コメント] ダウンロードファイル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 38,
+          "component": "NotificationModal",
+          "text": "[コメント] お知らせ内容"
         }
       ],
       "apis": [],
@@ -2043,6 +3178,61 @@
           "line": 67,
           "component": "PublishPageSelector",
           "text": "削除"
+        },
+        {
+          "selector": "BasicInput.page-from",
+          "type": "data",
+          "line": 39,
+          "component": "PublishPageSelector",
+          "binding": "min=0, max=999"
+        },
+        {
+          "selector": "BasicInput.page-to",
+          "type": "data",
+          "line": 49,
+          "component": "PublishPageSelector",
+          "binding": "min=0, max=999"
+        },
+        {
+          "selector": "ErrorText.error-text",
+          "type": "unknown",
+          "line": 78,
+          "component": "PublishPageSelector"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 8,
+          "component": "PublishPageSelector",
+          "text": "[コメント] タイトル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 30,
+          "component": "PublishPageSelector",
+          "text": "[コメント] サブカテゴリラベル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 37,
+          "component": "PublishPageSelector",
+          "text": "[コメント] 範囲操作欄"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 58,
+          "component": "PublishPageSelector",
+          "text": "[コメント] 操作ボタン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 77,
+          "component": "PublishPageSelector",
+          "text": "[コメント] エラーテキスト"
         }
       ],
       "apis": [],
@@ -2289,6 +3479,274 @@
           "line": 307,
           "component": "RequestForm",
           "text": "確認"
+        },
+        {
+          "selector": "#name",
+          "type": "data",
+          "line": 18,
+          "component": "RequestForm",
+          "binding": "disabled=isConfirm || isChangeRequest, error=errors.name"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 26,
+          "component": "RequestForm"
+        },
+        {
+          "selector": "#email",
+          "type": "data",
+          "line": 37,
+          "component": "RequestForm",
+          "binding": "disabled=isConfirm || isNewRequest || isChangeRequest, error=errors.email"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 47,
+          "component": "RequestForm"
+        },
+        {
+          "selector": "#email-confirm",
+          "type": "data",
+          "line": 59,
+          "component": "RequestForm",
+          "binding": "disabled=isConfirm, error=errors.emailConfirmed"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 69,
+          "component": "RequestForm"
+        },
+        {
+          "selector": "#phone-number",
+          "type": "data",
+          "line": 80,
+          "component": "RequestForm",
+          "binding": "disabled=isConfirm || isChangeRequest, error=errors.schoolPhoneNumber"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 89,
+          "component": "RequestForm"
+        },
+        {
+          "selector": "#prefecture-id",
+          "type": "data",
+          "line": 102,
+          "component": "RequestForm",
+          "binding": "sections=prefectureAreaOptions, disabled=isConfirm || isChangeRequest, error=errors.prefectureId"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 111,
+          "component": "RequestForm"
+        },
+        {
+          "selector": "#city-id",
+          "type": "data",
+          "line": 120,
+          "component": "RequestForm",
+          "binding": "options=citiesOptions, disabled=isConfirm || isChangeRequest, error=errors.cityId"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 129,
+          "component": "RequestForm"
+        },
+        {
+          "selector": "#school-id",
+          "type": "data",
+          "line": 138,
+          "component": "RequestForm",
+          "binding": "options=schoolOptions, disabled=isConfirm || isChangeRequest, error=errors.schoolId"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 147,
+          "component": "RequestForm"
+        },
+        {
+          "selector": "#subject-id",
+          "type": "data",
+          "line": 166,
+          "component": "RequestForm",
+          "binding": "options=subjectOptions, disabled=isConfirm, error=errors.subjectId"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 176,
+          "component": "RequestForm"
+        },
+        {
+          "selector": "#subcategory-id",
+          "type": "data",
+          "line": 189,
+          "component": "RequestForm",
+          "binding": "value=subjectCategory.value, label=subjectCategory.label, disabled=isConfirm"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 199,
+          "component": "RequestForm"
+        },
+        {
+          "selector": "#password",
+          "type": "data",
+          "line": 215,
+          "component": "RequestForm",
+          "binding": "disabled=isConfirm, error=errors.password"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 225,
+          "component": "RequestForm"
+        },
+        {
+          "selector": "#password-confirm",
+          "type": "data",
+          "line": 236,
+          "component": "RequestForm",
+          "binding": "disabled=isConfirm, error=errors.passwordConfirmed"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 246,
+          "component": "RequestForm"
+        },
+        {
+          "selector": "#trial-code",
+          "type": "data",
+          "line": 261,
+          "component": "RequestForm",
+          "binding": "disabled=isConfirm, error=errors.trialCode"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 269,
+          "component": "RequestForm"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "RequestForm",
+          "text": "[コメント] お名前"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 32,
+          "component": "RequestForm",
+          "text": "[コメント] メールアドレス"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 53,
+          "component": "RequestForm",
+          "text": "[コメント] 確認用メールアドレス"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 75,
+          "component": "RequestForm",
+          "text": "[コメント] 学校代表電話番号"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 95,
+          "component": "RequestForm",
+          "text": "[コメント] ご勤務校"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 97,
+          "component": "RequestForm",
+          "text": "[コメント] 都道府県"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 115,
+          "component": "RequestForm",
+          "text": "[コメント] 市区郡"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 133,
+          "component": "RequestForm",
+          "text": "[コメント] 学校名"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 155,
+          "component": "RequestForm",
+          "text": "[コメント] 教科"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 180,
+          "component": "RequestForm",
+          "text": "[コメント] 学年・分野"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 206,
+          "component": "RequestForm",
+          "text": "[コメント] パスワード"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 230,
+          "component": "RequestForm",
+          "text": "[コメント] パスワード（再）"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 252,
+          "component": "RequestForm",
+          "text": "[コメント] トライアルコード"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 275,
+          "component": "RequestForm",
+          "text": "[コメント] 確認時メッセージ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 283,
+          "component": "RequestForm",
+          "text": "[コメント] 確認時のボタン郡"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 305,
+          "component": "RequestForm",
+          "text": "[コメント] 編集時のボタン"
         }
       ],
       "apis": [],
@@ -2436,6 +3894,120 @@
           "line": 19,
           "component": "SchoolInfoEditForm",
           "text": "学校コードで検索"
+        },
+        {
+          "selector": "BasicInput.school-code-input",
+          "type": "data",
+          "line": 13,
+          "component": "SchoolInfoEditForm",
+          "binding": "disabled=(disabledFields as any).schoolCode"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 34,
+          "component": "SchoolInfoEditForm",
+          "binding": "disabled=(disabledFields as any).schoolPhoneNumber, error=errors.schoolPhoneNumber"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 41,
+          "component": "SchoolInfoEditForm"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 52,
+          "component": "SchoolInfoEditForm",
+          "binding": "sections=prefectureAreaOptions, disabled=(disabledFields as any).prefectureId, error=errors.prefectureId",
+          "api": {
+            "endpoint": "/api/v1/schools",
+            "method": "GET",
+            "description": "学校マスタ一覧を取得する"
+          },
+          "db": {
+            "table": "schools",
+            "column": "prefecture_id",
+            "type": "number"
+          }
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 60,
+          "component": "SchoolInfoEditForm"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 71,
+          "component": "SchoolInfoEditForm",
+          "binding": "options=citiesOptions, disabled=(disabledFields as any).cityId, error=errors.cityId",
+          "api": {
+            "endpoint": "/api/v1/schools",
+            "method": "GET",
+            "description": "学校マスタ一覧を取得する"
+          },
+          "db": {
+            "table": "schools",
+            "column": "city_id",
+            "type": "number"
+          }
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 79,
+          "component": "SchoolInfoEditForm"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 90,
+          "component": "SchoolInfoEditForm",
+          "binding": "options=schoolOptions, disabled=(disabledFields as any).schoolName, error=errors.schoolId"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 98,
+          "component": "SchoolInfoEditForm"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 7,
+          "component": "SchoolInfoEditForm",
+          "text": "[コメント] 学校コード"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 29,
+          "component": "SchoolInfoEditForm",
+          "text": "[コメント] 学校代表電話番号"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 47,
+          "component": "SchoolInfoEditForm",
+          "text": "[コメント] 都道府県"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 66,
+          "component": "SchoolInfoEditForm",
+          "text": "[コメント] 市区郡"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 85,
+          "component": "SchoolInfoEditForm",
+          "text": "[コメント] 学校名"
         }
       ],
       "apis": [
@@ -2472,6 +4044,20 @@
           "line": 3,
           "component": "SchoolMasterImportButton",
           "text": "学校マスタアップロード"
+        },
+        {
+          "selector": "SchoolMasterForm",
+          "type": "data",
+          "line": 25,
+          "component": "SchoolMasterImportButton",
+          "binding": "key=formKey"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 14,
+          "component": "SchoolMasterImportButton",
+          "text": "[コメント] 学校マスタアップロードモーダル"
         }
       ],
       "apis": [],
@@ -2500,6 +4086,34 @@
           "line": 26,
           "component": "SubCategorySelector",
           "binding": "selected"
+        },
+        {
+          "selector": "PrimaryCheckbox.subject-category",
+          "type": "data",
+          "line": 10,
+          "component": "SubCategorySelector",
+          "binding": "value=Number(subjectCategory.value), label=subjectCategory.label, disabled=disabled"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 9,
+          "component": "SubCategorySelector",
+          "text": "[コメント] チェックボックス選択の場合"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 18,
+          "component": "SubCategorySelector",
+          "text": "[コメント] カスタムスロット"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 33,
+          "component": "SubCategorySelector",
+          "text": "[コメント] ライセンスなし、復習問題のみ使用できる旨の注釈"
         }
       ],
       "apis": [],
@@ -2515,6 +4129,13 @@
           "line": 3,
           "component": "SubjectSelector",
           "binding": "selected"
+        },
+        {
+          "selector": "ButtonsSelector",
+          "type": "data",
+          "line": 3,
+          "component": "SubjectSelector",
+          "binding": "multiple=multiple, options=options"
         }
       ],
       "apis": [],
@@ -2684,6 +4305,134 @@
           "line": 89,
           "component": "AccountForm",
           "text": "保存"
+        },
+        {
+          "selector": "Loading",
+          "type": "unknown",
+          "line": 3,
+          "component": "AccountForm"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 13,
+          "component": "AccountForm",
+          "binding": "error=errors.name",
+          "api": {
+            "endpoint": "/api/v1/users/{Id}",
+            "method": "GET",
+            "description": "指定のユーザーの情報を取得する"
+          },
+          "db": {
+            "table": "users",
+            "column": "name",
+            "type": "string"
+          }
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 19,
+          "component": "AccountForm"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 30,
+          "component": "AccountForm",
+          "binding": "error=errors.email",
+          "api": {
+            "endpoint": "/api/v1/users/{Id}",
+            "method": "GET",
+            "description": "指定のユーザーの情報を取得する"
+          },
+          "db": {
+            "table": "users",
+            "column": "email",
+            "type": "string"
+          }
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 36,
+          "component": "AccountForm"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 47,
+          "component": "AccountForm",
+          "binding": "error=errors.password, disabled=!!userId"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 56,
+          "component": "AccountForm"
+        },
+        {
+          "selector": "SchoolInfoEditForm.shool-edit-form",
+          "type": "data",
+          "line": 63,
+          "component": "AccountForm",
+          "binding": "error=schoolError"
+        },
+        {
+          "selector": "SubjectSelector",
+          "type": "data",
+          "line": 75,
+          "component": "AccountForm",
+          "binding": "multiple=true"
+        },
+        {
+          "selector": "LicenceEditList.licence-edit-list",
+          "type": "data",
+          "line": 82,
+          "component": "AccountForm",
+          "binding": "error=licenceError"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 8,
+          "component": "AccountForm",
+          "text": "[コメント] 名前"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 25,
+          "component": "AccountForm",
+          "text": "[コメント] メールアドレス"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 42,
+          "component": "AccountForm",
+          "text": "[コメント] パスワード (編集不可)"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 62,
+          "component": "AccountForm",
+          "text": "[コメント] 学校情報"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 74,
+          "component": "AccountForm",
+          "text": "[コメント] 教科選択"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 81,
+          "component": "AccountForm",
+          "text": "[コメント] ライセンス情報"
         }
       ],
       "apis": [
@@ -2844,6 +4593,99 @@
             "column": "content",
             "type": "string"
           }
+        },
+        {
+          "selector": "Loading",
+          "type": "unknown",
+          "line": 3,
+          "component": "NotificationForm"
+        },
+        {
+          "selector": "ModalDatePicker",
+          "type": "data",
+          "line": 11,
+          "component": "NotificationForm",
+          "binding": "error=errors.startDate",
+          "api": {
+            "endpoint": "/api/v1/notifications/{Id}",
+            "method": "GET",
+            "description": "指定のお知らせの情報を取得する"
+          },
+          "db": {
+            "table": "notifications",
+            "column": "start_date",
+            "type": "string"
+          }
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 18,
+          "component": "NotificationForm"
+        },
+        {
+          "selector": "ModalDatePicker",
+          "type": "data",
+          "line": 28,
+          "component": "NotificationForm",
+          "binding": "error=errors.endDate",
+          "api": {
+            "endpoint": "/api/v1/notifications/{Id}",
+            "method": "GET",
+            "description": "指定のお知らせの情報を取得する"
+          },
+          "db": {
+            "table": "notifications",
+            "column": "end_date",
+            "type": "string"
+          }
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 35,
+          "component": "NotificationForm"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 45,
+          "component": "NotificationForm",
+          "binding": "error=errors.title",
+          "api": {
+            "endpoint": "/api/v1/notifications/{Id}",
+            "method": "GET",
+            "description": "指定のお知らせの情報を取得する"
+          },
+          "db": {
+            "table": "notifications",
+            "column": "title",
+            "type": "string"
+          }
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 52,
+          "component": "NotificationForm"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 74,
+          "component": "NotificationForm"
+        },
+        {
+          "selector": "FileSelector",
+          "type": "unknown",
+          "line": 85,
+          "component": "NotificationForm"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 102,
+          "component": "NotificationForm"
         }
       ],
       "apis": [
@@ -2893,6 +4735,19 @@
           "line": 29,
           "component": "SchoolMasterForm",
           "text": "インポート"
+        },
+        {
+          "selector": "FileSelector",
+          "type": "static",
+          "line": 7,
+          "component": "SchoolMasterForm",
+          "text": "[FileSelectorコンポーネント]"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 11,
+          "component": "SchoolMasterForm"
         }
       ],
       "apis": [],
@@ -2915,6 +4770,34 @@
           "line": 18,
           "component": "Ql2Menu",
           "binding": "form.unitIds"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 6,
+          "component": "Ql2Menu",
+          "binding": "options=subCategoryAndPublisherOptions"
+        },
+        {
+          "selector": "PrimaryCheckbox",
+          "type": "data",
+          "line": 18,
+          "component": "Ql2Menu",
+          "binding": "label=unit.name, value=Number(unit.id)"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 5,
+          "component": "Ql2Menu",
+          "text": "[コメント] 学年・分野 x 出版社選択"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "Ql2Menu",
+          "text": "[コメント] 単元リスト"
         }
       ],
       "apis": [],
@@ -2944,6 +4827,101 @@
           "line": 34,
           "component": "QlListSection",
           "binding": "questionsCount"
+        },
+        {
+          "selector": "FilterButton",
+          "type": "unknown",
+          "line": 6,
+          "component": "QlListSection"
+        },
+        {
+          "selector": "SearchIcon",
+          "type": "unknown",
+          "line": 18,
+          "component": "QlListSection"
+        },
+        {
+          "selector": "CustomIconButton",
+          "type": "unknown",
+          "line": 26,
+          "component": "QlListSection"
+        },
+        {
+          "selector": "RangeEditModal",
+          "type": "data",
+          "line": 39,
+          "component": "QlListSection",
+          "binding": "open=showSheetRangeModal"
+        },
+        {
+          "selector": "QlSection",
+          "type": "data",
+          "line": 51,
+          "component": "QlListSection",
+          "binding": "key=ql1.id"
+        },
+        {
+          "selector": "Ql1DetailModal",
+          "type": "data",
+          "line": 61,
+          "component": "QlListSection",
+          "binding": "open=openQl1DetailModal"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "QlListSection",
+          "text": "[コメント] 左コンテンツ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 5,
+          "component": "QlListSection",
+          "text": "[コメント] メニュー開閉アイコン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 8,
+          "component": "QlListSection",
+          "text": "[コメント] セクションタイトル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 25,
+          "component": "QlListSection",
+          "text": "[コメント] アイテムリスト拡大縮小モード切り替えアイコン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 38,
+          "component": "QlListSection",
+          "text": "[コメント] 範囲変更モーダル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 44,
+          "component": "QlListSection",
+          "text": "[コメント] 出題候補問題一覧"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 46,
+          "component": "QlListSection",
+          "text": "[コメント] filteredQuestionsのリスト"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 60,
+          "component": "QlListSection",
+          "text": "[コメント] 大問詳細モーダル"
         }
       ],
       "apis": [],
@@ -2966,6 +4944,82 @@
           "line": 34,
           "component": "SelectedQlListSection",
           "text": "sortScroll(i, direction)\"\n          />"
+        },
+        {
+          "selector": "SheetHeader",
+          "type": "static",
+          "line": 16,
+          "component": "SelectedQlListSection",
+          "text": "[SheetHeaderコンポーネント]"
+        },
+        {
+          "selector": "Ql1DetailModal",
+          "type": "data",
+          "line": 50,
+          "component": "SelectedQlListSection",
+          "binding": "open=openQl1DetailModal"
+        },
+        {
+          "selector": "Ql2EditModal",
+          "type": "data",
+          "line": 58,
+          "component": "SelectedQlListSection",
+          "binding": "open=openQl2EditModal"
+        },
+        {
+          "selector": "Ql2EditModalJapanese",
+          "type": "data",
+          "line": 64,
+          "component": "SelectedQlListSection",
+          "binding": "open=openQl2EditModal"
+        },
+        {
+          "selector": "FooterButtons",
+          "type": "unknown",
+          "line": 72,
+          "component": "SelectedQlListSection"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 4,
+          "component": "SelectedQlListSection",
+          "text": "[コメント] ヘッダー"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 15,
+          "component": "SelectedQlListSection",
+          "text": "[コメント] 配点・観点欄"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 23,
+          "component": "SelectedQlListSection",
+          "text": "[コメント] 出題する大問一覧"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 49,
+          "component": "SelectedQlListSection",
+          "text": "[コメント] 大問詳細モーダル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 57,
+          "component": "SelectedQlListSection",
+          "text": "[コメント] 小問差し替えモーダル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 71,
+          "component": "SelectedQlListSection",
+          "text": "[コメント] フッター"
         }
       ],
       "apis": [],
@@ -3036,6 +5090,34 @@
           "line": 26,
           "component": "SheetHeader",
           "binding": "countPerPointQuestions(Number(point.value))"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 4,
+          "component": "SheetHeader",
+          "text": "[コメント] 基本"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 6,
+          "component": "SheetHeader",
+          "text": "[コメント] 大問数"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 12,
+          "component": "SheetHeader",
+          "text": "[コメント] 小問数"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 17,
+          "component": "SheetHeader",
+          "text": "[コメント] 観点"
         }
       ],
       "apis": [],
@@ -3121,6 +5203,34 @@
           "line": 27,
           "component": "SheetRangeHeader",
           "text": "範囲変更する"
+        },
+        {
+          "selector": "RangeEditModal",
+          "type": "data",
+          "line": 37,
+          "component": "SheetRangeHeader",
+          "binding": "open=rangeEditModal"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "SheetRangeHeader",
+          "text": "[コメント] テスト範囲"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 26,
+          "component": "SheetRangeHeader",
+          "text": "[コメント] 範囲変更ボタン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 36,
+          "component": "SheetRangeHeader",
+          "text": "[コメント] 範囲変更モーダル"
         }
       ],
       "apis": [],
@@ -3143,6 +5253,34 @@
           "line": 18,
           "component": "SideMenu",
           "binding": "form.unitIds"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 6,
+          "component": "SideMenu",
+          "binding": "options=subCategoryAndPublisherOptions"
+        },
+        {
+          "selector": "PrimaryCheckbox",
+          "type": "data",
+          "line": 18,
+          "component": "SideMenu",
+          "binding": "label=unit.name, value=Number(unit.id)"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 5,
+          "component": "SideMenu",
+          "text": "[コメント] 学年・分野 x 出版社選択"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "SideMenu",
+          "text": "[コメント] 単元リスト"
         }
       ],
       "apis": [],
@@ -3196,6 +5334,40 @@
           "line": 36,
           "component": "AllotPointModal",
           "binding": "countPerPointAllot(Number(point.value))"
+        },
+        {
+          "selector": "ErrorText.header-error",
+          "type": "unknown",
+          "line": 19,
+          "component": "AllotPointModal"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "AllotPointModal",
+          "text": "[コメント] ヘッダー"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 16,
+          "component": "AllotPointModal",
+          "text": "[コメント] 総得点"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 28,
+          "component": "AllotPointModal",
+          "text": "[コメント] 観点別配点"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 34,
+          "component": "AllotPointModal",
+          "text": "[コメント] 観点別に配点を算出"
         }
       ],
       "apis": [],
@@ -3218,6 +5390,27 @@
           "line": 2,
           "component": "Ql1DetailModal",
           "text": "大問詳細"
+        },
+        {
+          "selector": "QuestionSummary.summary",
+          "type": "data",
+          "line": 14,
+          "component": "Ql1DetailModal",
+          "binding": "loading=onLoading"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "Ql1DetailModal",
+          "text": "[コメント] 概要"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 25,
+          "component": "Ql1DetailModal",
+          "text": "[コメント] 画像"
         }
       ],
       "apis": [
@@ -3281,6 +5474,129 @@
           "line": 67,
           "component": "Ql2EditModal",
           "binding": "ql2QuestionsForEdit.length"
+        },
+        {
+          "selector": "ModalDialog.confirm-modal",
+          "type": "data",
+          "line": 3,
+          "component": "Ql2EditModal",
+          "binding": "body=resetConfirmData.body"
+        },
+        {
+          "selector": "Ql1DetailModal",
+          "type": "data",
+          "line": 27,
+          "component": "Ql2EditModal",
+          "binding": "open=isOpenQl1ModalForDefault"
+        },
+        {
+          "selector": "Ql2Menu",
+          "type": "unknown",
+          "line": 44,
+          "component": "Ql2EditModal"
+        },
+        {
+          "selector": "FilterButton.filter-button",
+          "type": "unknown",
+          "line": 59,
+          "component": "Ql2EditModal"
+        },
+        {
+          "selector": "BallBeatLoading",
+          "type": "unknown",
+          "line": 72,
+          "component": "Ql2EditModal"
+        },
+        {
+          "selector": "Ql2Section.section",
+          "type": "data",
+          "line": 78,
+          "component": "Ql2EditModal",
+          "binding": "key=ql2.id, selected=false"
+        },
+        {
+          "selector": "Ql2Section.section",
+          "type": "data",
+          "line": 113,
+          "component": "Ql2EditModal",
+          "binding": "key=ql2.id, selected=true, duplicate=duplicatesIndex?.includes(i), no=(i+1)"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 2,
+          "component": "Ql2EditModal",
+          "text": "[コメント] 「元に戻す」ボタン確認"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "Ql2EditModal",
+          "text": "[コメント] 小問差し替えモーダル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 26,
+          "component": "Ql2EditModal",
+          "text": "[コメント] 大問詳細表示「詳細を見る」押下時"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 39,
+          "component": "Ql2EditModal",
+          "text": "[コメント] サイドメニュー"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 52,
+          "component": "Ql2EditModal",
+          "text": "[コメント] 小問を選ぶ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 56,
+          "component": "Ql2EditModal",
+          "text": "[コメント] タイトル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 58,
+          "component": "Ql2EditModal",
+          "text": "[コメント] メニュー開閉アイコン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 71,
+          "component": "Ql2EditModal",
+          "text": "[コメント] 小問検索一覧"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 93,
+          "component": "Ql2EditModal",
+          "text": "[コメント] 出題する問題"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 95,
+          "component": "Ql2EditModal",
+          "text": "[コメント] タイトル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 102,
+          "component": "Ql2EditModal",
+          "text": "[コメント] 選択した小問一覧"
         }
       ],
       "apis": [
@@ -3337,6 +5653,129 @@
           "line": 72,
           "component": "Ql2EditModalJapanese",
           "binding": "ql2QuestionsForEdit.length"
+        },
+        {
+          "selector": "ModalDialog.confirm-modal",
+          "type": "data",
+          "line": 3,
+          "component": "Ql2EditModalJapanese",
+          "binding": "body=resetConfirmData.body"
+        },
+        {
+          "selector": "Ql1DetailModal",
+          "type": "data",
+          "line": 27,
+          "component": "Ql2EditModalJapanese",
+          "binding": "open=isOpenQl1ModalForDefault"
+        },
+        {
+          "selector": "FilterButton",
+          "type": "unknown",
+          "line": 45,
+          "component": "Ql2EditModalJapanese"
+        },
+        {
+          "selector": "Ql2Menu",
+          "type": "unknown",
+          "line": 49,
+          "component": "Ql2EditModalJapanese"
+        },
+        {
+          "selector": "BallBeatLoading",
+          "type": "unknown",
+          "line": 78,
+          "component": "Ql2EditModalJapanese"
+        },
+        {
+          "selector": "Ql2SectionJapanese.section",
+          "type": "data",
+          "line": 83,
+          "component": "Ql2EditModalJapanese",
+          "binding": "key=ql2.id, selected=false"
+        },
+        {
+          "selector": "Ql2SectionJapanese.section",
+          "type": "data",
+          "line": 120,
+          "component": "Ql2EditModalJapanese",
+          "binding": "key=ql2.id, selected=true, duplicate=duplicatesIndex?.includes(i), no=(i+1)"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 2,
+          "component": "Ql2EditModalJapanese",
+          "text": "[コメント] 「元に戻す」ボタン確認"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "Ql2EditModalJapanese",
+          "text": "[コメント] 小問差し替えモーダル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 26,
+          "component": "Ql2EditModalJapanese",
+          "text": "[コメント] 大問詳細表示「詳細を見る」押下時"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 39,
+          "component": "Ql2EditModalJapanese",
+          "text": "[コメント] サイドメニュー"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 44,
+          "component": "Ql2EditModalJapanese",
+          "text": "[コメント] メニュー開閉アイコン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 61,
+          "component": "Ql2EditModalJapanese",
+          "text": "[コメント] 小問を選ぶ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 66,
+          "component": "Ql2EditModalJapanese",
+          "text": "[コメント] タイトル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 76,
+          "component": "Ql2EditModalJapanese",
+          "text": "[コメント] 小問検索一覧"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 97,
+          "component": "Ql2EditModalJapanese",
+          "text": "[コメント] 出題する問題"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 102,
+          "component": "Ql2EditModalJapanese",
+          "text": "[コメント] タイトル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 109,
+          "component": "Ql2EditModalJapanese",
+          "text": "[コメント] 選択した小問一覧"
         }
       ],
       "apis": [
@@ -3401,6 +5840,41 @@
           "line": 60,
           "component": "RangeEditModal",
           "binding": "proxyUnitOrPageList"
+        },
+        {
+          "selector": "SubCategorySelector",
+          "type": "data",
+          "line": 19,
+          "component": "RangeEditModal",
+          "binding": "subject=selectedSheetRanges[0].subjectId"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 14,
+          "component": "RangeEditModal",
+          "text": "[コメント] 学年・分野"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 28,
+          "component": "RangeEditModal",
+          "text": "[コメント] テスト範囲選択"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 34,
+          "component": "RangeEditModal",
+          "text": "[コメント] 設定タイプ選択"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 59,
+          "component": "RangeEditModal",
+          "text": "[コメント] 単元名 or 教科書ページで設定欄"
         }
       ],
       "apis": [],
@@ -3468,6 +5942,27 @@
           "line": 31,
           "component": "SaveConfirmModal",
           "binding": "settingData.memo"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "SaveConfirmModal",
+          "text": "[コメント] テスト名"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 26,
+          "component": "SaveConfirmModal",
+          "text": "[コメント] メモ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 40,
+          "component": "SaveConfirmModal",
+          "text": "[コメント] 出力済みメッセージ"
         }
       ],
       "apis": [],
@@ -3495,6 +5990,13 @@
           "line": 2,
           "component": "SheetDetailModal",
           "text": "テスト詳細"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 12,
+          "component": "SheetDetailModal",
+          "text": "[コメント] ステータスラベル"
         }
       ],
       "apis": [],
@@ -3587,6 +6089,20 @@
           "line": 41,
           "component": "SheetSettingModal",
           "binding": "settingData.sheetQuestionPaperSetting.replaceQuestionFlag"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "SheetSettingModal",
+          "text": "[コメント] テスト名"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 26,
+          "component": "SheetSettingModal",
+          "text": "[コメント] 問題用紙の設定"
         }
       ],
       "apis": [],
@@ -3623,6 +6139,26 @@
           "line": 29,
           "component": "UnitSelectModal",
           "binding": "proxyUnitIds"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "unknown",
+          "line": 15,
+          "component": "UnitSelectModal"
+        },
+        {
+          "selector": "PrimaryCheckbox",
+          "type": "data",
+          "line": 29,
+          "component": "UnitSelectModal",
+          "binding": "label=unit.label, value=unit.value"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 23,
+          "component": "UnitSelectModal",
+          "text": "[コメント] 単元リスト"
         }
       ],
       "apis": [],
@@ -3659,6 +6195,12 @@
           "line": 25,
           "component": "error",
           "text": "トップページへ"
+        },
+        {
+          "selector": "BaseHeader",
+          "type": "unknown",
+          "line": 4,
+          "component": "error"
         }
       ],
       "apis": [],
@@ -3681,6 +6223,40 @@
           "line": 11,
           "component": "admin",
           "binding": "isHeaderExpand"
+        },
+        {
+          "selector": "DevInspector",
+          "type": "unknown",
+          "line": 5,
+          "component": "admin"
+        },
+        {
+          "selector": "ToastList",
+          "type": "static",
+          "line": 8,
+          "component": "admin",
+          "text": "[ToastListコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 4,
+          "component": "admin",
+          "text": "[コメント] Developer Mode Inspector (本番以外で有効)"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 7,
+          "component": "admin",
+          "text": "[コメント] 全体チェック時のエラーメッセージ用"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 10,
+          "component": "admin",
+          "text": "[コメント] ヘッダー"
         }
       ],
       "apis": [],
@@ -3703,6 +6279,53 @@
           "line": 17,
           "component": "default",
           "binding": "openHeaderMenu"
+        },
+        {
+          "selector": "DevInspector",
+          "type": "unknown",
+          "line": 5,
+          "component": "default"
+        },
+        {
+          "selector": "ToastList",
+          "type": "static",
+          "line": 8,
+          "component": "default",
+          "text": "[ToastListコンポーネント]"
+        },
+        {
+          "selector": "HeaderMenuIcon",
+          "type": "static",
+          "line": 16,
+          "component": "default",
+          "text": "[HeaderMenuIconコンポーネント]"
+        },
+        {
+          "selector": "HeaderMenu",
+          "type": "unknown",
+          "line": 17,
+          "component": "default"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 4,
+          "component": "default",
+          "text": "[コメント] Developer Mode Inspector (本番以外で有効)"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 7,
+          "component": "default",
+          "text": "[コメント] エラーメッセージ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 9,
+          "component": "default",
+          "text": "[コメント] ヘッダー"
         }
       ],
       "apis": [],
@@ -3732,6 +6355,46 @@
           "line": 25,
           "component": "plain",
           "binding": "message"
+        },
+        {
+          "selector": "DevInspector",
+          "type": "unknown",
+          "line": 5,
+          "component": "plain"
+        },
+        {
+          "selector": "ToastList",
+          "type": "static",
+          "line": 8,
+          "component": "plain",
+          "text": "[ToastListコンポーネント]"
+        },
+        {
+          "selector": "StepBar.step-bar",
+          "type": "unknown",
+          "line": 20,
+          "component": "plain"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 4,
+          "component": "plain",
+          "text": "[コメント] Developer Mode Inspector (本番以外で有効)"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 7,
+          "component": "plain",
+          "text": "[コメント] エラーメッセージ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 10,
+          "component": "plain",
+          "text": "[コメント] ヘッダー"
         }
       ],
       "apis": [],
@@ -3742,11 +6405,32 @@
       "componentName": "[id]",
       "elements": [
         {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "アカウント編集",
+          "line": 2,
+          "component": "[id]"
+        },
+        {
           "selector": "div.list-container",
           "type": "static",
           "line": 2,
           "component": "[id]",
           "text": "アカウント一覧へ戻る"
+        },
+        {
+          "selector": "AccountForm",
+          "type": "static",
+          "line": 15,
+          "component": "[id]",
+          "text": "[AccountFormコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "[id]",
+          "text": "[コメント] 一覧へ戻る"
         }
       ],
       "apis": [],
@@ -3756,6 +6440,13 @@
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/admin/accounts/index.vue",
       "componentName": "index",
       "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "アカウント一覧",
+          "line": 4,
+          "component": "index"
+        },
         {
           "selector": "BasicInput.search-input",
           "type": "static",
@@ -3831,6 +6522,46 @@
             "column": "subject_id",
             "type": "number"
           }
+        },
+        {
+          "selector": "ModalDialog",
+          "type": "data",
+          "line": 4,
+          "component": "index",
+          "binding": "body=showConfirmMultiDelete.body"
+        },
+        {
+          "selector": "BasicInput.search-input",
+          "type": "unknown",
+          "line": 22,
+          "component": "index"
+        },
+        {
+          "selector": "BasicInput.search-input",
+          "type": "unknown",
+          "line": 31,
+          "component": "index"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 40,
+          "component": "index",
+          "binding": "options=masterStore.prefectureOptions"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 47,
+          "component": "index",
+          "binding": "options=masterStore.subjectOptions"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "index",
+          "text": "[コメント] データ削除確認モーダル"
         }
       ],
       "apis": [
@@ -3847,6 +6578,13 @@
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/admin/contacts/[id].vue",
       "componentName": "[id]",
       "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "問い合わせ詳細",
+          "line": 4,
+          "component": "[id]"
+        },
         {
           "selector": "BasicButton",
           "type": "static",
@@ -3909,6 +6647,88 @@
           "line": 98,
           "component": "[id]",
           "text": "お問い合わせ内容"
+        },
+        {
+          "selector": "Loading",
+          "type": "unknown",
+          "line": 16,
+          "component": "[id]"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 24,
+          "component": "[id]",
+          "binding": "selected=dispForm.inquiryType, options=inqueryTypeOptions, disabled=true"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 36,
+          "component": "[id]",
+          "binding": "disabled=true"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 46,
+          "component": "[id]",
+          "binding": "disabled=true"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 56,
+          "component": "[id]",
+          "binding": "disabled=true"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 66,
+          "component": "[id]",
+          "binding": "disabled=true"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 77,
+          "component": "[id]",
+          "binding": "selected=dispForm.os, options=osOptions, disabled=true"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 90,
+          "component": "[id]",
+          "binding": "selected=dispForm.browser, options=browserOptions, disabled=true"
+        },
+        {
+          "selector": "BasicTextArea",
+          "type": "data",
+          "line": 102,
+          "component": "[id]",
+          "binding": "disabled=true"
+        },
+        {
+          "selector": "LicenceEditList",
+          "type": "unknown",
+          "line": 109,
+          "component": "[id]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "[id]",
+          "text": "[コメント] 一覧へ戻る"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 108,
+          "component": "[id]",
+          "text": "[コメント] ライセンス情報"
         }
       ],
       "apis": [
@@ -3927,6 +6747,13 @@
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/admin/contacts/index.vue",
       "componentName": "index",
       "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "問い合わせ一覧",
+          "line": 4,
+          "component": "index"
+        },
         {
           "selector": "BasicInput.search-input",
           "type": "static",
@@ -3964,6 +6791,43 @@
             "column": "inquiry_type",
             "type": "string"
           }
+        },
+        {
+          "selector": "ModalDialog",
+          "type": "data",
+          "line": 4,
+          "component": "index",
+          "binding": "body=showConfirmMultiDelete.body",
+          "api": {
+            "endpoint": "/api/v1/contacts",
+            "method": "GET",
+            "description": "問い合わせ一覧を取得する"
+          },
+          "db": {
+            "table": "contacts",
+            "column": "body",
+            "type": "string"
+          }
+        },
+        {
+          "selector": "BasicInput.search-input",
+          "type": "unknown",
+          "line": 21,
+          "component": "index"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 30,
+          "component": "index",
+          "binding": "options=inqueryTypes"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "index",
+          "text": "[コメント] データ削除確認モーダル"
         }
       ],
       "apis": [
@@ -3979,7 +6843,15 @@
     "pages/admin/index.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/admin/index.vue",
       "componentName": "index",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "NuxtPage",
+          "type": "static",
+          "line": 2,
+          "component": "index",
+          "text": "[NuxtPageコンポーネント]"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -3988,11 +6860,32 @@
       "componentName": "[id]",
       "elements": [
         {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "お知らせ編集",
+          "line": 2,
+          "component": "[id]"
+        },
+        {
           "selector": "div.list-container",
           "type": "static",
           "line": 2,
           "component": "[id]",
           "text": "お知らせ一覧へ戻る"
+        },
+        {
+          "selector": "NotificationForm",
+          "type": "static",
+          "line": 15,
+          "component": "[id]",
+          "text": "[NotificationFormコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "[id]",
+          "text": "[コメント] 一覧へ戻る"
         }
       ],
       "apis": [],
@@ -4002,6 +6895,13 @@
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/admin/notices/index.vue",
       "componentName": "index",
       "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "お知らせ一覧",
+          "line": 4,
+          "component": "index"
+        },
         {
           "selector": "BasicInput.search-input",
           "type": "static",
@@ -4015,6 +6915,26 @@
           "line": 22,
           "component": "index",
           "binding": "filter.freeText"
+        },
+        {
+          "selector": "ModalDialog",
+          "type": "data",
+          "line": 4,
+          "component": "index",
+          "binding": "body=showConfirmMultiDelete.body"
+        },
+        {
+          "selector": "BasicInput.search-input",
+          "type": "unknown",
+          "line": 22,
+          "component": "index"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "index",
+          "text": "[コメント] データ削除確認モーダル"
         }
       ],
       "apis": [
@@ -4031,6 +6951,13 @@
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/admin/requests/[id].vue",
       "componentName": "[id]",
       "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "申込編集",
+          "line": 5,
+          "component": "[id]"
+        },
         {
           "selector": "BasicButton.to-list-button",
           "type": "static",
@@ -4156,7 +7083,8 @@
           "db": {
             "table": "requests",
             "column": "trial_code",
-            "type": "string | null"
+            "type": "string | null",
+            "comment": "お試しコード"
           }
         },
         {
@@ -4206,6 +7134,123 @@
             "column": "apply_type",
             "type": "number"
           }
+        },
+        {
+          "selector": "Loading",
+          "type": "unknown",
+          "line": 16,
+          "component": "[id]"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 31,
+          "component": "[id]",
+          "binding": "disabled=true"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 43,
+          "component": "[id]",
+          "binding": "disabled=true"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 55,
+          "component": "[id]",
+          "binding": "disabled=true"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 67,
+          "component": "[id]",
+          "binding": "disabled=true"
+        },
+        {
+          "selector": "SchoolInfoEditForm.shool-edit-form",
+          "type": "data",
+          "line": 75,
+          "component": "[id]",
+          "binding": "error=schoolError"
+        },
+        {
+          "selector": "SubjectSelector",
+          "type": "unknown",
+          "line": 90,
+          "component": "[id]"
+        },
+        {
+          "selector": "LicenceStatusLabel",
+          "type": "data",
+          "line": 110,
+          "component": "[id]",
+          "binding": "status=licenceStatus(Number(row.value))"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "[id]",
+          "text": "[コメント] 一覧へ戻る"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 18,
+          "component": "[id]",
+          "text": "[コメント] ステータスラベル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 26,
+          "component": "[id]",
+          "text": "[コメント] 申込日"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 38,
+          "component": "[id]",
+          "text": "[コメント] 名前"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 50,
+          "component": "[id]",
+          "text": "[コメント] メールアドレス"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 62,
+          "component": "[id]",
+          "text": "[コメント] トライアルコード"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 74,
+          "component": "[id]",
+          "text": "[コメント] 学校情報"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 85,
+          "component": "[id]",
+          "text": "[コメント] 教科選択"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 95,
+          "component": "[id]",
+          "text": "[コメント] サブカテゴリー選択"
         }
       ],
       "apis": [
@@ -4222,6 +7267,13 @@
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/admin/requests/index.vue",
       "componentName": "index",
       "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "申込一覧",
+          "line": 4,
+          "component": "index"
+        },
         {
           "selector": "BasicInput.search-input",
           "type": "static",
@@ -4311,6 +7363,68 @@
             "column": "csv_export_status",
             "type": "string"
           }
+        },
+        {
+          "selector": "ModalDialog",
+          "type": "data",
+          "line": 4,
+          "component": "index",
+          "binding": "body=showConfirmMultiDelete.body"
+        },
+        {
+          "selector": "SchoolMasterImportButton",
+          "type": "static",
+          "line": 13,
+          "component": "index",
+          "text": "[SchoolMasterImportButtonコンポーネント]"
+        },
+        {
+          "selector": "BasicInput.search-input",
+          "type": "unknown",
+          "line": 26,
+          "component": "index"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 35,
+          "component": "index",
+          "binding": "options=masterStore.prefectureOptions"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 56,
+          "component": "index",
+          "binding": "options=csvOutputOptions"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "index",
+          "text": "[コメント] データ削除確認モーダル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 12,
+          "component": "index",
+          "text": "[コメント] 学校マスタアップロードボタン"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 14,
+          "component": "index",
+          "text": "[コメント] 学校マスタアップロードモーダル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 15,
+          "component": "index",
+          "text": "[コメント] 検索・アクションフィールド"
         }
       ],
       "apis": [
@@ -4334,6 +7448,13 @@
       "componentName": "sign-in",
       "elements": [
         {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "ログイン",
+          "line": 2,
+          "component": "sign-in"
+        },
+        {
           "selector": "div.contents",
           "type": "static",
           "line": 2,
@@ -4346,6 +7467,41 @@
           "line": 6,
           "component": "sign-in",
           "text": "Logo"
+        },
+        {
+          "selector": "LoginForm.login-form",
+          "type": "static",
+          "line": 19,
+          "component": "sign-in",
+          "text": "admin"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "sign-in",
+          "text": "[コメント] タイトル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 5,
+          "component": "sign-in",
+          "text": "[コメント] ロゴ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 12,
+          "component": "sign-in",
+          "text": "[コメント] admin ラベル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 18,
+          "component": "sign-in",
+          "text": "[コメント] ログインフォーム"
         }
       ],
       "apis": [],
@@ -4718,6 +7874,227 @@
           "line": 56,
           "component": "index",
           "binding": "inputVal"
+        },
+        {
+          "selector": "ToasterList",
+          "type": "static",
+          "line": 51,
+          "component": "index",
+          "text": "[ToasterListコンポーネント]"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "unknown",
+          "line": 55,
+          "component": "index"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "static",
+          "line": 59,
+          "component": "index",
+          "text": "search"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "data",
+          "line": 70,
+          "component": "index",
+          "binding": "disabled=true"
+        },
+        {
+          "selector": "PrimaryCheckbox",
+          "type": "data",
+          "line": 88,
+          "component": "index",
+          "binding": "value=false"
+        },
+        {
+          "selector": "PrimaryCheckbox",
+          "type": "data",
+          "line": 96,
+          "component": "index",
+          "binding": "value=false, disabled=true"
+        },
+        {
+          "selector": "PrimaryCheckbox",
+          "type": "data",
+          "line": 102,
+          "component": "index",
+          "binding": "value=false"
+        },
+        {
+          "selector": "PrimaryCheckbox",
+          "type": "data",
+          "line": 115,
+          "component": "index",
+          "binding": "value=1"
+        },
+        {
+          "selector": "PrimaryCheckbox",
+          "type": "data",
+          "line": 137,
+          "component": "index",
+          "binding": "value=1"
+        },
+        {
+          "selector": "PrimaryCheckbox",
+          "type": "data",
+          "line": 142,
+          "component": "index",
+          "binding": "value=2"
+        },
+        {
+          "selector": "CloseButton",
+          "type": "static",
+          "line": 153,
+          "component": "index",
+          "text": "[CloseButtonコンポーネント]"
+        },
+        {
+          "selector": "IconButton",
+          "type": "static",
+          "line": 157,
+          "component": "index",
+          "text": "[IconButtonコンポーネント]"
+        },
+        {
+          "selector": "CustomIconButton",
+          "type": "static",
+          "line": 161,
+          "component": "index",
+          "text": "[CustomIconButtonコンポーネント]"
+        },
+        {
+          "selector": "SearchIcon",
+          "type": "unknown",
+          "line": 167,
+          "component": "index"
+        },
+        {
+          "selector": "SearchIcon",
+          "type": "unknown",
+          "line": 171,
+          "component": "index"
+        },
+        {
+          "selector": "SearchButton",
+          "type": "static",
+          "line": 177,
+          "component": "index",
+          "text": "[SearchButtonコンポーネント]"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 181,
+          "component": "index",
+          "binding": "options=schools"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 186,
+          "component": "index",
+          "binding": "options=schools, disabled=true"
+        },
+        {
+          "selector": "Loading",
+          "type": "static",
+          "line": 229,
+          "component": "index",
+          "text": "[Loadingコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "index",
+          "text": "[コメント] FrameBox"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 10,
+          "component": "index",
+          "text": "[コメント] BacicButton"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 49,
+          "component": "index",
+          "text": "[コメント] Toaster"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 53,
+          "component": "index",
+          "text": "[コメント] BacicInput"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 76,
+          "component": "index",
+          "text": "[コメント] TextArea"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 86,
+          "component": "index",
+          "text": "[コメント] PrimaryCheckBox"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 151,
+          "component": "index",
+          "text": "[コメント] CloseButton"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 155,
+          "component": "index",
+          "text": "[コメント] IconButton"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 159,
+          "component": "index",
+          "text": "[コメント] CustomIconButton"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 179,
+          "component": "index",
+          "text": "[コメント] DropDownMenu"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 191,
+          "component": "index",
+          "text": "[コメント] ModalDialog"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 209,
+          "component": "index",
+          "text": "[コメント] ModalDialog"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 219,
+          "component": "index",
+          "text": "[コメント] 編集モーダル"
         }
       ],
       "apis": [],
@@ -4727,6 +8104,13 @@
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/faq.vue",
       "componentName": "faq",
       "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "よくある質問",
+          "line": 2,
+          "component": "faq"
+        },
         {
           "selector": "div.inner-contents",
           "type": "static",
@@ -4747,6 +8131,46 @@
           "line": 42,
           "component": "faq",
           "binding": "item.content"
+        },
+        {
+          "selector": "CustomIconButton.close-icon.icon-hover-bg-gray",
+          "type": "unknown",
+          "line": 21,
+          "component": "faq"
+        },
+        {
+          "selector": "CustomIconButton.open-icon.icon-hover-bg-gray",
+          "type": "unknown",
+          "line": 28,
+          "component": "faq"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 2,
+          "component": "faq",
+          "text": "[コメント] eslint-disable vue/no-v-html"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 4,
+          "component": "faq",
+          "text": "[コメント] タイトル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 37,
+          "component": "faq",
+          "text": "[コメント] タイトル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 41,
+          "component": "faq",
+          "text": "[コメント] 詳細"
         }
       ],
       "apis": [],
@@ -4755,14 +8179,58 @@
     "pages/home.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/home.vue",
       "componentName": "home",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "ホーム",
+          "line": 2,
+          "component": "home"
+        },
+        {
+          "selector": "HomeMenu",
+          "type": "static",
+          "line": 4,
+          "component": "home",
+          "text": "[HomeMenuコンポーネント]"
+        },
+        {
+          "selector": "NotificationList",
+          "type": "data",
+          "line": 6,
+          "component": "home",
+          "binding": "type=2"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "home",
+          "text": "[コメント] メニュー"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 5,
+          "component": "home",
+          "text": "[コメント] お知らせ"
+        }
+      ],
       "apis": [],
       "imports": []
     },
     "pages/index.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/index.vue",
       "componentName": "index",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "NuxtPage",
+          "type": "static",
+          "line": 2,
+          "component": "index",
+          "text": "[NuxtPageコンポーネント]"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -4770,6 +8238,13 @@
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/inquiry-form.vue",
       "componentName": "inquiry-form",
       "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "問い合わせ内容のご入力",
+          "line": 4,
+          "component": "inquiry-form"
+        },
         {
           "selector": "BasicButton",
           "type": "static",
@@ -4860,6 +8335,71 @@
           "line": 49,
           "component": "inquiry-form",
           "binding": "form.body"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 8,
+          "component": "inquiry-form",
+          "binding": "options=inqueryTypeOptions"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 14,
+          "component": "inquiry-form"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 22,
+          "component": "inquiry-form",
+          "binding": "options=osOptions"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 28,
+          "component": "inquiry-form"
+        },
+        {
+          "selector": "DropDownMenu",
+          "type": "data",
+          "line": 35,
+          "component": "inquiry-form",
+          "binding": "options=browserOptions"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 41,
+          "component": "inquiry-form"
+        },
+        {
+          "selector": "BasicTextArea",
+          "type": "unknown",
+          "line": 49,
+          "component": "inquiry-form"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 53,
+          "component": "inquiry-form"
+        },
+        {
+          "selector": "Loading",
+          "type": "static",
+          "line": 75,
+          "component": "inquiry-form",
+          "text": "[Loadingコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 67,
+          "component": "inquiry-form",
+          "text": "[コメント] お問い合わせ内容送信中モーダル"
         }
       ],
       "apis": [],
@@ -4871,6 +8411,13 @@
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/password/reset/[token]/index.vue",
       "componentName": "index",
       "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "パスワード変更",
+          "line": 2,
+          "component": "index"
+        },
         {
           "selector": "BasicButton.back-button",
           "type": "static",
@@ -4940,6 +8487,44 @@
           "line": 46,
           "component": "index",
           "text": "送信する"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "unknown",
+          "line": 19,
+          "component": "index"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 26,
+          "component": "index"
+        },
+        {
+          "selector": "BasicInput",
+          "type": "unknown",
+          "line": 33,
+          "component": "index"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 40,
+          "component": "index"
+        },
+        {
+          "selector": "Loading",
+          "type": "static",
+          "line": 62,
+          "component": "index",
+          "text": "[Loadingコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 54,
+          "component": "index",
+          "text": "[コメント] 送信中モーダル"
         }
       ],
       "apis": [
@@ -4956,6 +8541,13 @@
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/password/reset/index.vue",
       "componentName": "index",
       "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "パスワード変更メールアドレス確認",
+          "line": 2,
+          "component": "index"
+        },
         {
           "selector": "BasicButton.back-button",
           "type": "static",
@@ -5003,6 +8595,26 @@
           "line": 29,
           "component": "index",
           "text": "送信する"
+        },
+        {
+          "selector": "ErrorText",
+          "type": "unknown",
+          "line": 23,
+          "component": "index"
+        },
+        {
+          "selector": "Loading",
+          "type": "static",
+          "line": 45,
+          "component": "index",
+          "text": "[Loadingコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 37,
+          "component": "index",
+          "text": "[コメント] 送信中モーダル"
         }
       ],
       "apis": [],
@@ -5013,11 +8625,39 @@
       "componentName": "index",
       "elements": [
         {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "お名前・メールアドレス変更",
+          "line": 2,
+          "component": "index"
+        },
+        {
           "selector": "div.inner-contents",
           "type": "static",
           "line": 2,
           "component": "index",
           "text": "お名前・メールアドレスが変更されました。 こちらから ログイン の上、引き続き、テストスタジオをご利用ください。"
+        },
+        {
+          "selector": "ExpiredLinkInfo.expired-link-info",
+          "type": "data",
+          "line": 18,
+          "component": "index",
+          "binding": "message=errorMessage"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "index",
+          "text": "[コメント] トークン有効の場合"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 17,
+          "component": "index",
+          "text": "[コメント] トークン切れの場合"
         }
       ],
       "apis": [
@@ -5035,6 +8675,13 @@
       "componentName": "complete",
       "elements": [
         {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "お名前・メールアドレス変更送信完了",
+          "line": 2,
+          "component": "complete"
+        },
+        {
           "selector": "FrameBox.frame-box",
           "type": "unknown",
           "line": 2,
@@ -5047,7 +8694,29 @@
     "pages/profile/edit/index.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/profile/edit/index.vue",
       "componentName": "index",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "お名前・メールアドレス変更",
+          "line": 2,
+          "component": "index"
+        },
+        {
+          "selector": "Loading",
+          "type": "static",
+          "line": 14,
+          "component": "index",
+          "text": "[Loadingコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 6,
+          "component": "index",
+          "text": "[コメント] メール送信中モーダル"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -5056,11 +8725,32 @@
       "componentName": "index",
       "elements": [
         {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "変更申込フォーム",
+          "line": 2,
+          "component": "index"
+        },
+        {
           "selector": "div",
           "type": "static",
           "line": 2,
           "component": "index",
           "text": "(subject.subjectCategoryId?.toString() || subject.gradeId?.toString()) || '')\" />"
+        },
+        {
+          "selector": "TrialEndModal",
+          "type": "data",
+          "line": 4,
+          "component": "index",
+          "binding": "show=showTrialEndModal"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "index",
+          "text": "[コメント] トライアル終了モーダル"
         }
       ],
       "apis": [],
@@ -5070,6 +8760,13 @@
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/request/complete.vue",
       "componentName": "complete",
       "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "申込完了",
+          "line": 2,
+          "component": "complete"
+        },
         {
           "selector": "FrameBox.frame-box",
           "type": "unknown",
@@ -5083,21 +8780,59 @@
     "pages/request/continue-form/index.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/request/continue-form/index.vue",
       "componentName": "index",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "継続申込フォーム",
+          "line": 2,
+          "component": "index"
+        }
+      ],
       "apis": [],
       "imports": []
     },
     "pages/request/index.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/request/index.vue",
       "componentName": "index",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "新規申込",
+          "line": 2,
+          "component": "index"
+        }
+      ],
       "apis": [],
       "imports": []
     },
     "pages/request/new-form/[token].vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/request/new-form/[token].vue",
       "componentName": "[token]",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "新規申込フォーム",
+          "line": 2,
+          "component": "[token]"
+        },
+        {
+          "selector": "RequestForm",
+          "type": "data",
+          "line": 2,
+          "component": "[token]",
+          "binding": "email=email"
+        },
+        {
+          "selector": "ExpiredLinkInfo.expired-link-info",
+          "type": "data",
+          "line": 8,
+          "component": "[token]",
+          "binding": "message=errorMessage"
+        }
+      ],
       "apis": [
         {
           "endpoint": "/api/v1/mail_histories/{token}",
@@ -5113,6 +8848,13 @@
       "componentName": "complete",
       "elements": [
         {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "新規申込メールアドレス送信完了",
+          "line": 2,
+          "component": "complete"
+        },
+        {
           "selector": "FrameBox.frame-box",
           "type": "unknown",
           "line": 2,
@@ -5125,7 +8867,29 @@
     "pages/request/send-mail/index.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/request/send-mail/index.vue",
       "componentName": "index",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "新規申込メールアドレス確認",
+          "line": 2,
+          "component": "index"
+        },
+        {
+          "selector": "Loading",
+          "type": "static",
+          "line": 14,
+          "component": "index",
+          "text": "[Loadingコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 6,
+          "component": "index",
+          "text": "[コメント] メール送信中モーダル"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -5134,11 +8898,46 @@
       "componentName": "saved-sheets",
       "elements": [
         {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "保存テスト一覧",
+          "line": 2,
+          "component": "saved-sheets"
+        },
+        {
           "selector": "ModalDialog",
           "type": "static",
           "line": 14,
           "component": "saved-sheets",
           "text": "読み込み中"
+        },
+        {
+          "selector": "ModalDialog",
+          "type": "data",
+          "line": 4,
+          "component": "saved-sheets",
+          "binding": "body=showConfirmDelete.body"
+        },
+        {
+          "selector": "Loading",
+          "type": "static",
+          "line": 21,
+          "component": "saved-sheets",
+          "text": "[Loadingコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "saved-sheets",
+          "text": "[コメント] データ削除確認モーダル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "saved-sheets",
+          "text": "[コメント] ローディング"
         }
       ],
       "apis": [
@@ -5156,11 +8955,32 @@
       "componentName": "setting-conditions",
       "elements": [
         {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "教科・学年・範囲設定",
+          "line": 5,
+          "component": "setting-conditions"
+        },
+        {
           "selector": "ModalDialog",
           "type": "static",
           "line": 4,
           "component": "setting-conditions",
           "text": "問題を検索中です"
+        },
+        {
+          "selector": "Loading",
+          "type": "static",
+          "line": 11,
+          "component": "setting-conditions",
+          "text": "[Loadingコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "setting-conditions",
+          "text": "[コメント] ローディング"
         }
       ],
       "apis": [],
@@ -5172,14 +8992,135 @@
     "pages/sheets/[id]/index.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/sheets/[id]/index.vue",
       "componentName": "index",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "メイン操作",
+          "line": 2,
+          "component": "index"
+        },
+        {
+          "selector": "SideMenu.side-menu",
+          "type": "data",
+          "line": 7,
+          "component": "index",
+          "binding": "class=[{ 'side-menu-closed': !menuOpen }]"
+        },
+        {
+          "selector": "QlListSection.question-list",
+          "type": "data",
+          "line": 12,
+          "component": "index",
+          "binding": "expand=menuOpen"
+        },
+        {
+          "selector": "SelectedQlListSection.question-selection",
+          "type": "static",
+          "line": 17,
+          "component": "index",
+          "text": "[SelectedQlListSectionコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 6,
+          "component": "index",
+          "text": "[コメント] サイドメニュー"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 11,
+          "component": "index",
+          "text": "[コメント] 左コンテンツ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 16,
+          "component": "index",
+          "text": "[コメント] 右コンテンツ"
+        }
+      ],
       "apis": [],
       "imports": []
     },
     "pages/sheets/[id]/preview.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/sheets/[id]/preview.vue",
       "componentName": "preview",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "プレビュー",
+          "line": 2,
+          "component": "preview"
+        },
+        {
+          "selector": "SheetPreviewContents",
+          "type": "static",
+          "line": 9,
+          "component": "preview",
+          "text": "[SheetPreviewContentsコンポーネント]"
+        },
+        {
+          "selector": "PreviewSheetFooter",
+          "type": "data",
+          "line": 11,
+          "component": "preview",
+          "binding": "mode=previewMode"
+        },
+        {
+          "selector": "SheetSettingModal",
+          "type": "data",
+          "line": 19,
+          "component": "preview",
+          "binding": "open=sheetSettingModal"
+        },
+        {
+          "selector": "Loading",
+          "type": "static",
+          "line": 32,
+          "component": "preview",
+          "text": "[Loadingコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "preview",
+          "text": "[コメント] 画像プレビュー"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 8,
+          "component": "preview",
+          "text": "[コメント] テスト概要"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 10,
+          "component": "preview",
+          "text": "[コメント] フッター"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 18,
+          "component": "preview",
+          "text": "[コメント] テスト設定モーダル"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 24,
+          "component": "preview",
+          "text": "[コメント] ローディング"
+        }
+      ],
       "apis": [],
       "imports": []
     },
@@ -5188,11 +9129,32 @@
       "componentName": "new",
       "elements": [
         {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "メイン操作",
+          "line": 2,
+          "component": "new"
+        },
+        {
           "selector": "ModalDialog",
           "type": "static",
           "line": 4,
           "component": "new",
           "text": "問題を検索中です"
+        },
+        {
+          "selector": "Loading",
+          "type": "static",
+          "line": 11,
+          "component": "new",
+          "text": "[Loadingコンポーネント]"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "new",
+          "text": "[コメント] ローディング"
         }
       ],
       "apis": [],
@@ -5201,7 +9163,57 @@
     "pages/sign-in.vue": {
       "filePath": "/Users/aoki/Documents/Meiji_tosho/source/meiji-tosho-epro/front/pages/sign-in.vue",
       "componentName": "sign-in",
-      "elements": [],
+      "elements": [
+        {
+          "selector": "script:useHead.title",
+          "type": "static",
+          "text": "ログイン",
+          "line": 2,
+          "component": "sign-in"
+        },
+        {
+          "selector": "Logo.logo",
+          "type": "data",
+          "line": 5,
+          "component": "sign-in",
+          "binding": "width=200, height=150"
+        },
+        {
+          "selector": "LoginForm",
+          "type": "static",
+          "line": 14,
+          "component": "sign-in",
+          "text": "teacher"
+        },
+        {
+          "selector": "NotificationList",
+          "type": "data",
+          "line": 17,
+          "component": "sign-in",
+          "binding": "type=1"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 3,
+          "component": "sign-in",
+          "text": "[コメント] ロゴ"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 13,
+          "component": "sign-in",
+          "text": "[コメント] ログインフォーム"
+        },
+        {
+          "selector": "comment",
+          "type": "static",
+          "line": 16,
+          "component": "sign-in",
+          "text": "[コメント] お知らせ一覧"
+        }
+      ],
       "apis": [],
       "imports": []
     }
