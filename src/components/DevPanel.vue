@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, inject } from 'vue'
-import { X, Code, FileText, ExternalLink, Server, AlertCircle, Edit3, Download, Upload, Trash2, MousePointer2, GitBranch, FileSpreadsheet, Scan, Globe, Loader2 } from 'lucide-vue-next'
+import { ref, computed } from 'vue'
+import { X, Code, FileText, ExternalLink, Server, AlertCircle, Edit3, Download, Upload, Trash2, MousePointer2, GitBranch, FileSpreadsheet, Scan, Loader2 } from 'lucide-vue-next'
 import { useDevInspectorStore } from '../composables/useDevInspector'
 import { exportScreenSpecToXlsx } from '../utils/exportScreenSpec'
 
 const store = useDevInspectorStore()
-
-// Try to get Vue Router (optional)
-const router = inject<any>('router', null)
 
 const showExportModal = ref(false)
 const showImportModal = ref(false)
@@ -87,28 +84,6 @@ function clearAll() {
   if (confirm('すべての要素設定を削除しますか？')) {
     store.clearAllConfigs()
   }
-}
-
-// Scan functions
-const lastScanCount = ref(0)
-const showScanResults = ref(false)
-const allPagesScanResults = ref<{ page: string; count: number }[]>([])
-
-async function handleScanPage(rescan = false) {
-  showScanResults.value = true
-  lastScanCount.value = await store.scanCurrentPage({ rescan })
-}
-
-async function handleScanAllPages() {
-  if (!router) {
-    alert('Vue Routerが見つかりません。全ページスキャンにはVue Routerが必要です。')
-    return
-  }
-  if (!confirm('全ページをスキャンします。ページ遷移が発生しますがよろしいですか？')) {
-    return
-  }
-  showScanResults.value = true
-  allPagesScanResults.value = await store.scanAllPages(router)
 }
 
 // Analysis data functions
@@ -230,56 +205,6 @@ async function restoreHiddenElements() {
           <MousePointer2 style="width: 16px; height: 16px;" />
           <span>{{ store.isPickMode ? '要素選択中...' : '任意の要素にメモを追加' }}</span>
         </button>
-
-        <!-- Scan Buttons -->
-        <div class="di-scan-section">
-          <button
-            @click="handleScanPage(false)"
-            class="di-scan-btn"
-            :disabled="store.isScanning"
-            title="新規要素のみスキャン"
-          >
-            <Loader2 v-if="store.isScanning && !store.currentScanPage" class="di-spin" style="width: 16px; height: 16px;" />
-            <Scan v-else style="width: 16px; height: 16px;" />
-            <span>{{ store.isScanning && !store.currentScanPage ? `${store.scanProgress}%` : 'スキャン' }}</span>
-          </button>
-          <button
-            @click="handleScanPage(true)"
-            class="di-scan-btn di-scan-btn-rescan"
-            :disabled="store.isScanning"
-            title="既存の設定をクリアして再スキャン"
-          >
-            <Scan style="width: 16px; height: 16px;" />
-            <span>再スキャン</span>
-          </button>
-        </div>
-        <div class="di-scan-section">
-          <button
-            @click="handleScanAllPages"
-            class="di-scan-btn di-scan-btn-all"
-            :disabled="store.isScanning"
-            :title="router ? '全ページをスキャン' : 'Vue Routerが必要です'"
-          >
-            <Loader2 v-if="store.isScanning && store.currentScanPage" class="di-spin" style="width: 16px; height: 16px;" />
-            <Globe v-else style="width: 16px; height: 16px;" />
-            <span>{{ store.currentScanPage ? `${store.currentScanPage}` : '全ページスキャン' }}</span>
-          </button>
-        </div>
-
-        <!-- Scan Progress/Results -->
-        <div v-if="showScanResults && (lastScanCount > 0 || allPagesScanResults.length > 0)" class="di-scan-results">
-          <div v-if="lastScanCount > 0" class="di-scan-result-item">
-            <span class="di-scan-result-count">{{ lastScanCount }}</span>
-            <span>件の要素を検出・登録しました</span>
-          </div>
-          <div v-for="result in allPagesScanResults" :key="result.page" class="di-scan-result-item">
-            <code>{{ result.page }}</code>
-            <span class="di-scan-result-count">{{ result.count }}</span>
-          </div>
-          <button @click="showScanResults = false; allPagesScanResults = []" class="di-scan-close">
-            閉じる
-          </button>
-        </div>
 
         <!-- Analysis Data Section -->
         <div class="di-analysis-section">
@@ -726,94 +651,13 @@ async function restoreHiddenElements() {
   color: white;
 }
 
-/* Scan Section */
-.di-scan-section {
-  margin-top: 12px;
-  display: flex;
-  gap: 8px;
-}
-.di-scan-btn {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  padding: 8px 12px;
-  background: #1e293b;
-  color: #60a5fa;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.di-scan-btn:hover:not(:disabled) {
-  background: #334155;
-  border-color: #60a5fa;
-}
-.di-scan-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-.di-scan-btn-rescan {
-  color: #f59e0b;
-}
-.di-scan-btn-rescan:hover:not(:disabled) {
-  border-color: #f59e0b;
-}
-.di-scan-btn-all {
-  color: #a78bfa;
-  flex: 1;
-}
-.di-scan-btn-all:hover:not(:disabled) {
-  border-color: #a78bfa;
-}
+/* Spinner (used for loading states) */
 .di-spin {
   animation: spin 1s linear infinite;
 }
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
-
-/* Scan Results */
-.di-scan-results {
-  margin-top: 12px;
-  padding: 10px;
-  background: rgba(16, 185, 129, 0.1);
-  border: 1px solid #10b981;
-  border-radius: 8px;
-}
-.di-scan-result-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11px;
-  color: #94a3b8;
-  padding: 4px 0;
-}
-.di-scan-result-item code {
-  color: #60a5fa;
-  font-size: 10px;
-}
-.di-scan-result-count {
-  color: #10b981;
-  font-weight: 700;
-  font-size: 14px;
-}
-.di-scan-close {
-  margin-top: 8px;
-  width: 100%;
-  padding: 6px;
-  background: transparent;
-  border: none;
-  color: #64748b;
-  font-size: 10px;
-  cursor: pointer;
-}
-.di-scan-close:hover {
-  color: white;
 }
 
 /* Content */
