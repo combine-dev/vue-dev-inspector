@@ -177,15 +177,14 @@ function analyzeTemplate(template) {
     const parsedAttrs = parseAttributes(attrs);
     const afterMatch = template.substring(match.index + fullMatch.length);
     const textMatch = afterMatch.match(/^([^<]*)/)?.[1]?.trim();
-    if (textMatch && textMatch.length < 100) {
-      addElement({
-        tag,
-        text: textMatch.replace(/\{\{[^}]+\}\}/g, "").trim() || "[\u30AF\u30EA\u30C3\u30AF\u8981\u7D20]",
-        isStatic: !textMatch.includes("{{"),
-        attributes: parsedAttrs,
-        line
-      });
-    }
+    const text = textMatch && textMatch.length < 100 ? textMatch.replace(/\{\{[^}]+\}\}/g, "").trim() : "";
+    addElement({
+      tag,
+      text: text || "[\u30AF\u30EA\u30C3\u30AF\u8981\u7D20]",
+      isStatic: !textMatch?.includes("{{"),
+      attributes: { ...parsedAttrs, "@click": parsedAttrs["@click"] || "handler" },
+      line
+    });
   }
   const linkRegex = /<(NuxtLink|RouterLink|router-link|nuxt-link)([^>]*)>([\s\S]*?)<\/\1>/gi;
   while ((match = linkRegex.exec(template)) !== null) {
@@ -232,7 +231,7 @@ function analyzeTemplate(template) {
 }
 function parseAttributes(attrString) {
   const attrs = {};
-  const regex = /([\w:-]+)(?:="([^"]*)")?/g;
+  const regex = /([@\w:-]+)(?:="([^"]*)")?/g;
   let match;
   while ((match = regex.exec(attrString)) !== null) {
     attrs[match[1]] = match[2] || "";

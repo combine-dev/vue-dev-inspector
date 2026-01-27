@@ -313,15 +313,18 @@ function analyzeTemplate(template: string): TemplateElement[] {
     const afterMatch = template.substring(match.index + fullMatch.length)
     const textMatch = afterMatch.match(/^([^<]*)/)?.[1]?.trim()
 
-    if (textMatch && textMatch.length < 100) {
-      addElement({
-        tag,
-        text: textMatch.replace(/\{\{[^}]+\}\}/g, '').trim() || '[クリック要素]',
-        isStatic: !textMatch.includes('{{'),
-        attributes: parsedAttrs,
-        line,
-      })
-    }
+    // Always add clickable elements (buttons, links, etc.)
+    const text = textMatch && textMatch.length < 100
+      ? textMatch.replace(/\{\{[^}]+\}\}/g, '').trim()
+      : ''
+
+    addElement({
+      tag,
+      text: text || '[クリック要素]',
+      isStatic: !textMatch?.includes('{{'),
+      attributes: { ...parsedAttrs, '@click': parsedAttrs['@click'] || 'handler' },
+      line,
+    })
   }
 
   // 7. Find NuxtLink/RouterLink with to attribute
@@ -385,7 +388,8 @@ function analyzeTemplate(template: string): TemplateElement[] {
 
 function parseAttributes(attrString: string): Record<string, string> {
   const attrs: Record<string, string> = {}
-  const regex = /([\w:-]+)(?:="([^"]*)")?/g
+  // Include @ for Vue event handlers like @click, @input, etc.
+  const regex = /([@\w:-]+)(?:="([^"]*)")?/g
   let match
 
   while ((match = regex.exec(attrString)) !== null) {
