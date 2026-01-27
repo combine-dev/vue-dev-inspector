@@ -1,4 +1,4 @@
-import { h as Ae, defineComponent as ke, inject as Xe, ref as p, computed as ne, openBlock as o, createElementBlock as u, Fragment as V, createBlock as X, Teleport as oe, unref as i, createVNode as M, createCommentVNode as y, createElementVNode as e, normalizeClass as te, toDisplayString as f, renderList as le, withDirectives as D, vModelText as U, normalizeStyle as Z, createTextVNode as O, withModifiers as he, watch as Be, resolveDynamicComponent as Ke, vModelSelect as Ce, onMounted as Re, onUnmounted as Ye } from "vue";
+import { h as Ae, defineComponent as ke, inject as Xe, ref as p, computed as ne, openBlock as o, createElementBlock as u, Fragment as V, createBlock as X, Teleport as oe, unref as i, createVNode as _, createCommentVNode as y, createElementVNode as e, normalizeClass as te, toDisplayString as f, renderList as le, withDirectives as D, vModelText as U, normalizeStyle as Z, createTextVNode as O, withModifiers as he, watch as Be, resolveDynamicComponent as Ke, vModelSelect as Ce, onMounted as Re, onUnmounted as Ye } from "vue";
 import { u as ge } from "./useDevInspector-DLlKVTZa.js";
 import { a as Qs } from "./useDevInspector-DLlKVTZa.js";
 import { default as tn } from "./vite.js";
@@ -347,7 +347,7 @@ const pt = S("Wand2Icon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Me = S("XIcon", [
+const _e = S("XIcon", [
   ["path", { d: "M18 6 6 18", key: "1bl5f8" }],
   ["path", { d: "m6 6 12 12", key: "d8bk6v" }]
 ]);
@@ -503,7 +503,7 @@ async function bt(h, l, c = {}) {
   ]), Object.values(l).forEach((d, a) => {
     var T, L, P;
     const w = d.id;
-    let I = "", _ = "", $ = "";
+    let I = "", M = "", $ = "";
     if ((T = d.note) != null && T.text && (I = d.note.text), d.fieldInfo && (I += I ? `
 ` : "", I += `DB: ${d.fieldInfo.table}.${d.fieldInfo.column}`, d.fieldInfo.type && (I += ` (${d.fieldInfo.type})`), d.fieldInfo.description && (I += `
 ${d.fieldInfo.description}`)), d.actionInfo && ($ = `[${{
@@ -560,7 +560,7 @@ ${d.actionInfo.description}`)), d.links) {
       "",
       "",
       "",
-      _,
+      M,
       "",
       "",
       "",
@@ -685,10 +685,10 @@ const mt = {
 }, ft = { class: "di-header" }, ht = { class: "di-header-title" }, kt = { class: "di-edit-section" }, gt = { class: "di-scan-section" }, xt = ["disabled"], wt = ["disabled"], $t = { class: "di-scan-section" }, Ct = ["disabled", "title"], It = {
   key: 0,
   class: "di-scan-results"
-}, Mt = {
+}, _t = {
   key: 0,
   class: "di-scan-result-item"
-}, _t = { class: "di-scan-result-count" }, Et = { class: "di-scan-result-count" }, Pt = { class: "di-analysis-section" }, St = { class: "di-analysis-header" }, Dt = { class: "di-analysis-input" }, At = { class: "di-analysis-buttons" }, Tt = ["disabled"], Ut = ["disabled"], Lt = {
+}, Mt = { class: "di-scan-result-count" }, Et = { class: "di-scan-result-count" }, Pt = { class: "di-analysis-section" }, St = { class: "di-analysis-header" }, Dt = { class: "di-analysis-input" }, At = { class: "di-analysis-buttons" }, Tt = ["disabled"], Ut = ["disabled"], Lt = {
   key: 0,
   class: "di-analysis-error"
 }, Vt = {
@@ -725,7 +725,7 @@ const mt = {
 }, kl = { class: "di-modal" }, gl = ["value"], xl = { class: "di-modal-actions" }, wl = { class: "di-modal" }, $l = { class: "di-file-drop" }, Cl = {
   key: 0,
   class: "di-error"
-}, Il = { class: "di-modal-actions" }, Ml = ["disabled"], _l = /* @__PURE__ */ ke({
+}, Il = { class: "di-modal-actions" }, _l = ["disabled"], Ml = /* @__PURE__ */ ke({
   __name: "DevPanel",
   setup(h) {
     const l = ge(), c = Xe("router", null), k = p(!1), E = p(!1), A = p(""), R = p(""), j = {
@@ -777,7 +777,7 @@ const mt = {
     function a() {
       confirm("すべての要素設定を削除しますか？") && l.clearAllConfigs();
     }
-    const w = p(0), I = p(!1), _ = p([]);
+    const w = p(0), I = p(!1), M = p([]);
     async function $(B = !1) {
       I.value = !0, w.value = await l.scanCurrentPage({ rescan: B });
     }
@@ -786,7 +786,7 @@ const mt = {
         alert("Vue Routerが見つかりません。全ページスキャンにはVue Routerが必要です。");
         return;
       }
-      confirm("全ページをスキャンします。ページ遷移が発生しますがよろしいですか？") && (I.value = !0, _.value = await l.scanAllPages(c));
+      confirm("全ページをスキャンします。ページ遷移が発生しますがよろしいですか？") && (I.value = !0, M.value = await l.scanAllPages(c));
     }
     const L = p("/dev-inspector-analysis.json"), P = p(!1), x = p(""), z = p(0), m = p(!1), F = [
       { value: "all", label: "すべて" },
@@ -837,14 +837,14 @@ const mt = {
             title: "画面仕様を表示",
             "data-dev-inspector": ""
           }, [
-            M(i(Le), { style: { width: "20px", height: "20px" } })
+            _(i(Le), { style: { width: "20px", height: "20px" } })
           ])) : y("", !0)
         ])),
         (o(), X(oe, { to: "body" }, [
           i(l).isEnabled && i(l).isPanelOpen ? (o(), u("div", mt, [
             e("div", ft, [
               e("div", ht, [
-                M(i(Te), { style: { width: "20px", height: "20px", color: "#60a5fa" } }),
+                _(i(Te), { style: { width: "20px", height: "20px", color: "#60a5fa" } }),
                 n[15] || (n[15] = e("span", null, "Developer Mode", -1))
               ]),
               e("button", {
@@ -852,7 +852,7 @@ const mt = {
                 (...v) => i(l).closePanel && i(l).closePanel(...v)),
                 class: "di-close-btn"
               }, [
-                M(i(Me), { style: { width: "20px", height: "20px" } })
+                _(i(_e), { style: { width: "20px", height: "20px" } })
               ])
             ]),
             e("div", kt, [
@@ -861,7 +861,7 @@ const mt = {
                 (...v) => i(l).togglePickMode && i(l).togglePickMode(...v)),
                 class: te(["di-pick-btn", { active: i(l).isPickMode }])
               }, [
-                M(i(dt), { style: { width: "16px", height: "16px" } }),
+                _(i(dt), { style: { width: "16px", height: "16px" } }),
                 e("span", null, f(i(l).isPickMode ? "要素選択中..." : "任意の要素にメモを追加"), 1)
               ], 2),
               e("div", gt, [
@@ -887,7 +887,7 @@ const mt = {
                   disabled: i(l).isScanning,
                   title: "既存の設定をクリアして再スキャン"
                 }, [
-                  M(i(Ie), { style: { width: "16px", height: "16px" } }),
+                  _(i(Ie), { style: { width: "16px", height: "16px" } }),
                   n[16] || (n[16] = e("span", null, "再スキャン", -1))
                 ], 8, wt)
               ]),
@@ -909,12 +909,12 @@ const mt = {
                   e("span", null, f(i(l).currentScanPage ? `${i(l).currentScanPage}` : "全ページスキャン"), 1)
                 ], 8, Ct)
               ]),
-              I.value && (w.value > 0 || _.value.length > 0) ? (o(), u("div", It, [
-                w.value > 0 ? (o(), u("div", Mt, [
-                  e("span", _t, f(w.value), 1),
+              I.value && (w.value > 0 || M.value.length > 0) ? (o(), u("div", It, [
+                w.value > 0 ? (o(), u("div", _t, [
+                  e("span", Mt, f(w.value), 1),
                   n[17] || (n[17] = e("span", null, "件の要素を検出・登録しました", -1))
                 ])) : y("", !0),
-                (o(!0), u(V, null, le(_.value, (v) => (o(), u("div", {
+                (o(!0), u(V, null, le(M.value, (v) => (o(), u("div", {
                   key: v.page,
                   class: "di-scan-result-item"
                 }, [
@@ -923,14 +923,14 @@ const mt = {
                 ]))), 128)),
                 e("button", {
                   onClick: n[5] || (n[5] = (v) => {
-                    I.value = !1, _.value = [];
+                    I.value = !1, M.value = [];
                   }),
                   class: "di-scan-close"
                 }, " 閉じる ")
               ])) : y("", !0),
               e("div", Pt, [
                 e("div", St, [
-                  M(i(Ve), { style: { width: "16px", height: "16px", color: "#3b82f6" } }),
+                  _(i(Ve), { style: { width: "16px", height: "16px", color: "#3b82f6" } }),
                   n[18] || (n[18] = e("span", null, "CLIソース解析", -1))
                 ]),
                 e("div", Dt, [
@@ -964,7 +964,7 @@ const mt = {
                     class: "di-analysis-btn di-analysis-btn-apply",
                     disabled: !i(l).analysisData
                   }, [
-                    M(i(Ie), { style: { width: "14px", height: "14px" } }),
+                    _(i(Ie), { style: { width: "14px", height: "14px" } }),
                     n[20] || (n[20] = e("span", null, "ページに適用", -1))
                   ], 8, Ut)
                 ]),
@@ -1000,7 +1000,7 @@ const mt = {
                       class: "di-export-changes-btn",
                       title: "削除した要素をエクスポート (CLI merge用)"
                     }, [
-                      M(i(me), { style: { width: "12px", height: "12px" } }),
+                      _(i(me), { style: { width: "12px", height: "12px" } }),
                       n[21] || (n[21] = e("span", null, "変更をエクスポート", -1))
                     ])
                   ])) : y("", !0)
@@ -1015,14 +1015,14 @@ const mt = {
                 ]),
                 e("div", Yt, [
                   e("div", Zt, [
-                    M(i(Te), { style: { width: "16px", height: "16px" } }),
+                    _(i(Te), { style: { width: "16px", height: "16px" } }),
                     n[23] || (n[23] = e("span", null, "Component Path", -1))
                   ]),
                   e("code", Jt, f(C.value.componentPath), 1)
                 ]),
                 C.value.figmaUrl ? (o(), u("div", Wt, [
                   e("div", Qt, [
-                    M(i(et), { style: { width: "16px", height: "16px" } }),
+                    _(i(et), { style: { width: "16px", height: "16px" } }),
                     n[24] || (n[24] = e("span", null, "Figma Design", -1))
                   ]),
                   e("a", {
@@ -1033,7 +1033,7 @@ const mt = {
                 ])) : y("", !0),
                 C.value.apis.length ? (o(), u("div", tl, [
                   e("div", ll, [
-                    M(i(Ve), { style: { width: "16px", height: "16px" } }),
+                    _(i(Ve), { style: { width: "16px", height: "16px" } }),
                     n[25] || (n[25] = e("span", null, "API Endpoints", -1))
                   ]),
                   e("div", sl, [
@@ -1054,7 +1054,7 @@ const mt = {
                 ])) : y("", !0),
                 (Q = C.value.notes) != null && Q.length ? (o(), u("div", ol, [
                   e("div", dl, [
-                    M(i(Je), { style: { width: "16px", height: "16px" } }),
+                    _(i(Je), { style: { width: "16px", height: "16px" } }),
                     n[26] || (n[26] = e("span", null, "Notes", -1))
                   ]),
                   e("ul", ul, [
@@ -1068,7 +1068,7 @@ const mt = {
                   ])
                 ])) : y("", !0)
               ], 64)) : (o(), u("div", rl, [
-                M(i(Le), { style: { width: "48px", height: "48px", color: "#334155" } }),
+                _(i(Le), { style: { width: "48px", height: "48px", color: "#334155" } }),
                 n[28] || (n[28] = e("p", null, [
                   O("この画面の仕様情報は"),
                   e("br"),
@@ -1078,7 +1078,7 @@ const mt = {
               e("div", cl, [
                 e("div", vl, [
                   e("div", pl, [
-                    M(i(ut), { style: { width: "16px", height: "16px" } }),
+                    _(i(ut), { style: { width: "16px", height: "16px" } }),
                     n[29] || (n[29] = e("span", null, "登録済み要素", -1)),
                     e("span", yl, f(b.value), 1)
                   ])
@@ -1088,14 +1088,14 @@ const mt = {
                     onClick: H,
                     class: "di-btn-green"
                   }, [
-                    M(i(lt), { style: { width: "16px", height: "16px" } }),
+                    _(i(lt), { style: { width: "16px", height: "16px" } }),
                     n[30] || (n[30] = O(" Git管理用に保存 ", -1))
                   ]),
                   e("button", {
                     onClick: G,
                     class: "di-btn-blue"
                   }, [
-                    M(i(tt), { style: { width: "16px", height: "16px" } }),
+                    _(i(tt), { style: { width: "16px", height: "16px" } }),
                     n[31] || (n[31] = O(" 画面仕様書 (xlsx) 出力 ", -1))
                   ])
                 ])) : y("", !0),
@@ -1109,14 +1109,14 @@ const mt = {
                     onClick: n[8] || (n[8] = (v) => k.value = !0),
                     class: "di-btn-small"
                   }, [
-                    M(i(me), { style: { width: "14px", height: "14px" } }),
+                    _(i(me), { style: { width: "14px", height: "14px" } }),
                     n[33] || (n[33] = O(" エクスポート ", -1))
                   ]),
                   e("button", {
                     onClick: n[9] || (n[9] = (v) => E.value = !0),
                     class: "di-btn-small"
                   }, [
-                    M(i(vt), { style: { width: "14px", height: "14px" } }),
+                    _(i(vt), { style: { width: "14px", height: "14px" } }),
                     n[34] || (n[34] = O(" インポート ", -1))
                   ]),
                   b.value > 0 ? (o(), u("button", {
@@ -1124,7 +1124,7 @@ const mt = {
                     onClick: a,
                     class: "di-btn-small di-btn-danger"
                   }, [
-                    M(i(je), { style: { width: "14px", height: "14px" } }),
+                    _(i(je), { style: { width: "14px", height: "14px" } }),
                     n[35] || (n[35] = O(" 全削除 ", -1))
                   ])) : y("", !0)
                 ])
@@ -1169,7 +1169,7 @@ const mt = {
                   onClick: W,
                   class: "di-btn-small di-btn-gray"
                 }, [
-                  M(i(me), { style: { width: "14px", height: "14px" } }),
+                  _(i(me), { style: { width: "14px", height: "14px" } }),
                   n[38] || (n[38] = O(" ファイル保存 ", -1))
                 ]),
                 e("button", {
@@ -1216,7 +1216,7 @@ const mt = {
                   onClick: g,
                   disabled: !A.value,
                   class: "di-btn-small di-btn-primary"
-                }, " インポート ", 8, Ml)
+                }, " インポート ", 8, _l)
               ])
             ])
           ])) : y("", !0)
@@ -1224,12 +1224,12 @@ const mt = {
       ], 64);
     };
   }
-}), _e = (h, l) => {
+}), Me = (h, l) => {
   const c = h.__vccOpts || h;
   for (const [k, E] of l)
     c[k] = E;
   return c;
-}, El = /* @__PURE__ */ _e(_l, [["__scopeId", "data-v-d57ef689"]]), Pl = { class: "di-editor-modal" }, Sl = { class: "di-editor-header" }, Dl = { class: "di-header-actions" }, Al = {
+}, El = /* @__PURE__ */ Me(Ml, [["__scopeId", "data-v-d57ef689"]]), Pl = { class: "di-editor-modal" }, Sl = { class: "di-editor-header" }, Dl = { class: "di-header-actions" }, Al = {
   key: 0,
   class: "di-static-indicator"
 }, Tl = {
@@ -1262,10 +1262,10 @@ const mt = {
 }, vs = {
   key: 1,
   class: "di-form-group"
-}, ps = { class: "di-form-label" }, ys = ["placeholder"], bs = { class: "di-form-group" }, ms = { class: "di-form-group" }, fs = { class: "di-form-group" }, hs = { class: "di-form-row" }, ks = { class: "di-form-group" }, gs = { class: "di-form-group" }, xs = { class: "di-form-group" }, ws = { class: "di-form-group" }, $s = { class: "di-form-group" }, Cs = { class: "di-form-group" }, Is = { class: "di-form-group" }, Ms = { class: "di-form-group" }, _s = { class: "di-form-group" }, Es = { class: "di-editor-footer" }, Ps = { class: "di-editor-actions" }, Ss = /* @__PURE__ */ ke({
+}, ps = { class: "di-form-label" }, ys = ["placeholder"], bs = { class: "di-form-group" }, ms = { class: "di-form-group" }, fs = { class: "di-form-group" }, hs = { class: "di-form-row" }, ks = { class: "di-form-group" }, gs = { class: "di-form-group" }, xs = { class: "di-form-group" }, ws = { class: "di-form-group" }, $s = { class: "di-form-group" }, Cs = { class: "di-form-group" }, Is = { class: "di-form-group" }, _s = { class: "di-form-group" }, Ms = { class: "di-form-group" }, Es = { class: "di-editor-footer" }, Ps = { class: "di-editor-actions" }, Ss = /* @__PURE__ */ ke({
   __name: "DevElementEditor",
   setup(h) {
-    const l = ge(), c = p("note"), k = p(""), E = p(""), A = p(""), R = p(""), j = p(""), C = p("navigate"), b = p(""), J = p("GET"), W = p(""), H = p(""), G = p(""), g = p("info"), d = p(""), a = p(""), w = p(""), I = p(""), _ = p(""), $ = p(""), T = p(""), L = p(""), P = p(""), x = p(""), z = p(""), m = p(""), F = p(""), K = p(!1), Y = ne(() => l.editingElementId !== null), N = ne(() => l.editingElementId);
+    const l = ge(), c = p("note"), k = p(""), E = p(""), A = p(""), R = p(""), j = p(""), C = p("navigate"), b = p(""), J = p("GET"), W = p(""), H = p(""), G = p(""), g = p("info"), d = p(""), a = p(""), w = p(""), I = p(""), M = p(""), $ = p(""), T = p(""), L = p(""), P = p(""), x = p(""), z = p(""), m = p(""), F = p(""), K = p(!1), Y = ne(() => l.editingElementId !== null), N = ne(() => l.editingElementId);
     Be(N, (q) => {
       var t, s, de, ce, ve, ee;
       if (q) {
@@ -1287,12 +1287,12 @@ const mt = {
         } catch (ae) {
           console.warn("[DevInspector] Failed to read data-di-* attributes:", ae);
         }
-        r != null && r.fieldInfo && (k.value = r.fieldInfo.table || k.value, E.value = r.fieldInfo.column || E.value, A.value = r.fieldInfo.type || "", R.value = ((t = r.fieldInfo.validation) == null ? void 0 : t.join(", ")) || "", j.value = r.fieldInfo.description || j.value), r != null && r.actionInfo && (C.value = r.actionInfo.type || "navigate", b.value = r.actionInfo.target || "", J.value = r.actionInfo.method || "GET", W.value = r.actionInfo.description || ""), r != null && r.note && (H.value = r.note.text || H.value, G.value = r.note.author || "", g.value = r.note.type || "info"), r != null && r.links && (d.value = r.links.testPath || "", a.value = r.links.figmaUrl || "", w.value = r.links.githubIssue || "", I.value = r.links.githubPr || "", _.value = r.links.relatedDocs || ""), r != null && r.devMeta && ($.value = ((s = r.devMeta.usedStores) == null ? void 0 : s.join(", ")) || "", T.value = ((de = r.devMeta.usedComponents) == null ? void 0 : de.join(", ")) || T.value, L.value = ((ce = r.devMeta.i18nKeys) == null ? void 0 : ce.join(", ")) || "", P.value = ((ve = r.devMeta.designTokens) == null ? void 0 : ve.join(", ")) || "", x.value = r.devMeta.accessibility || "", z.value = r.devMeta.responsive || ""), r != null && r.sourceBinding && (m.value = r.sourceBinding.type || m.value, F.value = r.sourceBinding.source || F.value, K.value = r.sourceBinding.isStatic || !1), pe || ((ee = r == null ? void 0 : r.note) != null && ee.text ? c.value = "note" : r != null && r.fieldInfo ? c.value = "field" : r != null && r.actionInfo ? c.value = "action" : r != null && r.links ? c.value = "links" : r != null && r.devMeta ? c.value = "meta" : c.value = "note");
+        r != null && r.fieldInfo && (k.value = r.fieldInfo.table || k.value, E.value = r.fieldInfo.column || E.value, A.value = r.fieldInfo.type || "", R.value = ((t = r.fieldInfo.validation) == null ? void 0 : t.join(", ")) || "", j.value = r.fieldInfo.description || j.value), r != null && r.actionInfo && (C.value = r.actionInfo.type || "navigate", b.value = r.actionInfo.target || "", J.value = r.actionInfo.method || "GET", W.value = r.actionInfo.description || ""), r != null && r.note && (H.value = r.note.text || H.value, G.value = r.note.author || "", g.value = r.note.type || "info"), r != null && r.links && (d.value = r.links.testPath || "", a.value = r.links.figmaUrl || "", w.value = r.links.githubIssue || "", I.value = r.links.githubPr || "", M.value = r.links.relatedDocs || ""), r != null && r.devMeta && ($.value = ((s = r.devMeta.usedStores) == null ? void 0 : s.join(", ")) || "", T.value = ((de = r.devMeta.usedComponents) == null ? void 0 : de.join(", ")) || T.value, L.value = ((ce = r.devMeta.i18nKeys) == null ? void 0 : ce.join(", ")) || "", P.value = ((ve = r.devMeta.designTokens) == null ? void 0 : ve.join(", ")) || "", x.value = r.devMeta.accessibility || "", z.value = r.devMeta.responsive || ""), r != null && r.sourceBinding && (m.value = r.sourceBinding.type || m.value, F.value = r.sourceBinding.source || F.value, K.value = r.sourceBinding.isStatic || !1), pe || ((ee = r == null ? void 0 : r.note) != null && ee.text ? c.value = "note" : r != null && r.fieldInfo ? c.value = "field" : r != null && r.actionInfo ? c.value = "action" : r != null && r.links ? c.value = "links" : r != null && r.devMeta ? c.value = "meta" : c.value = "note");
       } else
         B();
     });
     function B() {
-      k.value = "", E.value = "", A.value = "", R.value = "", j.value = "", C.value = "navigate", b.value = "", J.value = "GET", W.value = "", H.value = "", G.value = "", g.value = "info", d.value = "", a.value = "", w.value = "", I.value = "", _.value = "", $.value = "", T.value = "", L.value = "", P.value = "", x.value = "", z.value = "", m.value = "", F.value = "", K.value = !1, c.value = "note";
+      k.value = "", E.value = "", A.value = "", R.value = "", j.value = "", C.value = "navigate", b.value = "", J.value = "GET", W.value = "", H.value = "", G.value = "", g.value = "info", d.value = "", a.value = "", w.value = "", I.value = "", M.value = "", $.value = "", T.value = "", L.value = "", P.value = "", x.value = "", z.value = "", m.value = "", F.value = "", K.value = !1, c.value = "note";
     }
     function n() {
       l.stopEditing(), B();
@@ -1326,12 +1326,12 @@ const mt = {
         text: H.value,
         author: G.value || void 0,
         type: g.value
-      } : void 0, de = d.value || a.value || w.value || I.value || _.value ? {
+      } : void 0, de = d.value || a.value || w.value || I.value || M.value ? {
         testPath: d.value || void 0,
         figmaUrl: a.value || void 0,
         githubIssue: w.value || void 0,
         githubPr: I.value || void 0,
-        relatedDocs: _.value || void 0
+        relatedDocs: M.value || void 0
       } : void 0, ce = $.value || T.value || L.value || P.value || x.value || z.value ? {
         usedStores: $.value ? $.value.split(",").map((ee) => ee.trim()) : void 0,
         usedComponents: T.value ? T.value.split(",").map((ee) => ee.trim()) : void 0,
@@ -1424,13 +1424,13 @@ const mt = {
                 class: "di-btn-auto",
                 title: "自動検出"
               }, [
-                M(i(pt), { style: { width: "16px", height: "16px" } })
+                _(i(pt), { style: { width: "16px", height: "16px" } })
               ]),
               e("button", {
                 onClick: n,
                 class: "di-editor-close"
               }, [
-                M(i(Me), { style: { width: "20px", height: "20px" } })
+                _(i(_e), { style: { width: "20px", height: "20px" } })
               ])
             ])
           ]),
@@ -1449,7 +1449,7 @@ const mt = {
               class: te(["di-editor-tab", { active: c.value === "note" }]),
               style: Z(c.value === "note" ? { color: "#10b981", borderColor: "#10b981", background: "rgba(16, 185, 129, 0.1)" } : {})
             }, [
-              M(i(ot), { style: { width: "12px", height: "12px" } }),
+              _(i(ot), { style: { width: "12px", height: "12px" } }),
               t[33] || (t[33] = O(" メモ ", -1))
             ], 6),
             Oe.value || Ee.value || k.value ? (o(), u("button", {
@@ -1458,7 +1458,7 @@ const mt = {
               class: te(["di-editor-tab", { active: c.value === "field" }]),
               style: Z(c.value === "field" ? { color: "#60a5fa", borderColor: "#60a5fa", background: "rgba(96, 165, 250, 0.1)" } : {})
             }, [
-              M(i(Ue), { style: { width: "12px", height: "12px" } }),
+              _(i(Ue), { style: { width: "12px", height: "12px" } }),
               t[34] || (t[34] = O(" データ ", -1))
             ], 6)) : y("", !0),
             e("button", {
@@ -1466,7 +1466,7 @@ const mt = {
               class: te(["di-editor-tab", { active: c.value === "action" }]),
               style: Z(c.value === "action" ? { color: "#a78bfa", borderColor: "#a78bfa", background: "rgba(167, 139, 250, 0.1)" } : {})
             }, [
-              M(i(yt), { style: { width: "12px", height: "12px" } }),
+              _(i(yt), { style: { width: "12px", height: "12px" } }),
               t[35] || (t[35] = O(" アクション ", -1))
             ], 6),
             e("button", {
@@ -1474,7 +1474,7 @@ const mt = {
               class: te(["di-editor-tab", { active: c.value === "links" }]),
               style: Z(c.value === "links" ? { color: "#f59e0b", borderColor: "#f59e0b", background: "rgba(245, 158, 11, 0.1)" } : {})
             }, [
-              M(i(at), { style: { width: "12px", height: "12px" } }),
+              _(i(at), { style: { width: "12px", height: "12px" } }),
               t[36] || (t[36] = O(" リンク ", -1))
             ], 6),
             e("button", {
@@ -1482,7 +1482,7 @@ const mt = {
               class: te(["di-editor-tab", { active: c.value === "meta" }]),
               style: Z(c.value === "meta" ? { color: "#ec4899", borderColor: "#ec4899", background: "rgba(236, 72, 153, 0.1)" } : {})
             }, [
-              M(i(ct), { style: { width: "12px", height: "12px" } }),
+              _(i(ct), { style: { width: "12px", height: "12px" } }),
               t[37] || (t[37] = O(" 開発情報 ", -1))
             ], 6)
           ]),
@@ -1533,7 +1533,7 @@ const mt = {
               Ee.value ? (o(), u("div", Hl, [
                 e("div", zl, [
                   e("label", Fl, [
-                    M(i(Ue), { style: { width: "12px", height: "12px", display: "inline", "vertical-align": "middle" } }),
+                    _(i(Ue), { style: { width: "12px", height: "12px", display: "inline", "vertical-align": "middle" } }),
                     t[41] || (t[41] = O(" schema.rb から選択 ", -1))
                   ]),
                   e("div", Nl, [
@@ -1553,7 +1553,7 @@ const mt = {
                       }),
                       class: "di-binding-clear"
                     }, [
-                      M(i(Me), { style: { width: "14px", height: "14px" } })
+                      _(i(_e), { style: { width: "14px", height: "14px" } })
                     ])) : y("", !0)
                   ]),
                   re.value && we.value.length > 0 ? (o(), u("div", Gl, [
@@ -1750,12 +1750,12 @@ const mt = {
               e("div", xs, [
                 t[57] || (t[57] = e("label", { class: "di-form-label" }, "関連ドキュメント", -1)),
                 D(e("input", {
-                  "onUpdate:modelValue": t[24] || (t[24] = (s) => _.value = s),
+                  "onUpdate:modelValue": t[24] || (t[24] = (s) => M.value = s),
                   type: "text",
                   placeholder: "https://docs.example.com/...",
                   class: "di-input"
                 }, null, 512), [
-                  [U, _.value]
+                  [U, M.value]
                 ])
               ])
             ], 64)) : y("", !0),
@@ -1804,7 +1804,7 @@ const mt = {
                   [U, P.value]
                 ])
               ]),
-              e("div", Ms, [
+              e("div", _s, [
                 t[62] || (t[62] = e("label", { class: "di-form-label" }, "アクセシビリティ", -1)),
                 D(e("textarea", {
                   "onUpdate:modelValue": t[29] || (t[29] = (s) => x.value = s),
@@ -1815,7 +1815,7 @@ const mt = {
                   [U, x.value]
                 ])
               ]),
-              e("div", _s, [
+              e("div", Ms, [
                 t[63] || (t[63] = e("label", { class: "di-form-label" }, "レスポンシブ動作", -1)),
                 D(e("textarea", {
                   "onUpdate:modelValue": t[30] || (t[30] = (s) => z.value = s),
@@ -1833,7 +1833,7 @@ const mt = {
               onClick: ie,
               class: "di-btn-delete"
             }, [
-              M(i(je), { style: { width: "14px", height: "14px" } }),
+              _(i(je), { style: { width: "14px", height: "14px" } }),
               t[64] || (t[64] = O(" 削除 ", -1))
             ]),
             e("div", Ps, [
@@ -1845,7 +1845,7 @@ const mt = {
                 onClick: v,
                 class: "di-btn-save"
               }, [
-                M(i(rt), { style: { width: "14px", height: "14px" } }),
+                _(i(rt), { style: { width: "14px", height: "14px" } }),
                 t[65] || (t[65] = O(" 保存 ", -1))
               ])
             ])
@@ -1854,7 +1854,7 @@ const mt = {
       ])) : y("", !0)
     ]));
   }
-}), Ds = /* @__PURE__ */ _e(Ss, [["__scopeId", "data-v-28a37438"]]), As = {
+}), Ds = /* @__PURE__ */ Me(Ss, [["__scopeId", "data-v-28a37438"]]), As = {
   key: 0,
   "data-dev-inspector": "",
   class: "di-loading-overlay"
@@ -1893,7 +1893,7 @@ const mt = {
       return d.sourceBinding.isStatic ? "#10b981" : d.sourceBinding.type === "v-model" ? "#8b5cf6" : d.sourceBinding.type === "api" ? "#f59e0b" : "#60a5fa";
     }
     const j = ne(() => {
-      var I, _, $, T, L;
+      var I, M, $, T, L;
       const g = E.value, d = A.value, a = [];
       if (!l.isEnabled) return a;
       const w = l.getConfiguredSelectors();
@@ -1901,7 +1901,7 @@ const mt = {
         try {
           const x = document.querySelector(P);
           if (x) {
-            const z = x.getBoundingClientRect(), m = l.getElementConfig(P), F = ((I = m == null ? void 0 : m.sourceBinding) == null ? void 0 : I.isStatic) || !1, K = ((_ = m == null ? void 0 : m.sourceBinding) == null ? void 0 : _.type) || "";
+            const z = x.getBoundingClientRect(), m = l.getElementConfig(P), F = ((I = m == null ? void 0 : m.sourceBinding) == null ? void 0 : I.isStatic) || !1, K = ((M = m == null ? void 0 : m.sourceBinding) == null ? void 0 : M.type) || "";
             let Y = "";
             ($ = m == null ? void 0 : m.fieldInfo) != null && $.table && ((T = m == null ? void 0 : m.fieldInfo) != null && T.column) ? Y = `DB: ${m.fieldInfo.table}.${m.fieldInfo.column}` : F ? Y = "固定" : K === "v-model" ? Y = "フォーム" : K === "api" ? Y = "データ" : (L = m == null ? void 0 : m.note) != null && L.type ? Y = {
               info: "情報",
@@ -1928,9 +1928,9 @@ const mt = {
       if (!l.isEnabled || l.scanResults.length === 0) return a;
       for (const I of l.scanResults)
         try {
-          const _ = document.querySelector(I.selector);
-          if (_) {
-            const $ = _.getBoundingClientRect();
+          const M = document.querySelector(I.selector);
+          if (M) {
+            const $ = M.getBoundingClientRect();
             a.push({
               selector: I.selector,
               top: `${$.top + g}px`,
@@ -1948,7 +1948,7 @@ const mt = {
       if (w === "none" || !l.isEnabled || l.analysisResults.length === 0) return a;
       for (const I of l.analysisResults) {
         if (!I.matched) continue;
-        const _ = I.element;
+        const M = I.element;
         try {
           const $ = document.querySelector(I.selector);
           if (!$) continue;
@@ -1956,14 +1956,14 @@ const mt = {
           if (T.width > window.innerWidth * 0.8 || T.height > window.innerHeight * 0.5)
             continue;
           const L = $.querySelector("[data-di-binding]") || ($.hasAttribute("data-di-binding") ? $ : null);
-          let P = "", x = _.type, z = _.binding || "";
+          let P = "", x = M.type, z = M.binding || "";
           if (L) {
             const B = L.getAttribute("data-di-db"), n = L.getAttribute("data-di-binding");
             B && (P = B, x = "data"), n && (z = n, P || (x = "data"));
           }
-          !P && _.db && (P = `${_.db.table}.${_.db.column}`);
+          !P && M.db && (P = `${M.db.table}.${M.db.column}`);
           let m = "";
-          _.api && (m = `${_.api.method} ${_.api.endpoint}`);
+          M.api && (m = `${M.api.method} ${M.api.endpoint}`);
           const F = !!P, K = !!m, Y = x === "static", N = x === "data";
           if (w === "db-api") {
             if (!F && !K) continue;
@@ -1980,7 +1980,7 @@ const mt = {
             width: `${T.width}px`,
             height: `${T.height}px`,
             type: x,
-            text: _.text || z || "",
+            text: M.text || z || "",
             dbInfo: P,
             apiInfo: m
           });
@@ -2032,7 +2032,7 @@ const mt = {
     }), Be(() => l.isPickMode, (g) => {
       g || (c.value = null, k.value = null);
     }), (g, d) => (o(), X(oe, { to: "body" }, [
-      i(l).isInitializing ? (o(), u("div", As, [...d[2] || (d[2] = [
+      i(l).isInitializing ? (o(), u("div", As, [...d[1] || (d[1] = [
         e("div", { class: "di-loading-content" }, [
           e("div", { class: "di-loading-spinner" }),
           e("span", { class: "di-loading-text" }, "Developer Mode 起動中...")
@@ -2051,7 +2051,7 @@ const mt = {
       }, [
         e("div", Ts, f(i(l).hoveredSelector), 1)
       ], 4)) : y("", !0),
-      i(l).isPickMode ? (o(), u("div", Us, [...d[3] || (d[3] = [
+      i(l).isPickMode ? (o(), u("div", Us, [...d[2] || (d[2] = [
         e("span", null, "要素をクリックしてメモを追加", -1),
         e("kbd", null, "ESC", -1),
         e("span", { class: "di-pick-hint" }, "でキャンセル", -1)
@@ -2133,16 +2133,12 @@ const mt = {
           a.text && a.text.length < 30 ? (o(), u("div", Hs, f(a.text), 1)) : y("", !0)
         ], 14, Rs))), 128)),
         e("div", zs, [
-          e("span", null, "📊 分析データ: " + f(b.value.length) + "件の要素", 1),
-          e("button", {
-            onClick: d[1] || (d[1] = (a) => i(l).clearAnalysisResults()),
-            class: "di-analysis-banner-close"
-          }, "✕ 閉じる")
+          e("span", null, "📊 分析データ: " + f(b.value.length) + "件の要素", 1)
         ])
       ], 64)) : y("", !0)
     ]));
   }
-}), Ns = /* @__PURE__ */ _e(Fs, [["__scopeId", "data-v-6f59c92a"]]), Gs = {
+}), Ns = /* @__PURE__ */ Me(Fs, [["__scopeId", "data-v-067eaf61"]]), Gs = {
   key: 0,
   "data-dev-inspector": ""
 }, Xs = /* @__PURE__ */ ke({
@@ -2165,9 +2161,9 @@ const mt = {
         initialAnnotations: l.initialAnnotations
       });
     }), (k, E) => i(c).isAvailable ? (o(), u("div", Gs, [
-      M(El),
-      M(Ds),
-      M(Ns)
+      _(El),
+      _(Ds),
+      _(Ns)
     ])) : y("", !0);
   }
 }), Zs = {

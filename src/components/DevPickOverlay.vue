@@ -474,7 +474,6 @@ watch(() => store.isPickMode, (isPicking) => {
       <!-- Analysis results banner -->
       <div data-dev-inspector class="di-analysis-banner">
         <span>📊 分析データ: {{ analysisHighlights.length }}件の要素</span>
-        <button @click="store.clearAnalysisResults()" class="di-analysis-banner-close">✕ 閉じる</button>
       </div>
     </template>
   </Teleport>
