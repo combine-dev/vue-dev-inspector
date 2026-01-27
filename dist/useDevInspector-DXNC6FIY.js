@@ -167,8 +167,8 @@ const Be = {}, Fe = "devInspector:elementConfigs", ze = _e("devInspector", () =>
       return null;
     const o = e.__vueParentComponent;
     if (o) {
-      const r = o.props || {}, m = o.attrs || {};
-      if ("modelValue" in r || "model-value" in m)
+      const m = o.props || {}, u = o.attrs || {};
+      if ("modelValue" in m || "model-value" in u)
         return {
           type: "v-model",
           source: "form binding detected",
@@ -176,10 +176,10 @@ const Be = {}, Fe = "devInspector:elementConfigs", ze = _e("devInspector", () =>
         };
     }
     if (t === "INPUT" || t === "SELECT" || t === "TEXTAREA") {
-      const r = e.type || "text", m = e.placeholder || "";
+      const m = e.type || "text", u = e.placeholder || "";
       return {
         type: "v-model",
-        source: `${t.toLowerCase()}[type=${r}]${m ? ` placeholder="${m}"` : ""}`,
+        source: `${t.toLowerCase()}[type=${m}]${u ? ` placeholder="${u}"` : ""}`,
         isStatic: !1
       };
     }
@@ -218,12 +218,12 @@ const Be = {}, Fe = "devInspector:elementConfigs", ze = _e("devInspector", () =>
       '[role="row"]',
       '[role="gridcell"]'
     ];
-    for (const r of a) {
-      const m = e.closest(r);
-      if (m) {
-        const b = m.parentElement;
-        if (b && Array.from(b.children).filter(
-          (T) => T !== m && T.className === m.className
+    for (const m of a) {
+      const u = e.closest(m);
+      if (u) {
+        const h = u.parentElement;
+        if (h && Array.from(h.children).filter(
+          (T) => T !== u && T.className === u.className
         ).length > 0)
           return {
             type: "api",
@@ -239,8 +239,8 @@ const Be = {}, Fe = "devInspector:elementConfigs", ze = _e("devInspector", () =>
         isStatic: !1
       };
     if (e.parentElement) {
-      const r = e.parentElement, b = Array.from(r.children).filter((S) => S.tagName === e.tagName);
-      if (b.length >= 2 && b.filter(
+      const m = e.parentElement, h = Array.from(m.children).filter((S) => S.tagName === e.tagName);
+      if (h.length >= 2 && h.filter(
         (T) => T.children.length === e.children.length
       ).length >= 2)
         return {
@@ -279,14 +279,14 @@ const Be = {}, Fe = "devInspector:elementConfigs", ze = _e("devInspector", () =>
       /^第?\d+/
       // Numbered items
     ];
-    for (const r of f)
-      if (r.test(n))
+    for (const m of f)
+      if (m.test(n))
         return {
           type: "api",
           source: "dynamic data pattern",
           isStatic: !1
         };
-    const u = [
+    const r = [
       /^[\u4e00-\u9faf]{2,4}$/,
       // Japanese Kanji names (2-4 chars)
       /^[\u3040-\u309f\u30a0-\u30ff]{2,6}$/,
@@ -294,14 +294,14 @@ const Be = {}, Fe = "devInspector:elementConfigs", ze = _e("devInspector", () =>
       /^[A-Z][a-z]+ [A-Z][a-z]+$/
       // English names like "John Smith"
     ];
-    for (const r of u)
-      if (r.test(n))
+    for (const m of r)
+      if (m.test(n))
         return {
           type: "api",
           source: "name pattern",
           isStatic: !1
         };
-    const p = ["LABEL", "TH", "LEGEND", "FIGCAPTION"].includes(t), y = [
+    const p = ["LABEL", "TH", "LEGEND", "FIGCAPTION"].includes(t), b = [
       /^(保存|キャンセル|閉じる|開く|編集|削除|追加|検索|送信|確認|戻る|次へ|完了|OK|Yes|No|Cancel|Save|Submit|Close|Open|Edit|Delete|Add|Search|Back|Next|Done)$/,
       /^[\u30a0-\u30ff]+$/,
       // Pure katakana (often UI labels)
@@ -313,8 +313,8 @@ const Be = {}, Fe = "devInspector:elementConfigs", ze = _e("devInspector", () =>
       // Ends with 設定
       /情報$/
       // Ends with 情報
-    ].some((r) => r.test(n)), w = t === "BUTTON" || e.closest("button") !== null || e.getAttribute("role") === "button";
-    return p || y || w && n.length < 20 ? {
+    ].some((m) => m.test(n)), w = t === "BUTTON" || e.closest("button") !== null || e.getAttribute("role") === "button";
+    return p || b || w && n.length < 20 ? {
       type: "static",
       source: n.substring(0, 50) + (n.length > 50 ? "..." : ""),
       isStatic: !0
@@ -329,26 +329,27 @@ const Be = {}, Fe = "devInspector:elementConfigs", ze = _e("devInspector", () =>
     } : null;
   }
   function G(e, n) {
-    var p, h, y, w, N;
-    const t = {}, o = ((p = e.textContent) == null ? void 0 : p.trim()) || "", s = e.getAttribute("data-di-binding");
+    var y, b, w, N, m;
+    const t = {}, o = ((y = e.textContent) == null ? void 0 : y.trim()) || "", s = e.getAttribute("data-di-binding");
     e.getAttribute("data-di-db"), e.getAttribute("data-di-component"), e.getAttribute("data-di-db-comment");
     let i = e;
     if (!s) {
-      const r = e.closest("[data-di-binding]");
-      r && (i = r);
+      const u = e.closest("[data-di-binding]");
+      u && (i = u);
     }
-    const a = i.getAttribute("data-di-binding"), l = i.getAttribute("data-di-db"), f = i.getAttribute("data-di-component"), u = i.getAttribute("data-di-db-comment");
+    const a = i.getAttribute("data-di-binding"), l = i.getAttribute("data-di-db"), f = i.getAttribute("data-di-component"), r = i.getAttribute("data-di-db-type"), c = i.getAttribute("data-di-db-comment");
     if (a || l) {
       if (t.sourceBinding = {
         type: "api",
         source: a || void 0,
         isStatic: !1
       }, l) {
-        const [r, m] = l.split(".");
-        r && m && (t.fieldInfo = {
-          table: r,
-          column: m,
-          description: u || void 0
+        const [u, h] = l.split(".");
+        u && h && (t.fieldInfo = {
+          table: u,
+          column: h,
+          type: r || void 0,
+          description: c || void 0
         });
       }
       return f && (t.devMeta = {
@@ -358,23 +359,23 @@ const Be = {}, Fe = "devInspector:elementConfigs", ze = _e("devInspector", () =>
         text: `【データバインディング】${a}${l ? ` → ${l}` : ""}`
       }, t;
     }
-    const c = K(e);
-    if (c)
-      if (t.sourceBinding = c, c.isStatic)
+    const p = K(e);
+    if (p)
+      if (t.sourceBinding = p, p.isStatic)
         t.note = {
           type: "info",
           text: `【固定文言】${o}`
         };
-      else if (c.type === "v-model") {
-        const r = e.tagName.toUpperCase();
-        if (r === "INPUT" || r === "SELECT" || r === "TEXTAREA") {
-          const m = e.placeholder || "", b = ((y = (h = e.closest("label")) == null ? void 0 : h.textContent) == null ? void 0 : y.trim()) || e.getAttribute("aria-label") || ((N = (w = document.querySelector(`label[for="${e.id}"]`)) == null ? void 0 : w.textContent) == null ? void 0 : N.trim()) || "";
+      else if (p.type === "v-model") {
+        const u = e.tagName.toUpperCase();
+        if (u === "INPUT" || u === "SELECT" || u === "TEXTAREA") {
+          const h = e.placeholder || "", S = ((w = (b = e.closest("label")) == null ? void 0 : b.textContent) == null ? void 0 : w.trim()) || e.getAttribute("aria-label") || ((m = (N = document.querySelector(`label[for="${e.id}"]`)) == null ? void 0 : N.textContent) == null ? void 0 : m.trim()) || "";
           t.note = {
             type: "todo",
-            text: `【フォーム要素】${b || m || r.toLowerCase()}`
+            text: `【フォーム要素】${S || h || u.toLowerCase()}`
           };
         }
-      } else c.type === "api" && (t.note = {
+      } else p.type === "api" && (t.note = {
         type: "question",
         text: `【動的データ】${o.substring(0, 100)}${o.length > 100 ? "..." : ""}`
       });
@@ -421,38 +422,38 @@ const Be = {}, Fe = "devInspector:elementConfigs", ze = _e("devInspector", () =>
         '[role="link"]',
         '[role="menuitem"]'
       ].join(","), o = document.querySelectorAll(t), s = [];
-      o.forEach((u) => {
-        var m;
-        const c = u;
+      o.forEach((r) => {
+        var u;
+        const c = r;
         if (c.closest("[data-dev-inspector]")) return;
         const p = window.getComputedStyle(c);
         if (p.display === "none" || p.visibility === "hidden" || p.opacity === "0") return;
-        const h = P(c);
-        if (d.value[h]) return;
-        const y = c.tagName.toUpperCase(), w = ((m = c.textContent) == null ? void 0 : m.trim()) || "";
-        if (y === "INPUT" || y === "SELECT" || y === "TEXTAREA") {
+        const y = P(c);
+        if (d.value[y]) return;
+        const b = c.tagName.toUpperCase(), w = ((u = c.textContent) == null ? void 0 : u.trim()) || "";
+        if (b === "INPUT" || b === "SELECT" || b === "TEXTAREA") {
           s.push(c);
           return;
         }
-        if (w.length > 300 || w.length === 0 || y === "DIV" && (Array.from(c.childNodes).filter((S) => S.nodeType === Node.TEXT_NODE).map((S) => {
+        if (w.length > 300 || w.length === 0 || b === "DIV" && (Array.from(c.childNodes).filter((S) => S.nodeType === Node.TEXT_NODE).map((S) => {
           var T;
           return ((T = S.textContent) == null ? void 0 : T.trim()) || "";
         }).join("").trim().length === 0 || c.children.length > 3))
           return;
-        const N = Array.from(c.childNodes).some((b) => {
+        const N = Array.from(c.childNodes).some((h) => {
           var S;
-          return b.nodeType === Node.TEXT_NODE && (((S = b.textContent) == null ? void 0 : S.trim()) || "").length > 0;
-        }), r = !Array.from(c.children).some((b) => ["DIV", "P", "UL", "OL", "TABLE", "SECTION", "ARTICLE"].includes(b.tagName));
-        (N || c.children.length === 0 && w.length > 0 || r) && s.push(c);
+          return h.nodeType === Node.TEXT_NODE && (((S = h.textContent) == null ? void 0 : S.trim()) || "").length > 0;
+        }), m = !Array.from(c.children).some((h) => ["DIV", "P", "UL", "OL", "TABLE", "SECTION", "ARTICLE"].includes(h.tagName));
+        (N || c.children.length === 0 && w.length > 0 || m) && s.push(c);
       });
       const i = s.length;
       let a = 0, l = 0;
       const f = 20;
-      for (let u = 0; u < s.length; u += f) {
-        const c = s.slice(u, u + f);
+      for (let r = 0; r < s.length; r += f) {
+        const c = s.slice(r, r + f);
         for (const p of c) {
-          const h = P(p), y = G(p, h);
-          y.sourceBinding && (_.value.push({ selector: h, element: p, detected: y }), Z(h, y), l++), a++, R.value = Math.round(a / i * 100);
+          const y = P(p), b = G(p, y);
+          b.sourceBinding && (_.value.push({ selector: y, element: p, detected: b }), Z(y, b), l++), a++, R.value = Math.round(a / i * 100);
         }
         await new Promise((p) => setTimeout(p, 10));
       }
@@ -507,16 +508,16 @@ const Be = {}, Fe = "devInspector:elementConfigs", ze = _e("devInspector", () =>
       const f = [];
       if (l.has(a.componentName)) return f;
       if (l.add(a.componentName), f.push(...a.elements), a.usedComponents)
-        for (const u of a.usedComponents) {
-          const c = n(u);
+        for (const r of a.usedComponents) {
+          const c = n(r);
           c && f.push(...t(c, l));
         }
       return f;
     }, o = [], s = /* @__PURE__ */ new Set();
     for (const [a, l] of Object.entries(v.value.components)) {
       const f = a.replace(/^pages/, "").replace(/\.vue$/, "").replace(/\/index$/, "").replace(/\[.*?\]/g, "[^/]+");
-      let u = !1;
-      if ((e === "/" && a.includes("index") || a.includes("pages/") && e.match(new RegExp(`^${f}$`))) && (u = !0), u) {
+      let r = !1;
+      if ((e === "/" && a.includes("index") || a.includes("pages/") && e.match(new RegExp(`^${f}$`))) && (r = !0), r) {
         const c = t(l);
         o.push(...c), s.add(l.componentName), l.usedComponents && l.usedComponents.forEach((p) => s.add(p));
       }
@@ -532,37 +533,37 @@ const Be = {}, Fe = "devInspector:elementConfigs", ze = _e("devInspector", () =>
       } catch {
       }
       if (!l && a.type === "static" && a.text) {
-        const u = a.text.replace(/\[コメント\]\s*/, ""), c = document.createTreeWalker(
+        const r = a.text.replace(/\[コメント\]\s*/, ""), c = document.createTreeWalker(
           document.body,
           NodeFilter.SHOW_TEXT,
           null
         );
         for (; c.nextNode(); ) {
           const p = c.currentNode;
-          if ((i = p.textContent) != null && i.includes(u)) {
-            const h = p.parentElement;
-            if (h) {
-              l = !0, f = P(h);
+          if ((i = p.textContent) != null && i.includes(r)) {
+            const y = p.parentElement;
+            if (y) {
+              l = !0, f = P(y);
               break;
             }
           }
         }
       }
       if (!l && a.selector.includes(".")) {
-        const u = a.selector.match(/^(\w+)\.(.+)$/);
-        if (u) {
-          const [, c, p] = u;
+        const r = a.selector.match(/^(\w+)\.(.+)$/);
+        if (r) {
+          const [, c, p] = r;
           try {
-            const h = document.querySelector(a.selector);
-            h && (l = !0, f = P(h));
+            const y = document.querySelector(a.selector);
+            y && (l = !0, f = P(y));
           } catch {
           }
         }
       }
       if (!l && a.type === "data" && a.binding) {
-        const u = `[data-bind="${a.binding}"]`;
+        const r = `[data-bind="${a.binding}"]`;
         try {
-          const c = document.querySelector(u);
+          const c = document.querySelector(r);
           c && (l = !0, f = P(c));
         } catch {
         }

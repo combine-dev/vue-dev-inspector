@@ -67,6 +67,7 @@ watch(elementId, (id) => {
           const binding = targetEl.getAttribute('data-di-binding')
           const db = targetEl.getAttribute('data-di-db')
           const component = targetEl.getAttribute('data-di-component')
+          const dbType = targetEl.getAttribute('data-di-db-type')
           const dbComment = targetEl.getAttribute('data-di-db-comment')
 
           if (binding) {
@@ -81,6 +82,7 @@ watch(elementId, (id) => {
             if (table && column) {
               fieldTable.value = table
               fieldColumn.value = column
+              fieldType.value = dbType || ''
               fieldDescription.value = dbComment || ''
               hasDataFromDom = true
             }
@@ -223,6 +225,7 @@ function autoDetect() {
     if (detected.fieldInfo) {
       fieldTable.value = detected.fieldInfo.table || ''
       fieldColumn.value = detected.fieldInfo.column || ''
+      fieldType.value = detected.fieldInfo.type || ''
       fieldDescription.value = detected.fieldInfo.description || ''
       activeTab.value = 'field'
     }

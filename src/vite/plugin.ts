@@ -137,6 +137,9 @@ function transformTemplate(
 
     if (dbMapping) {
       attrs += ` data-di-db="${dbMapping.table}.${dbMapping.column}"`
+      if (dbMapping.type) {
+        attrs += ` data-di-db-type="${dbMapping.type}"`
+      }
       if (dbMapping.comment) {
         attrs += ` data-di-db-comment="${dbMapping.comment.replace(/"/g, '&quot;')}"`
       }

@@ -708,6 +708,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     const binding = targetElement.getAttribute('data-di-binding')
     const db = targetElement.getAttribute('data-di-db')
     const component = targetElement.getAttribute('data-di-component')
+    const dbType = targetElement.getAttribute('data-di-db-type')
     const dbComment = targetElement.getAttribute('data-di-db-comment')
 
     if (binding || db) {
@@ -725,6 +726,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
           result.fieldInfo = {
             table,
             column,
+            type: dbType || undefined,
             description: dbComment || undefined,
           }
         }
