@@ -106,16 +106,25 @@ function transformTemplate(
       continue
     }
 
-    // Skip complex expressions (ternary, pipes, function calls)
-    if (expression.includes('?') || expression.includes('|') || /\([^)]*\)/.test(expression)) {
-      continue
+    // Skip ternary and pipes (too complex)
+    if (expression.includes('?') && expression.includes(':')) {
+      continue  // Ternary operator
+    }
+    if (expression.includes('|')) {
+      continue  // Vue filters/pipes
     }
 
     // Extract the binding path (handle things like item.title, user?.name, etc.)
-    const bindingPath = expression
+    let bindingPath = expression
       .replace(/\?\.?/g, '.')  // item?.name -> item.name
       .replace(/\s+/g, '')     // Remove whitespace
       .replace(/^\(|\)$/g, '') // Remove wrapping parens
+
+    // Handle function calls like dispDate(notification.startDate) -> notification.startDate
+    const funcCallMatch = bindingPath.match(/^\w+\(([^)]+)\)$/)
+    if (funcCallMatch) {
+      bindingPath = funcCallMatch[1]  // Extract the argument
+    }
 
     // Build attributes
     let attrs = `data-di-binding="${bindingPath}"`
