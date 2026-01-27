@@ -77,9 +77,12 @@ export interface ScreenSpec {
   notes?: string[]
 }
 
+// Element tags
+export type ElementTag = 'db' | 'form' | 'button' | 'link' | 'modal' | 'conditional' | 'computed' | 'api'
+
 export interface AnalyzedElement {
   selector: string
-  type: 'static' | 'data' | 'button' | 'link' | 'form' | 'unknown'
+  tags: ElementTag[]  // Multiple tags allowed
   text?: string
   binding?: string
   api?: {
@@ -91,6 +94,15 @@ export interface AnalyzedElement {
     table: string
     column: string
     type?: string
+  }
+  modal?: {
+    target?: string
+  }
+  conditional?: {
+    expression: string
+  }
+  computed?: {
+    expression?: string
   }
   component?: string
   line?: number
@@ -109,6 +121,42 @@ export interface DbTableSchema {
   columns: Record<string, DbColumnSchema>
 }
 
+// Load trigger for API calls
+export type LoadTrigger = 'onMount' | 'useFetch' | 'useAsyncData' | 'watch' | 'action' | 'unknown'
+
+export interface ComponentApi {
+  endpoint: string
+  method: string
+  composable: string
+  loadTrigger: LoadTrigger
+  variable?: string  // Variable that stores the result
+  responseType?: string
+}
+
+// Binding candidate for manual mapping UI
+export interface BindingCandidate {
+  binding: string
+  db?: {
+    table: string
+    column: string
+    type?: string
+  }
+  api?: {
+    endpoint: string
+    method: string
+  }
+  component: string
+}
+
+// Schema column option for table.column selector
+export interface SchemaColumnOption {
+  table: string
+  column: string
+  type: string
+  comment: string | null
+  fullName: string // "table.column"
+}
+
 export interface ProjectAnalysis {
   projectPath: string
   analyzedAt: string
@@ -116,6 +164,7 @@ export interface ProjectAnalysis {
     filePath: string
     componentName: string
     elements: AnalyzedElement[]
+    apis?: ComponentApi[]  // API calls with load triggers
     usedComponents?: string[]  // Component names used in this file (e.g., ['NotificationList', 'UserCard'])
   }>
   apiMappings: Record<string, {
@@ -167,7 +216,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   const analysisData = ref<ProjectAnalysis | null>(null)
 
   // Analysis display filter
-  const analysisFilter = ref<'all' | 'db-api' | 'static' | 'data' | 'other' | 'none'>('all')
+  const analysisFilter = ref<'all' | 'db-api' | 'form' | 'button' | 'link' | 'modal' | 'conditional' | 'computed' | 'other' | 'none'>('all')
 
   // Hidden analysis selectors (persisted to localStorage)
   const hiddenAnalysisSelectors = ref<Set<string>>(new Set())
@@ -1117,8 +1166,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
         }
       } catch { /* invalid selector */ }
 
-      // Strategy 2: Match by text content for static elements
-      if (!matched && analysisEl.type === 'static' && analysisEl.text) {
+      // Strategy 2: Match by text content (for elements with text and no dynamic binding)
+      if (!matched && analysisEl.text && !analysisEl.binding) {
         const textToFind = analysisEl.text.replace(/\[コメント\]\s*/, '')
         const walker = document.createTreeWalker(
           document.body,
@@ -1154,8 +1203,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
         }
       }
 
-      // Strategy 4: For data-type elements, only match by explicit data attributes (no guessing)
-      if (!matched && analysisEl.type === 'data' && analysisEl.binding) {
+      // Strategy 4: For elements with binding, try to match by explicit data attributes
+      if (!matched && analysisEl.binding) {
         const dataAttrSelector = `[data-bind="${analysisEl.binding}"]`
         try {
           const el = document.querySelector(dataAttrSelector)
@@ -1242,20 +1291,6 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   }
 
   // Get all unique bindings with DB info from analysis data (for manual mapping UI)
-  interface BindingCandidate {
-    binding: string
-    db?: {
-      table: string
-      column: string
-      type?: string
-    }
-    api?: {
-      endpoint: string
-      method: string
-    }
-    component: string
-  }
-
   function getAvailableBindings(): BindingCandidate[] {
     if (!analysisData.value) return []
 
@@ -1299,14 +1334,6 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   }
 
   // Get all table.column options from schema.rb
-  interface SchemaColumnOption {
-    table: string
-    column: string
-    type: string
-    comment: string | null
-    fullName: string // "table.column"
-  }
-
   function getSchemaColumns(): SchemaColumnOption[] {
     if (!analysisData.value?.dbSchema?.tables) return []
 
@@ -1343,6 +1370,59 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       c.fullName.toLowerCase().includes(q) ||
       c.comment?.toLowerCase().includes(q)
     )
+  }
+
+  // Get APIs for the current page grouped by load trigger
+  function getCurrentPageApis(): {
+    pageLoad: ComponentApi[]
+    action: ComponentApi[]
+  } {
+    const pageLoad: ComponentApi[] = []
+    const action: ComponentApi[] = []
+
+    if (!analysisData.value?.components) return { pageLoad, action }
+
+    // Get the current page component from analysis results
+    for (const result of analysisResults.value) {
+      if (!result.matched) continue
+
+      const component = result.element.component
+      if (component && analysisData.value.components[component]?.apis) {
+        for (const api of analysisData.value.components[component].apis) {
+          // Categorize by load trigger
+          if (['onMount', 'useFetch', 'useAsyncData'].includes(api.loadTrigger)) {
+            // Avoid duplicates
+            if (!pageLoad.some(a => a.endpoint === api.endpoint && a.method === api.method)) {
+              pageLoad.push(api)
+            }
+          } else if (api.loadTrigger === 'action') {
+            if (!action.some(a => a.endpoint === api.endpoint && a.method === api.method)) {
+              action.push(api)
+            }
+          }
+        }
+      }
+    }
+
+    return { pageLoad, action }
+  }
+
+  // Get API source for a variable/binding
+  function getApiSourceForBinding(binding: string): ComponentApi | null {
+    if (!analysisData.value?.components) return null
+
+    // Search through all components to find an API that matches this variable
+    for (const component of Object.values(analysisData.value.components)) {
+      if (!component.apis) continue
+
+      for (const api of component.apis) {
+        if (api.variable && binding.startsWith(api.variable)) {
+          return api
+        }
+      }
+    }
+
+    return null
   }
 
   function isAnalysisSelectorHidden(selector: string): boolean {
@@ -1468,6 +1548,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     searchBindings,
     getSchemaColumns,
     searchSchemaColumns,
+    getCurrentPageApis,
+    getApiSourceForBinding,
   }
 })
 

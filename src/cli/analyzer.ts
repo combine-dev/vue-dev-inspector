@@ -22,9 +22,12 @@ interface DbSchema {
   tables: Record<string, DbTableInfo>
 }
 
+// Element tags (multiple can be applied)
+type ElementTag = 'db' | 'form' | 'button' | 'link' | 'modal' | 'conditional' | 'computed' | 'api'
+
 interface ElementMapping {
   selector: string
-  type: 'static' | 'data' | 'button' | 'link' | 'form' | 'unknown'
+  tags: ElementTag[]  // Multiple tags allowed (e.g., ['db', 'computed'])
   text?: string
   binding?: string
   api?: {
@@ -36,7 +39,16 @@ interface ElementMapping {
     table: string
     column: string
     type?: string
-    comment?: string  // DBコメント追加
+    comment?: string
+  }
+  modal?: {
+    target?: string  // Modal component or id
+  }
+  conditional?: {
+    expression: string  // v-if/v-show expression
+  }
+  computed?: {
+    expression?: string  // Computed property name or expression
   }
   component?: string
   line?: number
@@ -51,6 +63,8 @@ interface ComponentAnalysis {
     method: string
     composable: string
     responseType?: string
+    loadTrigger: 'onMount' | 'useFetch' | 'useAsyncData' | 'watch' | 'action' | 'unknown'
+    variable?: string  // Variable that stores the result
   }[]
   imports: string[]
   usedComponents: string[]  // Component names used in this file (e.g., ['NotificationList', 'UserCard'])
@@ -388,12 +402,16 @@ function extractBinding(content: string): string | undefined {
 
 // ===== Script Analyzer =====
 
+// Load trigger for API calls
+type LoadTrigger = 'onMount' | 'useFetch' | 'useAsyncData' | 'watch' | 'action' | 'unknown'
+
 interface ScriptAnalysis {
   apiCalls: {
     composable: string
     endpoint?: string
     method?: string
     variable?: string
+    loadTrigger: LoadTrigger
   }[]
   dataBindings: {
     name: string
@@ -439,7 +457,67 @@ function analyzeScript(script: string, scriptSetup: string): ScriptAnalysis & { 
     }
   }
 
-  // Find API calls - multiple patterns
+  // ===== Detect lifecycle/trigger contexts =====
+  // Find onMounted blocks
+  const onMountedBlocks: { start: number; end: number }[] = []
+  const onMountedRegex = /onMounted\s*\(\s*(?:async\s*)?\(\s*\)\s*=>\s*\{/g
+  while ((match = onMountedRegex.exec(combined)) !== null) {
+    const start = match.index
+    const blockContent = extractBalancedBraces(combined, match.index + match[0].length - 1)
+    const end = start + match[0].length + blockContent.length
+    onMountedBlocks.push({ start, end })
+  }
+
+  // Find watch blocks
+  const watchBlocks: { start: number; end: number }[] = []
+  const watchRegex = /watch\s*\([^,]+,\s*(?:async\s*)?\([^)]*\)\s*=>\s*\{/g
+  while ((match = watchRegex.exec(combined)) !== null) {
+    const start = match.index
+    const blockContent = extractBalancedBraces(combined, match.index + match[0].length - 1)
+    const end = start + match[0].length + blockContent.length
+    watchBlocks.push({ start, end })
+  }
+
+  // Find function definitions (for action handlers)
+  const functionBlocks: { start: number; end: number; name: string }[] = []
+  const functionRegex = /(?:const|let|function)\s+(\w+)\s*=?\s*(?:async\s*)?\(?[^)]*\)?\s*(?:=>)?\s*\{/g
+  while ((match = functionRegex.exec(combined)) !== null) {
+    const name = match[1]
+    // Skip lifecycle hooks
+    if (['onMounted', 'onUnmounted', 'watch', 'watchEffect'].includes(name)) continue
+    const start = match.index
+    const blockContent = extractBalancedBraces(combined, match.index + match[0].length - 1)
+    const end = start + match[0].length + blockContent.length
+    functionBlocks.push({ start, end, name })
+  }
+
+  // Helper to determine load trigger based on position
+  function getLoadTrigger(position: number): LoadTrigger {
+    // Check if inside onMounted
+    for (const block of onMountedBlocks) {
+      if (position >= block.start && position <= block.end) {
+        return 'onMount'
+      }
+    }
+    // Check if inside watch
+    for (const block of watchBlocks) {
+      if (position >= block.start && position <= block.end) {
+        return 'watch'
+      }
+    }
+    // Check if inside a named function (likely an action handler)
+    for (const block of functionBlocks) {
+      if (position >= block.start && position <= block.end) {
+        // Check if function name looks like an action handler
+        if (/^(handle|on|submit|save|delete|update|create|fetch|load|click)/i.test(block.name)) {
+          return 'action'
+        }
+      }
+    }
+    return 'unknown'
+  }
+
+  // ===== Find API calls - multiple patterns =====
 
   // Pattern 1: const data = await api.resource.action() or useApi().resource.action()
   const apiCallRegex1 = /(?:const|let)\s+(\w+)(?::\s*\w+)?\s*=\s*(?:await\s+)?(?:api|useApi\(\))\.(\w+)\.(\w+)\s*\(/g
@@ -448,6 +526,7 @@ function analyzeScript(script: string, scriptSetup: string): ScriptAnalysis & { 
     apiCalls.push({
       composable: `${resource}.${action}`,
       variable,
+      loadTrigger: getLoadTrigger(match.index),
     })
   }
 
@@ -461,6 +540,7 @@ function analyzeScript(script: string, scriptSetup: string): ScriptAnalysis & { 
       apiCalls.push({
         composable: `${resource}.${action}`,
         variable,
+        loadTrigger: getLoadTrigger(match.index),
       })
     }
   }
@@ -473,6 +553,7 @@ function analyzeScript(script: string, scriptSetup: string): ScriptAnalysis & { 
       apiCalls.push({
         composable: `${resource}.${action}`,
         variable,
+        loadTrigger: getLoadTrigger(match.index),
       })
     }
   }
@@ -484,6 +565,43 @@ function analyzeScript(script: string, scriptSetup: string): ScriptAnalysis & { 
     apiCalls.push({
       composable: funcName,
       variable,
+      loadTrigger: getLoadTrigger(match.index),
+    })
+  }
+
+  // Pattern 5: useFetch (Nuxt)
+  const useFetchRegex = /(?:const|let)\s+\{?\s*(\w+)(?:\s*,\s*\w+)*\s*\}?\s*=\s*(?:await\s+)?useFetch\s*\(\s*['"`]([^'"`]+)['"`]/g
+  while ((match = useFetchRegex.exec(combined)) !== null) {
+    const [, variable, endpoint] = match
+    apiCalls.push({
+      composable: 'useFetch',
+      variable,
+      endpoint,
+      method: 'GET',
+      loadTrigger: 'useFetch',
+    })
+  }
+
+  // Pattern 6: useAsyncData (Nuxt)
+  const useAsyncDataRegex = /(?:const|let)\s+\{?\s*(\w+)(?:\s*,\s*\w+)*\s*\}?\s*=\s*(?:await\s+)?useAsyncData\s*\(/g
+  while ((match = useAsyncDataRegex.exec(combined)) !== null) {
+    const [, variable] = match
+    apiCalls.push({
+      composable: 'useAsyncData',
+      variable,
+      loadTrigger: 'useAsyncData',
+    })
+  }
+
+  // Pattern 7: $fetch (Nuxt)
+  const dollarFetchRegex = /(?:const|let)\s+(\w+)\s*=\s*(?:await\s+)?\$fetch\s*\(\s*['"`]([^'"`]+)['"`]/g
+  while ((match = dollarFetchRegex.exec(combined)) !== null) {
+    const [, variable, endpoint] = match
+    apiCalls.push({
+      composable: '$fetch',
+      variable,
+      endpoint,
+      loadTrigger: getLoadTrigger(match.index),
     })
   }
 
@@ -981,35 +1099,50 @@ function analyzeComponent(filePath: string, apiMappings: Record<string, ApiCompo
 
   const elements: ElementMapping[] = []
 
-  // Add script static strings as elements
-  for (const ss of scriptStaticStrings) {
-    elements.push({
-      selector: `script:${ss.source}`,
-      type: 'static',
-      text: ss.text,
-      line: ss.line,
-      component: componentName,
-    })
-  }
+  // Skip script static strings - we're removing the "固定文" category
+  // for (const ss of scriptStaticStrings) { ... }
 
   for (const el of templateElements) {
-    const elementType = determineElementType(el)
+    const tagResult = determineElementTags(el)
 
-    // Skip truly useless elements (unknown type Vue components without text or binding)
-    if (elementType === 'unknown' && /^[A-Z]/.test(el.tag) && !el.text && !el.binding) {
+    // Skip elements with no tags and no binding (likely static text we don't care about)
+    if (tagResult.tags.length === 0 && !el.binding) {
+      continue
+    }
+
+    // Skip Vue components without meaningful info
+    if (tagResult.tags.length === 0 && /^[A-Z]/.test(el.tag) && !el.text && !el.binding) {
       continue
     }
 
     const mapping: ElementMapping = {
       selector: generateSelector(el),
-      type: elementType,
+      tags: [...tagResult.tags],
       line: el.line,
       component: componentName,
     }
 
-    if (el.isStatic && elementType === 'static') {
+    // Add conditional info
+    if (tagResult.conditional) {
+      mapping.conditional = tagResult.conditional
+    }
+
+    // Add modal info
+    if (tagResult.modal) {
+      mapping.modal = tagResult.modal
+    }
+
+    // Add computed info
+    if (tagResult.computed) {
+      mapping.computed = tagResult.computed
+    }
+
+    // Add text for display
+    if (el.text) {
       mapping.text = el.text
-    } else if (el.binding) {
+    }
+
+    if (el.binding) {
       mapping.binding = el.binding
 
       // Try to trace binding to API
@@ -1020,16 +1153,27 @@ function analyzeComponent(filePath: string, apiMappings: Record<string, ApiCompo
           method: apiInfo.method,
           description: apiInfo.description,
         }
+        // Add 'api' tag if not already present
+        if (!mapping.tags.includes('api')) {
+          mapping.tags.push('api')
+        }
 
         // Try to map to DB
         const dbInfo = mapToDatabase(el.binding, apiInfo)
         if (dbInfo) {
           mapping.db = dbInfo
+          // Add 'db' tag
+          if (!mapping.tags.includes('db')) {
+            mapping.tags.push('db')
+          }
         }
       }
     }
 
-    elements.push(mapping)
+    // Only add if has meaningful tags or binding
+    if (mapping.tags.length > 0 || mapping.binding) {
+      elements.push(mapping)
+    }
   }
 
   return {
@@ -1037,10 +1181,12 @@ function analyzeComponent(filePath: string, apiMappings: Record<string, ApiCompo
     componentName,
     elements,
     apis: scriptAnalysis.apiCalls.map(api => ({
-      endpoint: apiMappings[api.composable]?.endpoint || '',
-      method: apiMappings[api.composable]?.method || 'GET',
+      endpoint: api.endpoint || apiMappings[api.composable]?.endpoint || '',
+      method: api.method || apiMappings[api.composable]?.method || 'GET',
       composable: api.composable,
       responseType: api.variable,
+      loadTrigger: api.loadTrigger,
+      variable: api.variable,
     })),
     imports: scriptAnalysis.imports,
     usedComponents,
@@ -1062,28 +1208,72 @@ function generateSelector(el: TemplateElement): string {
   return parts.join('')
 }
 
-function determineElementType(el: TemplateElement): ElementMapping['type'] {
+interface ElementTagsResult {
+  tags: ElementTag[]
+  conditional?: { expression: string }
+  modal?: { target?: string }
+  computed?: { expression?: string }
+}
+
+function determineElementTags(el: TemplateElement): ElementTagsResult {
+  const tags: ElementTag[] = []
+  const result: ElementTagsResult = { tags }
+
+  // Button detection
   if (el.tag === 'button' || el.attributes['@click'] || el.attributes.role === 'button') {
-    return 'button'
+    tags.push('button')
   }
 
-  if (el.tag === 'a' || el.attributes.href || el.attributes.to) {
-    return 'link'
+  // Link detection
+  if (el.tag === 'a' || el.attributes.href || el.attributes.to || el.tag === 'NuxtLink' || el.tag === 'RouterLink') {
+    tags.push('link')
   }
 
-  if (['input', 'select', 'textarea'].includes(el.tag)) {
-    return 'form'
+  // Form detection
+  if (['input', 'select', 'textarea'].includes(el.tag) || el.attributes['v-model']) {
+    tags.push('form')
   }
 
+  // Modal detection (common patterns)
+  const clickHandler = el.attributes['@click'] || ''
+  if (clickHandler.includes('modal') || clickHandler.includes('Modal') ||
+      clickHandler.includes('dialog') || clickHandler.includes('Dialog') ||
+      clickHandler.includes('open') || clickHandler.includes('show')) {
+    tags.push('modal')
+    // Try to extract modal target
+    const modalMatch = clickHandler.match(/(?:open|show|toggle)(?:Modal|Dialog)?\s*\(\s*['"]?(\w+)['"]?\s*\)/i)
+    if (modalMatch) {
+      result.modal = { target: modalMatch[1] }
+    } else {
+      result.modal = {}
+    }
+  }
+
+  // Conditional detection (v-if, v-show)
+  const vIf = el.attributes['v-if']
+  const vShow = el.attributes['v-show']
+  if (vIf || vShow) {
+    tags.push('conditional')
+    result.conditional = { expression: vIf || vShow }
+  }
+
+  // Computed detection (binding that looks like a computed property)
+  // Usually computed props don't have dots or are called as functions
   if (el.binding) {
-    return 'data'
+    const bindingPath = el.binding
+    // Check if it's likely a computed (no dots, or ends with computed-like patterns)
+    const isLikelyComputed = !bindingPath.includes('.') && !bindingPath.includes('[') ||
+                            bindingPath.match(/(?:total|sum|count|average|calculated|formatted|display)/i)
+    if (isLikelyComputed) {
+      tags.push('computed')
+      result.computed = { expression: bindingPath }
+    }
   }
 
-  if (el.isStatic) {
-    return 'static'
-  }
+  // If no specific tags and has binding, could still be data
+  // But we don't add 'db' tag here - that's determined by actual DB mapping later
 
-  return 'unknown'
+  return result
 }
 
 function traceBindingToApi(
@@ -1365,9 +1555,10 @@ export async function analyzeProject(projectPath: string, options: {
       components[relativePath] = analysis
 
       if (verbose) {
-        const staticCount = analysis.elements.filter(e => e.type === 'static').length
-        const dataCount = analysis.elements.filter(e => e.type === 'data').length
-        console.log(`  ✓ ${relativePath}: ${staticCount} static, ${dataCount} data`)
+        const dbCount = analysis.elements.filter(e => e.tags.includes('db')).length
+        const formCount = analysis.elements.filter(e => e.tags.includes('form')).length
+        const buttonCount = analysis.elements.filter(e => e.tags.includes('button')).length
+        console.log(`  ✓ ${relativePath}: ${dbCount} DB, ${formCount} form, ${buttonCount} button`)
       }
     } catch (e) {
       console.error(`  ✗ Error analyzing ${vueFile}:`, e)
@@ -1386,26 +1577,47 @@ export async function analyzeProject(projectPath: string, options: {
   // Output results
   if (output) {
     const outputPath = path.resolve(output)
+    // Create directory if it doesn't exist
+    const outputDir = path.dirname(outputPath)
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true })
+      console.log(`📁 Created directory: ${outputDir}`)
+    }
     fs.writeFileSync(outputPath, JSON.stringify(result, null, 2))
     console.log(`\n✅ Analysis saved to: ${outputPath}`)
   }
 
   // Print summary
   const totalElements = Object.values(components).reduce((sum, c) => sum + c.elements.length, 0)
-  const staticElements = Object.values(components).reduce(
-    (sum, c) => sum + c.elements.filter(e => e.type === 'static').length, 0
+  const dbElements = Object.values(components).reduce(
+    (sum, c) => sum + c.elements.filter(e => e.tags.includes('db')).length, 0
   )
-  const dataElements = Object.values(components).reduce(
-    (sum, c) => sum + c.elements.filter(e => e.type === 'data').length, 0
+  const formElements = Object.values(components).reduce(
+    (sum, c) => sum + c.elements.filter(e => e.tags.includes('form')).length, 0
+  )
+  const buttonElements = Object.values(components).reduce(
+    (sum, c) => sum + c.elements.filter(e => e.tags.includes('button')).length, 0
+  )
+  const linkElements = Object.values(components).reduce(
+    (sum, c) => sum + c.elements.filter(e => e.tags.includes('link')).length, 0
+  )
+  const modalElements = Object.values(components).reduce(
+    (sum, c) => sum + c.elements.filter(e => e.tags.includes('modal')).length, 0
+  )
+  const conditionalElements = Object.values(components).reduce(
+    (sum, c) => sum + c.elements.filter(e => e.tags.includes('conditional')).length, 0
   )
 
   console.log(`
 📊 Analysis Summary:
    Components: ${Object.keys(components).length}
    Total elements: ${totalElements}
-   - Static: ${staticElements}
-   - Data: ${dataElements}
-   - Other: ${totalElements - staticElements - dataElements}
+   - DB: ${dbElements}
+   - フォーム: ${formElements}
+   - ボタン: ${buttonElements}
+   - リンク: ${linkElements}
+   - モーダル: ${modalElements}
+   - 条件表示: ${conditionalElements}
    API endpoints: ${Object.keys(apiMappings).length}
 `)
 

@@ -1,76 +1,47 @@
 # vue-dev-inspector
 
-Vue 3 / Nuxt 3 対応の開発者モードインスペクター。UI要素にAPI連携先、DBフィールド、FigmaURL、メモなどのアノテーションを付与できます。
+Vue 3 / Nuxt 3 対応の開発者モードインスペクター。
+画面上のUI要素と、DBカラム・API・Figma・メモを紐付けて**画面仕様書を自動生成**できます。
 
-## Features
+## 主な機能
 
-- **要素ピッカー**: 画面上の任意の要素をクリックして選択
-- **アノテーション**: DB項目、API連携、Figma URL、メモなどを紐付け
-- **永続化**: localStorage + JSONエクスポートで情報を保存
-- **開発環境限定**: 本番ビルドでは自動的に無効化
-- **キーボードショートカット**: `Ctrl+Shift+D` でパネル開閉
-- **CLIソースコード解析**: Vueファイルを静的解析してDB/API情報を自動抽出
-- **自動ハイライト**: 解析結果を画面上に自動表示（固定文言/DBデータを色分け）
+- **CLI解析**: Vueファイルを静的解析してDB/API情報を自動抽出
+- **Viteプラグイン**: ビルド時に`data-di-*`属性を自動注入
+- **ブラウザUI**: 解析結果をオーバーレイ表示、手動アノテーション追加
+- **画面仕様書出力**: Excel形式でエクスポート
 
-## Installation
+---
 
-### npm から（公開後）
+## クイックスタート
+
+### 1. インストール
 
 ```bash
-npm install vue-dev-inspector
-# or
-pnpm add vue-dev-inspector
-# or
 yarn add vue-dev-inspector
+# or
+npm install vue-dev-inspector
 ```
 
-### ローカルで使う（npm link）
+### 2. Viteプラグインを設定
 
-npm公開前に他のプロジェクトで使いたい場合：
+```ts
+// vite.config.ts
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { vitePluginDevInspector } from 'vue-dev-inspector/vite'
 
-```bash
-# 1. vue-dev-inspector ディレクトリでリンクを作成
-cd /path/to/vue-dev-inspector
-npm run build
-npm link
-
-# 2. 使いたいプロジェクトでリンクを使用
-cd /path/to/your-project
-npm link vue-dev-inspector
+export default defineConfig({
+  plugins: [
+    vitePluginDevInspector({
+      // CLI解析結果のパス（オプション）
+      analysisPath: 'public/dev-inspector-analysis.json',
+    }),
+    vue(),
+  ],
+})
 ```
 
-### GitHub から直接インストール
-
-```bash
-# package.json に追加
-npm install github:your-username/vue-dev-inspector
-
-# または直接URL指定
-npm install git+https://github.com/your-username/vue-dev-inspector.git
-```
-
-### npm に公開する
-
-```bash
-cd /path/to/vue-dev-inspector
-
-# 1. ビルド
-npm run build
-
-# 2. npmにログイン（初回のみ）
-npm login
-
-# 3. 公開
-npm publish
-
-# スコープ付きで公開する場合（@your-name/vue-dev-inspector）
-# package.json の name を "@your-name/vue-dev-inspector" に変更してから
-npm publish --access public
-```
-
-## Usage
-
-### Vue 3
+### 3. コンポーネントを配置
 
 ```ts
 // main.ts
@@ -81,11 +52,7 @@ import App from './App.vue'
 
 const app = createApp(App)
 app.use(createPinia())
-app.use(VueDevInspector, {
-  // options
-  storageKey: 'myApp:devInspector',
-  enabledInProduction: false
-})
+app.use(VueDevInspector)
 app.mount('#app')
 ```
 
@@ -99,22 +66,112 @@ app.mount('#app')
 </template>
 ```
 
-### Nuxt 3
+### 4. CLI解析を実行
+
+```bash
+# プロジェクトを解析
+npx vue-dev-inspector analyze ./src
+
+# Railsスキーマも含める場合
+npx vue-dev-inspector analyze ./src --schema ../backend/db/schema.rb
+
+# 出力先を指定（publicに置くとブラウザで自動読み込み）
+npx vue-dev-inspector analyze ./src -o public/dev-inspector-analysis.json
+```
+
+### 5. ブラウザで確認
+
+1. 開発サーバーを起動: `yarn dev`
+2. `Ctrl+Shift+D` で開発者モードを有効化
+3. パネルから「読み込み」→「ページに適用」
+
+---
+
+## 機能詳細
+
+### 要素タグ（カテゴリ）
+
+各要素は複数のタグを持てます：
+
+| タグ | 色 | 説明 |
+|------|-----|------|
+| DB | 青 | DBカラムにバインドされたデータ |
+| API | オレンジ | API呼び出しトリガー |
+| フォーム | 紫 | input/select/textareaなど |
+| ボタン | ピンク | button要素、@clickハンドラ |
+| リンク | ティール | a要素、router-link |
+| モーダル | バイオレット | モーダル表示トリガー |
+| 条件 | シアン | v-if/v-show要素 |
+| 計算 | ライム | computed/算術式 |
+
+### 画面読込時API表示
+
+CLIが検出したAPIを「画面読込時」と「アクション時」に分類して表示：
+
+```
+📡 画面読込時のAPI
+├─ GET /api/users → users          [画面読込時]
+├─ GET /api/notifications → list   [useFetch]
+└─ GET /api/settings → settings    [onMount]
+
+👆 アクション時のAPI
+├─ POST /api/tasks
+└─ DELETE /api/tasks/:id
+```
+
+### API出典表示
+
+DB要素のラベルに、そのデータがどのAPIから来たかを表示：
+
+```
+DB: users.name ← GET /api/users
+```
+
+### Viteプラグイン
+
+ビルド時に自動で`data-di-*`属性を注入：
+
+```html
+<!-- 変換前 -->
+<span>{{ user.name }}</span>
+
+<!-- 変換後 -->
+<span data-di-binding="user.name"
+      data-di-db="users.name"
+      data-di-db-type="string">{{ user.name }}</span>
+```
+
+---
+
+## CLI オプション
+
+```bash
+npx vue-dev-inspector analyze <path> [options]
+
+Options:
+  -o, --output <file>     出力ファイルパス (default: dev-inspector-analysis.json)
+  -s, --schema <file>     Railsのschema.rbパス
+  -a, --api-dir <dir>     APIコンポーザブルのディレクトリ
+  -t, --types-dir <dir>   型定義ファイルのディレクトリ
+  -v, --verbose           詳細出力
+```
+
+---
+
+## Nuxt 3
 
 ```ts
 // nuxt.config.ts
 export default defineNuxtConfig({
   modules: ['vue-dev-inspector/nuxt'],
   devInspector: {
-    // options
-    storageKey: 'myApp:devInspector',
-    enabledInProduction: false
+    analysisPath: 'public/dev-inspector-analysis.json',
   }
 })
 ```
 
 ```vue
-<!-- app.vue or layouts/default.vue -->
+<!-- app.vue -->
 <template>
   <div>
     <NuxtPage />
@@ -123,148 +180,30 @@ export default defineNuxtConfig({
 </template>
 ```
 
-## CLI ソースコード解析
+---
 
-Vueプロジェクトのソースコードを静的解析し、各要素がDBのどのテーブル・カラムに紐づくかを自動検出します。
+## キーボードショートカット
 
-### 基本的な使い方
+| ショートカット | アクション |
+|---------------|-----------|
+| `Ctrl+Shift+D` | 開発者モード切替 |
+| `Esc` | パネルを閉じる / ピックモード終了 |
 
-```bash
-# プロジェクトを解析
-npx vue-dev-inspector analyze ./front
+---
 
-# 出力先を指定（publicフォルダに置くと自動読み込みされる）
-npx vue-dev-inspector analyze ./front -o public/dev-inspector-analysis.json
+## エクスポート
 
-# 詳細出力
-npx vue-dev-inspector analyze ./front -v
-```
+### Git管理用JSON
 
-### 解析される内容
+パネルの「Git管理用に保存」ボタンで `dev-annotations.json` を出力。
+プロジェクトにコミットしてチーム共有。
 
-- **静的テキスト**: テンプレート内の固定文言、placeholder、ラベル等
-- **動的データ**: `{{ binding }}` や `v-model` のバインディング
-- **APIマッピング**: `useApi().resource.action()` パターンからエンドポイントを抽出
-- **DBカラム**: APIレスポンス型定義からテーブル・カラム名を推定（camelCase → snake_case変換）
-- **Railsスキーマ連携**: `schema.rb` があればDBコメントも取得
+### 画面仕様書（Excel）
 
-### 解析結果の自動表示
+パネルの「画面仕様書 (xlsx) 出力」ボタンでExcelファイルを生成。
+要素一覧、DB項目、API一覧などをシートに出力。
 
-`public/dev-inspector-analysis.json` に配置すると、開発モードで自動的に読み込まれ、画面上にハイライト表示されます。
-
-- 🟢 **緑枠**: 固定文言（static）
-- 🟠 **オレンジ枠**: DBデータ（data）
-- 🟣 **紫枠**: フォーム入力（form）
-- 枠の上に `テーブル名.カラム名` が表示される
-
-### オプション
-
-```typescript
-store.init({
-  // カスタムURL（デフォルト: '/dev-inspector-analysis.json'）
-  analysisDataUrl: '/custom-path/analysis.json',
-
-  // 自動読み込みを無効化
-  autoLoadAnalysis: false,
-
-  // 読み込み後の自動適用を無効化（手動で適用）
-  autoApplyAnalysis: false,
-})
-```
-
-## Keyboard Shortcuts
-
-| Shortcut | Action |
-|----------|--------|
-| `Ctrl+Shift+D` | Toggle inspector panel |
-| `Esc` | Close panel / Exit pick mode |
-
-## API
-
-### `useDevInspector()`
-
-Composable to access the inspector store.
-
-```ts
-import { useDevInspector } from 'vue-dev-inspector'
-
-const inspector = useDevInspector()
-
-// Toggle panel
-inspector.togglePanel()
-
-// Export annotations
-const json = inspector.exportConfigs()
-
-// Import annotations
-inspector.importConfigs(jsonString)
-```
-
-### Options
-
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `storageKey` | `string` | `'devInspector:elementConfigs'` | localStorage key |
-| `enabledInProduction` | `boolean` | `false` | Enable in production build |
-| `initialAnnotations` | `Record<string, ElementConfig>` | `{}` | Pre-loaded annotations |
-| `analysisDataUrl` | `string` | `'/dev-inspector-analysis.json'` | URL to load CLI analysis data |
-| `autoLoadAnalysis` | `boolean` | `true` | Auto-load analysis data on init |
-| `autoApplyAnalysis` | `boolean` | `true` | Auto-apply analysis to page after loading |
-
-### Element Config
-
-```ts
-interface ElementConfig {
-  id: string
-  componentPath: string
-  fieldInfo?: {
-    table: string
-    column: string
-    type?: string
-    description?: string
-  }
-  actionInfo?: {
-    type: 'navigate' | 'api' | 'modal' | 'emit' | 'function'
-    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
-    target?: string
-    description?: string
-  }
-  links?: {
-    figmaUrl?: string
-    testPath?: string
-    githubIssue?: string
-    githubPr?: string
-    relatedDocs?: string
-  }
-  note?: {
-    text: string
-    type?: 'info' | 'warning' | 'todo' | 'question'
-    author?: string
-  }
-}
-```
-
-## Export/Import
-
-アノテーションは JSON 形式でエクスポート/インポートできます。チームで共有したり、Git管理することが可能です。
-
-```json
-{
-  "_meta": {
-    "version": "1.0.0",
-    "lastUpdated": "2024-01-01T00:00:00.000Z"
-  },
-  "annotations": {
-    "#login-button": {
-      "actionInfo": {
-        "type": "api",
-        "method": "POST",
-        "target": "/api/auth/login"
-      }
-    }
-  }
-}
-```
+---
 
 ## License
 

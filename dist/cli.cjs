@@ -264,12 +264,60 @@ function analyzeScript(script, scriptSetup) {
       }
     }
   }
+  const onMountedBlocks = [];
+  const onMountedRegex = /onMounted\s*\(\s*(?:async\s*)?\(\s*\)\s*=>\s*\{/g;
+  while ((match = onMountedRegex.exec(combined)) !== null) {
+    const start = match.index;
+    const blockContent = extractBalancedBraces(combined, match.index + match[0].length - 1);
+    const end = start + match[0].length + blockContent.length;
+    onMountedBlocks.push({ start, end });
+  }
+  const watchBlocks = [];
+  const watchRegex = /watch\s*\([^,]+,\s*(?:async\s*)?\([^)]*\)\s*=>\s*\{/g;
+  while ((match = watchRegex.exec(combined)) !== null) {
+    const start = match.index;
+    const blockContent = extractBalancedBraces(combined, match.index + match[0].length - 1);
+    const end = start + match[0].length + blockContent.length;
+    watchBlocks.push({ start, end });
+  }
+  const functionBlocks = [];
+  const functionRegex = /(?:const|let|function)\s+(\w+)\s*=?\s*(?:async\s*)?\(?[^)]*\)?\s*(?:=>)?\s*\{/g;
+  while ((match = functionRegex.exec(combined)) !== null) {
+    const name = match[1];
+    if (["onMounted", "onUnmounted", "watch", "watchEffect"].includes(name))
+      continue;
+    const start = match.index;
+    const blockContent = extractBalancedBraces(combined, match.index + match[0].length - 1);
+    const end = start + match[0].length + blockContent.length;
+    functionBlocks.push({ start, end, name });
+  }
+  function getLoadTrigger(position) {
+    for (const block of onMountedBlocks) {
+      if (position >= block.start && position <= block.end) {
+        return "onMount";
+      }
+    }
+    for (const block of watchBlocks) {
+      if (position >= block.start && position <= block.end) {
+        return "watch";
+      }
+    }
+    for (const block of functionBlocks) {
+      if (position >= block.start && position <= block.end) {
+        if (/^(handle|on|submit|save|delete|update|create|fetch|load|click)/i.test(block.name)) {
+          return "action";
+        }
+      }
+    }
+    return "unknown";
+  }
   const apiCallRegex1 = /(?:const|let)\s+(\w+)(?::\s*\w+)?\s*=\s*(?:await\s+)?(?:api|useApi\(\))\.(\w+)\.(\w+)\s*\(/g;
   while ((match = apiCallRegex1.exec(combined)) !== null) {
     const [, variable, resource, action] = match;
     apiCalls.push({
       composable: `${resource}.${action}`,
-      variable
+      variable,
+      loadTrigger: getLoadTrigger(match.index)
     });
   }
   const apiCallRegex2 = /(\w+)(?:\.value)?\s*=\s*(?:await\s+)?(?:api|useApi\(\))\.(\w+)\.(\w+)\s*\(/g;
@@ -278,7 +326,8 @@ function analyzeScript(script, scriptSetup) {
     if (!apiCalls.some((c) => c.composable === `${resource}.${action}`)) {
       apiCalls.push({
         composable: `${resource}.${action}`,
-        variable
+        variable,
+        loadTrigger: getLoadTrigger(match.index)
       });
     }
   }
@@ -288,7 +337,8 @@ function analyzeScript(script, scriptSetup) {
     if (!apiCalls.some((c) => c.composable === `${resource}.${action}`)) {
       apiCalls.push({
         composable: `${resource}.${action}`,
-        variable
+        variable,
+        loadTrigger: getLoadTrigger(match.index)
       });
     }
   }
@@ -297,7 +347,38 @@ function analyzeScript(script, scriptSetup) {
     const [, variable, funcName] = match;
     apiCalls.push({
       composable: funcName,
-      variable
+      variable,
+      loadTrigger: getLoadTrigger(match.index)
+    });
+  }
+  const useFetchRegex = /(?:const|let)\s+\{?\s*(\w+)(?:\s*,\s*\w+)*\s*\}?\s*=\s*(?:await\s+)?useFetch\s*\(\s*['"`]([^'"`]+)['"`]/g;
+  while ((match = useFetchRegex.exec(combined)) !== null) {
+    const [, variable, endpoint] = match;
+    apiCalls.push({
+      composable: "useFetch",
+      variable,
+      endpoint,
+      method: "GET",
+      loadTrigger: "useFetch"
+    });
+  }
+  const useAsyncDataRegex = /(?:const|let)\s+\{?\s*(\w+)(?:\s*,\s*\w+)*\s*\}?\s*=\s*(?:await\s+)?useAsyncData\s*\(/g;
+  while ((match = useAsyncDataRegex.exec(combined)) !== null) {
+    const [, variable] = match;
+    apiCalls.push({
+      composable: "useAsyncData",
+      variable,
+      loadTrigger: "useAsyncData"
+    });
+  }
+  const dollarFetchRegex = /(?:const|let)\s+(\w+)\s*=\s*(?:await\s+)?\$fetch\s*\(\s*['"`]([^'"`]+)['"`]/g;
+  while ((match = dollarFetchRegex.exec(combined)) !== null) {
+    const [, variable, endpoint] = match;
+    apiCalls.push({
+      composable: "$fetch",
+      variable,
+      endpoint,
+      loadTrigger: getLoadTrigger(match.index)
     });
   }
   const refRegex = /(?:const|let)\s+(\w+)\s*=\s*(ref|reactive|computed)\s*[(<]/g;
@@ -610,29 +691,33 @@ function analyzeComponent(filePath, apiMappings) {
   const usedComponents = [.../* @__PURE__ */ new Set([...templateComponents, ...scriptComponents])];
   const scriptStaticStrings = extractScriptStaticStrings(sfc.script + "\n" + sfc.scriptSetup);
   const elements = [];
-  for (const ss of scriptStaticStrings) {
-    elements.push({
-      selector: `script:${ss.source}`,
-      type: "static",
-      text: ss.text,
-      line: ss.line,
-      component: componentName
-    });
-  }
   for (const el of templateElements) {
-    const elementType = determineElementType(el);
-    if (elementType === "unknown" && /^[A-Z]/.test(el.tag) && !el.text && !el.binding) {
+    const tagResult = determineElementTags(el);
+    if (tagResult.tags.length === 0 && !el.binding) {
+      continue;
+    }
+    if (tagResult.tags.length === 0 && /^[A-Z]/.test(el.tag) && !el.text && !el.binding) {
       continue;
     }
     const mapping = {
       selector: generateSelector(el),
-      type: elementType,
+      tags: [...tagResult.tags],
       line: el.line,
       component: componentName
     };
-    if (el.isStatic && elementType === "static") {
+    if (tagResult.conditional) {
+      mapping.conditional = tagResult.conditional;
+    }
+    if (tagResult.modal) {
+      mapping.modal = tagResult.modal;
+    }
+    if (tagResult.computed) {
+      mapping.computed = tagResult.computed;
+    }
+    if (el.text) {
       mapping.text = el.text;
-    } else if (el.binding) {
+    }
+    if (el.binding) {
       mapping.binding = el.binding;
       const apiInfo = traceBindingToApi(el.binding, scriptAnalysis, apiMappings);
       if (apiInfo) {
@@ -641,23 +726,33 @@ function analyzeComponent(filePath, apiMappings) {
           method: apiInfo.method,
           description: apiInfo.description
         };
+        if (!mapping.tags.includes("api")) {
+          mapping.tags.push("api");
+        }
         const dbInfo = mapToDatabase(el.binding, apiInfo);
         if (dbInfo) {
           mapping.db = dbInfo;
+          if (!mapping.tags.includes("db")) {
+            mapping.tags.push("db");
+          }
         }
       }
     }
-    elements.push(mapping);
+    if (mapping.tags.length > 0 || mapping.binding) {
+      elements.push(mapping);
+    }
   }
   return {
     filePath,
     componentName,
     elements,
     apis: scriptAnalysis.apiCalls.map((api) => ({
-      endpoint: apiMappings[api.composable]?.endpoint || "",
-      method: apiMappings[api.composable]?.method || "GET",
+      endpoint: api.endpoint || apiMappings[api.composable]?.endpoint || "",
+      method: api.method || apiMappings[api.composable]?.method || "GET",
       composable: api.composable,
-      responseType: api.variable
+      responseType: api.variable,
+      loadTrigger: api.loadTrigger,
+      variable: api.variable
     })),
     imports: scriptAnalysis.imports,
     usedComponents
@@ -674,23 +769,43 @@ function generateSelector(el) {
   }
   return parts.join("");
 }
-function determineElementType(el) {
+function determineElementTags(el) {
+  const tags = [];
+  const result = { tags };
   if (el.tag === "button" || el.attributes["@click"] || el.attributes.role === "button") {
-    return "button";
+    tags.push("button");
   }
-  if (el.tag === "a" || el.attributes.href || el.attributes.to) {
-    return "link";
+  if (el.tag === "a" || el.attributes.href || el.attributes.to || el.tag === "NuxtLink" || el.tag === "RouterLink") {
+    tags.push("link");
   }
-  if (["input", "select", "textarea"].includes(el.tag)) {
-    return "form";
+  if (["input", "select", "textarea"].includes(el.tag) || el.attributes["v-model"]) {
+    tags.push("form");
+  }
+  const clickHandler = el.attributes["@click"] || "";
+  if (clickHandler.includes("modal") || clickHandler.includes("Modal") || clickHandler.includes("dialog") || clickHandler.includes("Dialog") || clickHandler.includes("open") || clickHandler.includes("show")) {
+    tags.push("modal");
+    const modalMatch = clickHandler.match(/(?:open|show|toggle)(?:Modal|Dialog)?\s*\(\s*['"]?(\w+)['"]?\s*\)/i);
+    if (modalMatch) {
+      result.modal = { target: modalMatch[1] };
+    } else {
+      result.modal = {};
+    }
+  }
+  const vIf = el.attributes["v-if"];
+  const vShow = el.attributes["v-show"];
+  if (vIf || vShow) {
+    tags.push("conditional");
+    result.conditional = { expression: vIf || vShow };
   }
   if (el.binding) {
-    return "data";
+    const bindingPath = el.binding;
+    const isLikelyComputed = !bindingPath.includes(".") && !bindingPath.includes("[") || bindingPath.match(/(?:total|sum|count|average|calculated|formatted|display)/i);
+    if (isLikelyComputed) {
+      tags.push("computed");
+      result.computed = { expression: bindingPath };
+    }
   }
-  if (el.isStatic) {
-    return "static";
-  }
-  return "unknown";
+  return result;
 }
 function traceBindingToApi(binding, scriptAnalysis, apiMappings) {
   const parts = binding.split(".");
@@ -883,9 +998,10 @@ async function analyzeProject(projectPath, options = {}) {
       const relativePath = path.relative(projectPath, vueFile);
       components[relativePath] = analysis;
       if (verbose) {
-        const staticCount = analysis.elements.filter((e) => e.type === "static").length;
-        const dataCount = analysis.elements.filter((e) => e.type === "data").length;
-        console.log(`  \u2713 ${relativePath}: ${staticCount} static, ${dataCount} data`);
+        const dbCount = analysis.elements.filter((e) => e.tags.includes("db")).length;
+        const formCount = analysis.elements.filter((e) => e.tags.includes("form")).length;
+        const buttonCount = analysis.elements.filter((e) => e.tags.includes("button")).length;
+        console.log(`  \u2713 ${relativePath}: ${dbCount} DB, ${formCount} form, ${buttonCount} button`);
       }
     } catch (e) {
       console.error(`  \u2717 Error analyzing ${vueFile}:`, e);
@@ -901,26 +1017,50 @@ async function analyzeProject(projectPath, options = {}) {
   };
   if (output) {
     const outputPath = path.resolve(output);
+    const outputDir = path.dirname(outputPath);
+    if (!fs.existsSync(outputDir)) {
+      fs.mkdirSync(outputDir, { recursive: true });
+      console.log(`\u{1F4C1} Created directory: ${outputDir}`);
+    }
     fs.writeFileSync(outputPath, JSON.stringify(result, null, 2));
     console.log(`
 \u2705 Analysis saved to: ${outputPath}`);
   }
   const totalElements = Object.values(components).reduce((sum, c) => sum + c.elements.length, 0);
-  const staticElements = Object.values(components).reduce(
-    (sum, c) => sum + c.elements.filter((e) => e.type === "static").length,
+  const dbElements = Object.values(components).reduce(
+    (sum, c) => sum + c.elements.filter((e) => e.tags.includes("db")).length,
     0
   );
-  const dataElements = Object.values(components).reduce(
-    (sum, c) => sum + c.elements.filter((e) => e.type === "data").length,
+  const formElements = Object.values(components).reduce(
+    (sum, c) => sum + c.elements.filter((e) => e.tags.includes("form")).length,
+    0
+  );
+  const buttonElements = Object.values(components).reduce(
+    (sum, c) => sum + c.elements.filter((e) => e.tags.includes("button")).length,
+    0
+  );
+  const linkElements = Object.values(components).reduce(
+    (sum, c) => sum + c.elements.filter((e) => e.tags.includes("link")).length,
+    0
+  );
+  const modalElements = Object.values(components).reduce(
+    (sum, c) => sum + c.elements.filter((e) => e.tags.includes("modal")).length,
+    0
+  );
+  const conditionalElements = Object.values(components).reduce(
+    (sum, c) => sum + c.elements.filter((e) => e.tags.includes("conditional")).length,
     0
   );
   console.log(`
 \u{1F4CA} Analysis Summary:
    Components: ${Object.keys(components).length}
    Total elements: ${totalElements}
-   - Static: ${staticElements}
-   - Data: ${dataElements}
-   - Other: ${totalElements - staticElements - dataElements}
+   - DB: ${dbElements}
+   - \u30D5\u30A9\u30FC\u30E0: ${formElements}
+   - \u30DC\u30BF\u30F3: ${buttonElements}
+   - \u30EA\u30F3\u30AF: ${linkElements}
+   - \u30E2\u30FC\u30C0\u30EB: ${modalElements}
+   - \u6761\u4EF6\u8868\u793A: ${conditionalElements}
    API endpoints: ${Object.keys(apiMappings).length}
 `);
   return result;

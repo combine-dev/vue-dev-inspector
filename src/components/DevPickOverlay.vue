@@ -17,6 +17,22 @@ const hoveredElement = ref<HTMLElement | null>(null)
 const scrollY = ref(0)
 const scrollX = ref(0)
 
+// Tag labels for display
+function getTagLabel(tag: string): string {
+  const labels: Record<string, string> = {
+    db: 'DB',
+    form: 'フォーム',
+    button: 'ボタン',
+    link: 'リンク',
+    modal: 'モーダル',
+    conditional: '条件',
+    computed: '計算',
+    api: 'API',
+    other: 'その他',
+  }
+  return labels[tag] || tag
+}
+
 // Get note type color
 function getNoteColor(selector: string): string {
   const config = store.getElementConfig(selector)
@@ -159,10 +175,14 @@ const analysisHighlights = computed(() => {
     left: string
     width: string
     height: string
-    type: string
+    tags: string[]
+    primaryTag: string
     text: string
     dbInfo?: string
     apiInfo?: string
+    apiSource?: string  // e.g., "GET /users"
+    conditionalExpr?: string
+    modalTarget?: string
   }> = []
 
   // Check filter setting
@@ -191,8 +211,8 @@ const analysisHighlights = computed(() => {
                           (element.hasAttribute('data-di-binding') ? element : null)
 
       let dbInfo = ''
-      let finalType = el.type
       let binding = el.binding || ''
+      const tags: string[] = [...(el.tags || [])]
 
       if (diBindingEl) {
         const diDb = diBindingEl.getAttribute('data-di-db')
@@ -200,43 +220,86 @@ const analysisHighlights = computed(() => {
 
         if (diDb) {
           dbInfo = diDb
-          finalType = 'data'  // Override type to 'data' if has DB info
+          if (!tags.includes('db')) {
+            tags.push('db')
+          }
         }
         if (diBinding) {
           binding = diBinding
-          if (!dbInfo) {
-            finalType = 'data'  // Has binding = dynamic data
-          }
         }
       }
 
       // Fallback to CLI analysis data if no DOM attributes
       if (!dbInfo && el.db) {
         dbInfo = `${el.db.table}.${el.db.column}`
+        if (!tags.includes('db')) {
+          tags.push('db')
+        }
       }
 
       let apiInfo = ''
       if (el.api) {
         apiInfo = `${el.api.method} ${el.api.endpoint}`
+        if (!tags.includes('api')) {
+          tags.push('api')
+        }
       }
 
+      // Look up API source for this binding (e.g., which API fetched this data)
+      let apiSource = ''
+      if (binding) {
+        const api = store.getApiSourceForBinding(binding)
+        if (api && api.endpoint) {
+          apiSource = `${api.method || 'GET'} ${api.endpoint}`
+        } else if (api && api.composable) {
+          apiSource = api.composable
+        }
+      }
+
+      // Extract additional info
+      const conditionalExpr = el.conditional?.expression
+      const modalTarget = el.modal?.target
+
       // Check element properties for filtering
-      const hasDb = !!dbInfo
-      const hasApi = !!apiInfo
-      const isStatic = finalType === 'static'
-      const isData = finalType === 'data'
+      const hasDb = !!dbInfo || tags.includes('db')
+      const hasApi = !!apiInfo || tags.includes('api')
+      const hasForm = tags.includes('form')
+      const hasButton = tags.includes('button')
+      const hasLink = tags.includes('link')
+      const hasModal = tags.includes('modal')
+      const hasConditional = tags.includes('conditional')
+      const hasComputed = tags.includes('computed')
 
       // Apply filter
       if (filter === 'db-api') {
         if (!hasDb && !hasApi) continue
-      } else if (filter === 'static') {
-        if (!isStatic) continue
-      } else if (filter === 'data') {
-        if (!isData) continue
+      } else if (filter === 'form') {
+        if (!hasForm) continue
+      } else if (filter === 'button') {
+        if (!hasButton) continue
+      } else if (filter === 'link') {
+        if (!hasLink) continue
+      } else if (filter === 'modal') {
+        if (!hasModal) continue
+      } else if (filter === 'conditional') {
+        if (!hasConditional) continue
+      } else if (filter === 'computed') {
+        if (!hasComputed) continue
       } else if (filter === 'other') {
-        if (hasDb || hasApi || isStatic || isData) continue
+        if (hasDb || hasApi || hasForm || hasButton || hasLink || hasModal || hasConditional || hasComputed) continue
       }
       // 'all' shows everything
+
+      // Determine primary tag for styling (priority order)
+      let primaryTag = 'other'
+      if (hasDb) primaryTag = 'db'
+      else if (hasApi) primaryTag = 'api'
+      else if (hasForm) primaryTag = 'form'
+      else if (hasButton) primaryTag = 'button'
+      else if (hasLink) primaryTag = 'link'
+      else if (hasModal) primaryTag = 'modal'
+      else if (hasConditional) primaryTag = 'conditional'
+      else if (hasComputed) primaryTag = 'computed'
 
       highlights.push({
         selector: result.selector,
@@ -244,10 +307,14 @@ const analysisHighlights = computed(() => {
         left: `${rect.left + _scrollX}px`,
         width: `${rect.width}px`,
         height: `${rect.height}px`,
-        type: finalType,
+        tags,
+        primaryTag,
         text: el.text || binding || '',
         dbInfo,
         apiInfo,
+        apiSource,
+        conditionalExpr,
+        modalTarget,
       })
     } catch {
       // Invalid selector, skip
@@ -442,13 +509,7 @@ watch(() => store.isPickMode, (isPicking) => {
         :key="'analysis-' + highlight.selector"
         data-dev-inspector
         class="di-analysis-highlight"
-        :class="{
-          'di-analysis-static': highlight.type === 'static',
-          'di-analysis-data': highlight.type === 'data',
-          'di-analysis-form': highlight.type === 'form',
-          'di-analysis-button': highlight.type === 'button',
-          'di-analysis-link': highlight.type === 'link',
-        }"
+        :class="'di-analysis-' + highlight.primaryTag"
         :style="{
           top: highlight.top,
           left: highlight.left,
@@ -457,9 +518,12 @@ watch(() => store.isPickMode, (isPicking) => {
         }"
         @click="store.startEditing(highlight.selector)"
       >
-        <div class="di-analysis-label" :class="'di-analysis-label-' + (highlight.dbInfo ? 'db' : highlight.type)">
-          <span class="di-analysis-type">{{ highlight.dbInfo ? 'DB' : highlight.type === 'static' ? '固定' : highlight.type === 'data' ? 'データ' : highlight.type }}</span>
+        <div class="di-analysis-label" :class="'di-analysis-label-' + highlight.primaryTag">
+          <span class="di-analysis-type">{{ getTagLabel(highlight.primaryTag) }}</span>
+          <span v-if="highlight.tags.length > 1" class="di-analysis-tags">+{{ highlight.tags.length - 1 }}</span>
           <span v-if="highlight.dbInfo" class="di-analysis-db">{{ highlight.dbInfo }}</span>
+          <span v-if="highlight.apiSource" class="di-analysis-api-source">← {{ highlight.apiSource }}</span>
+          <span v-if="highlight.conditionalExpr" class="di-analysis-conditional">{{ highlight.conditionalExpr }}</span>
           <button
             class="di-analysis-delete"
             @click.stop="store.removeAnalysisResult(highlight.selector)"
@@ -681,19 +745,19 @@ watch(() => store.isPickMode, (isPicking) => {
   border-color: #2563eb;
 }
 
-.di-analysis-static {
-  border-color: #10b981;
-  background: rgba(16, 185, 129, 0.1);
+.di-analysis-db {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
 }
-.di-analysis-static:hover {
-  background: rgba(16, 185, 129, 0.2);
+.di-analysis-db:hover {
+  background: rgba(59, 130, 246, 0.2);
 }
 
-.di-analysis-data {
+.di-analysis-api {
   border-color: #f59e0b;
   background: rgba(245, 158, 11, 0.1);
 }
-.di-analysis-data:hover {
+.di-analysis-api:hover {
   background: rgba(245, 158, 11, 0.2);
 }
 
@@ -701,11 +765,56 @@ watch(() => store.isPickMode, (isPicking) => {
   border-color: #8b5cf6;
   background: rgba(139, 92, 246, 0.1);
 }
+.di-analysis-form:hover {
+  background: rgba(139, 92, 246, 0.2);
+}
 
-.di-analysis-button,
-.di-analysis-link {
+.di-analysis-button {
   border-color: #ec4899;
   background: rgba(236, 72, 153, 0.1);
+}
+.di-analysis-button:hover {
+  background: rgba(236, 72, 153, 0.2);
+}
+
+.di-analysis-link {
+  border-color: #14b8a6;
+  background: rgba(20, 184, 166, 0.1);
+}
+.di-analysis-link:hover {
+  background: rgba(20, 184, 166, 0.2);
+}
+
+.di-analysis-modal {
+  border-color: #a855f7;
+  background: rgba(168, 85, 247, 0.1);
+}
+.di-analysis-modal:hover {
+  background: rgba(168, 85, 247, 0.2);
+}
+
+.di-analysis-conditional {
+  border-color: #06b6d4;
+  background: rgba(6, 182, 212, 0.1);
+}
+.di-analysis-conditional:hover {
+  background: rgba(6, 182, 212, 0.2);
+}
+
+.di-analysis-computed {
+  border-color: #84cc16;
+  background: rgba(132, 204, 22, 0.1);
+}
+.di-analysis-computed:hover {
+  background: rgba(132, 204, 22, 0.2);
+}
+
+.di-analysis-other {
+  border-color: #6b7280;
+  background: rgba(107, 114, 128, 0.1);
+}
+.di-analysis-other:hover {
+  background: rgba(107, 114, 128, 0.2);
 }
 
 .di-analysis-label {
@@ -725,32 +834,64 @@ watch(() => store.isPickMode, (isPicking) => {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-.di-analysis-label-static {
-  background: #10b981;
-}
-.di-analysis-label-data {
-  background: #f59e0b;
-  color: #1e293b;
-}
 .di-analysis-label-db {
   background: #3b82f6;
+}
+.di-analysis-label-api {
+  background: #f59e0b;
+  color: #1e293b;
 }
 .di-analysis-label-form {
   background: #8b5cf6;
 }
-.di-analysis-label-button,
-.di-analysis-label-link {
+.di-analysis-label-button {
   background: #ec4899;
+}
+.di-analysis-label-link {
+  background: #14b8a6;
+}
+.di-analysis-label-modal {
+  background: #a855f7;
+}
+.di-analysis-label-conditional {
+  background: #06b6d4;
+}
+.di-analysis-label-computed {
+  background: #84cc16;
+  color: #1e293b;
+}
+.di-analysis-label-other {
+  background: #6b7280;
 }
 
 .di-analysis-type {
   font-weight: 700;
 }
 
-.di-analysis-db {
+.di-analysis-db,
+.di-analysis-conditional,
+.di-analysis-api-source {
   font-family: monospace;
   font-size: 8px;
   opacity: 0.9;
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.di-analysis-api-source {
+  color: #fcd34d;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.di-analysis-tags {
+  font-size: 8px;
+  padding: 0 3px;
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+  margin-left: 2px;
 }
 
 .di-analysis-delete {

@@ -121,11 +121,29 @@ const isRestoringHidden = ref(false)
 const filterOptions = [
   { value: 'all', label: 'すべて' },
   { value: 'db-api', label: 'DB/API' },
-  { value: 'static', label: '固定文言' },
-  { value: 'data', label: '動的データ' },
+  { value: 'form', label: 'フォーム' },
+  { value: 'button', label: 'ボタン' },
+  { value: 'link', label: 'リンク' },
+  { value: 'modal', label: 'モーダル' },
+  { value: 'conditional', label: '条件' },
+  { value: 'computed', label: '計算' },
   { value: 'other', label: 'その他' },
   { value: 'none', label: '非表示' },
 ] as const
+
+// Current page APIs (computed when analysis is applied)
+const currentPageApis = computed(() => {
+  return store.getCurrentPageApis()
+})
+
+const loadTriggerLabels: Record<string, string> = {
+  onMount: '画面読込時',
+  useFetch: 'useFetch',
+  useAsyncData: 'useAsyncData',
+  watch: 'watch',
+  action: 'アクション',
+  unknown: '不明',
+}
 
 async function loadAnalysisData() {
   isLoadingAnalysis.value = true
@@ -336,6 +354,42 @@ async function restoreHiddenElements() {
                 <Download style="width: 12px; height: 12px;" />
                 <span>変更をエクスポート</span>
               </button>
+            </div>
+          </div>
+
+          <!-- Page APIs Section -->
+          <div v-if="currentPageApis.pageLoad.length > 0 || currentPageApis.action.length > 0" class="di-page-apis">
+            <!-- Page Load APIs -->
+            <div v-if="currentPageApis.pageLoad.length > 0" class="di-api-group">
+              <div class="di-api-group-header">
+                <span class="di-api-group-icon">📡</span>
+                <span>画面読込時のAPI</span>
+                <span class="di-api-group-count">{{ currentPageApis.pageLoad.length }}</span>
+              </div>
+              <div class="di-api-group-list">
+                <div v-for="api in currentPageApis.pageLoad" :key="api.endpoint + api.method" class="di-api-group-item">
+                  <span class="di-api-method" :class="'di-api-method-' + api.method.toLowerCase()">{{ api.method }}</span>
+                  <code class="di-api-endpoint">{{ api.endpoint || api.composable }}</code>
+                  <span v-if="api.variable" class="di-api-variable">→ {{ api.variable }}</span>
+                  <span class="di-api-trigger">{{ loadTriggerLabels[api.loadTrigger] }}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action APIs -->
+            <div v-if="currentPageApis.action.length > 0" class="di-api-group">
+              <div class="di-api-group-header">
+                <span class="di-api-group-icon">👆</span>
+                <span>アクション時のAPI</span>
+                <span class="di-api-group-count">{{ currentPageApis.action.length }}</span>
+              </div>
+              <div class="di-api-group-list">
+                <div v-for="api in currentPageApis.action" :key="api.endpoint + api.method" class="di-api-group-item">
+                  <span class="di-api-method" :class="'di-api-method-' + api.method.toLowerCase()">{{ api.method }}</span>
+                  <code class="di-api-endpoint">{{ api.endpoint || api.composable }}</code>
+                  <span v-if="api.variable" class="di-api-variable">→ {{ api.variable }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -1318,5 +1372,102 @@ async function restoreHiddenElements() {
 .di-export-changes-btn:hover {
   background: #3b82f6;
   color: white;
+}
+
+/* Page APIs Section */
+.di-page-apis {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.di-api-group {
+  background: #1e293b;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.di-api-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(59, 130, 246, 0.1);
+  border-bottom: 1px solid #334155;
+  font-size: 11px;
+  font-weight: 600;
+  color: #93c5fd;
+}
+.di-api-group-icon {
+  font-size: 12px;
+}
+.di-api-group-count {
+  margin-left: auto;
+  padding: 1px 6px;
+  background: #334155;
+  border-radius: 4px;
+  font-size: 10px;
+  color: #94a3b8;
+}
+.di-api-group-list {
+  padding: 6px 0;
+}
+.di-api-group-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  font-size: 10px;
+}
+.di-api-group-item:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+.di-api-method {
+  padding: 2px 5px;
+  border-radius: 3px;
+  font-weight: 700;
+  font-size: 9px;
+  min-width: 36px;
+  text-align: center;
+}
+.di-api-method-get {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+}
+.di-api-method-post {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+.di-api-method-put {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+.di-api-method-delete {
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+}
+.di-api-method-patch {
+  background: rgba(139, 92, 246, 0.15);
+  color: #8b5cf6;
+}
+.di-api-endpoint {
+  color: #e2e8f0;
+  font-family: monospace;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.di-api-variable {
+  color: #60a5fa;
+  font-family: monospace;
+  font-size: 9px;
+}
+.di-api-trigger {
+  padding: 1px 5px;
+  background: #475569;
+  border-radius: 3px;
+  color: #cbd5e1;
+  font-size: 9px;
+  white-space: nowrap;
 }
 </style>
