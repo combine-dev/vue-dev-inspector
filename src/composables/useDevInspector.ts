@@ -96,6 +96,19 @@ export interface AnalyzedElement {
   line?: number
 }
 
+export interface DbColumnSchema {
+  name: string
+  type: string
+  comment: string | null
+  nullable: boolean
+}
+
+export interface DbTableSchema {
+  name: string
+  comment: string | null
+  columns: Record<string, DbColumnSchema>
+}
+
 export interface ProjectAnalysis {
   projectPath: string
   analyzedAt: string
@@ -110,6 +123,10 @@ export interface ProjectAnalysis {
     method: string
     responseFields: { name: string; type: string }[]
   }>
+  // DB schema for table.column selector
+  dbSchema?: {
+    tables: Record<string, DbTableSchema>
+  }
 }
 
 export interface DevInspectorOptions {
@@ -1281,6 +1298,53 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     )
   }
 
+  // Get all table.column options from schema.rb
+  interface SchemaColumnOption {
+    table: string
+    column: string
+    type: string
+    comment: string | null
+    fullName: string // "table.column"
+  }
+
+  function getSchemaColumns(): SchemaColumnOption[] {
+    if (!analysisData.value?.dbSchema?.tables) return []
+
+    const options: SchemaColumnOption[] = []
+
+    for (const [tableName, table] of Object.entries(analysisData.value.dbSchema.tables)) {
+      for (const [columnName, column] of Object.entries(table.columns)) {
+        options.push({
+          table: tableName,
+          column: columnName,
+          type: column.type,
+          comment: column.comment,
+          fullName: `${tableName}.${columnName}`,
+        })
+      }
+    }
+
+    // Sort by table name, then column name
+    return options.sort((a, b) => {
+      if (a.table !== b.table) return a.table.localeCompare(b.table)
+      return a.column.localeCompare(b.column)
+    })
+  }
+
+  // Search schema columns by keyword
+  function searchSchemaColumns(query: string): SchemaColumnOption[] {
+    const all = getSchemaColumns()
+    if (!query) return all
+
+    const q = query.toLowerCase()
+    return all.filter(c =>
+      c.table.toLowerCase().includes(q) ||
+      c.column.toLowerCase().includes(q) ||
+      c.fullName.toLowerCase().includes(q) ||
+      c.comment?.toLowerCase().includes(q)
+    )
+  }
+
   function isAnalysisSelectorHidden(selector: string): boolean {
     return hiddenAnalysisSelectors.value.has(selector)
   }
@@ -1402,6 +1466,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     downloadChanges,
     getAvailableBindings,
     searchBindings,
+    getSchemaColumns,
+    searchSchemaColumns,
   }
 })
 

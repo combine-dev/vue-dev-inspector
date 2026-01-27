@@ -65,6 +65,19 @@ interface ProjectAnalysis {
     method: string
     responseFields: { name: string; type: string; dbColumn?: string }[]
   }>
+  // DB schema info for browser UI selector
+  dbSchema?: {
+    tables: Record<string, {
+      name: string
+      comment: string | null
+      columns: Record<string, {
+        name: string
+        type: string
+        comment: string | null
+        nullable: boolean
+      }>
+    }>
+  }
 }
 
 // ===== Utilities =====
@@ -1366,6 +1379,8 @@ export async function analyzeProject(projectPath: string, options: {
     analyzedAt: new Date().toISOString(),
     components,
     apiMappings,
+    // Include DB schema for browser UI selector
+    dbSchema: globalDbSchema || undefined,
   }
 
   // Output results

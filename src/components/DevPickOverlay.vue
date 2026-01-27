@@ -68,11 +68,27 @@ const existingAnnotations = computed(() => {
         const isStatic = config?.sourceBinding?.isStatic || false
         const bindingType = config?.sourceBinding?.type || ''
 
+        // Build label with DB info if available
         let label = ''
-        if (isStatic) label = '固定'
-        else if (bindingType === 'v-model') label = 'フォーム'
-        else if (bindingType === 'api') label = 'データ'
-        else label = 'メモ'
+        if (config?.fieldInfo?.table && config?.fieldInfo?.column) {
+          label = `DB: ${config.fieldInfo.table}.${config.fieldInfo.column}`
+        } else if (isStatic) {
+          label = '固定'
+        } else if (bindingType === 'v-model') {
+          label = 'フォーム'
+        } else if (bindingType === 'api') {
+          label = 'データ'
+        } else if (config?.note?.type) {
+          const typeLabels: Record<string, string> = {
+            info: '情報',
+            warning: '注意',
+            todo: 'TODO',
+            question: '質問',
+          }
+          label = typeLabels[config.note.type] || 'メモ'
+        } else {
+          label = 'メモ'
+        }
 
         annotations.push({
           selector,
@@ -365,8 +381,8 @@ watch(() => store.isPickMode, (isPicking) => {
       <span class="di-pick-hint">でキャンセル</span>
     </div>
 
-    <!-- Existing annotation boxes (when not in pick mode and no analysis results) -->
-    <template v-if="store.isEnabled && !store.isPickMode && !store.editingElementId && store.scanResults.length === 0 && store.analysisResults.length === 0">
+    <!-- Existing annotation boxes (when not in pick mode) -->
+    <template v-if="store.isEnabled && !store.isPickMode && !store.editingElementId">
       <div
         v-for="annotation in existingAnnotations"
         :key="annotation.selector"

@@ -895,7 +895,9 @@ async function analyzeProject(projectPath, options = {}) {
     projectPath,
     analyzedAt: (/* @__PURE__ */ new Date()).toISOString(),
     components,
-    apiMappings
+    apiMappings,
+    // Include DB schema for browser UI selector
+    dbSchema: globalDbSchema || void 0
   };
   if (output) {
     const outputPath = path.resolve(output);
