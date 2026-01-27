@@ -322,7 +322,13 @@ function deleteConfig() {
   close()
 }
 
-const typeOptions = ['VARCHAR', 'TEXT', 'INT', 'BIGINT', 'BOOLEAN', 'DATE', 'DATETIME', 'TIMESTAMP', 'JSON']
+// SQL types + Rails/Ruby types
+const typeOptions = [
+  // Rails types
+  'string', 'text', 'integer', 'bigint', 'float', 'decimal', 'boolean', 'date', 'datetime', 'time', 'timestamp', 'binary', 'json', 'jsonb',
+  // SQL types (for compatibility)
+  'VARCHAR', 'TEXT', 'INT', 'BIGINT', 'BOOLEAN', 'DATE', 'DATETIME', 'TIMESTAMP', 'JSON'
+]
 
 // Binding candidates from CLI analysis
 const bindingSearch = ref('')

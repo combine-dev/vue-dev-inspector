@@ -1353,7 +1353,33 @@ const yt = {
     function se() {
       Z.value && (l.deleteElementConfig(Z.value), n());
     }
-    const xe = ["VARCHAR", "TEXT", "INT", "BIGINT", "BOOLEAN", "DATE", "DATETIME", "TIMESTAMP", "JSON"], le = p(""), re = p(!1), we = ne(() => l.searchBindings(le.value).slice(0, 20));
+    const xe = [
+      // Rails types
+      "string",
+      "text",
+      "integer",
+      "bigint",
+      "float",
+      "decimal",
+      "boolean",
+      "date",
+      "datetime",
+      "time",
+      "timestamp",
+      "binary",
+      "json",
+      "jsonb",
+      // SQL types (for compatibility)
+      "VARCHAR",
+      "TEXT",
+      "INT",
+      "BIGINT",
+      "BOOLEAN",
+      "DATE",
+      "DATETIME",
+      "TIMESTAMP",
+      "JSON"
+    ], le = p(""), re = p(!1), we = ne(() => l.searchBindings(le.value).slice(0, 20));
     function je(z) {
       z.db && (h.value = z.db.table, E.value = z.db.column, A.value = z.db.type || ""), G.value = z.binding, P.value = "api", re.value = !1, le.value = "";
     }
@@ -1814,7 +1840,7 @@ const yt = {
       ])) : f("", !0)
     ]));
   }
-}), Ps = /* @__PURE__ */ _e(Es, [["__scopeId", "data-v-af725971"]]), Ds = {
+}), Ps = /* @__PURE__ */ _e(Es, [["__scopeId", "data-v-f69f76ed"]]), Ds = {
   key: 0,
   "data-dev-inspector": "",
   class: "di-loading-overlay"
