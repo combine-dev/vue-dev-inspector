@@ -28,10 +28,58 @@ export interface ActionInfo {
   params?: Record<string, string>
 }
 
+export interface FormInfo {
+  inputType?: string        // text, number, email, select, textarea, checkbox...
+  required?: boolean
+  validation?: string[]     // ['max:255', 'email', '必須']
+  placeholder?: string
+  defaultValue?: string
+  description?: string
+}
+
 export interface ElementNote {
   text: string
   author?: string
   type?: 'info' | 'warning' | 'todo' | 'question'
+  // 表示データの出どころ
+  displayType?: 'db_direct' | 'db_formatted' | 'calculated' | 'static' | 'other'
+  formatDescription?: string   // db_formatted 時: 整形方法の説明
+  calcDescription?: string     // calculated 時: 計算ロジックの説明
+  calcSources?: string[]       // calculated 時: 参照テーブル.カラム
+  // 共通表示メタ情報
+  sampleValue?: string         // サンプル値 (例: "12,500", "田中太郎")
+  decimalHandling?: string     // 小数点の扱い (例: "四捨五入", "切り捨て", "小数第2位まで")
+  unit?: string                // 単位 (例: "円", "%", "個", "件")
+  nullDisplay?: string         // NULL/ゼロ時の表示 (例: "-", "0", "非表示", "N/A")
+  displayFormat?: string       // 表示フォーマット (例: "カンマ区切り", "¥記号付き")
+  // 保存済み計算値 (db_direct / db_formatted 時)
+  storedCalc?: boolean                    // このカラムは計算値を保存しているか
+  storedCalcLogic?: string                // 計算ロジック (例: "SUM(order_items.price * quantity)")
+  storedCalcSources?: string[]            // 元テーブル.カラム
+  storedCalcTiming?: 'on_save' | 'trigger' | 'batch' | 'realtime'  // 計算タイミング
+  // 条件付き表示
+  condition?: string           // 表示条件の説明 (例: "管理者ロール時のみ", "ステータスがactiveの時")
+  conditionColumn?: string     // 判定に使うDBカラム (例: "users.role", "orders.status")
+  hiddenBehavior?: 'hidden' | 'disabled' | 'different_value' | 'empty'  // 条件不一致時の挙動
+  hiddenNote?: string          // different_value 時: 代わりに表示する値の説明
+}
+
+export interface MasterEntry {
+  value: string          // '1', 'admin', 'active'
+  label: string          // '受付', '管理者', '有効'
+  color?: string         // '#3b82f6'
+  description?: string   // 説明
+}
+
+export interface MasterDefinition {
+  id: string             // 'orders.status'
+  table: string
+  column: string
+  name: string           // 表示名 (例: 'ステータス')
+  columnType?: string    // 'integer', 'varchar'
+  description?: string
+  entries: MasterEntry[]
+  updatedAt: string
 }
 
 export interface LinkInfo {
@@ -54,8 +102,12 @@ export interface DevMeta {
 export interface ElementConfig {
   id: string
   componentPath: string
+  pagePath?: string  // URL pathname this annotation belongs to
+  elementType?: 'datasource' | 'action' | 'form'  // 要素の役割
   fieldInfo?: FieldInfo
+  fieldInfoList?: FieldInfo[]  // Multiple DB columns
   actionInfo?: ActionInfo
+  formInfo?: FormInfo                               // フォーム固有情報
   note?: ElementNote
   links?: LinkInfo
   devMeta?: DevMeta
@@ -75,6 +127,31 @@ export interface ScreenSpec {
     description: string
   }[]
   notes?: string[]
+}
+
+export interface ScreenConfig {
+  path: string                  // URL pathname (key)
+  name: string                  // Screen name (e.g., "ユーザー詳細")
+  description?: string          // Screen description
+  componentPath?: string        // Vue component path
+  // API
+  apis: {
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
+    endpoint: string
+    description?: string
+    loadTiming?: 'onMount' | 'action' | 'conditional'
+  }[]
+  // Auth
+  auth?: {
+    required: boolean
+    roles?: string[]
+    description?: string
+  }
+  // Links
+  figmaUrl?: string
+  // Notes
+  notes?: string
+  updatedAt: string
 }
 
 // Element tags
@@ -133,6 +210,41 @@ export interface ComponentApi {
   responseType?: string
 }
 
+// ===== Cross Search =====
+export type CrossSearchMode = 'column' | 'api' | 'text'
+
+export interface CrossSearchResult {
+  pagePath: string
+  pageName: string
+  selector: string
+  elementType?: 'datasource' | 'action' | 'form'
+  matchedField: string
+  matchContext: string
+}
+
+// ===== Unannotated Detection =====
+export interface UnannotatedElement {
+  selector: string
+  tagName: string
+  category: 'binding' | 'form' | 'action'
+  text: string
+  suggestedType: 'datasource' | 'action' | 'form'
+}
+
+// ===== Screen Flow =====
+export interface ScreenFlowNode {
+  path: string
+  name: string
+  annotationCount: number
+}
+
+export interface ScreenFlowEdge {
+  from: string
+  to: string
+  label: string
+  selector: string
+}
+
 // Binding candidate for manual mapping UI
 export interface BindingCandidate {
   binding: string
@@ -189,10 +301,21 @@ export interface DevInspectorOptions {
   autoLoadAnalysis?: boolean
   /** Auto-apply analysis to page after loading (default: true) */
   autoApplyAnalysis?: boolean
+  /** Enable real-time server sync via Vite dev server (default: true in dev mode) */
+  serverSync?: boolean
+  /** Supabase sync for remote collaboration (overrides serverSync) */
+  supabase?: {
+    url: string       // e.g., 'https://xxx.supabase.co'
+    anonKey: string   // public anon key
+    table?: string    // default: 'dev_inspector'
+    pollInterval?: number  // default: 3000 (ms)
+  }
 }
 
 // ===== Store =====
 const STORAGE_KEY_DEFAULT = 'devInspector:elementConfigs'
+const SCREEN_STORAGE_KEY = 'devInspector:screenConfigs'
+const MASTER_STORAGE_KEY = 'devInspector:masterDefinitions'
 
 export const useDevInspectorStore = defineStore('devInspector', () => {
   // Options (set via init)
@@ -209,14 +332,40 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   const editingElementId = ref<string | null>(null)
   const hoveredSelector = ref<string | null>(null)
 
+  // Screen configs (pathname → ScreenConfig)
+  const screenConfigs = ref<Record<string, ScreenConfig>>({})
+  const editingScreen = ref(false)
+
+  // Master definitions (table.column → MasterDefinition)
+  const masterDefinitions = ref<Record<string, MasterDefinition>>({})
+
   // Computed
   const storageKey = computed(() => options.value.storageKey || STORAGE_KEY_DEFAULT)
+  const syncRowId = computed(() => options.value.storageKey || 'shared')
 
   // Analysis data (from CLI tool)
   const analysisData = ref<ProjectAnalysis | null>(null)
 
   // Analysis display filter
   const analysisFilter = ref<'all' | 'db-api' | 'form' | 'button' | 'link' | 'modal' | 'conditional' | 'computed' | 'other' | 'none'>('all')
+
+  // Note highlights visibility
+  const showNoteHighlights = ref(true)
+
+  // Note highlight filter by displayType
+  const noteHighlightFilter = ref<'all' | 'db' | 'calculated' | 'storedCalc' | 'static' | 'conditional' | 'action' | 'form' | 'other'>('all')
+
+  // Cross Search state
+  const showCrossSearch = ref(false)
+  const crossSearchQuery = ref('')
+  const crossSearchMode = ref<CrossSearchMode>('column')
+
+  // Unannotated Detection state
+  const showUnannotatedDetection = ref(false)
+  const unannotatedElements = ref<UnannotatedElement[]>([])
+
+  // Screen Flow state
+  const showScreenFlow = ref(false)
 
   // Hidden analysis selectors (persisted to localStorage)
   const hiddenAnalysisSelectors = ref<Set<string>>(new Set())
@@ -238,6 +387,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   function init(opts: DevInspectorOptions = {}) {
     options.value = opts
     loadConfigs()
+    loadScreenConfigs()
+    loadMasterDefinitions()
     loadHiddenSelectors()
 
     // Load analysis data if provided directly
@@ -251,6 +402,17 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
 
     if (shouldAutoLoad && isAvailable.value) {
       loadAnalysisData(autoLoadUrl)
+    }
+
+    // Server sync: Supabase or Vite dev server
+    if (getSyncMode() !== 'none' && isAvailable.value) {
+      loadFromServer().then((loaded) => {
+        if (loaded) {
+          console.log(`[DevInspector] ${getSyncMode()} sync active`)
+        }
+      })
+      loadMastersFromServer()
+      setupServerSync()
     }
   }
 
@@ -331,12 +493,877 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     }
   }
 
+  // ===== Server Sync =====
+  const syncClientId = ref(Math.random().toString(36).slice(2, 10))
+  const isReceivingFromServer = ref(false)
+  let sseSource: EventSource | null = null
+  let saveToServerTimer: ReturnType<typeof setTimeout> | null = null
+  let pollTimer: ReturnType<typeof setInterval> | null = null
+  let lastSyncHash = '' // Detect actual changes to avoid unnecessary updates
+
+  function getSyncMode(): 'supabase' | 'vite' | 'none' {
+    if (options.value.supabase?.url) return 'supabase'
+    if (options.value.serverSync !== false) return 'vite'
+    return 'none'
+  }
+
+  // --- Supabase helpers ---
+  function supabaseHeaders(): Record<string, string> {
+    const sb = options.value.supabase!
+    return {
+      'apikey': sb.anonKey,
+      'Authorization': `Bearer ${sb.anonKey}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=representation',
+    }
+  }
+
+  function supabaseRestUrl(): string {
+    const sb = options.value.supabase!
+    const table = sb.table || 'dev_inspector'
+    return `${sb.url}/rest/v1/${table}`
+  }
+
+  // Helper: get current page path
+  function getCurrentPage(): string {
+    return typeof window !== 'undefined' ? window.location.pathname : '/'
+  }
+
+  // Helper: get annotations for a specific page
+  function getAnnotationsForPage(page: string): Record<string, ElementConfig> {
+    const result: Record<string, ElementConfig> = {}
+    for (const [id, config] of Object.entries(elementConfigs.value)) {
+      if (config.pagePath === page || (!config.pagePath && page === '/')) {
+        result[id] = config
+      }
+    }
+    return result
+  }
+
+  // Helper: get screen config for a specific page
+  function getScreenConfigForPage(page: string): ScreenConfig | null {
+    return screenConfigs.value[page] || null
+  }
+
+  // --- Unified sync functions ---
+  async function loadFromServer(page?: string): Promise<boolean> {
+    const mode = getSyncMode()
+    if (mode === 'none') return false
+
+    const targetPage = page || getCurrentPage()
+
+    try {
+      let data: { annotations?: Record<string, ElementConfig>; screenConfig?: ScreenConfig | null } | null = null
+
+      if (mode === 'supabase') {
+        const res = await fetch(`${supabaseRestUrl()}?id=eq.${encodeURIComponent(syncRowId.value)}&select=annotations,screen_configs,updated_at`, {
+          headers: supabaseHeaders(),
+        })
+        if (!res.ok) return false
+        const rows = await res.json()
+        if (rows.length > 0) {
+          // Supabase still stores everything — filter client-side
+          data = {
+            annotations: rows[0].annotations || {},
+            screenConfig: rows[0].screen_configs?.[targetPage] || null,
+          }
+        } else {
+          data = { annotations: {}, screenConfig: null }
+        }
+      } else {
+        // Vite: per-page file
+        const res = await fetch(`/__dev-inspector/annotations?page=${encodeURIComponent(targetPage)}`)
+        if (!res.ok) return false
+        data = await res.json()
+      }
+
+      if (data) {
+        const hash = JSON.stringify(data)
+        if (hash === lastSyncHash) return true
+        lastSyncHash = hash
+
+        isReceivingFromServer.value = true
+
+        if (mode === 'supabase') {
+          // Supabase: full replace (all pages in one row)
+          if (data.annotations) {
+            elementConfigs.value = { ...data.annotations }
+          }
+        } else {
+          // Vite: merge page annotations into store
+          if (data.annotations) {
+            const existing = { ...elementConfigs.value }
+            // Remove old annotations for this page, add new ones
+            for (const id of Object.keys(existing)) {
+              if (existing[id].pagePath === targetPage) {
+                delete existing[id]
+              }
+            }
+            elementConfigs.value = { ...existing, ...data.annotations }
+          }
+        }
+
+        if (data.screenConfig) {
+          screenConfigs.value = {
+            ...screenConfigs.value,
+            [targetPage]: data.screenConfig,
+          }
+        }
+
+        nextTick(() => {
+          saveConfigs()
+          saveScreenConfigs()
+          isReceivingFromServer.value = false
+        })
+        console.log('[DevInspector] Loaded from server:', Object.keys(data.annotations || {}).length, 'annotations for', targetPage)
+        return true
+      }
+    } catch {
+      // Server not available — use localStorage only
+    }
+    return false
+  }
+
+  function saveToServer() {
+    if (isReceivingFromServer.value) return
+    if (saveToServerTimer) clearTimeout(saveToServerTimer)
+
+    const mode = getSyncMode()
+    if (mode === 'none') return
+
+    saveToServerTimer = setTimeout(() => {
+      const currentPage = getCurrentPage()
+
+      if (mode === 'supabase') {
+        const annotations = elementConfigs.value
+        const screenConfigsData = screenConfigs.value
+
+        const hash = JSON.stringify({ annotations, screenConfigs: screenConfigsData })
+        if (hash === lastSyncHash) return
+        lastSyncHash = hash
+
+        // Upsert to Supabase (all pages in one row)
+        const row = {
+          id: syncRowId.value,
+          annotations,
+          screen_configs: screenConfigsData,
+          updated_at: new Date().toISOString(),
+          updated_by: syncClientId.value,
+        }
+        fetch(supabaseRestUrl(), {
+          method: 'POST',
+          headers: { ...supabaseHeaders(), 'Prefer': 'resolution=merge-duplicates' },
+          body: JSON.stringify(row),
+        }).catch(() => {})
+      } else {
+        // Vite: save only current page's annotations
+        const pageAnnotations = getAnnotationsForPage(currentPage)
+        const screenConfig = getScreenConfigForPage(currentPage)
+
+        const hash = JSON.stringify({ annotations: pageAnnotations, screenConfig })
+        if (hash === lastSyncHash) return
+        lastSyncHash = hash
+
+        const payload = {
+          clientId: syncClientId.value,
+          page: currentPage,
+          annotations: pageAnnotations,
+          screenConfig,
+          _meta: {
+            lastUpdated: new Date().toISOString(),
+            updatedBy: syncClientId.value,
+          },
+        }
+        fetch('/__dev-inspector/annotations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        }).catch(() => {})
+      }
+    }, 500)
+  }
+
+  function setupServerSync() {
+    if (typeof window === 'undefined') return
+
+    const mode = getSyncMode()
+    if (mode === 'none') return
+
+    if (mode === 'supabase') {
+      // Polling mode for Supabase
+      const interval = options.value.supabase?.pollInterval || 3000
+      pollTimer = setInterval(async () => {
+        try {
+          const res = await fetch(`${supabaseRestUrl()}?id=eq.${encodeURIComponent(syncRowId.value)}&select=annotations,screen_configs,updated_by`, {
+            headers: supabaseHeaders(),
+          })
+          if (!res.ok) return
+          const rows = await res.json()
+          if (rows.length === 0) return
+
+          const row = rows[0]
+          // Skip own updates
+          if (row.updated_by === syncClientId.value) return
+
+          const hash = JSON.stringify({ annotations: row.annotations, screenConfigs: row.screen_configs })
+          if (hash === lastSyncHash) return
+          lastSyncHash = hash
+
+          isReceivingFromServer.value = true
+          if (row.annotations) {
+            elementConfigs.value = { ...row.annotations }
+          }
+          if (row.screen_configs) {
+            screenConfigs.value = { ...row.screen_configs }
+          }
+          nextTick(() => {
+            saveConfigs()
+            saveScreenConfigs()
+            isReceivingFromServer.value = false
+          })
+          console.log('[DevInspector] Synced from Supabase')
+        } catch {
+          // Silent fail
+        }
+      }, interval)
+      console.log(`[DevInspector] Supabase polling started (${interval}ms)`)
+    } else {
+      // SSE mode for Vite dev server
+      if (typeof EventSource === 'undefined') return
+
+      sseSource = new EventSource('/__dev-inspector/events')
+
+      sseSource.onmessage = (event) => {
+        try {
+          const data = JSON.parse(event.data)
+          if (data.type === 'connected') {
+            console.log('[DevInspector] SSE connected')
+            return
+          }
+          if (data.type === 'update' && data.clientId !== syncClientId.value) {
+            const currentPage = getCurrentPage()
+            // Only apply updates for the current page
+            if (data.page && data.page !== currentPage) return
+
+            isReceivingFromServer.value = true
+            if (data.annotations) {
+              // Merge: remove old annotations for this page, add new ones
+              const existing = { ...elementConfigs.value }
+              for (const id of Object.keys(existing)) {
+                if (existing[id].pagePath === currentPage) {
+                  delete existing[id]
+                }
+              }
+              elementConfigs.value = { ...existing, ...data.annotations }
+            }
+            if (data.screenConfig) {
+              screenConfigs.value = {
+                ...screenConfigs.value,
+                [currentPage]: data.screenConfig,
+              }
+            }
+            nextTick(() => {
+              saveConfigs()
+              saveScreenConfigs()
+              isReceivingFromServer.value = false
+            })
+            console.log('[DevInspector] Synced from another client (page:', currentPage + ')')
+          }
+          // Master definitions update
+          if (data.type === 'masters' && data.clientId !== syncClientId.value) {
+            isReceivingFromServer.value = true
+            if (data.masters) {
+              masterDefinitions.value = { ...data.masters }
+            }
+            nextTick(() => {
+              saveMasterDefinitions()
+              isReceivingFromServer.value = false
+            })
+            console.log('[DevInspector] Masters synced from another client')
+          }
+        } catch {
+          // Ignore parse errors
+        }
+      }
+
+      sseSource.onerror = () => {
+        // SSE will auto-reconnect
+      }
+    }
+  }
+
+  function teardownServerSync() {
+    if (sseSource) {
+      sseSource.close()
+      sseSource = null
+    }
+    if (pollTimer) {
+      clearInterval(pollTimer)
+      pollTimer = null
+    }
+    if (saveToServerTimer) {
+      clearTimeout(saveToServerTimer)
+      saveToServerTimer = null
+    }
+  }
+
   // Watch for changes and save - use immediate flush to ensure save happens
   watch(elementConfigs, () => {
     nextTick(() => {
       saveConfigs()
+      saveToServer()
     })
   }, { deep: true })
+
+  // Screen configs persistence
+  function loadScreenConfigs() {
+    try {
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem(SCREEN_STORAGE_KEY)
+        if (stored) {
+          screenConfigs.value = JSON.parse(stored)
+        }
+      }
+    } catch (e) {
+      console.error('[DevInspector] Failed to load screen configs:', e)
+    }
+  }
+
+  function saveScreenConfigs() {
+    try {
+      if (typeof window !== 'undefined') {
+        const data = JSON.stringify(screenConfigs.value)
+        localStorage.setItem(SCREEN_STORAGE_KEY, data)
+      }
+    } catch (e) {
+      console.error('[DevInspector] Failed to save screen configs:', e)
+    }
+  }
+
+  watch(screenConfigs, () => {
+    nextTick(() => {
+      saveScreenConfigs()
+      saveToServer()
+    })
+  }, { deep: true })
+
+  function getScreenConfig(path?: string): ScreenConfig | undefined {
+    const p = path || (typeof window !== 'undefined' ? window.location.pathname : '/')
+    return screenConfigs.value[p]
+  }
+
+  function setScreenConfig(config: ScreenConfig) {
+    screenConfigs.value = {
+      ...screenConfigs.value,
+      [config.path]: config,
+    }
+    nextTick(() => saveScreenConfigs())
+  }
+
+  function deleteScreenConfig(path: string) {
+    const { [path]: _, ...rest } = screenConfigs.value
+    screenConfigs.value = rest
+    nextTick(() => saveScreenConfigs())
+  }
+
+  // ===== Master Definitions =====
+  function loadMasterDefinitions() {
+    try {
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem(MASTER_STORAGE_KEY)
+        if (stored) {
+          masterDefinitions.value = JSON.parse(stored)
+        }
+      }
+    } catch (e) {
+      console.error('[DevInspector] Failed to load master definitions:', e)
+    }
+  }
+
+  function saveMasterDefinitions() {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(MASTER_STORAGE_KEY, JSON.stringify(masterDefinitions.value))
+      }
+    } catch (e) {
+      console.error('[DevInspector] Failed to save master definitions:', e)
+    }
+  }
+
+  watch(masterDefinitions, () => {
+    nextTick(() => {
+      saveMasterDefinitions()
+      saveMastersToServer()
+    })
+  }, { deep: true })
+
+  function getMasterDefinition(tableColumn: string): MasterDefinition | undefined {
+    return masterDefinitions.value[tableColumn]
+  }
+
+  function setMasterDefinition(def: MasterDefinition) {
+    masterDefinitions.value = {
+      ...masterDefinitions.value,
+      [def.id]: { ...def, updatedAt: new Date().toISOString() },
+    }
+    nextTick(() => saveMasterDefinitions())
+  }
+
+  function deleteMasterDefinition(id: string) {
+    const { [id]: _, ...rest } = masterDefinitions.value
+    masterDefinitions.value = rest
+    nextTick(() => saveMasterDefinitions())
+  }
+
+  // Get all masters for a specific table
+  function getMastersForTable(table: string): MasterDefinition[] {
+    return Object.values(masterDefinitions.value).filter(m => m.table === table)
+  }
+
+  // Get master entries for a table.column (shortcut for displaying in UI)
+  function getMasterEntries(tableColumn: string): MasterEntry[] {
+    return masterDefinitions.value[tableColumn]?.entries || []
+  }
+
+  // Server sync for masters
+  function saveMastersToServer() {
+    if (isReceivingFromServer.value) return
+    const mode = getSyncMode()
+    if (mode === 'none') return
+
+    if (mode === 'vite') {
+      fetch('/__dev-inspector/masters', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientId: syncClientId.value,
+          masters: masterDefinitions.value,
+        }),
+      }).catch(() => {})
+    }
+    // Supabase: masters could be added to the existing row — skip for now
+  }
+
+  async function loadMastersFromServer(): Promise<boolean> {
+    const mode = getSyncMode()
+    if (mode !== 'vite') return false
+
+    try {
+      const res = await fetch('/__dev-inspector/masters')
+      if (!res.ok) return false
+      const data = await res.json()
+      if (data.masters) {
+        masterDefinitions.value = { ...data.masters }
+        nextTick(() => saveMasterDefinitions())
+      }
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  // Suggest APIs based on element annotations + analysis data
+  function suggestScreenApis(): ScreenConfig['apis'] {
+    const suggestions: ScreenConfig['apis'] = []
+    const seenEndpoints = new Set<string>()
+
+    // 1. Analyze element configs — group by table, detect read vs write
+    const tableUsage: Record<string, { read: boolean; write: boolean; isList: boolean }> = {}
+
+    for (const config of Object.values(elementConfigs.value)) {
+      const fields = config.fieldInfoList || (config.fieldInfo ? [config.fieldInfo] : [])
+      const isFormElement = config.sourceBinding?.type === 'v-model'
+
+      for (const field of fields) {
+        if (!field.table) continue
+        if (!tableUsage[field.table]) {
+          tableUsage[field.table] = { read: false, write: false, isList: false }
+        }
+        tableUsage[field.table].read = true
+        if (isFormElement) {
+          tableUsage[field.table].write = true
+        }
+      }
+
+      // Check if list context (multiple rows of same table → list API)
+      if (config.note?.displayType === 'db_direct' || config.note?.displayType === 'db_formatted') {
+        for (const field of fields) {
+          if (field.table && tableUsage[field.table]) {
+            // Heuristic: if selector contains tbody/tr/td, it's a list
+            if (config.id.includes('tbody') || config.id.includes(' tr') || config.id.includes(' td')) {
+              tableUsage[field.table].isList = true
+            }
+          }
+        }
+      }
+
+      // Direct API actions from element annotations
+      if (config.actionInfo?.type === 'api' && config.actionInfo.target) {
+        const key = `${config.actionInfo.method || 'GET'}:${config.actionInfo.target}`
+        if (!seenEndpoints.has(key)) {
+          seenEndpoints.add(key)
+          suggestions.push({
+            method: config.actionInfo.method || 'GET',
+            endpoint: config.actionInfo.target,
+            description: config.actionInfo.description || '',
+            loadTiming: 'action',
+          })
+        }
+      }
+    }
+
+    // 2. Generate API suggestions from table usage
+    for (const [table, usage] of Object.entries(tableUsage)) {
+      if (usage.read) {
+        const endpoint = usage.isList ? `/api/${table}` : `/api/${table}/:id`
+        const key = `GET:${endpoint}`
+        if (!seenEndpoints.has(key)) {
+          seenEndpoints.add(key)
+          suggestions.push({
+            method: 'GET',
+            endpoint,
+            description: usage.isList ? `${table} 一覧取得` : `${table} 詳細取得`,
+            loadTiming: 'onMount',
+          })
+        }
+      }
+
+      if (usage.write) {
+        // Suggest both POST (create) and PUT (update) — user can remove unwanted
+        const putEndpoint = `/api/${table}/:id`
+        const putKey = `PUT:${putEndpoint}`
+        if (!seenEndpoints.has(putKey)) {
+          seenEndpoints.add(putKey)
+          suggestions.push({
+            method: 'PUT',
+            endpoint: putEndpoint,
+            description: `${table} 更新`,
+            loadTiming: 'action',
+          })
+        }
+      }
+    }
+
+    // 3. Merge analysis data APIs for matching page components
+    if (analysisData.value?.components) {
+      const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
+
+      for (const [componentPath, component] of Object.entries(analysisData.value.components)) {
+        // Match page components by path pattern
+        const pagePath = componentPath
+          .replace(/^pages/, '')
+          .replace(/\.vue$/, '')
+          .replace(/\/index$/, '')
+          .replace(/\[.*?\]/g, '[^/]+')
+
+        let isMatch = false
+        if (currentPath === '/' && componentPath.includes('index')) {
+          isMatch = true
+        } else if (componentPath.includes('pages/')) {
+          try {
+            isMatch = !!currentPath.match(new RegExp(`^${pagePath}$`))
+          } catch { /* invalid regex */ }
+        }
+
+        if (isMatch && component.apis) {
+          for (const api of component.apis) {
+            if (!api.endpoint) continue
+            const key = `${api.method}:${api.endpoint}`
+            if (!seenEndpoints.has(key)) {
+              seenEndpoints.add(key)
+              suggestions.push({
+                method: api.method as ScreenConfig['apis'][0]['method'],
+                endpoint: api.endpoint,
+                description: api.variable ? `→ ${api.variable}` : '',
+                loadTiming: ['onMount', 'useFetch', 'useAsyncData'].includes(api.loadTrigger) ? 'onMount' : 'action',
+              })
+            }
+          }
+        }
+      }
+    }
+
+    return suggestions
+  }
+
+  // ===== Cross Search =====
+  const crossSearchResults = computed<CrossSearchResult[]>(() => {
+    const query = crossSearchQuery.value.trim().toLowerCase()
+    if (!query) return []
+
+    const mode = crossSearchMode.value
+    const results: CrossSearchResult[] = []
+
+    for (const [id, config] of Object.entries(elementConfigs.value)) {
+      const pagePath = config.pagePath || '/'
+      const screenCfg = screenConfigs.value[pagePath]
+      const pageName = screenCfg?.name || pagePath
+
+      if (mode === 'column') {
+        // Search fieldInfo/fieldInfoList/calcSources/storedCalcSources
+        const fields = config.fieldInfoList?.length ? config.fieldInfoList : (config.fieldInfo ? [config.fieldInfo] : [])
+        for (const field of fields) {
+          const fullName = `${field.table}.${field.column}`.toLowerCase()
+          if (fullName.includes(query) || field.table.toLowerCase().includes(query) || field.column.toLowerCase().includes(query)) {
+            results.push({
+              pagePath,
+              pageName,
+              selector: id,
+              elementType: config.elementType,
+              matchedField: `${field.table}.${field.column}`,
+              matchContext: `${field.type || ''} ${field.description || ''}`.trim(),
+            })
+          }
+        }
+        // Also search calcSources and storedCalcSources
+        const calcSources = config.note?.calcSources || []
+        const storedCalcSources = config.note?.storedCalcSources || []
+        for (const src of [...calcSources, ...storedCalcSources]) {
+          if (src.toLowerCase().includes(query)) {
+            results.push({
+              pagePath,
+              pageName,
+              selector: id,
+              elementType: config.elementType,
+              matchedField: src,
+              matchContext: config.note?.calcDescription || config.note?.storedCalcLogic || '参照元',
+            })
+          }
+        }
+      } else if (mode === 'api') {
+        // Search actionInfo.target + screenConfigs apis
+        if (config.actionInfo?.target?.toLowerCase().includes(query)) {
+          results.push({
+            pagePath,
+            pageName,
+            selector: id,
+            elementType: config.elementType,
+            matchedField: `${config.actionInfo.method || ''} ${config.actionInfo.target}`.trim(),
+            matchContext: config.actionInfo.description || config.actionInfo.type,
+          })
+        }
+      } else if (mode === 'text') {
+        // Search note.text, description, selector, etc.
+        const searchTargets = [
+          config.note?.text,
+          config.note?.calcDescription,
+          config.note?.formatDescription,
+          config.note?.condition,
+          config.actionInfo?.description,
+          config.formInfo?.description,
+          id, // selector itself
+        ].filter(Boolean) as string[]
+
+        for (const target of searchTargets) {
+          if (target.toLowerCase().includes(query)) {
+            results.push({
+              pagePath,
+              pageName,
+              selector: id,
+              elementType: config.elementType,
+              matchedField: target.substring(0, 60),
+              matchContext: config.note?.text?.substring(0, 40) || '',
+            })
+            break // Only one match per element in text mode
+          }
+        }
+      }
+    }
+
+    // Also search screen config APIs in api mode
+    if (mode === 'api') {
+      for (const [path, sc] of Object.entries(screenConfigs.value)) {
+        for (const api of sc.apis || []) {
+          if (api.endpoint.toLowerCase().includes(query)) {
+            results.push({
+              pagePath: path,
+              pageName: sc.name || path,
+              selector: '',
+              elementType: undefined,
+              matchedField: `${api.method} ${api.endpoint}`,
+              matchContext: api.description || '画面API',
+            })
+          }
+        }
+      }
+    }
+
+    return results
+  })
+
+  // ===== Unannotated Detection =====
+  function detectUnannotatedElements(): UnannotatedElement[] {
+    if (typeof document === 'undefined') return []
+
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
+    const configuredSelectors = new Set<string>()
+
+    // Collect all configured selectors for the current page
+    for (const [id, config] of Object.entries(elementConfigs.value)) {
+      if (!config.pagePath || config.pagePath === currentPath) {
+        configuredSelectors.add(id)
+      }
+    }
+
+    const detected: UnannotatedElement[] = []
+    const seenSelectors = new Set<string>()
+
+    // 1. data-di-binding elements → datasource
+    document.querySelectorAll('[data-di-binding]').forEach((el) => {
+      const element = el as HTMLElement
+      if (element.closest('[data-dev-inspector]')) return
+      const selector = generateSelector(element)
+      if (configuredSelectors.has(selector) || seenSelectors.has(selector)) return
+      seenSelectors.add(selector)
+      detected.push({
+        selector,
+        tagName: element.tagName.toLowerCase(),
+        category: 'binding',
+        text: (element.textContent?.trim() || '').substring(0, 50),
+        suggestedType: 'datasource',
+      })
+    })
+
+    // 2. input, select, textarea (exclude hidden) → form
+    document.querySelectorAll('input, select, textarea').forEach((el) => {
+      const element = el as HTMLInputElement
+      if (element.closest('[data-dev-inspector]')) return
+      if (element.type === 'hidden') return
+      const style = window.getComputedStyle(element)
+      if (style.display === 'none' || style.visibility === 'hidden') return
+      const selector = generateSelector(element)
+      if (configuredSelectors.has(selector) || seenSelectors.has(selector)) return
+      seenSelectors.add(selector)
+      const label = element.closest('label')?.textContent?.trim() ||
+        element.getAttribute('aria-label') ||
+        element.placeholder || element.name || element.tagName.toLowerCase()
+      detected.push({
+        selector,
+        tagName: element.tagName.toLowerCase(),
+        category: 'form',
+        text: (label || '').substring(0, 50),
+        suggestedType: 'form',
+      })
+    })
+
+    // 3. button, a[href], [role="button"] (exclude empty text) → action
+    document.querySelectorAll('button, a[href], [role="button"]').forEach((el) => {
+      const element = el as HTMLElement
+      if (element.closest('[data-dev-inspector]')) return
+      const text = element.textContent?.trim() || ''
+      if (!text) return
+      const style = window.getComputedStyle(element)
+      if (style.display === 'none' || style.visibility === 'hidden') return
+      const selector = generateSelector(element)
+      if (configuredSelectors.has(selector) || seenSelectors.has(selector)) return
+      seenSelectors.add(selector)
+      detected.push({
+        selector,
+        tagName: element.tagName.toLowerCase(),
+        category: 'action',
+        text: text.substring(0, 50),
+        suggestedType: 'action',
+      })
+    })
+
+    unannotatedElements.value = detected
+    return detected
+  }
+
+  function quickAnnotate(selector: string, suggestedType: 'datasource' | 'action' | 'form') {
+    const config: Partial<ElementConfig> = {
+      elementType: suggestedType,
+      pagePath: getCurrentPage(),
+      note: { text: '', type: 'todo' },
+    }
+
+    if (suggestedType === 'action') {
+      config.actionInfo = { type: 'function', description: '' }
+    } else if (suggestedType === 'form') {
+      config.formInfo = { inputType: 'text' }
+    }
+
+    setElementConfig(selector, config)
+    // Open editor for this element
+    editingElementId.value = selector
+    // Remove from unannotated list
+    unannotatedElements.value = unannotatedElements.value.filter(e => e.selector !== selector)
+  }
+
+  // ===== Screen Flow =====
+  const screenFlowData = computed(() => {
+    const nodesMap = new Map<string, ScreenFlowNode>()
+    const edges: ScreenFlowEdge[] = []
+    const edgeSet = new Set<string>()
+
+    // Build nodes from screenConfigs
+    for (const [path, sc] of Object.entries(screenConfigs.value)) {
+      nodesMap.set(path, {
+        path,
+        name: sc.name || path,
+        annotationCount: Object.values(elementConfigs.value).filter(c => c.pagePath === path).length,
+      })
+    }
+
+    // Build edges from navigate-type actions
+    for (const [id, config] of Object.entries(elementConfigs.value)) {
+      if (config.actionInfo?.type === 'navigate' && config.actionInfo.target) {
+        const fromPath = config.pagePath || '/'
+        const toPath = config.actionInfo.target
+        const edgeKey = `${fromPath}→${toPath}`
+
+        // Ensure from node exists
+        if (!nodesMap.has(fromPath)) {
+          const sc = screenConfigs.value[fromPath]
+          nodesMap.set(fromPath, {
+            path: fromPath,
+            name: sc?.name || fromPath,
+            annotationCount: Object.values(elementConfigs.value).filter(c => c.pagePath === fromPath).length,
+          })
+        }
+
+        // Ensure to node exists
+        if (!nodesMap.has(toPath)) {
+          const sc = screenConfigs.value[toPath]
+          nodesMap.set(toPath, {
+            path: toPath,
+            name: sc?.name || toPath,
+            annotationCount: Object.values(elementConfigs.value).filter(c => c.pagePath === toPath).length,
+          })
+        }
+
+        if (!edgeSet.has(edgeKey)) {
+          edgeSet.add(edgeKey)
+          // Extract button text from the element for the label
+          let label = config.actionInfo.description || config.note?.text || ''
+          if (!label && typeof document !== 'undefined') {
+            try {
+              const el = document.querySelector(id) as HTMLElement | null
+              if (el) label = el.textContent?.trim()?.substring(0, 20) || ''
+            } catch { /* ignore */ }
+          }
+          edges.push({
+            from: fromPath,
+            to: toPath,
+            label,
+            selector: id,
+          })
+        }
+      }
+    }
+
+    const nodes = Array.from(nodesMap.values())
+
+    // Find orphan pages (pages with no incoming or outgoing edges)
+    const connectedPaths = new Set<string>()
+    for (const edge of edges) {
+      connectedPaths.add(edge.from)
+      connectedPaths.add(edge.to)
+    }
+    const orphanPages = nodes.filter(n => !connectedPaths.has(n.path))
+
+    return { nodes, edges, orphanPages }
+  })
 
   // ===== Actions =====
   async function toggle() {
@@ -427,7 +1454,11 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       }
 
       const classes = Array.from(current.classList)
-        .filter(c => !c.startsWith('hover:') && !c.startsWith('focus:'))
+        .filter(c =>
+          !c.startsWith('hover:') &&
+          !c.startsWith('focus:') &&
+          !/[/\[\]()!@#$%^&*=+{}|\\:'"<>,?]/.test(c)
+        )
         .slice(0, 2)
       if (classes.length > 0) {
         selector += '.' + classes.join('.')
@@ -490,10 +1521,12 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     const now = new Date().toISOString()
     const existing = elementConfigs.value[id]
 
+    const currentPage = typeof window !== 'undefined' ? window.location.pathname : '/'
     const newConfig: ElementConfig = {
       ...existing,
       ...config,
       id,
+      pagePath: config.pagePath || existing?.pagePath || currentPage,
       componentPath: config.componentPath || currentScreenSpec.value?.componentPath || '',
       createdAt: existing?.createdAt || now,
       updatedAt: now,
@@ -1429,6 +2462,104 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     return hiddenAnalysisSelectors.value.has(selector)
   }
 
+  // Detect element type based on DOM element
+  function detectElementType(element: HTMLElement): 'datasource' | 'action' | 'form' {
+    const tagName = element.tagName.toUpperCase()
+
+    // Form elements
+    if (tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA') {
+      return 'form'
+    }
+
+    // Action elements
+    if (tagName === 'BUTTON' || tagName === 'A' && element.hasAttribute('href')) {
+      return 'action'
+    }
+    if (element.getAttribute('role') === 'button') {
+      return 'action'
+    }
+    // Check if inside a button or link
+    if (element.closest('button') || element.closest('a[href]')) {
+      return 'action'
+    }
+
+    // Default: datasource
+    return 'datasource'
+  }
+
+  // ===== Broken Annotation Detection =====
+  const brokenAnnotations = ref<string[]>([])
+  const remapTargetId = ref<string | null>(null) // When set, pick mode will remap this annotation
+
+  function detectBrokenAnnotations(): string[] {
+    if (typeof document === 'undefined') return []
+
+    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
+    const broken: string[] = []
+
+    for (const [id, config] of Object.entries(elementConfigs.value)) {
+      // Skip annotations that belong to a different page
+      if (config.componentPath && !config.componentPath.includes(currentPath) && currentPath !== '/') {
+        continue
+      }
+
+      try {
+        const el = document.querySelector(id)
+        if (!el) {
+          broken.push(id)
+        }
+      } catch {
+        // Invalid selector — also broken
+        broken.push(id)
+      }
+    }
+    brokenAnnotations.value = broken
+    return broken
+  }
+
+  // Remap a broken annotation to a new selector
+  function remapAnnotation(oldId: string, newId: string) {
+    const config = elementConfigs.value[oldId]
+    if (!config) return
+
+    // Delete old
+    const { [oldId]: _, ...rest } = elementConfigs.value
+
+    // Set new with updated id
+    elementConfigs.value = {
+      ...rest,
+      [newId]: { ...config, id: newId, updatedAt: new Date().toISOString() },
+    }
+    brokenAnnotations.value = brokenAnnotations.value.filter(id => id !== oldId)
+    nextTick(() => saveConfigs())
+  }
+
+  // Start remap pick mode for a broken annotation
+  function startRemap(oldId: string) {
+    remapTargetId.value = oldId
+    isPickMode.value = true
+    isEditMode.value = false
+    isPanelOpen.value = false
+  }
+
+  // Delete all broken annotations
+  function deleteBrokenAnnotations() {
+    const broken = brokenAnnotations.value
+    if (broken.length === 0) return
+
+    const configs = { ...elementConfigs.value }
+    for (const id of broken) {
+      delete configs[id]
+    }
+    elementConfigs.value = configs
+    brokenAnnotations.value = []
+    nextTick(() => saveConfigs())
+  }
+
+  function toggleNoteHighlights() {
+    showNoteHighlights.value = !showNoteHighlights.value
+  }
+
   function startEditing(id: string) {
     editingElementId.value = id
   }
@@ -1438,7 +2569,10 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   }
 
   function exportConfigs(): string {
-    return JSON.stringify(elementConfigs.value, null, 2)
+    return JSON.stringify({
+      elementConfigs: elementConfigs.value,
+      screenConfigs: screenConfigs.value,
+    }, null, 2)
   }
 
   function exportAsFile(): string {
@@ -1449,6 +2583,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
         lastUpdated: new Date().toISOString(),
       },
       annotations: elementConfigs.value,
+      screenConfigs: screenConfigs.value,
     }
     return JSON.stringify(fileContent, null, 2)
   }
@@ -1470,8 +2605,12 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     try {
       const parsed = JSON.parse(json)
       // Support both direct configs and wrapped format
-      const configs = parsed.annotations || parsed
+      const configs = parsed.annotations || parsed.elementConfigs || parsed
       elementConfigs.value = { ...elementConfigs.value, ...configs }
+      // Import screen configs if present
+      if (parsed.screenConfigs) {
+        screenConfigs.value = { ...screenConfigs.value, ...parsed.screenConfigs }
+      }
     } catch (e) {
       console.error('[DevInspector] Failed to import configs:', e)
       throw new Error('Invalid JSON format')
@@ -1494,6 +2633,13 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     isPanelOpen,
     elementConfigs,
     editingElementId,
+    // Screen configs
+    screenConfigs,
+    editingScreen,
+    getScreenConfig,
+    setScreenConfig,
+    deleteScreenConfig,
+    suggestScreenApis,
     // Actions
     init,
     toggle,
@@ -1550,6 +2696,44 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     searchSchemaColumns,
     getCurrentPageApis,
     getApiSourceForBinding,
+    // Note highlights
+    showNoteHighlights,
+    toggleNoteHighlights,
+    noteHighlightFilter,
+    // Element type detection
+    detectElementType,
+    // Master definitions
+    masterDefinitions,
+    getMasterDefinition,
+    setMasterDefinition,
+    deleteMasterDefinition,
+    getMastersForTable,
+    getMasterEntries,
+    // Broken annotation detection
+    brokenAnnotations,
+    remapTargetId,
+    detectBrokenAnnotations,
+    remapAnnotation,
+    startRemap,
+    deleteBrokenAnnotations,
+    // Cross Search
+    showCrossSearch,
+    crossSearchQuery,
+    crossSearchMode,
+    crossSearchResults,
+    // Unannotated Detection
+    showUnannotatedDetection,
+    unannotatedElements,
+    detectUnannotatedElements,
+    quickAnnotate,
+    // Screen Flow
+    showScreenFlow,
+    screenFlowData,
+    // Server sync
+    syncClientId,
+    loadFromServer,
+    saveToServer,
+    teardownServerSync,
   }
 })
 

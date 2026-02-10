@@ -1,46 +1,95 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { X, Database, Zap, Save, Trash2, MessageSquare, Info, AlertTriangle, CheckSquare, HelpCircle, Link, Settings2, Wand2 } from 'lucide-vue-next'
-import { useDevInspectorStore, type FieldInfo, type ActionInfo, type ElementNote, type LinkInfo, type DevMeta, type SourceBindingInfo } from '../composables/useDevInspector'
+import { X, Database, Save, Trash2, MessageSquare, Wand2, Calculator, Type, ShieldQuestion, Zap, FormInput, Plus, List } from 'lucide-vue-next'
+import { useDevInspectorStore, type FieldInfo, type ElementNote, type SourceBindingInfo, type ActionInfo, type FormInfo, type MasterEntry } from '../composables/useDevInspector'
 
 const store = useDevInspectorStore()
 
-const activeTab = ref<'note' | 'field' | 'action' | 'links' | 'meta'>('note')
+// Tab selection
+const activeTab = ref<'datasource' | 'action' | 'form'>('datasource')
 
-// Field form
+// Action tab refs
+const actionType = ref<ActionInfo['type'] | ''>('')
+const actionTarget = ref('')
+const actionMethod = ref<ActionInfo['method'] | ''>('')
+const actionDescription = ref('')
+
+// Form tab refs
+const formInputType = ref('')
+const formRequired = ref(false)
+const formValidation = ref<string[]>([])
+const formValidationInput = ref('')
+const formPlaceholder = ref('')
+const formDefaultValue = ref('')
+const formDescription = ref('')
+
+// Master definition inline editing
+const showMasterSection = ref(false)
+const masterEntries = ref<MasterEntry[]>([])
+
+// Computed: current table.column key for master lookup
+const currentMasterKey = computed(() => {
+  if (fieldList.value.length > 0) {
+    const f = fieldList.value[0]
+    if (f.table && f.column) return `${f.table}.${f.column}`
+  }
+  return ''
+})
+
+// Computed: existing master definition for the current field
+const existingMaster = computed(() => {
+  if (!currentMasterKey.value) return null
+  return store.getMasterDefinition(currentMasterKey.value) || null
+})
+
+// Display type selection - default to db_direct
+const displayType = ref<ElementNote['displayType']>('db_direct')
+
+// Field form — multiple columns as tags + input for adding
+const fieldList = ref<FieldInfo[]>([])
 const fieldTable = ref('')
 const fieldColumn = ref('')
 const fieldType = ref('')
-const fieldValidation = ref('')
 const fieldDescription = ref('')
 
-// Action form
-const actionType = ref<ActionInfo['type']>('navigate')
-const actionTarget = ref('')
-const actionMethod = ref<ActionInfo['method']>('GET')
-const actionDescription = ref('')
+// Format description (db_formatted)
+const formatDescription = ref('')
 
-// Note form
+// Calculated fields — segments of tags and text interleaved
+interface CalcSegment {
+  type: 'tag' | 'text'
+  value: string
+}
+const calcSegments = ref<CalcSegment[]>([])
+const calcInput = ref('')
+const showCalcSuggestions = ref(false)
+
+// 共通表示メタ情報
+const sampleValue = ref('')
+const decimalHandling = ref('')
+const unit = ref('')
+const nullDisplay = ref('')
+const displayFormat = ref('')
+
+// 保存済み計算値 (db_direct / db_formatted)
+const storedCalc = ref(false)
+const storedCalcLogic = ref('')
+const storedCalcSources = ref<string[]>([])
+const storedCalcSourceInput = ref('')
+const showStoredCalcSuggestions = ref(false)
+const storedCalcTiming = ref<'on_save' | 'trigger' | 'batch' | 'realtime' | ''>('')
+
+// 条件付き表示
+const conditionText = ref('')
+const conditionColumn = ref('')
+const hiddenBehavior = ref<'hidden' | 'disabled' | 'different_value' | 'empty' | ''>('')
+const hiddenNote = ref('')
+const showConditionSection = ref(false)
+
+// Common note
 const noteText = ref('')
-const noteAuthor = ref('')
-const noteType = ref<ElementNote['type']>('info')
 
-// Links form
-const linkTestPath = ref('')
-const linkFigmaUrl = ref('')
-const linkGithubIssue = ref('')
-const linkGithubPr = ref('')
-const linkRelatedDocs = ref('')
-
-// Meta form
-const metaUsedStores = ref('')
-const metaUsedComponents = ref('')
-const metaI18nKeys = ref('')
-const metaDesignTokens = ref('')
-const metaAccessibility = ref('')
-const metaResponsive = ref('')
-
-// Source binding
+// Source binding (kept for compatibility)
 const sourceBindingType = ref<SourceBindingInfo['type'] | ''>('')
 const sourceBindingSource = ref('')
 const sourceBindingIsStatic = ref(false)
@@ -48,17 +97,32 @@ const sourceBindingIsStatic = ref(false)
 const isEditing = computed(() => store.editingElementId !== null)
 const elementId = computed(() => store.editingElementId)
 
+// Display type options for card selection
+const displayTypeOptions: { value: NonNullable<ElementNote['displayType']>; label: string; icon: typeof Database; color: string; description: string }[] = [
+  { value: 'db_direct', label: 'DBカラム (そのまま)', icon: Database, color: '#3b82f6', description: 'DBの値をそのまま表示' },
+  { value: 'db_formatted', label: 'DBカラム (整形)', icon: Wand2, color: '#8b5cf6', description: 'DBの値を整形して表示' },
+  { value: 'calculated', label: '計算値', icon: Calculator, color: '#f59e0b', description: '複数カラムから計算' },
+  { value: 'static', label: '固定文言', icon: Type, color: '#10b981', description: 'コード内の固定テキスト' },
+  { value: 'other', label: 'その他メモ', icon: MessageSquare, color: '#94a3b8', description: '自由メモ' },
+]
+
 // Load existing config when editing starts
 watch(elementId, (id) => {
   if (id) {
     const config = store.getElementConfig(id)
-    let hasDataFromDom = false
 
-    // First, try to read data-di-* attributes from DOM (Vite plugin injected)
+    // Auto-detect element type from DOM
     try {
       const element = document.querySelector(id) as HTMLElement
       if (element) {
-        // Check element and its children for data-di-* attributes
+        // Detect element type and auto-select tab
+        if (config?.elementType) {
+          activeTab.value = config.elementType
+        } else {
+          activeTab.value = store.detectElementType(element)
+        }
+
+        // Read data-di-* attributes from DOM (Vite plugin injected)
         const targetEl = element.querySelector('[data-di-binding]') ||
                         (element.hasAttribute('data-di-binding') ? element : null) ||
                         element.closest('[data-di-binding]')
@@ -66,7 +130,6 @@ watch(elementId, (id) => {
         if (targetEl) {
           const binding = targetEl.getAttribute('data-di-binding')
           const db = targetEl.getAttribute('data-di-db')
-          const component = targetEl.getAttribute('data-di-component')
           const dbType = targetEl.getAttribute('data-di-db-type')
           const dbComment = targetEl.getAttribute('data-di-db-comment')
 
@@ -74,89 +137,82 @@ watch(elementId, (id) => {
             sourceBindingSource.value = binding
             sourceBindingType.value = 'api'
             sourceBindingIsStatic.value = false
-            hasDataFromDom = true
           }
 
           if (db) {
             const [table, column] = db.split('.')
             if (table && column) {
-              fieldTable.value = table
-              fieldColumn.value = column
-              fieldType.value = dbType || ''
-              fieldDescription.value = dbComment || ''
-              hasDataFromDom = true
+              fieldList.value.push({
+                table,
+                column,
+                type: dbType || undefined,
+                description: dbComment || undefined,
+              })
+              // Auto-set displayType to db_direct when DOM has DB data
+              if (!displayType.value) {
+                displayType.value = 'db_direct'
+              }
             }
-          }
-
-          if (component) {
-            metaUsedComponents.value = component
-          }
-
-          if (hasDataFromDom) {
-            noteText.value = `【データバインディング】${binding}${db ? ` → ${db}` : ''}`
-            noteType.value = 'info'
-            activeTab.value = 'field'
           }
         }
       }
     } catch (e) {
-      console.warn('[DevInspector] Failed to read data-di-* attributes:', e)
+      console.warn('[DevInspector] Failed to read element:', e)
     }
 
     // Then, load existing config (may override DOM data if user saved custom values)
-    if (config?.fieldInfo) {
-      fieldTable.value = config.fieldInfo.table || fieldTable.value
-      fieldColumn.value = config.fieldInfo.column || fieldColumn.value
-      fieldType.value = config.fieldInfo.type || ''
-      fieldValidation.value = config.fieldInfo.validation?.join(', ') || ''
-      fieldDescription.value = config.fieldInfo.description || fieldDescription.value
+    if (config?.fieldInfoList && config.fieldInfoList.length > 0) {
+      fieldList.value = config.fieldInfoList.map(f => ({ ...f }))
+    } else if (config?.fieldInfo) {
+      fieldList.value = [{ ...config.fieldInfo }]
     }
-    if (config?.actionInfo) {
-      actionType.value = config.actionInfo.type || 'navigate'
-      actionTarget.value = config.actionInfo.target || ''
-      actionMethod.value = config.actionInfo.method || 'GET'
-      actionDescription.value = config.actionInfo.description || ''
-    }
+    fieldTable.value = ''
+    fieldColumn.value = ''
+    fieldType.value = ''
+    fieldDescription.value = ''
     if (config?.note) {
       noteText.value = config.note.text || noteText.value
-      noteAuthor.value = config.note.author || ''
-      noteType.value = config.note.type || 'info'
-    }
-    if (config?.links) {
-      linkTestPath.value = config.links.testPath || ''
-      linkFigmaUrl.value = config.links.figmaUrl || ''
-      linkGithubIssue.value = config.links.githubIssue || ''
-      linkGithubPr.value = config.links.githubPr || ''
-      linkRelatedDocs.value = config.links.relatedDocs || ''
-    }
-    if (config?.devMeta) {
-      metaUsedStores.value = config.devMeta.usedStores?.join(', ') || ''
-      metaUsedComponents.value = config.devMeta.usedComponents?.join(', ') || metaUsedComponents.value
-      metaI18nKeys.value = config.devMeta.i18nKeys?.join(', ') || ''
-      metaDesignTokens.value = config.devMeta.designTokens?.join(', ') || ''
-      metaAccessibility.value = config.devMeta.accessibility || ''
-      metaResponsive.value = config.devMeta.responsive || ''
+      displayType.value = config.note.displayType || displayType.value
+      formatDescription.value = config.note.formatDescription || ''
+      sampleValue.value = config.note.sampleValue || ''
+      decimalHandling.value = config.note.decimalHandling || ''
+      unit.value = config.note.unit || ''
+      nullDisplay.value = config.note.nullDisplay || ''
+      displayFormat.value = config.note.displayFormat || ''
+      // Rebuild segments from saved calcDescription + calcSources
+      rebuildCalcSegments(config.note.calcDescription || '', config.note.calcSources || [])
+      // 保存済み計算値
+      storedCalc.value = config.note.storedCalc || false
+      storedCalcLogic.value = config.note.storedCalcLogic || ''
+      storedCalcSources.value = config.note.storedCalcSources ? [...config.note.storedCalcSources] : []
+      storedCalcTiming.value = (config.note.storedCalcTiming as typeof storedCalcTiming.value) || ''
+      // 条件付き表示
+      conditionText.value = config.note.condition || ''
+      conditionColumn.value = config.note.conditionColumn || ''
+      hiddenBehavior.value = (config.note.hiddenBehavior as typeof hiddenBehavior.value) || ''
+      hiddenNote.value = config.note.hiddenNote || ''
+      showConditionSection.value = !!(config.note.condition || config.note.conditionColumn)
     }
     if (config?.sourceBinding) {
       sourceBindingType.value = config.sourceBinding.type || sourceBindingType.value
       sourceBindingSource.value = config.sourceBinding.source || sourceBindingSource.value
       sourceBindingIsStatic.value = config.sourceBinding.isStatic || false
     }
-    // Set default tab based on what data exists
-    if (!hasDataFromDom) {
-      if (config?.note?.text) {
-        activeTab.value = 'note'
-      } else if (config?.fieldInfo) {
-        activeTab.value = 'field'
-      } else if (config?.actionInfo) {
-        activeTab.value = 'action'
-      } else if (config?.links) {
-        activeTab.value = 'links'
-      } else if (config?.devMeta) {
-        activeTab.value = 'meta'
-      } else {
-        activeTab.value = 'note'
-      }
+    // Load action info
+    if (config?.actionInfo) {
+      actionType.value = config.actionInfo.type || ''
+      actionTarget.value = config.actionInfo.target || ''
+      actionMethod.value = config.actionInfo.method || ''
+      actionDescription.value = config.actionInfo.description || ''
+    }
+    // Load form info
+    if (config?.formInfo) {
+      formInputType.value = config.formInfo.inputType || ''
+      formRequired.value = config.formInfo.required || false
+      formValidation.value = config.formInfo.validation ? [...config.formInfo.validation] : []
+      formPlaceholder.value = config.formInfo.placeholder || ''
+      formDefaultValue.value = config.formInfo.defaultValue || ''
+      formDescription.value = config.formInfo.description || ''
     }
   } else {
     resetForm()
@@ -164,33 +220,51 @@ watch(elementId, (id) => {
 })
 
 function resetForm() {
+  activeTab.value = 'datasource'
+  displayType.value = 'db_direct'
+  fieldList.value = []
   fieldTable.value = ''
   fieldColumn.value = ''
   fieldType.value = ''
-  fieldValidation.value = ''
   fieldDescription.value = ''
-  actionType.value = 'navigate'
-  actionTarget.value = ''
-  actionMethod.value = 'GET'
-  actionDescription.value = ''
+  formatDescription.value = ''
+  sampleValue.value = ''
+  decimalHandling.value = ''
+  unit.value = ''
+  nullDisplay.value = ''
+  displayFormat.value = ''
+  calcSegments.value = []
+  calcInput.value = ''
+  storedCalc.value = false
+  storedCalcLogic.value = ''
+  storedCalcSources.value = []
+  storedCalcSourceInput.value = ''
+  storedCalcTiming.value = ''
+  conditionText.value = ''
+  conditionColumn.value = ''
+  hiddenBehavior.value = ''
+  hiddenNote.value = ''
+  showConditionSection.value = false
   noteText.value = ''
-  noteAuthor.value = ''
-  noteType.value = 'info'
-  linkTestPath.value = ''
-  linkFigmaUrl.value = ''
-  linkGithubIssue.value = ''
-  linkGithubPr.value = ''
-  linkRelatedDocs.value = ''
-  metaUsedStores.value = ''
-  metaUsedComponents.value = ''
-  metaI18nKeys.value = ''
-  metaDesignTokens.value = ''
-  metaAccessibility.value = ''
-  metaResponsive.value = ''
   sourceBindingType.value = ''
   sourceBindingSource.value = ''
   sourceBindingIsStatic.value = false
-  activeTab.value = 'note'
+  // Action refs
+  actionType.value = ''
+  actionTarget.value = ''
+  actionMethod.value = ''
+  actionDescription.value = ''
+  // Form refs
+  formInputType.value = ''
+  formRequired.value = false
+  formValidation.value = []
+  formValidationInput.value = ''
+  formPlaceholder.value = ''
+  formDefaultValue.value = ''
+  formDescription.value = ''
+  // Master refs
+  showMasterSection.value = false
+  masterEntries.value = []
 }
 
 function close() {
@@ -208,37 +282,31 @@ function autoDetect() {
 
     const detected = store.autoDetectElementInfo(element, elementId.value)
 
-    // Apply detected sourceBinding
     if (detected.sourceBinding) {
       sourceBindingType.value = detected.sourceBinding.type || ''
       sourceBindingSource.value = detected.sourceBinding.source || ''
       sourceBindingIsStatic.value = detected.sourceBinding.isStatic || false
 
-      // If static, set note automatically
-      if (detected.sourceBinding.isStatic && !noteText.value) {
-        noteText.value = '固定文言'
-        noteType.value = 'info'
+      if (detected.sourceBinding.isStatic && !displayType.value) {
+        displayType.value = 'static'
+        noteText.value = noteText.value || '固定文言'
       }
     }
 
-    // Apply detected fieldInfo (from data-di-db attribute)
     if (detected.fieldInfo) {
-      fieldTable.value = detected.fieldInfo.table || ''
-      fieldColumn.value = detected.fieldInfo.column || ''
-      fieldType.value = detected.fieldInfo.type || ''
-      fieldDescription.value = detected.fieldInfo.description || ''
-      activeTab.value = 'field'
+      fieldList.value.push({
+        table: detected.fieldInfo.table || '',
+        column: detected.fieldInfo.column || '',
+        type: detected.fieldInfo.type || undefined,
+        description: detected.fieldInfo.description || undefined,
+      })
+      if (!displayType.value) {
+        displayType.value = 'db_direct'
+      }
     }
 
-    // Apply detected note
-    if (detected.note) {
+    if (detected.note && !noteText.value) {
       noteText.value = detected.note.text || ''
-      noteType.value = detected.note.type || 'info'
-    }
-
-    // Apply detected devMeta
-    if (detected.devMeta?.usedComponents) {
-      metaUsedComponents.value = detected.devMeta.usedComponents.join(', ')
     }
   } catch (e) {
     console.error('[DevInspector] Auto-detect failed:', e)
@@ -248,51 +316,42 @@ function autoDetect() {
 function save() {
   if (!elementId.value) return
 
-  const fieldInfo: FieldInfo | undefined = fieldTable.value && fieldColumn.value
-    ? {
-        table: fieldTable.value,
-        column: fieldColumn.value,
-        type: fieldType.value || undefined,
-        validation: fieldValidation.value ? fieldValidation.value.split(',').map(s => s.trim()) : undefined,
-        description: fieldDescription.value || undefined,
-      }
-    : undefined
+  // Build fieldInfoList from saved list + any current input
+  const allFields = [...fieldList.value]
+  if ((displayType.value === 'db_direct' || displayType.value === 'db_formatted') && fieldTable.value && fieldColumn.value) {
+    allFields.push({
+      table: fieldTable.value,
+      column: fieldColumn.value,
+      type: fieldType.value || undefined,
+      description: fieldDescription.value || undefined,
+    })
+  }
+  const fieldInfoList: FieldInfo[] | undefined = allFields.length > 0 ? allFields : undefined
+  const fieldInfo: FieldInfo | undefined = allFields.length > 0 ? allFields[0] : undefined
 
-  const actionInfo: ActionInfo | undefined = actionTarget.value
+  // Build note with displayType info
+  const isDbType = displayType.value === 'db_direct' || displayType.value === 'db_formatted'
+  const note: ElementNote | undefined = (displayType.value || noteText.value)
     ? {
-        type: actionType.value,
-        target: actionTarget.value,
-        method: actionType.value === 'api' ? actionMethod.value : undefined,
-        description: actionDescription.value || undefined,
-      }
-    : undefined
-
-  const note: ElementNote | undefined = noteText.value
-    ? {
-        text: noteText.value,
-        author: noteAuthor.value || undefined,
-        type: noteType.value,
-      }
-    : undefined
-
-  const links: LinkInfo | undefined = (linkTestPath.value || linkFigmaUrl.value || linkGithubIssue.value || linkGithubPr.value || linkRelatedDocs.value)
-    ? {
-        testPath: linkTestPath.value || undefined,
-        figmaUrl: linkFigmaUrl.value || undefined,
-        githubIssue: linkGithubIssue.value || undefined,
-        githubPr: linkGithubPr.value || undefined,
-        relatedDocs: linkRelatedDocs.value || undefined,
-      }
-    : undefined
-
-  const devMeta: DevMeta | undefined = (metaUsedStores.value || metaUsedComponents.value || metaI18nKeys.value || metaDesignTokens.value || metaAccessibility.value || metaResponsive.value)
-    ? {
-        usedStores: metaUsedStores.value ? metaUsedStores.value.split(',').map(s => s.trim()) : undefined,
-        usedComponents: metaUsedComponents.value ? metaUsedComponents.value.split(',').map(s => s.trim()) : undefined,
-        i18nKeys: metaI18nKeys.value ? metaI18nKeys.value.split(',').map(s => s.trim()) : undefined,
-        designTokens: metaDesignTokens.value ? metaDesignTokens.value.split(',').map(s => s.trim()) : undefined,
-        accessibility: metaAccessibility.value || undefined,
-        responsive: metaResponsive.value || undefined,
+        text: noteText.value || '',
+        displayType: displayType.value,
+        formatDescription: displayType.value === 'db_formatted' ? (formatDescription.value || undefined) : undefined,
+        calcDescription: displayType.value === 'calculated' ? (serializeCalcDescription() || undefined) : undefined,
+        calcSources: displayType.value === 'calculated' ? (extractCalcSources().length > 0 ? extractCalcSources() : undefined) : undefined,
+        // 保存済み計算値 (db_direct / db_formatted のみ)
+        storedCalc: isDbType && storedCalc.value ? true : undefined,
+        storedCalcLogic: isDbType && storedCalc.value ? (storedCalcLogic.value || undefined) : undefined,
+        storedCalcSources: isDbType && storedCalc.value && storedCalcSources.value.length > 0 ? storedCalcSources.value : undefined,
+        storedCalcTiming: isDbType && storedCalc.value ? (storedCalcTiming.value || undefined) as ElementNote['storedCalcTiming'] : undefined,
+        sampleValue: sampleValue.value || undefined,
+        decimalHandling: decimalHandling.value || undefined,
+        unit: unit.value || undefined,
+        nullDisplay: nullDisplay.value || undefined,
+        displayFormat: displayFormat.value || undefined,
+        condition: conditionText.value || undefined,
+        conditionColumn: conditionColumn.value || undefined,
+        hiddenBehavior: hiddenBehavior.value || undefined,
+        hiddenNote: hiddenNote.value || undefined,
       }
     : undefined
 
@@ -304,14 +363,42 @@ function save() {
       }
     : undefined
 
+  // Build action info
+  const actionInfo: ActionInfo | undefined = (activeTab.value === 'action' && actionType.value)
+    ? {
+        type: actionType.value as ActionInfo['type'],
+        target: actionTarget.value || undefined,
+        method: actionMethod.value ? actionMethod.value as ActionInfo['method'] : undefined,
+        description: actionDescription.value || undefined,
+      }
+    : undefined
+
+  // Build form info
+  const formInfo: FormInfo | undefined = (activeTab.value === 'form')
+    ? {
+        inputType: formInputType.value || undefined,
+        required: formRequired.value || undefined,
+        validation: formValidation.value.length > 0 ? formValidation.value : undefined,
+        placeholder: formPlaceholder.value || undefined,
+        defaultValue: formDefaultValue.value || undefined,
+        description: formDescription.value || undefined,
+      }
+    : undefined
+
   store.setElementConfig(elementId.value, {
+    elementType: activeTab.value,
     fieldInfo,
+    fieldInfoList,
     actionInfo,
+    formInfo,
     note,
-    links,
-    devMeta,
     sourceBinding,
   })
+
+  // Save master entries if section was open
+  if (showMasterSection.value && currentMasterKey.value) {
+    saveMasterEntries()
+  }
 
   close()
 }
@@ -324,9 +411,7 @@ function deleteConfig() {
 
 // SQL types + Rails/Ruby types
 const typeOptions = [
-  // Rails types
   'string', 'text', 'integer', 'bigint', 'float', 'decimal', 'boolean', 'date', 'datetime', 'time', 'timestamp', 'binary', 'json', 'jsonb',
-  // SQL types (for compatibility)
   'VARCHAR', 'TEXT', 'INT', 'BIGINT', 'BOOLEAN', 'DATE', 'DATETIME', 'TIMESTAMP', 'JSON'
 ]
 
@@ -335,50 +420,350 @@ const schemaSearch = ref('')
 const showSchemaList = ref(false)
 
 const filteredSchemaColumns = computed(() => {
-  return store.searchSchemaColumns(schemaSearch.value).slice(0, 30) // Limit to 30 results
+  return store.searchSchemaColumns(schemaSearch.value).slice(0, 30)
 })
 
 function selectSchemaColumn(col: ReturnType<typeof store.searchSchemaColumns>[0]) {
-  fieldTable.value = col.table
-  fieldColumn.value = col.column
-  fieldType.value = col.type || ''
-  fieldDescription.value = col.comment || ''
+  fieldList.value.push({
+    table: col.table,
+    column: col.column,
+    type: col.type || undefined,
+    description: col.comment || undefined,
+  })
   showSchemaList.value = false
   schemaSearch.value = ''
 }
 
-// Check if current element has DB data (from DOM attributes)
-const hasDbData = computed(() => {
-  if (!elementId.value) return false
-  try {
-    const element = document.querySelector(elementId.value) as HTMLElement
-    if (!element) return false
-    const diBindingEl = element.querySelector('[data-di-binding]') ||
-                        (element.hasAttribute('data-di-binding') ? element : null)
-    return !!(diBindingEl?.getAttribute('data-di-db'))
-  } catch {
-    return false
-  }
-})
+function addFieldToList() {
+  if (!fieldTable.value || !fieldColumn.value) return
+  fieldList.value.push({
+    table: fieldTable.value,
+    column: fieldColumn.value,
+    type: fieldType.value || undefined,
+    description: fieldDescription.value || undefined,
+  })
+  fieldTable.value = ''
+  fieldColumn.value = ''
+  fieldType.value = ''
+  fieldDescription.value = ''
+}
+
+function removeFieldFromList(index: number) {
+  fieldList.value.splice(index, 1)
+}
 
 // Check if schema data is available
 const hasSchemaData = computed(() => {
   return store.getSchemaColumns().length > 0
 })
-const actionTypeOptions: { value: ActionInfo['type']; label: string }[] = [
-  { value: 'navigate', label: '画面遷移' },
-  { value: 'api', label: 'API呼び出し' },
-  { value: 'modal', label: 'モーダル表示' },
-  { value: 'emit', label: 'イベント発火' },
-  { value: 'function', label: '関数実行' },
-]
-const methodOptions: ActionInfo['method'][] = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
-const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof Info; color: string }[] = [
-  { value: 'info', label: '情報', icon: Info, color: '#60a5fa' },
-  { value: 'warning', label: '注意', icon: AlertTriangle, color: '#fbbf24' },
-  { value: 'todo', label: 'TODO', icon: CheckSquare, color: '#10b981' },
-  { value: 'question', label: '質問', icon: HelpCircle, color: '#a78bfa' },
-]
+
+// Saved table/column suggestions from existing configs
+const showTableSuggestions = ref(false)
+const showColumnSuggestions = ref(false)
+
+const savedTableNames = computed(() => {
+  const tables = new Set<string>()
+  // From saved element configs
+  for (const config of Object.values(store.elementConfigs)) {
+    if (config.fieldInfoList) {
+      for (const f of config.fieldInfoList) {
+        if (f.table) tables.add(f.table)
+      }
+    } else if (config.fieldInfo?.table) {
+      tables.add(config.fieldInfo.table)
+    }
+  }
+  // From schema data
+  for (const col of store.getSchemaColumns()) {
+    tables.add(col.table)
+  }
+  const sorted = [...tables].sort()
+  if (!fieldTable.value) return sorted
+  const q = fieldTable.value.toLowerCase()
+  return sorted.filter(t => t.toLowerCase().includes(q))
+})
+
+const savedColumnNames = computed(() => {
+  const columns = new Set<string>()
+  // From saved element configs matching current table
+  for (const config of Object.values(store.elementConfigs)) {
+    if (config.fieldInfoList) {
+      for (const f of config.fieldInfoList) {
+        if (f.column && (!fieldTable.value || f.table === fieldTable.value)) {
+          columns.add(f.column)
+        }
+      }
+    } else if (config.fieldInfo?.column) {
+      if (!fieldTable.value || config.fieldInfo.table === fieldTable.value) {
+        columns.add(config.fieldInfo.column)
+      }
+    }
+  }
+  // From schema data matching current table
+  for (const col of store.getSchemaColumns()) {
+    if (!fieldTable.value || col.table === fieldTable.value) {
+      columns.add(col.column)
+    }
+  }
+  const sorted = [...columns].sort()
+  if (!fieldColumn.value) return sorted
+  const q = fieldColumn.value.toLowerCase()
+  return sorted.filter(c => c.toLowerCase().includes(q))
+})
+
+function hideTableSuggestions() {
+  setTimeout(() => { showTableSuggestions.value = false }, 150)
+}
+function hideColumnSuggestions() {
+  setTimeout(() => { showColumnSuggestions.value = false }, 150)
+}
+
+function selectTableSuggestion(table: string) {
+  fieldTable.value = table
+  showTableSuggestions.value = false
+  // Auto-fill type if schema match
+  if (fieldColumn.value) {
+    const match = store.getSchemaColumns().find(c => c.table === table && c.column === fieldColumn.value)
+    if (match) {
+      fieldType.value = match.type || ''
+      fieldDescription.value = match.comment || ''
+    }
+  }
+}
+
+function selectColumnSuggestion(column: string) {
+  fieldColumn.value = column
+  showColumnSuggestions.value = false
+  // Auto-fill type if schema match
+  if (fieldTable.value) {
+    const match = store.getSchemaColumns().find(c => c.table === fieldTable.value && c.column === column)
+    if (match) {
+      fieldType.value = match.type || ''
+      fieldDescription.value = match.comment || ''
+    }
+  }
+}
+
+// Calc segments: interleaved tags (DB columns) and text
+const calcDbSuggestions = computed(() => {
+  const cols = new Set<string>()
+  for (const config of Object.values(store.elementConfigs)) {
+    if (config.fieldInfoList) {
+      for (const f of config.fieldInfoList) {
+        if (f.table && f.column) cols.add(`${f.table}.${f.column}`)
+      }
+    } else if (config.fieldInfo?.table && config.fieldInfo?.column) {
+      cols.add(`${config.fieldInfo.table}.${config.fieldInfo.column}`)
+    }
+  }
+  for (const col of store.getSchemaColumns()) {
+    cols.add(col.fullName)
+  }
+  const sorted = [...cols].sort()
+  if (!calcInput.value) return sorted
+  const q = calcInput.value.trim().toLowerCase()
+  // Filter only when input looks like a column name
+  if (/^[a-z0-9_.]+$/i.test(q)) {
+    const filtered = sorted.filter(c => c.toLowerCase().includes(q))
+    if (filtered.length > 0) return filtered
+  }
+  // Operators or no matches → show all
+  return sorted
+})
+
+function insertCalcTag(col: string) {
+  // Flush any pending text before inserting tag
+  if (calcInput.value.trim()) {
+    calcSegments.value.push({ type: 'text', value: calcInput.value })
+  }
+  calcSegments.value.push({ type: 'tag', value: col })
+  calcInput.value = ''
+  // Keep suggestions open for selecting multiple columns
+}
+
+function removeCalcSegment(index: number) {
+  calcSegments.value.splice(index, 1)
+}
+
+function onCalcKeydown(e: KeyboardEvent) {
+  if (e.key === 'Backspace' && !calcInput.value && calcSegments.value.length > 0) {
+    // Remove last segment; if it was text, put it back in input for editing
+    const last = calcSegments.value.pop()!
+    if (last.type === 'text') {
+      calcInput.value = last.value
+    }
+  }
+}
+
+function hideCalcSuggestions() {
+  setTimeout(() => { showCalcSuggestions.value = false }, 150)
+}
+
+// Stored calc source helpers
+const storedCalcColumnSuggestions = computed(() => {
+  const cols = new Set<string>()
+  for (const col of store.getSchemaColumns()) {
+    cols.add(col.fullName)
+  }
+  for (const config of Object.values(store.elementConfigs)) {
+    if (config.fieldInfoList) {
+      for (const f of config.fieldInfoList) {
+        if (f.table && f.column) cols.add(`${f.table}.${f.column}`)
+      }
+    } else if (config.fieldInfo?.table && config.fieldInfo?.column) {
+      cols.add(`${config.fieldInfo.table}.${config.fieldInfo.column}`)
+    }
+  }
+  const sorted = [...cols].sort()
+  if (!storedCalcSourceInput.value) return sorted
+  const q = storedCalcSourceInput.value.trim().toLowerCase()
+  return sorted.filter(c => c.toLowerCase().includes(q))
+})
+
+function hideStoredCalcSuggestions() {
+  setTimeout(() => { showStoredCalcSuggestions.value = false }, 150)
+}
+
+function addStoredCalcSource() {
+  const val = storedCalcSourceInput.value.trim()
+  if (val && !storedCalcSources.value.includes(val)) {
+    storedCalcSources.value.push(val)
+  }
+  storedCalcSourceInput.value = ''
+}
+
+function addStoredCalcSourceFromSuggestion(col: string) {
+  if (!storedCalcSources.value.includes(col)) {
+    storedCalcSources.value.push(col)
+  }
+  storedCalcSourceInput.value = ''
+}
+
+// Serialize segments + trailing input into description string
+function serializeCalcDescription(): string {
+  const parts = calcSegments.value.map(s => s.value)
+  if (calcInput.value.trim()) parts.push(calcInput.value.trim())
+  return parts.join(' ').replace(/\s+/g, ' ').trim()
+}
+
+// Extract tag values as calcSources
+function extractCalcSources(): string[] {
+  return calcSegments.value.filter(s => s.type === 'tag').map(s => s.value)
+}
+
+// Rebuild segments from saved data
+function rebuildCalcSegments(description: string, sources: string[]) {
+  if (!description && sources.length === 0) {
+    calcSegments.value = []
+    calcInput.value = ''
+    return
+  }
+  if (sources.length === 0) {
+    // No tags, just text
+    calcSegments.value = []
+    calcInput.value = description
+    return
+  }
+  // Parse description: find source references and split into segments
+  const segments: CalcSegment[] = []
+  let remaining = description
+  for (const src of sources) {
+    const idx = remaining.indexOf(src)
+    if (idx >= 0) {
+      const before = remaining.substring(0, idx).trim()
+      if (before) segments.push({ type: 'text', value: before })
+      segments.push({ type: 'tag', value: src })
+      remaining = remaining.substring(idx + src.length)
+    }
+  }
+  const tail = remaining.trim()
+  if (tail) segments.push({ type: 'text', value: tail })
+  // If parsing produced nothing meaningful, fallback
+  if (segments.length === 0) {
+    calcInput.value = description
+  } else {
+    calcSegments.value = segments
+    calcInput.value = ''
+  }
+}
+
+// Form validation tag helpers
+function addFormValidation() {
+  const val = formValidationInput.value.trim()
+  if (val && !formValidation.value.includes(val)) {
+    formValidation.value.push(val)
+  }
+  formValidationInput.value = ''
+}
+
+function removeFormValidation(index: number) {
+  formValidation.value.splice(index, 1)
+}
+
+function onFormValidationKeydown(e: KeyboardEvent) {
+  if (e.key === 'Backspace' && !formValidationInput.value && formValidation.value.length > 0) {
+    formValidation.value.pop()
+  }
+}
+
+// Master definition helpers
+watch(currentMasterKey, (key) => {
+  if (key) {
+    const def = store.getMasterDefinition(key)
+    if (def) {
+      masterEntries.value = def.entries.map(e => ({ ...e }))
+      showMasterSection.value = true
+    } else {
+      masterEntries.value = []
+      showMasterSection.value = false
+    }
+  } else {
+    masterEntries.value = []
+    showMasterSection.value = false
+  }
+})
+
+function toggleMasterSection() {
+  showMasterSection.value = !showMasterSection.value
+  if (showMasterSection.value && masterEntries.value.length === 0) {
+    masterEntries.value.push({ value: '', label: '' })
+  }
+}
+
+function addMasterEntry() {
+  masterEntries.value.push({ value: '', label: '' })
+}
+
+function removeMasterEntry(index: number) {
+  masterEntries.value.splice(index, 1)
+}
+
+function saveMasterEntries() {
+  if (!currentMasterKey.value) return
+  const [table, column] = currentMasterKey.value.split('.')
+  if (!table || !column) return
+
+  // Filter out empty entries
+  const validEntries = masterEntries.value.filter(e => e.value || e.label)
+  if (validEntries.length === 0) {
+    // Delete master if all entries removed
+    store.deleteMasterDefinition(currentMasterKey.value)
+    return
+  }
+
+  const existing = store.getMasterDefinition(currentMasterKey.value)
+  store.setMasterDefinition({
+    id: currentMasterKey.value,
+    table,
+    column,
+    name: existing?.name || column,
+    columnType: existing?.columnType || fieldList.value[0]?.type,
+    description: existing?.description,
+    entries: validEntries,
+    updatedAt: new Date().toISOString(),
+  })
+}
+
 </script>
 
 <template>
@@ -411,99 +796,506 @@ const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof
         <!-- Tabs -->
         <div class="di-editor-tabs">
           <button
-            @click="activeTab = 'note'"
+            @click="activeTab = 'datasource'"
             class="di-editor-tab"
-            :class="{ active: activeTab === 'note' }"
-            :style="activeTab === 'note' ? { color: '#10b981', borderColor: '#10b981', background: 'rgba(16, 185, 129, 0.1)' } : {}"
+            :class="{ 'di-editor-tab-active': activeTab === 'datasource' }"
           >
-            <MessageSquare style="width: 12px; height: 12px;" />
-            メモ
-          </button>
-          <button
-            v-if="hasDbData || hasSchemaData || fieldTable"
-            @click="activeTab = 'field'"
-            class="di-editor-tab"
-            :class="{ active: activeTab === 'field' }"
-            :style="activeTab === 'field' ? { color: '#60a5fa', borderColor: '#60a5fa', background: 'rgba(96, 165, 250, 0.1)' } : {}"
-          >
-            <Database style="width: 12px; height: 12px;" />
-            データ
+            <Database style="width: 14px; height: 14px;" />
+            データソース
           </button>
           <button
             @click="activeTab = 'action'"
             class="di-editor-tab"
-            :class="{ active: activeTab === 'action' }"
-            :style="activeTab === 'action' ? { color: '#a78bfa', borderColor: '#a78bfa', background: 'rgba(167, 139, 250, 0.1)' } : {}"
+            :class="{ 'di-editor-tab-active': activeTab === 'action' }"
           >
-            <Zap style="width: 12px; height: 12px;" />
+            <Zap style="width: 14px; height: 14px;" />
             アクション
           </button>
           <button
-            @click="activeTab = 'links'"
+            @click="activeTab = 'form'"
             class="di-editor-tab"
-            :class="{ active: activeTab === 'links' }"
-            :style="activeTab === 'links' ? { color: '#f59e0b', borderColor: '#f59e0b', background: 'rgba(245, 158, 11, 0.1)' } : {}"
+            :class="{ 'di-editor-tab-active': activeTab === 'form' }"
           >
-            <Link style="width: 12px; height: 12px;" />
-            リンク
-          </button>
-          <button
-            @click="activeTab = 'meta'"
-            class="di-editor-tab"
-            :class="{ active: activeTab === 'meta' }"
-            :style="activeTab === 'meta' ? { color: '#ec4899', borderColor: '#ec4899', background: 'rgba(236, 72, 153, 0.1)' } : {}"
-          >
-            <Settings2 style="width: 12px; height: 12px;" />
-            開発情報
+            <FormInput style="width: 14px; height: 14px;" />
+            フォーム
           </button>
         </div>
 
         <!-- Content -->
         <div class="di-editor-content">
-          <!-- Note Tab -->
-          <template v-if="activeTab === 'note'">
+          <!-- ==================== データソースタブ ==================== -->
+          <template v-if="activeTab === 'datasource'">
+            <!-- Step 1: Display Type Selection -->
             <div class="di-form-group">
-              <label class="di-form-label">タイプ</label>
-              <div class="di-note-types">
+              <label class="di-form-label">表示タイプ</label>
+              <div class="di-display-type-grid">
                 <button
-                  v-for="opt in noteTypeOptions"
+                  v-for="opt in displayTypeOptions"
                   :key="opt.value"
-                  @click="noteType = opt.value"
-                  class="di-note-type-btn"
-                  :style="noteType === opt.value ? { color: opt.color, borderColor: opt.color, background: opt.color + '15' } : {}"
+                  @click="displayType = opt.value"
+                  class="di-display-type-card"
+                  :class="{ 'di-display-type-active': displayType === opt.value }"
+                  :style="displayType === opt.value ? { borderColor: opt.color, background: opt.color + '18' } : {}"
                 >
-                  <component :is="opt.icon" style="width: 16px; height: 16px;" :style="{ color: noteType === opt.value ? opt.color : '#64748b' }" />
-                  <span :style="{ color: noteType === opt.value ? opt.color : '#94a3b8' }">{{ opt.label }}</span>
+                  <component :is="opt.icon" style="width: 20px; height: 20px;" :style="{ color: displayType === opt.value ? opt.color : '#64748b' }" />
+                  <span class="di-display-type-label" :style="{ color: displayType === opt.value ? opt.color : '#94a3b8' }">{{ opt.label }}</span>
+                  <span class="di-display-type-desc">{{ opt.description }}</span>
                 </button>
               </div>
             </div>
 
+            <!-- Step 2: Type-specific forms -->
+
+            <!-- db_direct / db_formatted: Schema selector + manual input -->
+            <template v-if="displayType === 'db_direct' || displayType === 'db_formatted'">
+              <!-- Added columns as tags -->
+              <div v-if="fieldList.length > 0" class="di-field-tags">
+                <label class="di-form-label">登録済みカラム</label>
+                <div class="di-field-tags-list">
+                  <div v-for="(field, i) in fieldList" :key="i" class="di-field-tag">
+                    <span class="di-field-tag-name">{{ field.table }}.{{ field.column }}</span>
+                    <span v-if="field.type" class="di-field-tag-type">{{ field.type }}</span>
+                    <button @click="removeFieldFromList(i)" class="di-field-tag-remove">&times;</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Schema Column Selector from schema.rb -->
+              <div v-if="hasSchemaData" class="di-binding-selector">
+                <div class="di-form-group">
+                  <label class="di-form-label">
+                    <Database style="width: 12px; height: 12px; display: inline; vertical-align: middle;" />
+                    schema.rb から選択
+                  </label>
+                  <div class="di-binding-search-wrapper">
+                    <input
+                      v-model="schemaSearch"
+                      @focus="showSchemaList = true"
+                      type="text"
+                      placeholder="テーブル.カラムを検索... (例: users, email)"
+                      class="di-input di-binding-search"
+                    />
+                    <button
+                      v-if="schemaSearch"
+                      @click="schemaSearch = ''; showSchemaList = false"
+                      class="di-binding-clear"
+                    >
+                      <X style="width: 14px; height: 14px;" />
+                    </button>
+                  </div>
+                  <div v-if="showSchemaList && filteredSchemaColumns.length > 0" class="di-binding-list">
+                    <button
+                      v-for="col in filteredSchemaColumns"
+                      :key="col.fullName"
+                      @click="selectSchemaColumn(col)"
+                      class="di-binding-item has-db"
+                    >
+                      <div class="di-binding-item-main">
+                        <span class="di-binding-name">{{ col.fullName }}</span>
+                        <span class="di-binding-type">{{ col.type }}</span>
+                      </div>
+                      <span v-if="col.comment" class="di-binding-component">{{ col.comment }}</span>
+                    </button>
+                  </div>
+                  <div v-else-if="showSchemaList && schemaSearch && filteredSchemaColumns.length === 0" class="di-binding-empty">
+                    該当するカラムが見つかりません
+                  </div>
+                </div>
+              </div>
+
+              <div v-if="hasSchemaData" class="di-form-divider">
+                <span>または手動入力</span>
+              </div>
+
+              <div class="di-form-row">
+                <div class="di-form-group di-suggest-wrapper">
+                  <label class="di-form-label">テーブル名 *</label>
+                  <input
+                    v-model="fieldTable"
+                    @focus="showTableSuggestions = true"
+                    @blur="hideTableSuggestions()"
+                    type="text"
+                    placeholder="users"
+                    class="di-input"
+                    autocomplete="off"
+                  />
+                  <div v-if="showTableSuggestions && savedTableNames.length > 0" class="di-suggest-list">
+                    <button
+                      v-for="t in savedTableNames.slice(0, 10)"
+                      :key="t"
+                      @mousedown.prevent="selectTableSuggestion(t)"
+                      class="di-suggest-item"
+                    >{{ t }}</button>
+                  </div>
+                </div>
+                <div class="di-form-group di-suggest-wrapper">
+                  <label class="di-form-label">カラム名 *</label>
+                  <input
+                    v-model="fieldColumn"
+                    @focus="showColumnSuggestions = true"
+                    @blur="hideColumnSuggestions()"
+                    type="text"
+                    placeholder="name"
+                    class="di-input"
+                    autocomplete="off"
+                  />
+                  <div v-if="showColumnSuggestions && savedColumnNames.length > 0" class="di-suggest-list">
+                    <button
+                      v-for="c in savedColumnNames.slice(0, 10)"
+                      :key="c"
+                      @mousedown.prevent="selectColumnSuggestion(c)"
+                      class="di-suggest-item"
+                    >{{ c }}</button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="di-form-group">
+                <label class="di-form-label">データ型</label>
+                <select v-model="fieldType" class="di-select">
+                  <option value="">選択してください</option>
+                  <option v-for="type in typeOptions" :key="type" :value="type">{{ type }}</option>
+                </select>
+              </div>
+
+              <button @click="addFieldToList" class="di-btn-add-field" :disabled="!fieldTable || !fieldColumn">
+                + カラムを追加
+              </button>
+
+              <!-- Master definition inline (optional) -->
+              <div v-if="currentMasterKey" class="di-master-inline">
+                <button @click="toggleMasterSection" class="di-btn-condition-toggle" :class="{ 'di-condition-active': showMasterSection }">
+                  <List style="width: 14px; height: 14px;" />
+                  マスタ値を定義
+                  <span v-if="existingMaster" class="di-condition-badge" style="background: #a78bfa;">{{ existingMaster.entries.length }}件</span>
+                </button>
+
+                <div v-if="showMasterSection" class="di-master-inline-section">
+                  <div v-if="masterEntries.length > 0" class="di-master-entries-table">
+                    <div class="di-master-entries-header">
+                      <span class="di-master-col-val">値</span>
+                      <span class="di-master-col-lbl">ラベル</span>
+                      <span class="di-master-col-color">色</span>
+                      <span class="di-master-col-act"></span>
+                    </div>
+                    <div v-for="(entry, idx) in masterEntries" :key="idx" class="di-master-entry-row">
+                      <input v-model="entry.value" placeholder="1" class="di-master-input di-master-col-val" />
+                      <input v-model="entry.label" placeholder="受付" class="di-master-input di-master-col-lbl" />
+                      <input v-model="entry.color" type="color" class="di-master-color-input" />
+                      <button @click="removeMasterEntry(idx)" class="di-master-entry-remove">&times;</button>
+                    </div>
+                  </div>
+                  <button @click="addMasterEntry" class="di-btn-add-field" style="margin-top: 4px;">
+                    + 値を追加
+                  </button>
+                </div>
+              </div>
+
+              <!-- db_formatted only: format description -->
+              <div v-if="displayType === 'db_formatted'" class="di-form-group">
+                <label class="di-form-label">整形方法</label>
+                <textarea v-model="formatDescription" rows="2" placeholder="YYYY年MM月DD日 に整形、姓 + 名 で結合 など" class="di-textarea"></textarea>
+              </div>
+
+              <!-- Stored calculation toggle -->
+              <div class="di-stored-calc-toggle">
+                <button @click="storedCalc = !storedCalc" class="di-btn-condition-toggle" :class="{ 'di-condition-active': storedCalc }">
+                  <Calculator style="width: 14px; height: 14px;" />
+                  このカラムは計算値を保存している
+                  <span v-if="storedCalc" class="di-condition-badge">設定あり</span>
+                </button>
+              </div>
+
+              <template v-if="storedCalc">
+                <div class="di-stored-calc-section">
+                  <div class="di-form-group">
+                    <label class="di-form-label">計算ロジック</label>
+                    <textarea v-model="storedCalcLogic" rows="2" placeholder="SUM(order_items.price * quantity)、unit_price × quantity など" class="di-textarea di-textarea-mono"></textarea>
+                  </div>
+
+                  <div class="di-form-group di-suggest-wrapper">
+                    <label class="di-form-label">元データ（テーブル.カラム）</label>
+                    <div class="di-stored-calc-tags">
+                      <span v-for="(src, i) in storedCalcSources" :key="i" class="di-calc-tag">
+                        {{ src }}
+                        <button @click.stop="storedCalcSources.splice(i, 1)" class="di-calc-tag-remove">&times;</button>
+                      </span>
+                      <input
+                        v-model="storedCalcSourceInput"
+                        @focus="showStoredCalcSuggestions = true"
+                        @blur="hideStoredCalcSuggestions"
+                        @keydown.enter.prevent="addStoredCalcSource()"
+                        type="text"
+                        placeholder="order_items.price"
+                        class="di-calc-tags-field"
+                        autocomplete="off"
+                      />
+                    </div>
+                    <div v-if="showStoredCalcSuggestions && storedCalcColumnSuggestions.length > 0" class="di-suggest-list">
+                      <button
+                        v-for="col in storedCalcColumnSuggestions.slice(0, 12)"
+                        :key="col"
+                        @mousedown.prevent="addStoredCalcSourceFromSuggestion(col)"
+                        class="di-suggest-item"
+                      >
+                        <Database style="width: 10px; height: 10px; opacity: 0.5; flex-shrink: 0;" />
+                        {{ col }}
+                      </button>
+                    </div>
+                    <span class="di-form-hint">Enter で追加、またはドロップダウンから選択</span>
+                  </div>
+
+                  <div class="di-form-group">
+                    <label class="di-form-label">計算タイミング</label>
+                    <select v-model="storedCalcTiming" class="di-select">
+                      <option value="">未指定</option>
+                      <option value="on_save">保存時（アプリ側で計算）</option>
+                      <option value="trigger">DBトリガー</option>
+                      <option value="batch">バッチ（定期実行）</option>
+                      <option value="realtime">リアルタイム（ビュー/マテビュー）</option>
+                    </select>
+                  </div>
+                </div>
+              </template>
+            </template>
+
+            <!-- calculated: inline tag + text input -->
+            <template v-if="displayType === 'calculated'">
+              <div class="di-form-group di-suggest-wrapper">
+                <label class="di-form-label">計算ロジック</label>
+                <div class="di-calc-tags-input" @click="($refs.calcInputEl as HTMLInputElement)?.focus()">
+                  <template v-for="(seg, i) in calcSegments" :key="i">
+                    <span v-if="seg.type === 'tag'" class="di-calc-tag">
+                      {{ seg.value }}
+                      <button @click.stop="removeCalcSegment(i)" class="di-calc-tag-remove">&times;</button>
+                    </span>
+                    <span v-else class="di-calc-text">{{ seg.value }}</span>
+                  </template>
+                  <input
+                    ref="calcInputEl"
+                    v-model="calcInput"
+                    @focus="showCalcSuggestions = true"
+                    @blur="hideCalcSuggestions()"
+                    @keydown="onCalcKeydown"
+                    type="text"
+                    :placeholder="calcSegments.length === 0 ? 'カラムを選択 or 自由入力 (例: × 2)' : ''"
+                    class="di-calc-tags-field"
+                    autocomplete="off"
+                  />
+                </div>
+                <div v-if="showCalcSuggestions && calcDbSuggestions.length > 0" class="di-suggest-list">
+                  <button
+                    v-for="col in calcDbSuggestions.slice(0, 12)"
+                    :key="col"
+                    @mousedown.prevent="insertCalcTag(col)"
+                    class="di-suggest-item"
+                  >
+                    <Database style="width: 10px; height: 10px; opacity: 0.5; flex-shrink: 0;" />
+                    {{ col }}
+                  </button>
+                </div>
+                <span class="di-form-hint">DBカラムはドロップダウンから挿入、演算子や数値はそのまま入力</span>
+              </div>
+            </template>
+
+            <!-- static / other: free text only -->
+            <template v-if="displayType === 'static' || displayType === 'other'">
+              <div class="di-form-group">
+                <label class="di-form-label">メモ</label>
+                <textarea v-model="noteText" rows="4" placeholder="この要素についてのメモ..." class="di-textarea"></textarea>
+              </div>
+            </template>
+
+            <!-- 条件付き表示 (all display types except other) -->
+            <template v-if="displayType && displayType !== 'other'">
+              <div class="di-condition-toggle">
+                <button @click="showConditionSection = !showConditionSection" class="di-btn-condition-toggle" :class="{ 'di-condition-active': showConditionSection || conditionText }">
+                  <ShieldQuestion style="width: 14px; height: 14px;" />
+                  条件付き表示
+                  <span v-if="conditionText" class="di-condition-badge">設定あり</span>
+                </button>
+              </div>
+
+              <template v-if="showConditionSection">
+                <div class="di-condition-section">
+                  <div class="di-form-group">
+                    <label class="di-form-label">表示条件</label>
+                    <input v-model="conditionText" type="text" placeholder="管理者ロール時のみ / ステータスがactiveの時" class="di-input" />
+                  </div>
+
+                  <div class="di-form-group di-suggest-wrapper">
+                    <label class="di-form-label">判定カラム</label>
+                    <input
+                      v-model="conditionColumn"
+                      type="text"
+                      placeholder="users.role / orders.status"
+                      class="di-input di-input-mono"
+                    />
+                  </div>
+
+                  <div class="di-form-row">
+                    <div class="di-form-group">
+                      <label class="di-form-label">条件不一致時の挙動</label>
+                      <select v-model="hiddenBehavior" class="di-select">
+                        <option value="">未指定</option>
+                        <option value="hidden">非表示</option>
+                        <option value="disabled">無効化 (グレーアウト)</option>
+                        <option value="different_value">別の値を表示</option>
+                        <option value="empty">空欄</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div v-if="hiddenBehavior === 'different_value'" class="di-form-group">
+                    <label class="di-form-label">代わりに表示する値</label>
+                    <input v-model="hiddenNote" type="text" placeholder="「権限がありません」/ 「***」" class="di-input" />
+                  </div>
+                </div>
+              </template>
+            </template>
+
+            <!-- Step 3: 表示メタ情報 (db_direct, db_formatted, calculated 共通) -->
+            <template v-if="displayType === 'db_direct' || displayType === 'db_formatted' || displayType === 'calculated'">
+              <div class="di-form-divider">
+                <span>表示の詳細</span>
+              </div>
+
+              <div class="di-form-row">
+                <div class="di-form-group">
+                  <label class="di-form-label">サンプル値</label>
+                  <input v-model="sampleValue" type="text" placeholder="12,500 / 田中太郎" class="di-input di-input-mono" />
+                </div>
+                <div class="di-form-group" style="flex: 0 0 80px;">
+                  <label class="di-form-label">単位</label>
+                  <input v-model="unit" type="text" placeholder="円 / %" class="di-input" />
+                </div>
+              </div>
+
+              <div class="di-form-row">
+                <div class="di-form-group">
+                  <label class="di-form-label">小数点の扱い</label>
+                  <select v-model="decimalHandling" class="di-select">
+                    <option value="">未指定</option>
+                    <option value="round">四捨五入</option>
+                    <option value="floor">切り捨て</option>
+                    <option value="ceil">切り上げ</option>
+                    <option value="decimal_1">小数第1位まで</option>
+                    <option value="decimal_2">小数第2位まで</option>
+                    <option value="integer">整数のみ</option>
+                  </select>
+                </div>
+                <div class="di-form-group">
+                  <label class="di-form-label">NULL/ゼロ時</label>
+                  <input v-model="nullDisplay" type="text" placeholder="- / 0 / 非表示 / N/A" class="di-input" />
+                </div>
+              </div>
+
+              <div class="di-form-group">
+                <label class="di-form-label">表示フォーマット</label>
+                <input v-model="displayFormat" type="text" placeholder="カンマ区切り / ¥記号付き / YYYY/MM/DD" class="di-input" />
+              </div>
+
+              <div class="di-form-group">
+                <label class="di-form-label">補足メモ（任意）</label>
+                <textarea v-model="noteText" rows="2" placeholder="補足情報があれば..." class="di-textarea"></textarea>
+              </div>
+            </template>
+          </template>
+
+          <!-- ==================== アクションタブ ==================== -->
+          <template v-if="activeTab === 'action'">
             <div class="di-form-group">
-              <label class="di-form-label">メモ内容 *</label>
-              <textarea v-model="noteText" rows="4" placeholder="この要素についてのメモ、説明、注意事項など..." class="di-textarea"></textarea>
+              <label class="di-form-label">アクションタイプ</label>
+              <select v-model="actionType" class="di-select">
+                <option value="">選択してください</option>
+                <option value="navigate">画面遷移</option>
+                <option value="api">API呼び出し</option>
+                <option value="modal">モーダル表示</option>
+                <option value="emit">イベント発火</option>
+                <option value="function">関数実行</option>
+              </select>
             </div>
 
             <div class="di-form-group">
-              <label class="di-form-label">記入者（オプション）</label>
-              <input v-model="noteAuthor" type="text" placeholder="名前" class="di-input" />
+              <label class="di-form-label">ターゲット</label>
+              <input
+                v-model="actionTarget"
+                type="text"
+                :placeholder="actionType === 'navigate' ? '/tasks' : actionType === 'api' ? '/api/users' : actionType === 'modal' ? 'confirm-dialog' : ''"
+                class="di-input di-input-mono"
+              />
+            </div>
+
+            <div v-if="actionType === 'api'" class="di-form-group">
+              <label class="di-form-label">HTTPメソッド</label>
+              <select v-model="actionMethod" class="di-select">
+                <option value="">選択してください</option>
+                <option value="GET">GET</option>
+                <option value="POST">POST</option>
+                <option value="PUT">PUT</option>
+                <option value="DELETE">DELETE</option>
+                <option value="PATCH">PATCH</option>
+              </select>
+            </div>
+
+            <div class="di-form-group">
+              <label class="di-form-label">説明</label>
+              <textarea v-model="actionDescription" rows="3" placeholder="このアクションの説明..." class="di-textarea"></textarea>
+            </div>
+
+            <div class="di-form-group">
+              <label class="di-form-label">補足メモ（任意）</label>
+              <textarea v-model="noteText" rows="2" placeholder="補足情報があれば..." class="di-textarea"></textarea>
             </div>
           </template>
 
-          <!-- Field Tab -->
-          <template v-if="activeTab === 'field'">
-            <!-- Schema Column Selector from schema.rb -->
+          <!-- ==================== フォームタブ ==================== -->
+          <template v-if="activeTab === 'form'">
+            <div class="di-form-group">
+              <label class="di-form-label">入力タイプ</label>
+              <select v-model="formInputType" class="di-select">
+                <option value="">選択してください</option>
+                <option value="text">テキスト (text)</option>
+                <option value="number">数値 (number)</option>
+                <option value="email">メール (email)</option>
+                <option value="password">パスワード (password)</option>
+                <option value="tel">電話番号 (tel)</option>
+                <option value="url">URL (url)</option>
+                <option value="date">日付 (date)</option>
+                <option value="datetime-local">日時 (datetime-local)</option>
+                <option value="select">セレクト (select)</option>
+                <option value="textarea">テキストエリア (textarea)</option>
+                <option value="checkbox">チェックボックス (checkbox)</option>
+                <option value="radio">ラジオボタン (radio)</option>
+                <option value="file">ファイル (file)</option>
+              </select>
+            </div>
+
+            <!-- DB column mapping for form fields -->
+            <div v-if="fieldList.length > 0" class="di-field-tags">
+              <label class="di-form-label">対応カラム</label>
+              <div class="di-field-tags-list">
+                <div v-for="(field, i) in fieldList" :key="i" class="di-field-tag">
+                  <span class="di-field-tag-name">{{ field.table }}.{{ field.column }}</span>
+                  <span v-if="field.type" class="di-field-tag-type">{{ field.type }}</span>
+                  <button @click="removeFieldFromList(i)" class="di-field-tag-remove">&times;</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Schema Column Selector for form fields -->
             <div v-if="hasSchemaData" class="di-binding-selector">
               <div class="di-form-group">
                 <label class="di-form-label">
                   <Database style="width: 12px; height: 12px; display: inline; vertical-align: middle;" />
-                  schema.rb から選択
+                  対応するDBカラム
                 </label>
                 <div class="di-binding-search-wrapper">
                   <input
                     v-model="schemaSearch"
                     @focus="showSchemaList = true"
                     type="text"
-                    placeholder="テーブル.カラムを検索... (例: users, email)"
+                    placeholder="テーブル.カラムを検索..."
                     class="di-input di-binding-search"
                   />
                   <button
@@ -528,145 +1320,86 @@ const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof
                     <span v-if="col.comment" class="di-binding-component">{{ col.comment }}</span>
                   </button>
                 </div>
-                <div v-else-if="showSchemaList && schemaSearch && filteredSchemaColumns.length === 0" class="di-binding-empty">
-                  該当するカラムが見つかりません
+              </div>
+            </div>
+
+            <!-- Master values for select/radio/checkbox -->
+            <div v-if="currentMasterKey && (formInputType === 'select' || formInputType === 'radio' || formInputType === 'checkbox')" class="di-master-inline">
+              <button @click="toggleMasterSection" class="di-btn-condition-toggle" :class="{ 'di-condition-active': showMasterSection }">
+                <List style="width: 14px; height: 14px;" />
+                選択肢を定義
+                <span v-if="existingMaster" class="di-condition-badge" style="background: #a78bfa;">{{ existingMaster.entries.length }}件</span>
+              </button>
+
+              <div v-if="showMasterSection" class="di-master-inline-section">
+                <div v-if="masterEntries.length > 0" class="di-master-entries-table">
+                  <div class="di-master-entries-header">
+                    <span class="di-master-col-val">値</span>
+                    <span class="di-master-col-lbl">ラベル</span>
+                    <span class="di-master-col-color">色</span>
+                    <span class="di-master-col-act"></span>
+                  </div>
+                  <div v-for="(entry, idx) in masterEntries" :key="idx" class="di-master-entry-row">
+                    <input v-model="entry.value" placeholder="1" class="di-master-input di-master-col-val" />
+                    <input v-model="entry.label" placeholder="受付" class="di-master-input di-master-col-lbl" />
+                    <input v-model="entry.color" type="color" class="di-master-color-input" />
+                    <button @click="removeMasterEntry(idx)" class="di-master-entry-remove">&times;</button>
+                  </div>
                 </div>
+                <button @click="addMasterEntry" class="di-btn-add-field" style="margin-top: 4px;">
+                  + 値を追加
+                </button>
               </div>
             </div>
 
-            <div class="di-form-divider">
-              <span>または手動入力</span>
+            <!-- Required toggle -->
+            <div class="di-condition-toggle">
+              <button @click="formRequired = !formRequired" class="di-btn-condition-toggle" :class="{ 'di-condition-active': formRequired }">
+                <ShieldQuestion style="width: 14px; height: 14px;" />
+                必須入力
+                <span v-if="formRequired" class="di-condition-badge">必須</span>
+              </button>
             </div>
 
-            <div class="di-form-row">
-              <div class="di-form-group">
-                <label class="di-form-label">テーブル名 *</label>
-                <input v-model="fieldTable" type="text" placeholder="users" class="di-input" />
+            <!-- Validation rules (tag input) -->
+            <div class="di-form-group di-suggest-wrapper">
+              <label class="di-form-label">バリデーションルール</label>
+              <div class="di-calc-tags-input">
+                <span v-for="(rule, i) in formValidation" :key="i" class="di-calc-tag" style="background: #ec4899;">
+                  {{ rule }}
+                  <button @click.stop="removeFormValidation(i)" class="di-calc-tag-remove">&times;</button>
+                </span>
+                <input
+                  v-model="formValidationInput"
+                  @keydown.enter.prevent="addFormValidation()"
+                  @keydown="onFormValidationKeydown"
+                  type="text"
+                  :placeholder="formValidation.length === 0 ? 'max:255, email, 必須 など (Enter で追加)' : ''"
+                  class="di-calc-tags-field"
+                  autocomplete="off"
+                />
               </div>
-              <div class="di-form-group">
-                <label class="di-form-label">カラム名 *</label>
-                <input v-model="fieldColumn" type="text" placeholder="name" class="di-input" />
-              </div>
+              <span class="di-form-hint">Enter で追加、Backspace で削除</span>
             </div>
 
             <div class="di-form-group">
-              <label class="di-form-label">データ型</label>
-              <select v-model="fieldType" class="di-select">
-                <option value="">選択してください</option>
-                <option v-for="type in typeOptions" :key="type" :value="type">{{ type }}</option>
-              </select>
+              <label class="di-form-label">プレースホルダー</label>
+              <input v-model="formPlaceholder" type="text" placeholder="例: user@example.com" class="di-input" />
             </div>
 
             <div class="di-form-group">
-              <label class="di-form-label">バリデーション (カンマ区切り)</label>
-              <input v-model="fieldValidation" type="text" placeholder="required, max:255" class="di-input" />
+              <label class="di-form-label">デフォルト値</label>
+              <input v-model="formDefaultValue" type="text" placeholder="初期値" class="di-input di-input-mono" />
             </div>
 
             <div class="di-form-group">
               <label class="di-form-label">説明</label>
-              <textarea v-model="fieldDescription" rows="2" placeholder="このフィールドの説明..." class="di-textarea"></textarea>
-            </div>
-          </template>
-
-          <!-- Action Tab -->
-          <template v-if="activeTab === 'action'">
-            <div class="di-form-group">
-              <label class="di-form-label">アクションタイプ</label>
-              <select v-model="actionType" class="di-select">
-                <option v-for="opt in actionTypeOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
-              </select>
-            </div>
-
-            <div v-if="actionType === 'api'" class="di-form-row">
-              <div class="di-form-group" style="flex: 0 0 100px;">
-                <label class="di-form-label">メソッド</label>
-                <select v-model="actionMethod" class="di-select">
-                  <option v-for="method in methodOptions" :key="method" :value="method">{{ method }}</option>
-                </select>
-              </div>
-              <div class="di-form-group" style="flex: 1;">
-                <label class="di-form-label">エンドポイント</label>
-                <input v-model="actionTarget" type="text" placeholder="/api/tasks" class="di-input" />
-              </div>
-            </div>
-
-            <div v-else class="di-form-group">
-              <label class="di-form-label">
-                {{ actionType === 'navigate' ? '遷移先パス' : actionType === 'modal' ? 'モーダル名' : actionType === 'emit' ? 'イベント名' : '関数名' }}
-              </label>
-              <input
-                v-model="actionTarget"
-                type="text"
-                :placeholder="actionType === 'navigate' ? '/tasks' : actionType === 'modal' ? 'ConfirmDialog' : actionType === 'emit' ? 'onSubmit' : 'handleClick'"
-                class="di-input"
-              />
+              <textarea v-model="formDescription" rows="3" placeholder="このフォーム要素の説明..." class="di-textarea"></textarea>
             </div>
 
             <div class="di-form-group">
-              <label class="di-form-label">説明</label>
-              <textarea v-model="actionDescription" rows="2" placeholder="このアクションの説明..." class="di-textarea"></textarea>
-            </div>
-          </template>
-
-          <!-- Links Tab -->
-          <template v-if="activeTab === 'links'">
-            <div class="di-form-group">
-              <label class="di-form-label">テストファイルパス</label>
-              <input v-model="linkTestPath" type="text" placeholder="src/__tests__/components/MyComponent.test.ts" class="di-input di-input-mono" />
-            </div>
-
-            <div class="di-form-group">
-              <label class="di-form-label">Figma URL</label>
-              <input v-model="linkFigmaUrl" type="text" placeholder="https://www.figma.com/design/..." class="di-input" />
-            </div>
-
-            <div class="di-form-row">
-              <div class="di-form-group">
-                <label class="di-form-label">GitHub Issue</label>
-                <input v-model="linkGithubIssue" type="text" placeholder="#123" class="di-input" />
-              </div>
-              <div class="di-form-group">
-                <label class="di-form-label">GitHub PR</label>
-                <input v-model="linkGithubPr" type="text" placeholder="#456" class="di-input" />
-              </div>
-            </div>
-
-            <div class="di-form-group">
-              <label class="di-form-label">関連ドキュメント</label>
-              <input v-model="linkRelatedDocs" type="text" placeholder="https://docs.example.com/..." class="di-input" />
-            </div>
-          </template>
-
-          <!-- Meta Tab -->
-          <template v-if="activeTab === 'meta'">
-            <div class="di-form-group">
-              <label class="di-form-label">使用Piniaストア (カンマ区切り)</label>
-              <input v-model="metaUsedStores" type="text" placeholder="useUserStore, useThemeStore" class="di-input di-input-mono" />
-            </div>
-
-            <div class="di-form-group">
-              <label class="di-form-label">使用コンポーネント (カンマ区切り)</label>
-              <input v-model="metaUsedComponents" type="text" placeholder="Button, Modal, Input" class="di-input di-input-mono" />
-            </div>
-
-            <div class="di-form-group">
-              <label class="di-form-label">i18nキー (カンマ区切り)</label>
-              <input v-model="metaI18nKeys" type="text" placeholder="common.save, errors.required" class="di-input di-input-mono" />
-            </div>
-
-            <div class="di-form-group">
-              <label class="di-form-label">デザイントークン (カンマ区切り)</label>
-              <input v-model="metaDesignTokens" type="text" placeholder="primaryColor, secondaryColor" class="di-input di-input-mono" />
-            </div>
-
-            <div class="di-form-group">
-              <label class="di-form-label">アクセシビリティ</label>
-              <textarea v-model="metaAccessibility" rows="2" placeholder="キーボード操作、スクリーンリーダー対応などのメモ..." class="di-textarea"></textarea>
-            </div>
-
-            <div class="di-form-group">
-              <label class="di-form-label">レスポンシブ動作</label>
-              <textarea v-model="metaResponsive" rows="2" placeholder="モバイルでの表示変更、ブレークポイントなど..." class="di-textarea"></textarea>
+              <label class="di-form-label">補足メモ（任意）</label>
+              <textarea v-model="noteText" rows="2" placeholder="補足情報があれば..." class="di-textarea"></textarea>
             </div>
           </template>
         </div>
@@ -706,7 +1439,7 @@ const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof
   background: #1e293b;
   border-radius: 12px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-  width: 420px;
+  width: 460px;
   max-height: 80vh;
   display: flex;
   flex-direction: column;
@@ -796,31 +1529,6 @@ const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof
   font-family: monospace;
 }
 
-.di-editor-tabs {
-  display: flex;
-  border-bottom: 1px solid #334155;
-  overflow-x: auto;
-}
-.di-editor-tab {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  padding: 10px 10px;
-  background: transparent;
-  border: none;
-  border-bottom: 2px solid transparent;
-  color: #94a3b8;
-  font-size: 10px;
-  font-weight: 500;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s;
-}
-.di-editor-tab:hover {
-  color: white;
-}
-
 .di-editor-content {
   padding: 16px;
   overflow-y: auto;
@@ -828,6 +1536,44 @@ const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof
   display: flex;
   flex-direction: column;
   gap: 12px;
+}
+
+/* Display Type Card Grid */
+.di-display-type-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.di-display-type-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 6px;
+  background: transparent;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-display-type-card:hover {
+  border-color: #475569;
+  background: rgba(255, 255, 255, 0.03);
+}
+.di-display-type-active {
+  border-width: 2px;
+}
+.di-display-type-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+  line-height: 1.2;
+}
+.di-display-type-desc {
+  font-size: 9px;
+  color: #475569;
+  text-align: center;
+  line-height: 1.2;
 }
 
 .di-form-group {
@@ -873,30 +1619,6 @@ const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof
 }
 .di-select {
   cursor: pointer;
-}
-
-.di-note-types {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-}
-.di-note-type-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 4px;
-  padding: 8px;
-  background: transparent;
-  border: 1px solid #334155;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.di-note-type-btn:hover {
-  border-color: #475569;
-}
-.di-note-type-btn span {
-  font-size: 10px;
 }
 
 .di-editor-footer {
@@ -1033,13 +1755,12 @@ const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof
   font-size: 12px;
   font-family: monospace;
 }
-.di-binding-db {
-  padding: 2px 6px;
-  background: #3b82f6;
-  color: white;
+.di-binding-type {
+  padding: 1px 5px;
+  background: #334155;
+  color: #94a3b8;
   font-size: 10px;
-  border-radius: 4px;
-  font-weight: 600;
+  border-radius: 3px;
 }
 .di-binding-component {
   color: #64748b;
@@ -1069,5 +1790,395 @@ const noteTypeOptions: { value: ElementNote['type']; label: string; icon: typeof
   color: #64748b;
   font-size: 10px;
   white-space: nowrap;
+}
+
+/* Table/Column suggestion dropdown */
+.di-suggest-wrapper {
+  position: relative;
+}
+.di-suggest-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  max-height: 160px;
+  overflow-y: auto;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  margin-top: 2px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.di-suggest-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #1e293b;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-family: monospace;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.di-suggest-item:last-child {
+  border-bottom: none;
+}
+.di-suggest-item:hover {
+  background: #1e293b;
+}
+
+/* Calc source tag input */
+.di-calc-tags-input {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  min-height: 36px;
+  align-items: center;
+  transition: border-color 0.2s;
+  cursor: text;
+}
+.di-calc-tags-input:focus-within {
+  border-color: #60a5fa;
+}
+.di-calc-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  background: #3b82f6;
+  color: white;
+  font-size: 11px;
+  font-family: monospace;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+.di-calc-tag-remove {
+  padding: 0 2px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.di-calc-tag-remove:hover {
+  color: white;
+}
+.di-calc-tags-field {
+  flex: 1;
+  min-width: 80px;
+  padding: 2px 4px;
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 12px;
+  font-family: monospace;
+  outline: none;
+}
+.di-calc-tags-field::placeholder {
+  color: #475569;
+}
+.di-calc-text {
+  color: #e2e8f0;
+  font-size: 12px;
+  font-family: monospace;
+  white-space: pre;
+}
+.di-form-hint {
+  font-size: 9px;
+  color: #475569;
+  margin-top: 2px;
+}
+
+/* Field list tags */
+.di-field-tags {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.di-field-tags-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.di-field-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #1e3a5f;
+  border: 1px solid #3b82f6;
+  border-radius: 6px;
+}
+.di-field-tag-name {
+  color: #93c5fd;
+  font-size: 11px;
+  font-family: monospace;
+  font-weight: 600;
+}
+.di-field-tag-type {
+  padding: 1px 4px;
+  background: #334155;
+  color: #94a3b8;
+  font-size: 9px;
+  border-radius: 3px;
+}
+.di-field-tag-remove {
+  padding: 0 3px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+}
+.di-field-tag-remove:hover {
+  color: #ef4444;
+}
+.di-btn-add-field {
+  width: 100%;
+  padding: 8px;
+  background: transparent;
+  border: 1px dashed #334155;
+  border-radius: 6px;
+  color: #64748b;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-btn-add-field:hover:not(:disabled) {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+}
+.di-btn-add-field:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Condition section */
+.di-condition-toggle {
+  margin-top: 4px;
+}
+.di-btn-condition-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: 1px dashed #334155;
+  border-radius: 6px;
+  color: #64748b;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-btn-condition-toggle:hover {
+  border-color: #f59e0b;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.05);
+}
+.di-btn-condition-toggle.di-condition-active {
+  border-color: #f59e0b;
+  border-style: solid;
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.08);
+}
+.di-condition-badge {
+  padding: 1px 6px;
+  background: #f59e0b;
+  color: #000;
+  font-size: 9px;
+  font-weight: 600;
+  border-radius: 4px;
+  margin-left: auto;
+}
+.di-condition-section {
+  padding: 12px;
+  background: rgba(245, 158, 11, 0.06);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Stored Calc */
+.di-stored-calc-toggle {
+  margin-top: 4px;
+}
+.di-stored-calc-section {
+  padding: 12px;
+  background: rgba(139, 92, 246, 0.06);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.di-stored-calc-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  min-height: 36px;
+  align-items: center;
+  transition: border-color 0.2s;
+  cursor: text;
+}
+.di-stored-calc-tags:focus-within {
+  border-color: #60a5fa;
+}
+.di-textarea-mono {
+  font-family: monospace;
+}
+
+/* Editor Tabs */
+.di-editor-tabs {
+  display: flex;
+  background: #0f172a;
+  border-bottom: 1px solid #334155;
+}
+.di-editor-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px 8px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-editor-tab:hover {
+  color: #94a3b8;
+  background: rgba(255, 255, 255, 0.03);
+}
+.di-editor-tab-active {
+  color: #60a5fa;
+  border-bottom-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.05);
+}
+
+/* Master inline section */
+.di-master-inline {
+  margin-top: 4px;
+}
+.di-master-inline-section {
+  padding: 10px;
+  background: rgba(167, 139, 250, 0.06);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 8px;
+  margin-top: 8px;
+}
+.di-master-entries-table {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.di-master-entries-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 4px 4px;
+  border-bottom: 1px solid rgba(167, 139, 250, 0.15);
+  font-size: 9px;
+  color: #64748b;
+}
+.di-master-entry-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.di-master-col-val {
+  width: 60px;
+  flex-shrink: 0;
+}
+.di-master-col-lbl {
+  flex: 1;
+  min-width: 0;
+}
+.di-master-col-color {
+  width: 32px;
+  flex-shrink: 0;
+  text-align: center;
+}
+.di-master-col-act {
+  width: 20px;
+  flex-shrink: 0;
+}
+.di-master-input {
+  padding: 5px 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: white;
+  font-size: 11px;
+  font-family: monospace;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.di-master-input:focus {
+  outline: none;
+  border-color: #a78bfa;
+}
+.di-master-input::placeholder {
+  color: #475569;
+}
+.di-master-color-input {
+  width: 28px;
+  height: 28px;
+  padding: 2px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.di-master-color-input::-webkit-color-swatch-wrapper {
+  padding: 2px;
+}
+.di-master-color-input::-webkit-color-swatch {
+  border: none;
+  border-radius: 3px;
+}
+.di-master-entry-remove {
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 16px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.di-master-entry-remove:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
 }
 </style>

@@ -91,6 +91,17 @@ declare interface ComponentApi {
     responseType?: string;
 }
 
+export declare type CrossSearchMode = 'column' | 'api' | 'text';
+
+export declare interface CrossSearchResult {
+    pagePath: string;
+    pageName: string;
+    selector: string;
+    elementType?: 'datasource' | 'action' | 'form';
+    matchedField: string;
+    matchContext: string;
+}
+
 declare interface DbColumnSchema {
     name: string;
     type: string;
@@ -128,6 +139,15 @@ export declare interface DevInspectorOptions {
     autoLoadAnalysis?: boolean;
     /** Auto-apply analysis to page after loading (default: true) */
     autoApplyAnalysis?: boolean;
+    /** Enable real-time server sync via Vite dev server (default: true in dev mode) */
+    serverSync?: boolean;
+    /** Supabase sync for remote collaboration (overrides serverSync) */
+    supabase?: {
+        url: string;
+        anonKey: string;
+        table?: string;
+        pollInterval?: number;
+    };
 }
 
 export declare interface DevInspectorVitePluginOptions {
@@ -140,6 +160,11 @@ export declare interface DevInspectorVitePluginOptions {
      * If not provided, only data-di-binding will be added
      */
     analysisPath?: string;
+    /**
+     * Directory for per-page annotation JSON files
+     * (default: './dev-inspector-annotations')
+     */
+    syncDir?: string;
     /**
      * Include file patterns (default: ['**\/*.vue'])
      */
@@ -163,11 +188,17 @@ export declare const DevPanel: DefineComponent<    {}, {}, {}, {}, {}, Component
 
 export declare const DevPickOverlay: DefineComponent<    {}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<{}> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>;
 
+export declare const DevScreenEditor: DefineComponent<    {}, {}, {}, {}, {}, ComponentOptionsMixin, ComponentOptionsMixin, {}, string, PublicProps, Readonly<{}> & Readonly<{}>, {}, {}, {}, {}, string, ComponentProvideOptions, true, {}, any>;
+
 export declare interface ElementConfig {
     id: string;
     componentPath: string;
+    pagePath?: string;
+    elementType?: 'datasource' | 'action' | 'form';
     fieldInfo?: FieldInfo;
+    fieldInfoList?: FieldInfo[];
     actionInfo?: ActionInfo;
+    formInfo?: FormInfo;
     note?: ElementNote;
     links?: LinkInfo;
     devMeta?: DevMeta;
@@ -180,6 +211,23 @@ export declare interface ElementNote {
     text: string;
     author?: string;
     type?: 'info' | 'warning' | 'todo' | 'question';
+    displayType?: 'db_direct' | 'db_formatted' | 'calculated' | 'static' | 'other';
+    formatDescription?: string;
+    calcDescription?: string;
+    calcSources?: string[];
+    sampleValue?: string;
+    decimalHandling?: string;
+    unit?: string;
+    nullDisplay?: string;
+    displayFormat?: string;
+    storedCalc?: boolean;
+    storedCalcLogic?: string;
+    storedCalcSources?: string[];
+    storedCalcTiming?: 'on_save' | 'trigger' | 'batch' | 'realtime';
+    condition?: string;
+    conditionColumn?: string;
+    hiddenBehavior?: 'hidden' | 'disabled' | 'different_value' | 'empty';
+    hiddenNote?: string;
 }
 
 declare type ElementTag = 'db' | 'form' | 'button' | 'link' | 'modal' | 'conditional' | 'computed' | 'api';
@@ -192,6 +240,15 @@ export declare interface FieldInfo {
     description?: string;
 }
 
+export declare interface FormInfo {
+    inputType?: string;
+    required?: boolean;
+    validation?: string[];
+    placeholder?: string;
+    defaultValue?: string;
+    description?: string;
+}
+
 export declare interface LinkInfo {
     testPath?: string;
     figmaUrl?: string;
@@ -201,6 +258,24 @@ export declare interface LinkInfo {
 }
 
 declare type LoadTrigger = 'onMount' | 'useFetch' | 'useAsyncData' | 'watch' | 'action' | 'unknown';
+
+export declare interface MasterDefinition {
+    id: string;
+    table: string;
+    column: string;
+    name: string;
+    columnType?: string;
+    description?: string;
+    entries: MasterEntry[];
+    updatedAt: string;
+}
+
+export declare interface MasterEntry {
+    value: string;
+    label: string;
+    color?: string;
+    description?: string;
+}
 
 export declare interface PluginOptions extends DevInspectorOptions {
     /**
@@ -241,6 +316,40 @@ declare interface SchemaColumnOption {
     fullName: string;
 }
 
+export declare interface ScreenConfig {
+    path: string;
+    name: string;
+    description?: string;
+    componentPath?: string;
+    apis: {
+        method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+        endpoint: string;
+        description?: string;
+        loadTiming?: 'onMount' | 'action' | 'conditional';
+    }[];
+    auth?: {
+        required: boolean;
+        roles?: string[];
+        description?: string;
+    };
+    figmaUrl?: string;
+    notes?: string;
+    updatedAt: string;
+}
+
+export declare interface ScreenFlowEdge {
+    from: string;
+    to: string;
+    label: string;
+    selector: string;
+}
+
+export declare interface ScreenFlowNode {
+    path: string;
+    name: string;
+    annotationCount: number;
+}
+
 export declare interface ScreenSpec {
     name: string;
     description: string;
@@ -261,6 +370,14 @@ export declare interface SourceBindingInfo {
     apiMethod?: string;
     storeKey?: string;
     isStatic?: boolean;
+}
+
+export declare interface UnannotatedElement {
+    selector: string;
+    tagName: string;
+    category: 'binding' | 'form' | 'action';
+    text: string;
+    suggestedType: 'datasource' | 'action' | 'form';
 }
 
 export declare function useDevInspector(): Store<"devInspector", Pick<{
@@ -296,6 +413,12 @@ notes?: string[] | undefined;
 isPanelOpen: Ref<boolean, boolean>;
 elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
 editingElementId: Ref<string | null, string | null>;
+screenConfigs: Ref<Record<string, ScreenConfig>, Record<string, ScreenConfig>>;
+editingScreen: Ref<boolean, boolean>;
+getScreenConfig: (path?: string) => ScreenConfig | undefined;
+setScreenConfig: (config: ScreenConfig) => void;
+deleteScreenConfig: (path: string) => void;
+suggestScreenApis: () => ScreenConfig["apis"];
 init: (opts?: DevInspectorOptions) => void;
 toggle: () => Promise<void>;
 enable: () => Promise<void>;
@@ -330,6 +453,8 @@ element: HTMLElement;
 detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
+pagePath?: string | undefined;
+elementType?: "datasource" | "action" | "form" | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -337,6 +462,13 @@ type?: string | undefined;
 validation?: string[] | undefined;
 description?: string | undefined;
 } | undefined;
+fieldInfoList?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+}[] | undefined;
 actionInfo?: {
 type: "navigate" | "api" | "modal" | "emit" | "function";
 target?: string | undefined;
@@ -344,10 +476,35 @@ method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
 } | undefined;
+formInfo?: {
+inputType?: string | undefined;
+required?: boolean | undefined;
+validation?: string[] | undefined;
+placeholder?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
 type?: "info" | "warning" | "todo" | "question" | undefined;
+displayType?: "db_direct" | "db_formatted" | "calculated" | "static" | "other" | undefined;
+formatDescription?: string | undefined;
+calcDescription?: string | undefined;
+calcSources?: string[] | undefined;
+sampleValue?: string | undefined;
+decimalHandling?: string | undefined;
+unit?: string | undefined;
+nullDisplay?: string | undefined;
+displayFormat?: string | undefined;
+storedCalc?: boolean | undefined;
+storedCalcLogic?: string | undefined;
+storedCalcSources?: string[] | undefined;
+storedCalcTiming?: "on_save" | "trigger" | "batch" | "realtime" | undefined;
+condition?: string | undefined;
+conditionColumn?: string | undefined;
+hiddenBehavior?: "hidden" | "disabled" | "different_value" | "empty" | undefined;
+hiddenNote?: string | undefined;
 } | undefined;
 links?: {
 testPath?: string | undefined;
@@ -385,6 +542,8 @@ element: HTMLElement;
 detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
+pagePath?: string | undefined;
+elementType?: "datasource" | "action" | "form" | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -392,6 +551,13 @@ type?: string | undefined;
 validation?: string[] | undefined;
 description?: string | undefined;
 } | undefined;
+fieldInfoList?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+}[] | undefined;
 actionInfo?: {
 type: "navigate" | "api" | "modal" | "emit" | "function";
 target?: string | undefined;
@@ -399,10 +565,35 @@ method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
 } | undefined;
+formInfo?: {
+inputType?: string | undefined;
+required?: boolean | undefined;
+validation?: string[] | undefined;
+placeholder?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
 type?: "info" | "warning" | "todo" | "question" | undefined;
+displayType?: "db_direct" | "db_formatted" | "calculated" | "static" | "other" | undefined;
+formatDescription?: string | undefined;
+calcDescription?: string | undefined;
+calcSources?: string[] | undefined;
+sampleValue?: string | undefined;
+decimalHandling?: string | undefined;
+unit?: string | undefined;
+nullDisplay?: string | undefined;
+displayFormat?: string | undefined;
+storedCalc?: boolean | undefined;
+storedCalcLogic?: string | undefined;
+storedCalcSources?: string[] | undefined;
+storedCalcTiming?: "on_save" | "trigger" | "batch" | "realtime" | undefined;
+condition?: string | undefined;
+conditionColumn?: string | undefined;
+hiddenBehavior?: "hidden" | "disabled" | "different_value" | "empty" | undefined;
+hiddenNote?: string | undefined;
 } | undefined;
 links?: {
 testPath?: string | undefined;
@@ -557,7 +748,7 @@ clearAnalysisResults: () => void;
 removeAnalysisResult: (selector: string) => void;
 clearHiddenSelectors: () => void;
 hiddenAnalysisSelectors: Ref<Set<string> & Omit<Set<string>, keyof Set<any>>, Set<string> | (Set<string> & Omit<Set<string>, keyof Set<any>>)>;
-analysisFilter: Ref<"computed" | "modal" | "form" | "button" | "link" | "conditional" | "all" | "db-api" | "other" | "none", "computed" | "modal" | "form" | "button" | "link" | "conditional" | "all" | "db-api" | "other" | "none">;
+analysisFilter: Ref<"computed" | "modal" | "other" | "form" | "conditional" | "button" | "link" | "all" | "db-api" | "none", "computed" | "modal" | "other" | "form" | "conditional" | "button" | "link" | "all" | "db-api" | "none">;
 exportChangesForCli: () => string;
 downloadChanges: (filename?: string) => void;
 getAvailableBindings: () => BindingCandidate[];
@@ -569,7 +760,53 @@ pageLoad: ComponentApi[];
 action: ComponentApi[];
 };
 getApiSourceForBinding: (binding: string) => ComponentApi | null;
-}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter">, Pick<{
+showNoteHighlights: Ref<boolean, boolean>;
+toggleNoteHighlights: () => void;
+noteHighlightFilter: Ref<"static" | "calculated" | "other" | "action" | "form" | "conditional" | "db" | "all" | "storedCalc", "static" | "calculated" | "other" | "action" | "form" | "conditional" | "db" | "all" | "storedCalc">;
+detectElementType: (element: HTMLElement) => "datasource" | "action" | "form";
+masterDefinitions: Ref<Record<string, MasterDefinition>, Record<string, MasterDefinition>>;
+getMasterDefinition: (tableColumn: string) => MasterDefinition | undefined;
+setMasterDefinition: (def: MasterDefinition) => void;
+deleteMasterDefinition: (id: string) => void;
+getMastersForTable: (table: string) => MasterDefinition[];
+getMasterEntries: (tableColumn: string) => MasterEntry[];
+brokenAnnotations: Ref<string[], string[]>;
+remapTargetId: Ref<string | null, string | null>;
+detectBrokenAnnotations: () => string[];
+remapAnnotation: (oldId: string, newId: string) => void;
+startRemap: (oldId: string) => void;
+deleteBrokenAnnotations: () => void;
+showCrossSearch: Ref<boolean, boolean>;
+crossSearchQuery: Ref<string, string>;
+crossSearchMode: Ref<CrossSearchMode, CrossSearchMode>;
+crossSearchResults: ComputedRef<CrossSearchResult[]>;
+showUnannotatedDetection: Ref<boolean, boolean>;
+unannotatedElements: Ref<    {
+selector: string;
+tagName: string;
+category: "binding" | "form" | "action";
+text: string;
+suggestedType: "datasource" | "action" | "form";
+}[], UnannotatedElement[] | {
+selector: string;
+tagName: string;
+category: "binding" | "form" | "action";
+text: string;
+suggestedType: "datasource" | "action" | "form";
+}[]>;
+detectUnannotatedElements: () => UnannotatedElement[];
+quickAnnotate: (selector: string, suggestedType: "datasource" | "action" | "form") => void;
+showScreenFlow: Ref<boolean, boolean>;
+screenFlowData: ComputedRef<    {
+nodes: ScreenFlowNode[];
+edges: ScreenFlowEdge[];
+orphanPages: ScreenFlowNode[];
+}>;
+syncClientId: Ref<string, string>;
+loadFromServer: (page?: string) => Promise<boolean>;
+saveToServer: () => void;
+teardownServerSync: () => void;
+}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "screenConfigs" | "editingScreen" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter" | "showNoteHighlights" | "noteHighlightFilter" | "masterDefinitions" | "brokenAnnotations" | "remapTargetId" | "showCrossSearch" | "crossSearchQuery" | "crossSearchMode" | "showUnannotatedDetection" | "unannotatedElements" | "showScreenFlow" | "syncClientId">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -602,6 +839,12 @@ notes?: string[] | undefined;
 isPanelOpen: Ref<boolean, boolean>;
 elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
 editingElementId: Ref<string | null, string | null>;
+screenConfigs: Ref<Record<string, ScreenConfig>, Record<string, ScreenConfig>>;
+editingScreen: Ref<boolean, boolean>;
+getScreenConfig: (path?: string) => ScreenConfig | undefined;
+setScreenConfig: (config: ScreenConfig) => void;
+deleteScreenConfig: (path: string) => void;
+suggestScreenApis: () => ScreenConfig["apis"];
 init: (opts?: DevInspectorOptions) => void;
 toggle: () => Promise<void>;
 enable: () => Promise<void>;
@@ -636,6 +879,8 @@ element: HTMLElement;
 detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
+pagePath?: string | undefined;
+elementType?: "datasource" | "action" | "form" | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -643,6 +888,13 @@ type?: string | undefined;
 validation?: string[] | undefined;
 description?: string | undefined;
 } | undefined;
+fieldInfoList?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+}[] | undefined;
 actionInfo?: {
 type: "navigate" | "api" | "modal" | "emit" | "function";
 target?: string | undefined;
@@ -650,10 +902,35 @@ method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
 } | undefined;
+formInfo?: {
+inputType?: string | undefined;
+required?: boolean | undefined;
+validation?: string[] | undefined;
+placeholder?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
 type?: "info" | "warning" | "todo" | "question" | undefined;
+displayType?: "db_direct" | "db_formatted" | "calculated" | "static" | "other" | undefined;
+formatDescription?: string | undefined;
+calcDescription?: string | undefined;
+calcSources?: string[] | undefined;
+sampleValue?: string | undefined;
+decimalHandling?: string | undefined;
+unit?: string | undefined;
+nullDisplay?: string | undefined;
+displayFormat?: string | undefined;
+storedCalc?: boolean | undefined;
+storedCalcLogic?: string | undefined;
+storedCalcSources?: string[] | undefined;
+storedCalcTiming?: "on_save" | "trigger" | "batch" | "realtime" | undefined;
+condition?: string | undefined;
+conditionColumn?: string | undefined;
+hiddenBehavior?: "hidden" | "disabled" | "different_value" | "empty" | undefined;
+hiddenNote?: string | undefined;
 } | undefined;
 links?: {
 testPath?: string | undefined;
@@ -691,6 +968,8 @@ element: HTMLElement;
 detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
+pagePath?: string | undefined;
+elementType?: "datasource" | "action" | "form" | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -698,6 +977,13 @@ type?: string | undefined;
 validation?: string[] | undefined;
 description?: string | undefined;
 } | undefined;
+fieldInfoList?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+}[] | undefined;
 actionInfo?: {
 type: "navigate" | "api" | "modal" | "emit" | "function";
 target?: string | undefined;
@@ -705,10 +991,35 @@ method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
 } | undefined;
+formInfo?: {
+inputType?: string | undefined;
+required?: boolean | undefined;
+validation?: string[] | undefined;
+placeholder?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
 type?: "info" | "warning" | "todo" | "question" | undefined;
+displayType?: "db_direct" | "db_formatted" | "calculated" | "static" | "other" | undefined;
+formatDescription?: string | undefined;
+calcDescription?: string | undefined;
+calcSources?: string[] | undefined;
+sampleValue?: string | undefined;
+decimalHandling?: string | undefined;
+unit?: string | undefined;
+nullDisplay?: string | undefined;
+displayFormat?: string | undefined;
+storedCalc?: boolean | undefined;
+storedCalcLogic?: string | undefined;
+storedCalcSources?: string[] | undefined;
+storedCalcTiming?: "on_save" | "trigger" | "batch" | "realtime" | undefined;
+condition?: string | undefined;
+conditionColumn?: string | undefined;
+hiddenBehavior?: "hidden" | "disabled" | "different_value" | "empty" | undefined;
+hiddenNote?: string | undefined;
 } | undefined;
 links?: {
 testPath?: string | undefined;
@@ -863,7 +1174,7 @@ clearAnalysisResults: () => void;
 removeAnalysisResult: (selector: string) => void;
 clearHiddenSelectors: () => void;
 hiddenAnalysisSelectors: Ref<Set<string> & Omit<Set<string>, keyof Set<any>>, Set<string> | (Set<string> & Omit<Set<string>, keyof Set<any>>)>;
-analysisFilter: Ref<"computed" | "modal" | "form" | "button" | "link" | "conditional" | "all" | "db-api" | "other" | "none", "computed" | "modal" | "form" | "button" | "link" | "conditional" | "all" | "db-api" | "other" | "none">;
+analysisFilter: Ref<"computed" | "modal" | "other" | "form" | "conditional" | "button" | "link" | "all" | "db-api" | "none", "computed" | "modal" | "other" | "form" | "conditional" | "button" | "link" | "all" | "db-api" | "none">;
 exportChangesForCli: () => string;
 downloadChanges: (filename?: string) => void;
 getAvailableBindings: () => BindingCandidate[];
@@ -875,7 +1186,53 @@ pageLoad: ComponentApi[];
 action: ComponentApi[];
 };
 getApiSourceForBinding: (binding: string) => ComponentApi | null;
-}, "isAvailable">, Pick<{
+showNoteHighlights: Ref<boolean, boolean>;
+toggleNoteHighlights: () => void;
+noteHighlightFilter: Ref<"static" | "calculated" | "other" | "action" | "form" | "conditional" | "db" | "all" | "storedCalc", "static" | "calculated" | "other" | "action" | "form" | "conditional" | "db" | "all" | "storedCalc">;
+detectElementType: (element: HTMLElement) => "datasource" | "action" | "form";
+masterDefinitions: Ref<Record<string, MasterDefinition>, Record<string, MasterDefinition>>;
+getMasterDefinition: (tableColumn: string) => MasterDefinition | undefined;
+setMasterDefinition: (def: MasterDefinition) => void;
+deleteMasterDefinition: (id: string) => void;
+getMastersForTable: (table: string) => MasterDefinition[];
+getMasterEntries: (tableColumn: string) => MasterEntry[];
+brokenAnnotations: Ref<string[], string[]>;
+remapTargetId: Ref<string | null, string | null>;
+detectBrokenAnnotations: () => string[];
+remapAnnotation: (oldId: string, newId: string) => void;
+startRemap: (oldId: string) => void;
+deleteBrokenAnnotations: () => void;
+showCrossSearch: Ref<boolean, boolean>;
+crossSearchQuery: Ref<string, string>;
+crossSearchMode: Ref<CrossSearchMode, CrossSearchMode>;
+crossSearchResults: ComputedRef<CrossSearchResult[]>;
+showUnannotatedDetection: Ref<boolean, boolean>;
+unannotatedElements: Ref<    {
+selector: string;
+tagName: string;
+category: "binding" | "form" | "action";
+text: string;
+suggestedType: "datasource" | "action" | "form";
+}[], UnannotatedElement[] | {
+selector: string;
+tagName: string;
+category: "binding" | "form" | "action";
+text: string;
+suggestedType: "datasource" | "action" | "form";
+}[]>;
+detectUnannotatedElements: () => UnannotatedElement[];
+quickAnnotate: (selector: string, suggestedType: "datasource" | "action" | "form") => void;
+showScreenFlow: Ref<boolean, boolean>;
+screenFlowData: ComputedRef<    {
+nodes: ScreenFlowNode[];
+edges: ScreenFlowEdge[];
+orphanPages: ScreenFlowNode[];
+}>;
+syncClientId: Ref<string, string>;
+loadFromServer: (page?: string) => Promise<boolean>;
+saveToServer: () => void;
+teardownServerSync: () => void;
+}, "isAvailable" | "crossSearchResults" | "screenFlowData">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -908,6 +1265,12 @@ notes?: string[] | undefined;
 isPanelOpen: Ref<boolean, boolean>;
 elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
 editingElementId: Ref<string | null, string | null>;
+screenConfigs: Ref<Record<string, ScreenConfig>, Record<string, ScreenConfig>>;
+editingScreen: Ref<boolean, boolean>;
+getScreenConfig: (path?: string) => ScreenConfig | undefined;
+setScreenConfig: (config: ScreenConfig) => void;
+deleteScreenConfig: (path: string) => void;
+suggestScreenApis: () => ScreenConfig["apis"];
 init: (opts?: DevInspectorOptions) => void;
 toggle: () => Promise<void>;
 enable: () => Promise<void>;
@@ -942,6 +1305,8 @@ element: HTMLElement;
 detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
+pagePath?: string | undefined;
+elementType?: "datasource" | "action" | "form" | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -949,6 +1314,13 @@ type?: string | undefined;
 validation?: string[] | undefined;
 description?: string | undefined;
 } | undefined;
+fieldInfoList?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+}[] | undefined;
 actionInfo?: {
 type: "navigate" | "api" | "modal" | "emit" | "function";
 target?: string | undefined;
@@ -956,10 +1328,35 @@ method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
 } | undefined;
+formInfo?: {
+inputType?: string | undefined;
+required?: boolean | undefined;
+validation?: string[] | undefined;
+placeholder?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
 type?: "info" | "warning" | "todo" | "question" | undefined;
+displayType?: "db_direct" | "db_formatted" | "calculated" | "static" | "other" | undefined;
+formatDescription?: string | undefined;
+calcDescription?: string | undefined;
+calcSources?: string[] | undefined;
+sampleValue?: string | undefined;
+decimalHandling?: string | undefined;
+unit?: string | undefined;
+nullDisplay?: string | undefined;
+displayFormat?: string | undefined;
+storedCalc?: boolean | undefined;
+storedCalcLogic?: string | undefined;
+storedCalcSources?: string[] | undefined;
+storedCalcTiming?: "on_save" | "trigger" | "batch" | "realtime" | undefined;
+condition?: string | undefined;
+conditionColumn?: string | undefined;
+hiddenBehavior?: "hidden" | "disabled" | "different_value" | "empty" | undefined;
+hiddenNote?: string | undefined;
 } | undefined;
 links?: {
 testPath?: string | undefined;
@@ -997,6 +1394,8 @@ element: HTMLElement;
 detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
+pagePath?: string | undefined;
+elementType?: "datasource" | "action" | "form" | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1004,6 +1403,13 @@ type?: string | undefined;
 validation?: string[] | undefined;
 description?: string | undefined;
 } | undefined;
+fieldInfoList?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+}[] | undefined;
 actionInfo?: {
 type: "navigate" | "api" | "modal" | "emit" | "function";
 target?: string | undefined;
@@ -1011,10 +1417,35 @@ method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
 } | undefined;
+formInfo?: {
+inputType?: string | undefined;
+required?: boolean | undefined;
+validation?: string[] | undefined;
+placeholder?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
 type?: "info" | "warning" | "todo" | "question" | undefined;
+displayType?: "db_direct" | "db_formatted" | "calculated" | "static" | "other" | undefined;
+formatDescription?: string | undefined;
+calcDescription?: string | undefined;
+calcSources?: string[] | undefined;
+sampleValue?: string | undefined;
+decimalHandling?: string | undefined;
+unit?: string | undefined;
+nullDisplay?: string | undefined;
+displayFormat?: string | undefined;
+storedCalc?: boolean | undefined;
+storedCalcLogic?: string | undefined;
+storedCalcSources?: string[] | undefined;
+storedCalcTiming?: "on_save" | "trigger" | "batch" | "realtime" | undefined;
+condition?: string | undefined;
+conditionColumn?: string | undefined;
+hiddenBehavior?: "hidden" | "disabled" | "different_value" | "empty" | undefined;
+hiddenNote?: string | undefined;
 } | undefined;
 links?: {
 testPath?: string | undefined;
@@ -1169,7 +1600,7 @@ clearAnalysisResults: () => void;
 removeAnalysisResult: (selector: string) => void;
 clearHiddenSelectors: () => void;
 hiddenAnalysisSelectors: Ref<Set<string> & Omit<Set<string>, keyof Set<any>>, Set<string> | (Set<string> & Omit<Set<string>, keyof Set<any>>)>;
-analysisFilter: Ref<"computed" | "modal" | "form" | "button" | "link" | "conditional" | "all" | "db-api" | "other" | "none", "computed" | "modal" | "form" | "button" | "link" | "conditional" | "all" | "db-api" | "other" | "none">;
+analysisFilter: Ref<"computed" | "modal" | "other" | "form" | "conditional" | "button" | "link" | "all" | "db-api" | "none", "computed" | "modal" | "other" | "form" | "conditional" | "button" | "link" | "all" | "db-api" | "none">;
 exportChangesForCli: () => string;
 downloadChanges: (filename?: string) => void;
 getAvailableBindings: () => BindingCandidate[];
@@ -1181,7 +1612,53 @@ pageLoad: ComponentApi[];
 action: ComponentApi[];
 };
 getApiSourceForBinding: (binding: string) => ComponentApi | null;
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding">>;
+showNoteHighlights: Ref<boolean, boolean>;
+toggleNoteHighlights: () => void;
+noteHighlightFilter: Ref<"static" | "calculated" | "other" | "action" | "form" | "conditional" | "db" | "all" | "storedCalc", "static" | "calculated" | "other" | "action" | "form" | "conditional" | "db" | "all" | "storedCalc">;
+detectElementType: (element: HTMLElement) => "datasource" | "action" | "form";
+masterDefinitions: Ref<Record<string, MasterDefinition>, Record<string, MasterDefinition>>;
+getMasterDefinition: (tableColumn: string) => MasterDefinition | undefined;
+setMasterDefinition: (def: MasterDefinition) => void;
+deleteMasterDefinition: (id: string) => void;
+getMastersForTable: (table: string) => MasterDefinition[];
+getMasterEntries: (tableColumn: string) => MasterEntry[];
+brokenAnnotations: Ref<string[], string[]>;
+remapTargetId: Ref<string | null, string | null>;
+detectBrokenAnnotations: () => string[];
+remapAnnotation: (oldId: string, newId: string) => void;
+startRemap: (oldId: string) => void;
+deleteBrokenAnnotations: () => void;
+showCrossSearch: Ref<boolean, boolean>;
+crossSearchQuery: Ref<string, string>;
+crossSearchMode: Ref<CrossSearchMode, CrossSearchMode>;
+crossSearchResults: ComputedRef<CrossSearchResult[]>;
+showUnannotatedDetection: Ref<boolean, boolean>;
+unannotatedElements: Ref<    {
+selector: string;
+tagName: string;
+category: "binding" | "form" | "action";
+text: string;
+suggestedType: "datasource" | "action" | "form";
+}[], UnannotatedElement[] | {
+selector: string;
+tagName: string;
+category: "binding" | "form" | "action";
+text: string;
+suggestedType: "datasource" | "action" | "form";
+}[]>;
+detectUnannotatedElements: () => UnannotatedElement[];
+quickAnnotate: (selector: string, suggestedType: "datasource" | "action" | "form") => void;
+showScreenFlow: Ref<boolean, boolean>;
+screenFlowData: ComputedRef<    {
+nodes: ScreenFlowNode[];
+edges: ScreenFlowEdge[];
+orphanPages: ScreenFlowNode[];
+}>;
+syncClientId: Ref<string, string>;
+loadFromServer: (page?: string) => Promise<boolean>;
+saveToServer: () => void;
+teardownServerSync: () => void;
+}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "detectBrokenAnnotations" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate" | "loadFromServer" | "saveToServer" | "teardownServerSync">>;
 
 export declare const useDevInspectorStore: StoreDefinition<"devInspector", Pick<{
 isEnabled: Ref<boolean, boolean>;
@@ -1216,6 +1693,12 @@ notes?: string[] | undefined;
 isPanelOpen: Ref<boolean, boolean>;
 elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
 editingElementId: Ref<string | null, string | null>;
+screenConfigs: Ref<Record<string, ScreenConfig>, Record<string, ScreenConfig>>;
+editingScreen: Ref<boolean, boolean>;
+getScreenConfig: (path?: string) => ScreenConfig | undefined;
+setScreenConfig: (config: ScreenConfig) => void;
+deleteScreenConfig: (path: string) => void;
+suggestScreenApis: () => ScreenConfig["apis"];
 init: (opts?: DevInspectorOptions) => void;
 toggle: () => Promise<void>;
 enable: () => Promise<void>;
@@ -1250,6 +1733,8 @@ element: HTMLElement;
 detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
+pagePath?: string | undefined;
+elementType?: "datasource" | "action" | "form" | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1257,6 +1742,13 @@ type?: string | undefined;
 validation?: string[] | undefined;
 description?: string | undefined;
 } | undefined;
+fieldInfoList?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+}[] | undefined;
 actionInfo?: {
 type: "navigate" | "api" | "modal" | "emit" | "function";
 target?: string | undefined;
@@ -1264,10 +1756,35 @@ method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
 } | undefined;
+formInfo?: {
+inputType?: string | undefined;
+required?: boolean | undefined;
+validation?: string[] | undefined;
+placeholder?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
 type?: "info" | "warning" | "todo" | "question" | undefined;
+displayType?: "db_direct" | "db_formatted" | "calculated" | "static" | "other" | undefined;
+formatDescription?: string | undefined;
+calcDescription?: string | undefined;
+calcSources?: string[] | undefined;
+sampleValue?: string | undefined;
+decimalHandling?: string | undefined;
+unit?: string | undefined;
+nullDisplay?: string | undefined;
+displayFormat?: string | undefined;
+storedCalc?: boolean | undefined;
+storedCalcLogic?: string | undefined;
+storedCalcSources?: string[] | undefined;
+storedCalcTiming?: "on_save" | "trigger" | "batch" | "realtime" | undefined;
+condition?: string | undefined;
+conditionColumn?: string | undefined;
+hiddenBehavior?: "hidden" | "disabled" | "different_value" | "empty" | undefined;
+hiddenNote?: string | undefined;
 } | undefined;
 links?: {
 testPath?: string | undefined;
@@ -1305,6 +1822,8 @@ element: HTMLElement;
 detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
+pagePath?: string | undefined;
+elementType?: "datasource" | "action" | "form" | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1312,6 +1831,13 @@ type?: string | undefined;
 validation?: string[] | undefined;
 description?: string | undefined;
 } | undefined;
+fieldInfoList?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+}[] | undefined;
 actionInfo?: {
 type: "navigate" | "api" | "modal" | "emit" | "function";
 target?: string | undefined;
@@ -1319,10 +1845,35 @@ method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
 } | undefined;
+formInfo?: {
+inputType?: string | undefined;
+required?: boolean | undefined;
+validation?: string[] | undefined;
+placeholder?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
 type?: "info" | "warning" | "todo" | "question" | undefined;
+displayType?: "db_direct" | "db_formatted" | "calculated" | "static" | "other" | undefined;
+formatDescription?: string | undefined;
+calcDescription?: string | undefined;
+calcSources?: string[] | undefined;
+sampleValue?: string | undefined;
+decimalHandling?: string | undefined;
+unit?: string | undefined;
+nullDisplay?: string | undefined;
+displayFormat?: string | undefined;
+storedCalc?: boolean | undefined;
+storedCalcLogic?: string | undefined;
+storedCalcSources?: string[] | undefined;
+storedCalcTiming?: "on_save" | "trigger" | "batch" | "realtime" | undefined;
+condition?: string | undefined;
+conditionColumn?: string | undefined;
+hiddenBehavior?: "hidden" | "disabled" | "different_value" | "empty" | undefined;
+hiddenNote?: string | undefined;
 } | undefined;
 links?: {
 testPath?: string | undefined;
@@ -1477,7 +2028,7 @@ clearAnalysisResults: () => void;
 removeAnalysisResult: (selector: string) => void;
 clearHiddenSelectors: () => void;
 hiddenAnalysisSelectors: Ref<Set<string> & Omit<Set<string>, keyof Set<any>>, Set<string> | (Set<string> & Omit<Set<string>, keyof Set<any>>)>;
-analysisFilter: Ref<"computed" | "modal" | "form" | "button" | "link" | "conditional" | "all" | "db-api" | "other" | "none", "computed" | "modal" | "form" | "button" | "link" | "conditional" | "all" | "db-api" | "other" | "none">;
+analysisFilter: Ref<"computed" | "modal" | "other" | "form" | "conditional" | "button" | "link" | "all" | "db-api" | "none", "computed" | "modal" | "other" | "form" | "conditional" | "button" | "link" | "all" | "db-api" | "none">;
 exportChangesForCli: () => string;
 downloadChanges: (filename?: string) => void;
 getAvailableBindings: () => BindingCandidate[];
@@ -1489,7 +2040,53 @@ pageLoad: ComponentApi[];
 action: ComponentApi[];
 };
 getApiSourceForBinding: (binding: string) => ComponentApi | null;
-}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter">, Pick<{
+showNoteHighlights: Ref<boolean, boolean>;
+toggleNoteHighlights: () => void;
+noteHighlightFilter: Ref<"static" | "calculated" | "other" | "action" | "form" | "conditional" | "db" | "all" | "storedCalc", "static" | "calculated" | "other" | "action" | "form" | "conditional" | "db" | "all" | "storedCalc">;
+detectElementType: (element: HTMLElement) => "datasource" | "action" | "form";
+masterDefinitions: Ref<Record<string, MasterDefinition>, Record<string, MasterDefinition>>;
+getMasterDefinition: (tableColumn: string) => MasterDefinition | undefined;
+setMasterDefinition: (def: MasterDefinition) => void;
+deleteMasterDefinition: (id: string) => void;
+getMastersForTable: (table: string) => MasterDefinition[];
+getMasterEntries: (tableColumn: string) => MasterEntry[];
+brokenAnnotations: Ref<string[], string[]>;
+remapTargetId: Ref<string | null, string | null>;
+detectBrokenAnnotations: () => string[];
+remapAnnotation: (oldId: string, newId: string) => void;
+startRemap: (oldId: string) => void;
+deleteBrokenAnnotations: () => void;
+showCrossSearch: Ref<boolean, boolean>;
+crossSearchQuery: Ref<string, string>;
+crossSearchMode: Ref<CrossSearchMode, CrossSearchMode>;
+crossSearchResults: ComputedRef<CrossSearchResult[]>;
+showUnannotatedDetection: Ref<boolean, boolean>;
+unannotatedElements: Ref<    {
+selector: string;
+tagName: string;
+category: "binding" | "form" | "action";
+text: string;
+suggestedType: "datasource" | "action" | "form";
+}[], UnannotatedElement[] | {
+selector: string;
+tagName: string;
+category: "binding" | "form" | "action";
+text: string;
+suggestedType: "datasource" | "action" | "form";
+}[]>;
+detectUnannotatedElements: () => UnannotatedElement[];
+quickAnnotate: (selector: string, suggestedType: "datasource" | "action" | "form") => void;
+showScreenFlow: Ref<boolean, boolean>;
+screenFlowData: ComputedRef<    {
+nodes: ScreenFlowNode[];
+edges: ScreenFlowEdge[];
+orphanPages: ScreenFlowNode[];
+}>;
+syncClientId: Ref<string, string>;
+loadFromServer: (page?: string) => Promise<boolean>;
+saveToServer: () => void;
+teardownServerSync: () => void;
+}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "screenConfigs" | "editingScreen" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter" | "showNoteHighlights" | "noteHighlightFilter" | "masterDefinitions" | "brokenAnnotations" | "remapTargetId" | "showCrossSearch" | "crossSearchQuery" | "crossSearchMode" | "showUnannotatedDetection" | "unannotatedElements" | "showScreenFlow" | "syncClientId">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -1522,6 +2119,12 @@ notes?: string[] | undefined;
 isPanelOpen: Ref<boolean, boolean>;
 elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
 editingElementId: Ref<string | null, string | null>;
+screenConfigs: Ref<Record<string, ScreenConfig>, Record<string, ScreenConfig>>;
+editingScreen: Ref<boolean, boolean>;
+getScreenConfig: (path?: string) => ScreenConfig | undefined;
+setScreenConfig: (config: ScreenConfig) => void;
+deleteScreenConfig: (path: string) => void;
+suggestScreenApis: () => ScreenConfig["apis"];
 init: (opts?: DevInspectorOptions) => void;
 toggle: () => Promise<void>;
 enable: () => Promise<void>;
@@ -1556,6 +2159,8 @@ element: HTMLElement;
 detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
+pagePath?: string | undefined;
+elementType?: "datasource" | "action" | "form" | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1563,6 +2168,13 @@ type?: string | undefined;
 validation?: string[] | undefined;
 description?: string | undefined;
 } | undefined;
+fieldInfoList?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+}[] | undefined;
 actionInfo?: {
 type: "navigate" | "api" | "modal" | "emit" | "function";
 target?: string | undefined;
@@ -1570,10 +2182,35 @@ method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
 } | undefined;
+formInfo?: {
+inputType?: string | undefined;
+required?: boolean | undefined;
+validation?: string[] | undefined;
+placeholder?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
 type?: "info" | "warning" | "todo" | "question" | undefined;
+displayType?: "db_direct" | "db_formatted" | "calculated" | "static" | "other" | undefined;
+formatDescription?: string | undefined;
+calcDescription?: string | undefined;
+calcSources?: string[] | undefined;
+sampleValue?: string | undefined;
+decimalHandling?: string | undefined;
+unit?: string | undefined;
+nullDisplay?: string | undefined;
+displayFormat?: string | undefined;
+storedCalc?: boolean | undefined;
+storedCalcLogic?: string | undefined;
+storedCalcSources?: string[] | undefined;
+storedCalcTiming?: "on_save" | "trigger" | "batch" | "realtime" | undefined;
+condition?: string | undefined;
+conditionColumn?: string | undefined;
+hiddenBehavior?: "hidden" | "disabled" | "different_value" | "empty" | undefined;
+hiddenNote?: string | undefined;
 } | undefined;
 links?: {
 testPath?: string | undefined;
@@ -1611,6 +2248,8 @@ element: HTMLElement;
 detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
+pagePath?: string | undefined;
+elementType?: "datasource" | "action" | "form" | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1618,6 +2257,13 @@ type?: string | undefined;
 validation?: string[] | undefined;
 description?: string | undefined;
 } | undefined;
+fieldInfoList?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+}[] | undefined;
 actionInfo?: {
 type: "navigate" | "api" | "modal" | "emit" | "function";
 target?: string | undefined;
@@ -1625,10 +2271,35 @@ method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
 } | undefined;
+formInfo?: {
+inputType?: string | undefined;
+required?: boolean | undefined;
+validation?: string[] | undefined;
+placeholder?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
 type?: "info" | "warning" | "todo" | "question" | undefined;
+displayType?: "db_direct" | "db_formatted" | "calculated" | "static" | "other" | undefined;
+formatDescription?: string | undefined;
+calcDescription?: string | undefined;
+calcSources?: string[] | undefined;
+sampleValue?: string | undefined;
+decimalHandling?: string | undefined;
+unit?: string | undefined;
+nullDisplay?: string | undefined;
+displayFormat?: string | undefined;
+storedCalc?: boolean | undefined;
+storedCalcLogic?: string | undefined;
+storedCalcSources?: string[] | undefined;
+storedCalcTiming?: "on_save" | "trigger" | "batch" | "realtime" | undefined;
+condition?: string | undefined;
+conditionColumn?: string | undefined;
+hiddenBehavior?: "hidden" | "disabled" | "different_value" | "empty" | undefined;
+hiddenNote?: string | undefined;
 } | undefined;
 links?: {
 testPath?: string | undefined;
@@ -1783,7 +2454,7 @@ clearAnalysisResults: () => void;
 removeAnalysisResult: (selector: string) => void;
 clearHiddenSelectors: () => void;
 hiddenAnalysisSelectors: Ref<Set<string> & Omit<Set<string>, keyof Set<any>>, Set<string> | (Set<string> & Omit<Set<string>, keyof Set<any>>)>;
-analysisFilter: Ref<"computed" | "modal" | "form" | "button" | "link" | "conditional" | "all" | "db-api" | "other" | "none", "computed" | "modal" | "form" | "button" | "link" | "conditional" | "all" | "db-api" | "other" | "none">;
+analysisFilter: Ref<"computed" | "modal" | "other" | "form" | "conditional" | "button" | "link" | "all" | "db-api" | "none", "computed" | "modal" | "other" | "form" | "conditional" | "button" | "link" | "all" | "db-api" | "none">;
 exportChangesForCli: () => string;
 downloadChanges: (filename?: string) => void;
 getAvailableBindings: () => BindingCandidate[];
@@ -1795,7 +2466,53 @@ pageLoad: ComponentApi[];
 action: ComponentApi[];
 };
 getApiSourceForBinding: (binding: string) => ComponentApi | null;
-}, "isAvailable">, Pick<{
+showNoteHighlights: Ref<boolean, boolean>;
+toggleNoteHighlights: () => void;
+noteHighlightFilter: Ref<"static" | "calculated" | "other" | "action" | "form" | "conditional" | "db" | "all" | "storedCalc", "static" | "calculated" | "other" | "action" | "form" | "conditional" | "db" | "all" | "storedCalc">;
+detectElementType: (element: HTMLElement) => "datasource" | "action" | "form";
+masterDefinitions: Ref<Record<string, MasterDefinition>, Record<string, MasterDefinition>>;
+getMasterDefinition: (tableColumn: string) => MasterDefinition | undefined;
+setMasterDefinition: (def: MasterDefinition) => void;
+deleteMasterDefinition: (id: string) => void;
+getMastersForTable: (table: string) => MasterDefinition[];
+getMasterEntries: (tableColumn: string) => MasterEntry[];
+brokenAnnotations: Ref<string[], string[]>;
+remapTargetId: Ref<string | null, string | null>;
+detectBrokenAnnotations: () => string[];
+remapAnnotation: (oldId: string, newId: string) => void;
+startRemap: (oldId: string) => void;
+deleteBrokenAnnotations: () => void;
+showCrossSearch: Ref<boolean, boolean>;
+crossSearchQuery: Ref<string, string>;
+crossSearchMode: Ref<CrossSearchMode, CrossSearchMode>;
+crossSearchResults: ComputedRef<CrossSearchResult[]>;
+showUnannotatedDetection: Ref<boolean, boolean>;
+unannotatedElements: Ref<    {
+selector: string;
+tagName: string;
+category: "binding" | "form" | "action";
+text: string;
+suggestedType: "datasource" | "action" | "form";
+}[], UnannotatedElement[] | {
+selector: string;
+tagName: string;
+category: "binding" | "form" | "action";
+text: string;
+suggestedType: "datasource" | "action" | "form";
+}[]>;
+detectUnannotatedElements: () => UnannotatedElement[];
+quickAnnotate: (selector: string, suggestedType: "datasource" | "action" | "form") => void;
+showScreenFlow: Ref<boolean, boolean>;
+screenFlowData: ComputedRef<    {
+nodes: ScreenFlowNode[];
+edges: ScreenFlowEdge[];
+orphanPages: ScreenFlowNode[];
+}>;
+syncClientId: Ref<string, string>;
+loadFromServer: (page?: string) => Promise<boolean>;
+saveToServer: () => void;
+teardownServerSync: () => void;
+}, "isAvailable" | "crossSearchResults" | "screenFlowData">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -1828,6 +2545,12 @@ notes?: string[] | undefined;
 isPanelOpen: Ref<boolean, boolean>;
 elementConfigs: Ref<Record<string, ElementConfig>, Record<string, ElementConfig>>;
 editingElementId: Ref<string | null, string | null>;
+screenConfigs: Ref<Record<string, ScreenConfig>, Record<string, ScreenConfig>>;
+editingScreen: Ref<boolean, boolean>;
+getScreenConfig: (path?: string) => ScreenConfig | undefined;
+setScreenConfig: (config: ScreenConfig) => void;
+deleteScreenConfig: (path: string) => void;
+suggestScreenApis: () => ScreenConfig["apis"];
 init: (opts?: DevInspectorOptions) => void;
 toggle: () => Promise<void>;
 enable: () => Promise<void>;
@@ -1862,6 +2585,8 @@ element: HTMLElement;
 detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
+pagePath?: string | undefined;
+elementType?: "datasource" | "action" | "form" | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1869,6 +2594,13 @@ type?: string | undefined;
 validation?: string[] | undefined;
 description?: string | undefined;
 } | undefined;
+fieldInfoList?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+}[] | undefined;
 actionInfo?: {
 type: "navigate" | "api" | "modal" | "emit" | "function";
 target?: string | undefined;
@@ -1876,10 +2608,35 @@ method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
 } | undefined;
+formInfo?: {
+inputType?: string | undefined;
+required?: boolean | undefined;
+validation?: string[] | undefined;
+placeholder?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
 type?: "info" | "warning" | "todo" | "question" | undefined;
+displayType?: "db_direct" | "db_formatted" | "calculated" | "static" | "other" | undefined;
+formatDescription?: string | undefined;
+calcDescription?: string | undefined;
+calcSources?: string[] | undefined;
+sampleValue?: string | undefined;
+decimalHandling?: string | undefined;
+unit?: string | undefined;
+nullDisplay?: string | undefined;
+displayFormat?: string | undefined;
+storedCalc?: boolean | undefined;
+storedCalcLogic?: string | undefined;
+storedCalcSources?: string[] | undefined;
+storedCalcTiming?: "on_save" | "trigger" | "batch" | "realtime" | undefined;
+condition?: string | undefined;
+conditionColumn?: string | undefined;
+hiddenBehavior?: "hidden" | "disabled" | "different_value" | "empty" | undefined;
+hiddenNote?: string | undefined;
 } | undefined;
 links?: {
 testPath?: string | undefined;
@@ -1917,6 +2674,8 @@ element: HTMLElement;
 detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
+pagePath?: string | undefined;
+elementType?: "datasource" | "action" | "form" | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1924,6 +2683,13 @@ type?: string | undefined;
 validation?: string[] | undefined;
 description?: string | undefined;
 } | undefined;
+fieldInfoList?: {
+table: string;
+column: string;
+type?: string | undefined;
+validation?: string[] | undefined;
+description?: string | undefined;
+}[] | undefined;
 actionInfo?: {
 type: "navigate" | "api" | "modal" | "emit" | "function";
 target?: string | undefined;
@@ -1931,10 +2697,35 @@ method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
 } | undefined;
+formInfo?: {
+inputType?: string | undefined;
+required?: boolean | undefined;
+validation?: string[] | undefined;
+placeholder?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
 type?: "info" | "warning" | "todo" | "question" | undefined;
+displayType?: "db_direct" | "db_formatted" | "calculated" | "static" | "other" | undefined;
+formatDescription?: string | undefined;
+calcDescription?: string | undefined;
+calcSources?: string[] | undefined;
+sampleValue?: string | undefined;
+decimalHandling?: string | undefined;
+unit?: string | undefined;
+nullDisplay?: string | undefined;
+displayFormat?: string | undefined;
+storedCalc?: boolean | undefined;
+storedCalcLogic?: string | undefined;
+storedCalcSources?: string[] | undefined;
+storedCalcTiming?: "on_save" | "trigger" | "batch" | "realtime" | undefined;
+condition?: string | undefined;
+conditionColumn?: string | undefined;
+hiddenBehavior?: "hidden" | "disabled" | "different_value" | "empty" | undefined;
+hiddenNote?: string | undefined;
 } | undefined;
 links?: {
 testPath?: string | undefined;
@@ -2089,7 +2880,7 @@ clearAnalysisResults: () => void;
 removeAnalysisResult: (selector: string) => void;
 clearHiddenSelectors: () => void;
 hiddenAnalysisSelectors: Ref<Set<string> & Omit<Set<string>, keyof Set<any>>, Set<string> | (Set<string> & Omit<Set<string>, keyof Set<any>>)>;
-analysisFilter: Ref<"computed" | "modal" | "form" | "button" | "link" | "conditional" | "all" | "db-api" | "other" | "none", "computed" | "modal" | "form" | "button" | "link" | "conditional" | "all" | "db-api" | "other" | "none">;
+analysisFilter: Ref<"computed" | "modal" | "other" | "form" | "conditional" | "button" | "link" | "all" | "db-api" | "none", "computed" | "modal" | "other" | "form" | "conditional" | "button" | "link" | "all" | "db-api" | "none">;
 exportChangesForCli: () => string;
 downloadChanges: (filename?: string) => void;
 getAvailableBindings: () => BindingCandidate[];
@@ -2101,7 +2892,53 @@ pageLoad: ComponentApi[];
 action: ComponentApi[];
 };
 getApiSourceForBinding: (binding: string) => ComponentApi | null;
-}, "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding">>;
+showNoteHighlights: Ref<boolean, boolean>;
+toggleNoteHighlights: () => void;
+noteHighlightFilter: Ref<"static" | "calculated" | "other" | "action" | "form" | "conditional" | "db" | "all" | "storedCalc", "static" | "calculated" | "other" | "action" | "form" | "conditional" | "db" | "all" | "storedCalc">;
+detectElementType: (element: HTMLElement) => "datasource" | "action" | "form";
+masterDefinitions: Ref<Record<string, MasterDefinition>, Record<string, MasterDefinition>>;
+getMasterDefinition: (tableColumn: string) => MasterDefinition | undefined;
+setMasterDefinition: (def: MasterDefinition) => void;
+deleteMasterDefinition: (id: string) => void;
+getMastersForTable: (table: string) => MasterDefinition[];
+getMasterEntries: (tableColumn: string) => MasterEntry[];
+brokenAnnotations: Ref<string[], string[]>;
+remapTargetId: Ref<string | null, string | null>;
+detectBrokenAnnotations: () => string[];
+remapAnnotation: (oldId: string, newId: string) => void;
+startRemap: (oldId: string) => void;
+deleteBrokenAnnotations: () => void;
+showCrossSearch: Ref<boolean, boolean>;
+crossSearchQuery: Ref<string, string>;
+crossSearchMode: Ref<CrossSearchMode, CrossSearchMode>;
+crossSearchResults: ComputedRef<CrossSearchResult[]>;
+showUnannotatedDetection: Ref<boolean, boolean>;
+unannotatedElements: Ref<    {
+selector: string;
+tagName: string;
+category: "binding" | "form" | "action";
+text: string;
+suggestedType: "datasource" | "action" | "form";
+}[], UnannotatedElement[] | {
+selector: string;
+tagName: string;
+category: "binding" | "form" | "action";
+text: string;
+suggestedType: "datasource" | "action" | "form";
+}[]>;
+detectUnannotatedElements: () => UnannotatedElement[];
+quickAnnotate: (selector: string, suggestedType: "datasource" | "action" | "form") => void;
+showScreenFlow: Ref<boolean, boolean>;
+screenFlowData: ComputedRef<    {
+nodes: ScreenFlowNode[];
+edges: ScreenFlowEdge[];
+orphanPages: ScreenFlowNode[];
+}>;
+syncClientId: Ref<string, string>;
+loadFromServer: (page?: string) => Promise<boolean>;
+saveToServer: () => void;
+teardownServerSync: () => void;
+}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "detectBrokenAnnotations" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate" | "loadFromServer" | "saveToServer" | "teardownServerSync">>;
 
 export declare function vitePluginDevInspector(options?: DevInspectorVitePluginOptions): Plugin_3;
 

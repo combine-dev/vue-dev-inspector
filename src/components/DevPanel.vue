@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { X, Code, FileText, ExternalLink, Server, AlertCircle, Edit3, Download, Upload, Trash2, MousePointer2, GitBranch, FileSpreadsheet, Scan, Loader2 } from 'lucide-vue-next'
+import { ref, computed, watch } from 'vue'
+import { X, Code, FileText, ExternalLink, Server, AlertCircle, Edit3, Download, Upload, Trash2, MousePointer2, GitBranch, FileSpreadsheet, Scan, Loader2, Eye, EyeOff, Lock, Shield, PenSquare, AlertTriangle, Database, Plus, Search, ClipboardList, GitMerge } from 'lucide-vue-next'
+import type { MasterDefinition, MasterEntry, CrossSearchMode, CrossSearchResult } from '../composables/useDevInspector'
 import { useDevInspectorStore } from '../composables/useDevInspector'
 import { exportScreenSpecToXlsx } from '../utils/exportScreenSpec'
 
@@ -20,7 +21,49 @@ const methodColors: Record<string, string> = {
 }
 
 const spec = computed(() => store.currentScreenSpec)
+const currentScreenConfig = computed(() => store.getScreenConfig())
+const screenInfo = computed(() => {
+  const config = currentScreenConfig.value
+  const s = spec.value
+  if (!config && !s) return null
+  return {
+    name: config?.name || s?.name || '',
+    description: config?.description || s?.description || '',
+    componentPath: config?.componentPath || s?.componentPath || '',
+    figmaUrl: config?.figmaUrl || s?.figmaUrl || '',
+    apis: config?.apis || s?.apis?.map(a => ({ ...a, loadTiming: undefined as 'onMount' | 'action' | 'conditional' | undefined })) || [],
+    auth: config?.auth || null,
+    notes: config?.notes || (s?.notes ? s.notes.join('\n') : ''),
+  }
+})
 const elementCount = computed(() => Object.keys(store.elementConfigs).length)
+const noteCount = computed(() => {
+  return Object.values(store.elementConfigs).filter(c => !!(c.note?.text || c.note?.displayType)).length
+})
+
+const filteredNoteCount = computed(() => {
+  const filter = store.noteHighlightFilter
+  if (filter === 'all') return noteCount.value
+
+  return Object.values(store.elementConfigs).filter(c => {
+    if (!(c.note?.text || c.note?.displayType || c.elementType)) return false
+    const dt = c.note?.displayType
+    const hasCondition = !!(c.note?.condition || c.note?.conditionColumn)
+    const isStoredCalc = !!(c.note?.storedCalc)
+
+    switch (filter) {
+      case 'db': return dt === 'db_direct' || dt === 'db_formatted'
+      case 'calculated': return dt === 'calculated'
+      case 'storedCalc': return isStoredCalc
+      case 'static': return dt === 'static'
+      case 'conditional': return hasCondition
+      case 'action': return c.elementType === 'action'
+      case 'form': return c.elementType === 'form'
+      case 'other': return dt === 'other' || (!dt && !c.elementType && !!c.note?.text)
+      default: return true
+    }
+  }).length
+})
 
 function copyExport() {
   const json = store.exportConfigs()
@@ -93,6 +136,18 @@ const analysisLoadError = ref('')
 const analysisMatchCount = ref(0)
 const isRestoringHidden = ref(false)
 
+const noteFilterOptions = [
+  { value: 'all', label: 'すべて' },
+  { value: 'db', label: 'DB' },
+  { value: 'calculated', label: '計算値' },
+  { value: 'storedCalc', label: '保存計算値' },
+  { value: 'static', label: '固定' },
+  { value: 'conditional', label: '条件付き' },
+  { value: 'action', label: 'アクション' },
+  { value: 'form', label: 'フォーム' },
+  { value: 'other', label: 'その他' },
+] as const
+
 const filterOptions = [
   { value: 'all', label: 'すべて' },
   { value: 'db-api', label: 'DB/API' },
@@ -148,6 +203,107 @@ async function applyAnalysis() {
   analysisMatchCount.value = await store.applyAnalysisToPage()
 }
 
+// Broken annotation detection
+const brokenCount = computed(() => store.brokenAnnotations.length)
+
+// Detect broken annotations when panel opens
+watch(() => store.isPanelOpen, (open) => {
+  if (open) {
+    store.detectBrokenAnnotations()
+  }
+})
+
+function handleDeleteBroken() {
+  if (confirm(`${brokenCount.value}件の壊れたメモを削除しますか？`)) {
+    store.deleteBrokenAnnotations()
+  }
+}
+
+// ===== Master Definitions =====
+const showMasterEditor = ref(false)
+const editingMasterId = ref<string | null>(null)
+const masterForm = ref({
+  table: '',
+  column: '',
+  name: '',
+  columnType: '',
+  description: '',
+  entries: [] as MasterEntry[],
+})
+
+const masterCount = computed(() => Object.keys(store.masterDefinitions).length)
+const masterList = computed(() => {
+  const masters = Object.values(store.masterDefinitions)
+  // Group by table
+  const grouped: Record<string, typeof masters> = {}
+  for (const m of masters) {
+    if (!grouped[m.table]) grouped[m.table] = []
+    grouped[m.table].push(m)
+  }
+  return grouped
+})
+
+function startMasterEdit(id?: string) {
+  if (id) {
+    const m = store.getMasterDefinition(id)
+    if (m) {
+      editingMasterId.value = id
+      masterForm.value = {
+        table: m.table,
+        column: m.column,
+        name: m.name,
+        columnType: m.columnType || '',
+        description: m.description || '',
+        entries: [...m.entries.map(e => ({ ...e }))],
+      }
+    }
+  } else {
+    editingMasterId.value = null
+    masterForm.value = {
+      table: '',
+      column: '',
+      name: '',
+      columnType: '',
+      description: '',
+      entries: [{ value: '', label: '' }],
+    }
+  }
+  showMasterEditor.value = true
+}
+
+function saveMasterForm() {
+  const f = masterForm.value
+  if (!f.table || !f.column) return
+
+  const id = `${f.table}.${f.column}`
+  const def: MasterDefinition = {
+    id,
+    table: f.table,
+    column: f.column,
+    name: f.name || f.column,
+    columnType: f.columnType || undefined,
+    description: f.description || undefined,
+    entries: f.entries.filter(e => e.value || e.label),
+    updatedAt: new Date().toISOString(),
+  }
+  store.setMasterDefinition(def)
+  showMasterEditor.value = false
+}
+
+function addMasterEntry() {
+  masterForm.value.entries.push({ value: '', label: '' })
+}
+
+function removeMasterEntry(index: number) {
+  masterForm.value.entries.splice(index, 1)
+}
+
+function handleDeleteMaster(id: string) {
+  if (confirm(`マスタ定義「${id}」を削除しますか？`)) {
+    store.deleteMasterDefinition(id)
+  }
+}
+
 async function restoreHiddenElements() {
   isRestoringHidden.value = true
   try {
@@ -158,6 +314,77 @@ async function restoreHiddenElements() {
     }
   } finally {
     isRestoringHidden.value = false
+  }
+}
+
+// ===== Cross Search =====
+const crossSearchModes: { value: CrossSearchMode; label: string; placeholder: string }[] = [
+  { value: 'column', label: 'カラム', placeholder: 'users.email, orders...' },
+  { value: 'api', label: 'API', placeholder: 'GET /api/users...' },
+  { value: 'text', label: 'テキスト', placeholder: 'メモ、説明文で検索...' },
+]
+
+const crossSearchPlaceholder = computed(() => {
+  return crossSearchModes.find(m => m.value === store.crossSearchMode)?.placeholder || '検索...'
+})
+
+// Group cross search results by page
+const crossSearchGrouped = computed(() => {
+  const groups: Record<string, { pagePath: string; pageName: string; items: CrossSearchResult[] }> = {}
+  for (const r of store.crossSearchResults) {
+    if (!groups[r.pagePath]) {
+      groups[r.pagePath] = { pagePath: r.pagePath, pageName: r.pageName, items: [] }
+    }
+    groups[r.pagePath].items.push(r)
+  }
+  return Object.values(groups)
+})
+
+const crossSearchPageCount = computed(() => crossSearchGrouped.value.length)
+
+// ===== Unannotated Detection =====
+const unannotatedCounts = computed(() => {
+  const elems = store.unannotatedElements
+  return {
+    binding: elems.filter(e => e.category === 'binding').length,
+    form: elems.filter(e => e.category === 'form').length,
+    action: elems.filter(e => e.category === 'action').length,
+  }
+})
+
+function handleDetectUnannotated() {
+  if (store.showUnannotatedDetection) {
+    store.showUnannotatedDetection = false
+    store.unannotatedElements = []
+  } else {
+    store.showUnannotatedDetection = true
+    store.detectUnannotatedElements()
+  }
+}
+
+// ===== Screen Flow =====
+const currentPath = computed(() => typeof window !== 'undefined' ? window.location.pathname : '/')
+
+// Group edges by fromPath
+const screenFlowGrouped = computed(() => {
+  const data = store.screenFlowData
+  const groups: Record<string, { node: typeof data.nodes[0]; edges: typeof data.edges }> = {}
+
+  // Initialize from all nodes that have outgoing edges
+  for (const edge of data.edges) {
+    if (!groups[edge.from]) {
+      const node = data.nodes.find(n => n.path === edge.from) || { path: edge.from, name: edge.from, annotationCount: 0 }
+      groups[edge.from] = { node, edges: [] }
+    }
+    groups[edge.from].edges.push(edge)
+  }
+
+  return Object.values(groups)
+})
+
+function handleFlowEdgeClick(selector: string) {
+  if (selector) {
+    store.startEditing(selector)
   }
 }
 </script>
@@ -205,6 +432,117 @@ async function restoreHiddenElements() {
           <MousePointer2 style="width: 16px; height: 16px;" />
           <span>{{ store.isPickMode ? '要素選択中...' : '任意の要素にメモを追加' }}</span>
         </button>
+
+        <!-- Note Highlight Toggle -->
+        <button
+          v-if="noteCount > 0"
+          @click="store.toggleNoteHighlights"
+          class="di-note-toggle-btn"
+          :class="{ active: store.showNoteHighlights }"
+        >
+          <Eye v-if="store.showNoteHighlights" style="width: 14px; height: 14px;" />
+          <EyeOff v-else style="width: 14px; height: 14px;" />
+          <span>メモハイライト</span>
+          <span class="di-note-toggle-badge">{{ store.noteHighlightFilter === 'all' ? noteCount : `${filteredNoteCount}/${noteCount}` }}</span>
+        </button>
+
+        <!-- Note Highlight Filter -->
+        <div
+          v-if="noteCount > 0 && store.showNoteHighlights"
+          class="di-note-filter"
+        >
+          <div class="di-filter-buttons">
+            <button
+              v-for="opt in noteFilterOptions"
+              :key="opt.value"
+              @click="store.noteHighlightFilter = opt.value"
+              class="di-filter-btn"
+              :class="{ active: store.noteHighlightFilter === opt.value }"
+            >
+              {{ opt.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Unannotated Detection -->
+        <button
+          @click="handleDetectUnannotated"
+          class="di-unannotated-btn"
+          :class="{ active: store.showUnannotatedDetection }"
+        >
+          <ClipboardList style="width: 14px; height: 14px;" />
+          <span>{{ store.showUnannotatedDetection ? '未登録検出 ON' : '未登録要素を検出' }}</span>
+          <span v-if="store.unannotatedElements.length > 0" class="di-unannotated-badge">{{ store.unannotatedElements.length }}</span>
+        </button>
+
+        <!-- Unannotated Results -->
+        <div v-if="store.showUnannotatedDetection && store.unannotatedElements.length > 0" class="di-unannotated-results">
+          <div class="di-unannotated-summary">
+            {{ store.unannotatedElements.length }}件検出:
+            <span v-if="unannotatedCounts.binding > 0">バインディング {{ unannotatedCounts.binding }}</span>
+            <span v-if="unannotatedCounts.form > 0"> / フォーム {{ unannotatedCounts.form }}</span>
+            <span v-if="unannotatedCounts.action > 0"> / アクション {{ unannotatedCounts.action }}</span>
+          </div>
+          <div class="di-unannotated-list">
+            <div
+              v-for="el in store.unannotatedElements"
+              :key="el.selector"
+              class="di-unannotated-item"
+            >
+              <span class="di-unannotated-category" :class="'di-unannotated-cat-' + el.category">
+                {{ el.category === 'binding' ? 'DB' : el.category === 'form' ? 'Form' : 'Act' }}
+              </span>
+              <span class="di-unannotated-text">{{ el.text || el.tagName }}</span>
+              <button @click="store.quickAnnotate(el.selector, el.suggestedType)" class="di-unannotated-register">
+                登録
+              </button>
+            </div>
+          </div>
+        </div>
+        <div v-if="store.showUnannotatedDetection && store.unannotatedElements.length === 0" class="di-unannotated-empty">
+          未登録の要素はありません
+        </div>
+
+        <!-- Broken Annotations Warning -->
+        <div v-if="brokenCount > 0" class="di-broken-warning">
+          <div class="di-broken-header">
+            <AlertTriangle style="width: 14px; height: 14px; color: #f59e0b;" />
+            <span>{{ brokenCount }}件のメモが見つかりません</span>
+          </div>
+          <div class="di-broken-desc">コード変更によりセレクタが壊れた可能性があります</div>
+
+          <!-- Broken annotations list -->
+          <div class="di-broken-list">
+            <div
+              v-for="id in store.brokenAnnotations"
+              :key="id"
+              class="di-broken-item"
+            >
+              <div class="di-broken-item-info">
+                <div class="di-broken-item-note">
+                  {{ store.elementConfigs[id]?.note?.text || '(メモなし)' }}
+                </div>
+                <div class="di-broken-item-selector">{{ id }}</div>
+              </div>
+              <div class="di-broken-item-actions">
+                <button @click="store.startRemap(id)" class="di-broken-remap-btn" title="新しい要素に再設定">
+                  <MousePointer2 style="width: 12px; height: 12px;" />
+                  再設定
+                </button>
+                <button @click="store.deleteElementConfig(id); store.detectBrokenAnnotations()" class="di-broken-item-delete" title="削除">
+                  <Trash2 style="width: 12px; height: 12px;" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="di-broken-actions">
+            <button @click="handleDeleteBroken" class="di-broken-delete-btn">
+              <Trash2 style="width: 12px; height: 12px;" />
+              まとめて削除
+            </button>
+          </div>
+        </div>
 
         <!-- Analysis Data Section -->
         <div class="di-analysis-section">
@@ -322,70 +660,199 @@ async function restoreHiddenElements() {
 
       <!-- Content -->
       <div class="di-content">
-        <template v-if="spec">
-          <!-- Screen Name -->
+        <!-- Cross Search Section -->
+        <div class="di-cross-search-section">
+          <button
+            @click="store.showCrossSearch = !store.showCrossSearch"
+            class="di-cross-search-toggle"
+            :class="{ active: store.showCrossSearch }"
+          >
+            <Search style="width: 14px; height: 14px;" />
+            <span>横断検索</span>
+          </button>
+
+          <div v-if="store.showCrossSearch" class="di-cross-search-body">
+            <!-- Mode switcher -->
+            <div class="di-filter-buttons" style="margin-bottom: 8px;">
+              <button
+                v-for="m in crossSearchModes"
+                :key="m.value"
+                @click="store.crossSearchMode = m.value"
+                class="di-filter-btn"
+                :class="{ active: store.crossSearchMode === m.value }"
+              >
+                {{ m.label }}
+              </button>
+            </div>
+
+            <!-- Search input -->
+            <input
+              v-model="store.crossSearchQuery"
+              type="text"
+              class="di-cross-search-input"
+              :placeholder="crossSearchPlaceholder"
+            />
+
+            <!-- Result count -->
+            <div v-if="store.crossSearchQuery.trim()" class="di-cross-search-count">
+              {{ store.crossSearchResults.length }}件 ({{ crossSearchPageCount }}画面)
+            </div>
+
+            <!-- Results grouped by page -->
+            <div v-if="crossSearchGrouped.length > 0" class="di-cross-search-results">
+              <div v-for="group in crossSearchGrouped" :key="group.pagePath" class="di-cross-search-group">
+                <div class="di-cross-search-page-header">
+                  {{ group.pagePath }}
+                  <span v-if="group.pageName !== group.pagePath" class="di-cross-search-page-name">({{ group.pageName }})</span>
+                </div>
+                <div
+                  v-for="(item, idx) in group.items"
+                  :key="idx"
+                  class="di-cross-search-item"
+                  :class="item.elementType ? 'di-cross-item-' + item.elementType : ''"
+                  @click="item.selector && store.startEditing(item.selector)"
+                >
+                  <span class="di-cross-search-field">{{ item.matchedField }}</span>
+                  <span v-if="item.matchContext" class="di-cross-search-context">{{ item.matchContext }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Screen Flow Section -->
+        <div class="di-screen-flow-section">
+          <button
+            @click="store.showScreenFlow = !store.showScreenFlow"
+            class="di-screen-flow-toggle"
+            :class="{ active: store.showScreenFlow }"
+          >
+            <GitMerge style="width: 14px; height: 14px;" />
+            <span>画面フロー</span>
+            <span v-if="store.screenFlowData.edges.length > 0" class="di-screen-flow-badge">
+              {{ store.screenFlowData.nodes.length }}画面 / {{ store.screenFlowData.edges.length }}遷移
+            </span>
+          </button>
+
+          <div v-if="store.showScreenFlow" class="di-screen-flow-body">
+            <div v-if="store.screenFlowData.edges.length === 0" class="di-screen-flow-empty">
+              navigate型のアクションが登録されていません
+            </div>
+
+            <!-- Page transition list -->
+            <div v-for="group in screenFlowGrouped" :key="group.node.path" class="di-flow-group">
+              <div
+                class="di-flow-node"
+                :class="{ 'di-flow-node-current': group.node.path === currentPath }"
+              >
+                <span class="di-flow-node-path">{{ group.node.path }}</span>
+                <span v-if="group.node.name !== group.node.path" class="di-flow-node-name">({{ group.node.name }})</span>
+              </div>
+              <div
+                v-for="edge in group.edges"
+                :key="edge.from + edge.to"
+                class="di-flow-edge"
+                @click="handleFlowEdgeClick(edge.selector)"
+              >
+                <span class="di-flow-arrow">→</span>
+                <span class="di-flow-target">{{ edge.to }}</span>
+                <span v-if="edge.label" class="di-flow-edge-label">[{{ edge.label }}]</span>
+              </div>
+            </div>
+
+            <!-- Orphan pages -->
+            <div v-if="store.screenFlowData.orphanPages.length > 0" class="di-flow-orphans">
+              <div class="di-flow-orphans-header">遷移なしのページ</div>
+              <span v-for="p in store.screenFlowData.orphanPages" :key="p.path" class="di-flow-orphan-item">
+                {{ p.path }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <template v-if="screenInfo">
+          <!-- Screen Name + Edit Button -->
           <div class="di-section">
-            <h2 class="di-screen-name">{{ spec.name }}</h2>
-            <p class="di-screen-desc">{{ spec.description }}</p>
+            <div class="di-screen-header">
+              <h2 class="di-screen-name">{{ screenInfo.name }}</h2>
+              <button @click="store.editingScreen = true" class="di-screen-edit-btn" title="画面情報を編集">
+                <PenSquare style="width: 14px; height: 14px;" />
+              </button>
+            </div>
+            <p v-if="screenInfo.description" class="di-screen-desc">{{ screenInfo.description }}</p>
+            <!-- Auth badges -->
+            <div v-if="screenInfo.auth" class="di-auth-badges">
+              <span v-if="screenInfo.auth.required" class="di-auth-badge di-auth-required">
+                <Lock style="width: 11px; height: 11px;" />
+                ログイン必須
+              </span>
+              <span v-for="role in (screenInfo.auth.roles || [])" :key="role" class="di-auth-badge di-auth-role">
+                <Shield style="width: 11px; height: 11px;" />
+                {{ role }}
+              </span>
+              <span v-if="screenInfo.auth.description" class="di-auth-note">{{ screenInfo.auth.description }}</span>
+            </div>
           </div>
 
           <!-- Component Path -->
-          <div class="di-card">
+          <div v-if="screenInfo.componentPath" class="di-card">
             <div class="di-card-label">
               <Code style="width: 16px; height: 16px;" />
               <span>Component Path</span>
             </div>
-            <code class="di-code-blue">{{ spec.componentPath }}</code>
+            <code class="di-code-blue">{{ screenInfo.componentPath }}</code>
           </div>
 
           <!-- Figma Link -->
-          <div v-if="spec.figmaUrl" class="di-card">
+          <div v-if="screenInfo.figmaUrl" class="di-card">
             <div class="di-card-label">
               <ExternalLink style="width: 16px; height: 16px;" />
               <span>Figma Design</span>
             </div>
-            <a :href="spec.figmaUrl" target="_blank" class="di-link-purple">{{ spec.figmaUrl }}</a>
+            <a :href="screenInfo.figmaUrl" target="_blank" class="di-link-purple">{{ screenInfo.figmaUrl }}</a>
           </div>
 
           <!-- APIs -->
-          <div v-if="spec.apis.length" class="di-card">
+          <div v-if="screenInfo.apis.length" class="di-card">
             <div class="di-card-label">
               <Server style="width: 16px; height: 16px;" />
               <span>API Endpoints</span>
             </div>
             <div class="di-api-list">
-              <div v-for="(api, index) in spec.apis" :key="index" class="di-api-item">
+              <div v-for="(api, index) in screenInfo.apis" :key="index" class="di-api-item">
                 <span
                   class="di-method-badge"
                   :style="{ backgroundColor: methodColors[api.method] + '20', color: methodColors[api.method] }"
                 >{{ api.method }}</span>
                 <div class="di-api-info">
                   <code class="di-api-endpoint">{{ api.endpoint }}</code>
-                  <p class="di-api-desc">{{ api.description }}</p>
+                  <p v-if="api.description" class="di-api-desc">{{ api.description }}</p>
                 </div>
+                <span v-if="api.loadTiming" class="di-api-timing-badge">
+                  {{ api.loadTiming === 'onMount' ? '読込時' : api.loadTiming === 'action' ? 'アクション' : '条件付き' }}
+                </span>
               </div>
             </div>
           </div>
 
           <!-- Notes -->
-          <div v-if="spec.notes?.length" class="di-card">
+          <div v-if="screenInfo.notes" class="di-card">
             <div class="di-card-label">
               <AlertCircle style="width: 16px; height: 16px;" />
               <span>Notes</span>
             </div>
-            <ul class="di-notes-list">
-              <li v-for="(note, index) in spec.notes" :key="index" class="di-note-item">
-                <span class="di-bullet">•</span>
-                <span>{{ note }}</span>
-              </li>
-            </ul>
+            <p class="di-screen-notes">{{ screenInfo.notes }}</p>
           </div>
         </template>
 
-        <!-- No Spec -->
+        <!-- No Spec - with edit button -->
         <div v-else class="di-no-spec">
           <FileText style="width: 48px; height: 48px; color: #334155;" />
           <p>この画面の仕様情報は<br>まだ登録されていません</p>
+          <button @click="store.editingScreen = true" class="di-screen-register-btn">
+            <PenSquare style="width: 14px; height: 14px;" />
+            画面情報を登録
+          </button>
         </div>
 
         <!-- Element Configs Section -->
@@ -397,6 +864,123 @@ async function restoreHiddenElements() {
               <span class="di-count-badge">{{ elementCount }}</span>
             </div>
           </div>
+
+          <!-- Master Definitions Section -->
+          <div class="di-section">
+            <div class="di-section-header" style="margin-bottom: 8px;">
+              <Database style="width: 16px; height: 16px; color: #a78bfa;" />
+              <span>マスタ定義</span>
+              <span v-if="masterCount > 0" class="di-section-badge">{{ masterCount }}</span>
+              <button @click="startMasterEdit()" class="di-btn-icon" style="margin-left: auto;" title="新規追加">
+                <Plus style="width: 14px; height: 14px;" />
+              </button>
+            </div>
+
+            <!-- Master list grouped by table -->
+            <template v-if="masterCount > 0">
+              <div v-for="(masters, tableName) in masterList" :key="tableName" class="di-master-table-group">
+                <div class="di-master-table-name">{{ tableName }}</div>
+                <div
+                  v-for="m in masters"
+                  :key="m.id"
+                  class="di-master-item"
+                  @click="startMasterEdit(m.id)"
+                >
+                  <div class="di-master-item-header">
+                    <span class="di-master-col-name">.{{ m.column }}</span>
+                    <span v-if="m.columnType" class="di-master-col-type">{{ m.columnType }}</span>
+                    <span class="di-master-item-name">{{ m.name }}</span>
+                  </div>
+                  <div class="di-master-entries-preview">
+                    <span
+                      v-for="(entry, idx) in m.entries.slice(0, 5)"
+                      :key="idx"
+                      class="di-master-entry-chip"
+                      :style="entry.color ? { borderColor: entry.color, color: entry.color } : {}"
+                    >
+                      {{ entry.value }}={{ entry.label }}
+                    </span>
+                    <span v-if="m.entries.length > 5" class="di-master-entry-more">+{{ m.entries.length - 5 }}</span>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <div v-else class="di-master-empty" @click="startMasterEdit()">
+              <span>テーブル.カラムのマスタ値を定義</span>
+            </div>
+          </div>
+
+          <!-- Master Editor Modal -->
+          <Teleport to="body">
+            <div v-if="showMasterEditor" data-dev-inspector class="di-modal-overlay" @click.self="showMasterEditor = false">
+              <div class="di-master-editor">
+                <div class="di-master-editor-header">
+                  <h3>{{ editingMasterId ? 'マスタ定義を編集' : '新規マスタ定義' }}</h3>
+                  <button @click="showMasterEditor = false" class="di-close-btn">
+                    <X style="width: 16px; height: 16px;" />
+                  </button>
+                </div>
+
+                <div class="di-master-editor-body">
+                  <!-- Table & Column -->
+                  <div class="di-master-row">
+                    <div class="di-master-field">
+                      <label>テーブル</label>
+                      <input v-model="masterForm.table" placeholder="orders" :disabled="!!editingMasterId" />
+                    </div>
+                    <div class="di-master-field">
+                      <label>カラム</label>
+                      <input v-model="masterForm.column" placeholder="status" :disabled="!!editingMasterId" />
+                    </div>
+                  </div>
+                  <div class="di-master-row">
+                    <div class="di-master-field">
+                      <label>表示名</label>
+                      <input v-model="masterForm.name" placeholder="ステータス" />
+                    </div>
+                    <div class="di-master-field">
+                      <label>型</label>
+                      <input v-model="masterForm.columnType" placeholder="integer" />
+                    </div>
+                  </div>
+                  <div class="di-master-field" style="margin-bottom: 12px;">
+                    <label>説明</label>
+                    <input v-model="masterForm.description" placeholder="注文のステータスを管理" />
+                  </div>
+
+                  <!-- Entries -->
+                  <div class="di-master-entries-header">
+                    <label>マスタ値</label>
+                    <button @click="addMasterEntry" class="di-btn-icon" title="追加">
+                      <Plus style="width: 14px; height: 14px;" />
+                    </button>
+                  </div>
+                  <div class="di-master-entries-list">
+                    <div
+                      v-for="(entry, idx) in masterForm.entries"
+                      :key="idx"
+                      class="di-master-entry-row"
+                    >
+                      <input v-model="entry.value" placeholder="値" class="di-master-entry-value" />
+                      <input v-model="entry.label" placeholder="ラベル" class="di-master-entry-label" />
+                      <input v-model="entry.color" placeholder="#色" class="di-master-entry-color" />
+                      <input v-model="entry.description" placeholder="説明" class="di-master-entry-desc" />
+                      <button @click="removeMasterEntry(idx)" class="di-btn-icon di-btn-icon-danger">
+                        <X style="width: 12px; height: 12px;" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="di-master-editor-footer">
+                  <button v-if="editingMasterId" @click="handleDeleteMaster(editingMasterId); showMasterEditor = false" class="di-btn-small di-btn-danger">削除</button>
+                  <div style="flex: 1;"></div>
+                  <button @click="showMasterEditor = false" class="di-btn-small">キャンセル</button>
+                  <button @click="saveMasterForm" class="di-btn-small di-btn-primary" :disabled="!masterForm.table || !masterForm.column">保存</button>
+                </div>
+              </div>
+            </div>
+          </Teleport>
 
           <!-- Export Buttons -->
           <div v-if="elementCount > 0" class="di-export-buttons">
@@ -651,6 +1235,166 @@ async function restoreHiddenElements() {
   color: white;
 }
 
+/* Note Highlight Toggle */
+.di-note-toggle-btn {
+  margin-top: 8px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #0f172a;
+  color: #64748b;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-note-toggle-btn:hover {
+  color: #94a3b8;
+  border-color: #475569;
+}
+.di-note-toggle-btn.active {
+  color: #e2e8f0;
+  border-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.08);
+}
+.di-note-toggle-badge {
+  margin-left: auto;
+  padding: 1px 6px;
+  background: #334155;
+  border-radius: 4px;
+  font-size: 10px;
+  color: #94a3b8;
+}
+
+/* Note Highlight Filter */
+.di-note-filter {
+  margin-top: 6px;
+  padding: 8px;
+  background: #1e293b;
+  border-radius: 6px;
+}
+
+/* Broken annotations warning */
+.di-broken-warning {
+  margin-top: 8px;
+  padding: 10px 12px;
+  background: rgba(245, 158, 11, 0.1);
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  border-radius: 8px;
+}
+.di-broken-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #f59e0b;
+}
+.di-broken-desc {
+  font-size: 10px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+.di-broken-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+.di-broken-delete-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  font-size: 11px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.di-broken-delete-btn:hover {
+  background: rgba(239, 68, 68, 0.25);
+}
+.di-broken-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.di-broken-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgba(30, 41, 59, 0.6);
+  border-radius: 4px;
+}
+.di-broken-item-info {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.di-broken-item-note {
+  font-size: 11px;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.di-broken-item-selector {
+  font-size: 9px;
+  color: #64748b;
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.di-broken-item-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.di-broken-remap-btn {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  font-size: 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.di-broken-remap-btn:hover {
+  background: rgba(59, 130, 246, 0.25);
+}
+.di-broken-item-delete {
+  display: flex;
+  align-items: center;
+  padding: 3px 5px;
+  background: transparent;
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #94a3b8;
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-broken-item-delete:hover {
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.4);
+  background: rgba(239, 68, 68, 0.1);
+}
+
 /* Spinner (used for loading states) */
 .di-spin {
   animation: spin 1s linear infinite;
@@ -782,6 +1526,78 @@ async function restoreHiddenElements() {
   color: #64748b;
 }
 
+/* Screen Header */
+.di-screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.di-screen-edit-btn {
+  padding: 6px;
+  background: #334155;
+  border: none;
+  color: #94a3b8;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+.di-screen-edit-btn:hover {
+  background: #475569;
+  color: #60a5fa;
+}
+
+/* Auth Badges */
+.di-auth-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+.di-auth-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.di-auth-required {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+.di-auth-role {
+  background: rgba(139, 92, 246, 0.15);
+  color: #a78bfa;
+}
+.di-auth-note {
+  font-size: 10px;
+  color: #64748b;
+}
+
+/* API Timing Badge */
+.di-api-timing-badge {
+  padding: 1px 5px;
+  background: #475569;
+  border-radius: 3px;
+  color: #cbd5e1;
+  font-size: 9px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Screen Notes */
+.di-screen-notes {
+  font-size: 12px;
+  color: #94a3b8;
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.5;
+}
+
 /* No Spec */
 .di-no-spec {
   text-align: center;
@@ -796,6 +1612,274 @@ async function restoreHiddenElements() {
   color: #64748b;
   margin: 0;
   line-height: 1.5;
+}
+.di-screen-register-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #334155;
+  border: none;
+  color: #94a3b8;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-screen-register-btn:hover {
+  background: #475569;
+  color: #60a5fa;
+}
+
+/* Master Definitions */
+.di-section-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+.di-section-badge {
+  background: #334155;
+  color: #94a3b8;
+  font-size: 10px;
+  padding: 1px 6px;
+  border-radius: 8px;
+}
+.di-btn-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: transparent;
+  border: 1px solid #334155;
+  color: #94a3b8;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-btn-icon:hover {
+  background: #334155;
+  color: #e2e8f0;
+}
+.di-btn-icon-danger:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
+}
+.di-master-table-group {
+  margin-bottom: 8px;
+}
+.di-master-table-name {
+  font-size: 11px;
+  font-weight: 600;
+  color: #a78bfa;
+  padding: 2px 0;
+  margin-bottom: 4px;
+}
+.di-master-item {
+  padding: 6px 8px;
+  background: #1e293b;
+  border-radius: 6px;
+  margin-bottom: 4px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.di-master-item:hover {
+  background: #334155;
+}
+.di-master-item-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.di-master-col-name {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e2e8f0;
+  font-family: monospace;
+}
+.di-master-col-type {
+  font-size: 9px;
+  color: #64748b;
+  background: #0f172a;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+.di-master-item-name {
+  font-size: 11px;
+  color: #94a3b8;
+}
+.di-master-entries-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 4px;
+}
+.di-master-entry-chip {
+  font-size: 9px;
+  padding: 1px 5px;
+  border: 1px solid #475569;
+  color: #94a3b8;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+.di-master-entry-more {
+  font-size: 9px;
+  color: #64748b;
+  padding: 1px 4px;
+}
+.di-master-empty {
+  padding: 12px;
+  text-align: center;
+  color: #64748b;
+  font-size: 11px;
+  background: #1e293b;
+  border-radius: 6px;
+  cursor: pointer;
+  border: 1px dashed #334155;
+  transition: all 0.2s;
+}
+.di-master-empty:hover {
+  border-color: #a78bfa;
+  color: #a78bfa;
+}
+/* Master Editor Modal */
+.di-master-editor {
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  width: 520px;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+.di-master-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #334155;
+}
+.di-master-editor-header h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #e2e8f0;
+}
+.di-master-editor-body {
+  padding: 16px;
+}
+.di-master-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.di-master-row .di-master-field {
+  flex: 1;
+}
+.di-master-field label {
+  display: block;
+  font-size: 10px;
+  color: #94a3b8;
+  margin-bottom: 3px;
+}
+.di-master-field input {
+  width: 100%;
+  padding: 6px 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 12px;
+  outline: none;
+  box-sizing: border-box;
+}
+.di-master-field input:focus {
+  border-color: #a78bfa;
+}
+.di-master-field input:disabled {
+  opacity: 0.5;
+}
+.di-master-entries-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+.di-master-entries-header label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+}
+.di-master-entries-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 250px;
+  overflow-y: auto;
+}
+.di-master-entry-row {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+.di-master-entry-value {
+  width: 60px;
+  flex-shrink: 0;
+  padding: 5px 6px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 11px;
+  font-family: monospace;
+  outline: none;
+}
+.di-master-entry-label {
+  width: 80px;
+  flex-shrink: 0;
+  padding: 5px 6px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 11px;
+  outline: none;
+}
+.di-master-entry-color {
+  width: 55px;
+  flex-shrink: 0;
+  padding: 5px 6px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 11px;
+  font-family: monospace;
+  outline: none;
+}
+.di-master-entry-desc {
+  flex: 1;
+  min-width: 0;
+  padding: 5px 6px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 11px;
+  outline: none;
+}
+.di-master-entry-row input:focus {
+  border-color: #a78bfa;
+}
+.di-master-editor-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #334155;
 }
 
 /* Export Buttons */
@@ -1313,5 +2397,365 @@ async function restoreHiddenElements() {
   color: #cbd5e1;
   font-size: 9px;
   white-space: nowrap;
+}
+
+/* ===== Cross Search ===== */
+.di-cross-search-section {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.di-cross-search-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #0f172a;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-cross-search-toggle:hover {
+  color: #e2e8f0;
+  border-color: #475569;
+}
+.di-cross-search-toggle.active {
+  color: #60a5fa;
+  border-color: #60a5fa;
+  background: rgba(96, 165, 250, 0.08);
+}
+.di-cross-search-body {
+  margin-top: 8px;
+}
+.di-cross-search-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: #e2e8f0;
+  font-size: 12px;
+  font-family: monospace;
+  box-sizing: border-box;
+  outline: none;
+}
+.di-cross-search-input:focus {
+  border-color: #60a5fa;
+}
+.di-cross-search-input::placeholder {
+  color: #475569;
+}
+.di-cross-search-count {
+  margin-top: 6px;
+  font-size: 10px;
+  color: #64748b;
+}
+.di-cross-search-results {
+  margin-top: 8px;
+  max-height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.di-cross-search-group {
+  /* page group */
+}
+.di-cross-search-page-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: #a78bfa;
+  padding: 2px 0;
+  margin-bottom: 4px;
+}
+.di-cross-search-page-name {
+  font-weight: 400;
+  color: #64748b;
+  font-size: 10px;
+}
+.di-cross-search-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: #0f172a;
+  border-radius: 4px;
+  border-left: 3px solid #3b82f6;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 2px;
+}
+.di-cross-search-item:hover {
+  background: #1e293b;
+}
+.di-cross-item-datasource {
+  border-left-color: #3b82f6;
+}
+.di-cross-item-action {
+  border-left-color: #a78bfa;
+}
+.di-cross-item-form {
+  border-left-color: #ec4899;
+}
+.di-cross-search-field {
+  font-size: 11px;
+  font-family: monospace;
+  color: #e2e8f0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.di-cross-search-context {
+  font-size: 9px;
+  color: #64748b;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ===== Unannotated Detection ===== */
+.di-unannotated-btn {
+  margin-top: 8px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: #0f172a;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-unannotated-btn:hover {
+  color: #f97316;
+  border-color: #f97316;
+}
+.di-unannotated-btn.active {
+  color: #f97316;
+  border-color: #f97316;
+  background: rgba(249, 115, 22, 0.08);
+}
+.di-unannotated-badge {
+  margin-left: auto;
+  padding: 1px 6px;
+  background: #f97316;
+  color: white;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+}
+.di-unannotated-results {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(249, 115, 22, 0.05);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+  border-radius: 8px;
+}
+.di-unannotated-summary {
+  font-size: 10px;
+  color: #f97316;
+  margin-bottom: 6px;
+}
+.di-unannotated-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.di-unannotated-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 4px;
+}
+.di-unannotated-category {
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.di-unannotated-cat-binding {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+.di-unannotated-cat-form {
+  background: rgba(236, 72, 153, 0.15);
+  color: #ec4899;
+}
+.di-unannotated-cat-action {
+  background: rgba(167, 139, 250, 0.15);
+  color: #a78bfa;
+}
+.di-unannotated-text {
+  flex: 1;
+  font-size: 10px;
+  color: #e2e8f0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.di-unannotated-register {
+  padding: 2px 8px;
+  background: rgba(249, 115, 22, 0.15);
+  border: 1px solid rgba(249, 115, 22, 0.3);
+  color: #f97316;
+  font-size: 9px;
+  font-weight: 600;
+  border-radius: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.di-unannotated-register:hover {
+  background: #f97316;
+  color: white;
+}
+.di-unannotated-empty {
+  margin-top: 8px;
+  padding: 8px;
+  text-align: center;
+  font-size: 11px;
+  color: #64748b;
+  background: rgba(15, 23, 42, 0.4);
+  border-radius: 6px;
+}
+
+/* ===== Screen Flow ===== */
+.di-screen-flow-section {
+  background: #1e293b;
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.di-screen-flow-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #0f172a;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-screen-flow-toggle:hover {
+  color: #e2e8f0;
+  border-color: #475569;
+}
+.di-screen-flow-toggle.active {
+  color: #10b981;
+  border-color: #10b981;
+  background: rgba(16, 185, 129, 0.08);
+}
+.di-screen-flow-badge {
+  margin-left: auto;
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 400;
+}
+.di-screen-flow-body {
+  margin-top: 8px;
+  max-height: 350px;
+  overflow-y: auto;
+}
+.di-screen-flow-empty {
+  padding: 12px;
+  text-align: center;
+  font-size: 11px;
+  color: #64748b;
+}
+.di-flow-group {
+  margin-bottom: 10px;
+}
+.di-flow-node {
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #e2e8f0;
+  border-left: 3px solid #334155;
+}
+.di-flow-node-current {
+  border-left-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.08);
+}
+.di-flow-node-path {
+  font-family: monospace;
+  font-size: 11px;
+}
+.di-flow-node-name {
+  font-weight: 400;
+  color: #64748b;
+  font-size: 10px;
+  margin-left: 4px;
+}
+.di-flow-edge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px 3px 20px;
+  cursor: pointer;
+  transition: background 0.2s;
+  border-radius: 3px;
+}
+.di-flow-edge:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+.di-flow-arrow {
+  color: #10b981;
+  font-size: 12px;
+  font-weight: 700;
+}
+.di-flow-target {
+  font-size: 11px;
+  font-family: monospace;
+  color: #94a3b8;
+}
+.di-flow-edge-label {
+  font-size: 9px;
+  color: #64748b;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+}
+.di-flow-orphans {
+  margin-top: 8px;
+  padding: 8px;
+  background: rgba(100, 116, 139, 0.1);
+  border-radius: 6px;
+}
+.di-flow-orphans-header {
+  font-size: 10px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+.di-flow-orphan-item {
+  display: inline-block;
+  font-size: 10px;
+  font-family: monospace;
+  color: #94a3b8;
+  padding: 1px 6px;
+  background: #0f172a;
+  border-radius: 3px;
+  margin: 2px 3px 2px 0;
 }
 </style>

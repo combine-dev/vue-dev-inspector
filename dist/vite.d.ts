@@ -11,6 +11,11 @@ export declare interface DevInspectorVitePluginOptions {
      */
     analysisPath?: string;
     /**
+     * Directory for per-page annotation JSON files
+     * (default: './dev-inspector-annotations')
+     */
+    syncDir?: string;
+    /**
      * Include file patterns (default: ['**\/*.vue'])
      */
     include?: string[];

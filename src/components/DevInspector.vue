@@ -4,6 +4,7 @@ import { useDevInspectorStore, type DevInspectorOptions } from '../composables/u
 import DevPanel from './DevPanel.vue'
 import DevElementEditor from './DevElementEditor.vue'
 import DevPickOverlay from './DevPickOverlay.vue'
+import DevScreenEditor from './DevScreenEditor.vue'
 
 const props = withDefaults(defineProps<DevInspectorOptions>(), {
   storageKey: 'devInspector:elementConfigs',
@@ -26,6 +27,7 @@ onMounted(() => {
   <div v-if="store.isAvailable" data-dev-inspector>
     <DevPanel />
     <DevElementEditor />
+    <DevScreenEditor />
     <DevPickOverlay />
   </div>
 </template>

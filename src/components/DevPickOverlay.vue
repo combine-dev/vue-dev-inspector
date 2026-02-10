@@ -17,6 +17,21 @@ const hoveredElement = ref<HTMLElement | null>(null)
 const scrollY = ref(0)
 const scrollX = ref(0)
 
+// Display type colors
+const displayTypeColors: Record<string, string> = {
+  db_direct: '#3b82f6',
+  db_formatted: '#8b5cf6',
+  calculated: '#f59e0b',
+  static: '#10b981',
+  other: '#94a3b8',
+}
+
+// Element type colors (action/form)
+const elementTypeColors: Record<string, string> = {
+  action: '#a78bfa',
+  form: '#ec4899',
+}
+
 // Tag labels for display
 function getTagLabel(tag: string): string {
   const labels: Record<string, string> = {
@@ -33,11 +48,21 @@ function getTagLabel(tag: string): string {
   return labels[tag] || tag
 }
 
-// Get note type color
+// Get note type color (prioritizes elementType, then displayType)
 function getNoteColor(selector: string): string {
   const config = store.getElementConfig(selector)
+
+  // Priority 1: elementType color (action/form)
+  if (config?.elementType && elementTypeColors[config.elementType]) {
+    return elementTypeColors[config.elementType]
+  }
+
+  // Priority 2: displayType color
+  if (config?.note?.displayType) {
+    return displayTypeColors[config.note.displayType] || '#60a5fa'
+  }
+
   if (!config?.sourceBinding) {
-    // Fallback based on note type
     const noteType = config?.note?.type || 'info'
     const colors: Record<string, string> = {
       info: '#60a5fa',
@@ -49,10 +74,44 @@ function getNoteColor(selector: string): string {
   }
 
   // Color based on source binding type
-  if (config.sourceBinding.isStatic) return '#10b981' // Green for static
-  if (config.sourceBinding.type === 'v-model') return '#8b5cf6' // Purple for form
-  if (config.sourceBinding.type === 'api') return '#f59e0b' // Orange for API data
-  return '#60a5fa' // Blue default
+  if (config.sourceBinding.isStatic) return '#10b981'
+  if (config.sourceBinding.type === 'v-model') return '#8b5cf6'
+  if (config.sourceBinding.type === 'api') return '#f59e0b'
+  return '#60a5fa'
+}
+
+// Check if a note annotation matches the current noteHighlightFilter
+function matchesNoteFilter(selector: string): boolean {
+  const filter = store.noteHighlightFilter
+  if (filter === 'all') return true
+
+  const config = store.getElementConfig(selector)
+  if (!config) return false
+
+  const dt = config.note?.displayType
+  const hasCondition = !!(config.note?.condition || config.note?.conditionColumn)
+  const isStoredCalc = !!(config.note?.storedCalc)
+
+  switch (filter) {
+    case 'db':
+      return dt === 'db_direct' || dt === 'db_formatted'
+    case 'calculated':
+      return dt === 'calculated'
+    case 'storedCalc':
+      return isStoredCalc
+    case 'static':
+      return dt === 'static'
+    case 'conditional':
+      return hasCondition
+    case 'action':
+      return config.elementType === 'action'
+    case 'form':
+      return config.elementType === 'form'
+    case 'other':
+      return dt === 'other' || (!dt && !config.elementType && !!config.note?.text)
+    default:
+      return true
+  }
 }
 
 // Existing annotations on current page (as highlight boxes)
@@ -70,6 +129,9 @@ const existingAnnotations = computed(() => {
     color: string
     isStatic: boolean
     label: string
+    noteText: string
+    noteType: 'info' | 'warning' | 'todo' | 'question'
+    hasNote: boolean
   }> = []
 
   if (!store.isEnabled) return annotations
@@ -84,16 +146,151 @@ const existingAnnotations = computed(() => {
         const isStatic = config?.sourceBinding?.isStatic || false
         const bindingType = config?.sourceBinding?.type || ''
 
-        // Build label with DB info if available
+        // Build label based on elementType (priority) > displayType > fallback
         let label = ''
-        if (config?.fieldInfo?.table && config?.fieldInfo?.column) {
-          label = `DB: ${config.fieldInfo.table}.${config.fieldInfo.column}`
+        let tooltipText = ''
+        const dt = config?.note?.displayType
+
+        // Build meta details line for tooltip
+        const metaParts: string[] = []
+        if (config?.note?.sampleValue) metaParts.push(`例: ${config.note.sampleValue}${config.note.unit ? config.note.unit : ''}`)
+        else if (config?.note?.unit) metaParts.push(`単位: ${config.note.unit}`)
+        if (config?.note?.decimalHandling) {
+          const dh: Record<string, string> = { round: '四捨五入', floor: '切り捨て', ceil: '切り上げ', decimal_1: '小数第1位', decimal_2: '小数第2位', integer: '整数' }
+          metaParts.push(dh[config.note.decimalHandling] || config.note.decimalHandling)
+        }
+        if (config?.note?.nullDisplay) metaParts.push(`NULL時: ${config.note.nullDisplay}`)
+        if (config?.note?.displayFormat) metaParts.push(config.note.displayFormat)
+        const metaLine = metaParts.length > 0 ? `\n${metaParts.join(' / ')}` : ''
+
+        // Condition info
+        const hasCondition = !!(config?.note?.condition || config?.note?.conditionColumn)
+        let conditionLine = ''
+        if (hasCondition) {
+          const bhLabels: Record<string, string> = { hidden: '非表示', disabled: '無効化', different_value: '別の値', empty: '空欄' }
+          const parts: string[] = []
+          if (config?.note?.condition) parts.push(config.note.condition)
+          if (config?.note?.conditionColumn) parts.push(`判定: ${config.note.conditionColumn}`)
+          if (config?.note?.hiddenBehavior) parts.push(`不一致時: ${bhLabels[config.note.hiddenBehavior] || config.note.hiddenBehavior}`)
+          if (config?.note?.hiddenNote) parts.push(`→ ${config.note.hiddenNote}`)
+          conditionLine = `\n条件: ${parts.join(' / ')}`
+        }
+
+        const condMark = hasCondition ? ' ⚡' : ''
+
+        // Priority 1: elementType === 'action' + actionInfo
+        if (config?.elementType === 'action' && config?.actionInfo) {
+          const ai = config.actionInfo
+          if (ai.type === 'navigate') {
+            label = `遷移: ${ai.target || '?'}`
+          } else if (ai.type === 'api') {
+            label = `API: ${ai.method || 'GET'} ${ai.target || '?'}`
+          } else if (ai.type === 'modal') {
+            label = `モーダル: ${ai.target || '?'}`
+          } else if (ai.type === 'emit') {
+            label = `イベント: ${ai.target || '?'}`
+          } else if (ai.type === 'function') {
+            label = `関数: ${ai.target || '?'}`
+          } else {
+            label = 'アクション'
+          }
+          tooltipText = (ai.description || label) +
+            (config?.note?.text ? `\n${config.note.text}` : '')
+        }
+        // Priority 2: elementType === 'form' + formInfo
+        else if (config?.elementType === 'form' && config?.formInfo) {
+          const fi = config.formInfo
+          const fields = config?.fieldInfoList?.length ? config.fieldInfoList : (config?.fieldInfo ? [config.fieldInfo] : [])
+          const colName = fields.length > 0 ? fields.map(f => `${f.table}.${f.column}`).join(', ') : ''
+          // Master count for form selects
+          const formMasterKey = fields.length > 0 ? `${fields[0].table}.${fields[0].column}` : ''
+          const formMaster = formMasterKey ? store.getMasterDefinition(formMasterKey) : null
+
+          if (fi.inputType === 'select') {
+            label = `選択: ${colName || fi.description || '?'}${formMaster ? ` (${formMaster.entries.length}件)` : ''}`
+          } else if (fi.inputType === 'textarea') {
+            label = `テキスト: ${colName || fi.description || '?'}`
+          } else if (fi.inputType === 'checkbox') {
+            label = `チェック: ${colName || fi.description || '?'}`
+          } else if (fi.inputType === 'radio') {
+            label = `ラジオ: ${colName || fi.description || '?'}`
+          } else {
+            label = `入力: ${colName || fi.description || fi.inputType || '?'}`
+          }
+          if (fi.required) {
+            label += ' (必須)'
+          }
+          const tooltipParts: string[] = []
+          if (fi.description) tooltipParts.push(fi.description)
+          if (fi.validation?.length) tooltipParts.push(`検証: ${fi.validation.join(', ')}`)
+          if (fi.placeholder) tooltipParts.push(`placeholder: ${fi.placeholder}`)
+          if (fi.defaultValue) tooltipParts.push(`初期値: ${fi.defaultValue}`)
+          tooltipText = tooltipParts.join('\n') +
+            (config?.note?.text ? `\n${config.note.text}` : '')
+        }
+        // Priority 3: elementType without detailed info
+        else if (config?.elementType === 'action') {
+          label = 'アクション'
+          tooltipText = config?.note?.text || ''
+        }
+        else if (config?.elementType === 'form') {
+          label = 'フォーム'
+          tooltipText = config?.note?.text || ''
+        }
+        // Priority 4: displayType-based labels
+        else if (dt === 'db_direct') {
+          const fields = config?.fieldInfoList?.length ? config.fieldInfoList : (config?.fieldInfo ? [config.fieldInfo] : [])
+          if (fields.length > 0) {
+            const colNames = fields.map(f => `${f.table}.${f.column}`).join(', ')
+            // Check for master definition
+            const masterKey = `${fields[0].table}.${fields[0].column}`
+            const master = store.getMasterDefinition(masterKey)
+            const masterSuffix = master ? ` (${master.entries.length}値)` : ''
+            label = `DB: ${colNames}${masterSuffix}${condMark}`
+            tooltipText = fields.map(f => `${f.table}.${f.column}${f.type ? ` (${f.type})` : ''}`).join('\n') +
+              metaLine + conditionLine +
+              (config?.note?.text ? `\n${config.note.text}` : '')
+          }
+        } else if (dt === 'db_formatted') {
+          const fields = config?.fieldInfoList?.length ? config.fieldInfoList : (config?.fieldInfo ? [config.fieldInfo] : [])
+          if (fields.length > 0) {
+            const colNames = fields.map(f => `${f.table}.${f.column}`).join(', ')
+            const masterKey = `${fields[0].table}.${fields[0].column}`
+            const master = store.getMasterDefinition(masterKey)
+            const masterSuffix = master ? ` (${master.entries.length}値)` : ''
+            label = `DB: ${colNames} (整形)${masterSuffix}${condMark}`
+            tooltipText = fields.map(f => `${f.table}.${f.column}`).join('\n') +
+              (config?.note?.formatDescription ? `\n整形: ${config.note.formatDescription}` : '') +
+              metaLine + conditionLine +
+              (config?.note?.text ? `\n${config.note.text}` : '')
+          }
+        } else if (dt === 'calculated') {
+          label = '計算値' + (config?.note?.unit ? ` (${config.note.unit})` : '') + condMark
+          tooltipText = (config?.note?.calcDescription || '計算値') +
+            (config?.note?.calcSources?.length ? `\n参照: ${config.note.calcSources.join(', ')}` : '') +
+            metaLine + conditionLine +
+            (config?.note?.text ? `\n${config.note.text}` : '')
+        } else if (dt === 'static') {
+          label = '固定' + condMark
+          tooltipText = (config?.note?.text || '固定文言') + conditionLine
+        } else if (dt === 'other') {
+          label = 'メモ'
+          tooltipText = config?.note?.text || ''
+        } else if (config?.fieldInfoList?.length || (config?.fieldInfo?.table && config?.fieldInfo?.column)) {
+          // Fallback: old-style fieldInfo without displayType
+          const fields = config?.fieldInfoList?.length ? config.fieldInfoList : (config?.fieldInfo ? [config.fieldInfo] : [])
+          const colNames = fields.map(f => `${f.table}.${f.column}`).join(', ')
+          label = `DB: ${colNames}`
+          tooltipText = config?.note?.text || ''
         } else if (isStatic) {
           label = '固定'
+          tooltipText = config?.note?.text || '固定文言'
         } else if (bindingType === 'v-model') {
           label = 'フォーム'
+          tooltipText = config?.note?.text || ''
         } else if (bindingType === 'api') {
           label = 'データ'
+          tooltipText = config?.note?.text || ''
         } else if (config?.note?.type) {
           const typeLabels: Record<string, string> = {
             info: '情報',
@@ -102,9 +299,15 @@ const existingAnnotations = computed(() => {
             question: '質問',
           }
           label = typeLabels[config.note.type] || 'メモ'
+          tooltipText = config?.note?.text || ''
         } else {
           label = 'メモ'
+          tooltipText = config?.note?.text || ''
         }
+
+        const noteText = tooltipText || config?.note?.text || ''
+        const noteType = (config?.note?.type || 'info') as 'info' | 'warning' | 'todo' | 'question'
+        const hasNote = !!(config?.note?.text || config?.note?.displayType)
 
         annotations.push({
           selector,
@@ -115,6 +318,9 @@ const existingAnnotations = computed(() => {
           color: getNoteColor(selector),
           isStatic,
           label,
+          noteText,
+          noteType,
+          hasNote,
         })
       }
     } catch {
@@ -324,6 +530,46 @@ const analysisHighlights = computed(() => {
   return highlights
 })
 
+// Unannotated elements highlights (orange dashed boxes)
+const unannotatedHighlights = computed(() => {
+  const _scrollY = scrollY.value
+  const _scrollX = scrollX.value
+
+  const highlights: Array<{
+    selector: string
+    top: string
+    left: string
+    width: string
+    height: string
+    category: string
+    text: string
+  }> = []
+
+  if (!store.isEnabled || !store.showUnannotatedDetection || store.unannotatedElements.length === 0) return highlights
+
+  for (const uEl of store.unannotatedElements) {
+    try {
+      const element = document.querySelector(uEl.selector) as HTMLElement | null
+      if (!element) continue
+
+      const rect = element.getBoundingClientRect()
+      highlights.push({
+        selector: uEl.selector,
+        top: `${rect.top + _scrollY}px`,
+        left: `${rect.left + _scrollX}px`,
+        width: `${rect.width}px`,
+        height: `${rect.height}px`,
+        category: uEl.category,
+        text: uEl.text,
+      })
+    } catch {
+      // Invalid selector, skip
+    }
+  }
+
+  return highlights
+})
+
 function handleMouseMove(e: MouseEvent) {
   if (!store.isPickMode) return
 
@@ -374,6 +620,16 @@ function handleClick(e: MouseEvent) {
 
   if (hoveredElement.value) {
     const selector = store.generateSelector(hoveredElement.value)
+
+    // Remap mode: move broken annotation to this new element
+    if (store.remapTargetId) {
+      store.remapAnnotation(store.remapTargetId, selector)
+      store.remapTargetId = null
+      store.togglePickMode()
+      store.openPanel()
+      return
+    }
+
     store.startEditing(selector)
     store.togglePickMode() // Turn off pick mode after selection
   }
@@ -381,6 +637,7 @@ function handleClick(e: MouseEvent) {
 
 function handleKeydown(e: KeyboardEvent) {
   if (e.key === 'Escape' && store.isPickMode) {
+    store.remapTargetId = null
     store.togglePickMode()
   }
 }
@@ -442,8 +699,8 @@ watch(() => store.isPickMode, (isPicking) => {
     </div>
 
     <!-- Pick mode instruction banner -->
-    <div v-if="store.isPickMode" data-dev-inspector class="di-pick-banner">
-      <span>要素をクリックしてメモを追加</span>
+    <div v-if="store.isPickMode" data-dev-inspector class="di-pick-banner" :style="store.remapTargetId ? { background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' } : {}">
+      <span>{{ store.remapTargetId ? '新しい要素をクリックして再設定' : '要素をクリックしてメモを追加' }}</span>
       <kbd>ESC</kbd>
       <span class="di-pick-hint">でキャンセル</span>
     </div>
@@ -453,24 +710,43 @@ watch(() => store.isPickMode, (isPicking) => {
       <div
         v-for="annotation in existingAnnotations"
         :key="annotation.selector"
+        v-show="!annotation.hasNote || (store.showNoteHighlights && matchesNoteFilter(annotation.selector))"
         data-dev-inspector
-        class="di-annotation-box"
+        :class="annotation.hasNote ? 'di-note-highlight' : 'di-annotation-box'"
         :style="{
           top: annotation.top,
           left: annotation.left,
           width: annotation.width,
           height: annotation.height,
-          borderColor: annotation.color,
-          backgroundColor: annotation.color + '15',
+          borderColor: annotation.hasNote ? annotation.color : annotation.color,
+          backgroundColor: annotation.color + (annotation.hasNote ? '18' : '15'),
         }"
         @click="store.startEditing(annotation.selector)"
       >
-        <div
-          class="di-annotation-label"
-          :style="{ backgroundColor: annotation.color }"
-        >
-          {{ annotation.label }}
-        </div>
+        <!-- Note highlight: indicator dot + label -->
+        <template v-if="annotation.hasNote">
+          <div class="di-note-label-row">
+            <span
+              class="di-note-indicator"
+              :style="{ backgroundColor: annotation.color }"
+            ></span>
+            <div
+              class="di-annotation-label"
+              :style="{ backgroundColor: annotation.color }"
+            >
+              {{ annotation.label }}
+            </div>
+          </div>
+        </template>
+        <!-- Regular annotation: label only -->
+        <template v-else>
+          <div
+            class="di-annotation-label"
+            :style="{ backgroundColor: annotation.color }"
+          >
+            {{ annotation.label }}
+          </div>
+        </template>
       </div>
     </template>
 
@@ -538,6 +814,28 @@ watch(() => store.isPickMode, (isPicking) => {
       <!-- Analysis results banner -->
       <div data-dev-inspector class="di-analysis-banner">
         <span>📊 分析データ: {{ analysisHighlights.length }}件の要素</span>
+      </div>
+    </template>
+
+    <!-- Unannotated element highlights (orange dashed boxes) -->
+    <template v-if="store.isEnabled && !store.isPickMode && !store.editingElementId && unannotatedHighlights.length > 0">
+      <div
+        v-for="highlight in unannotatedHighlights"
+        :key="'unannotated-' + highlight.selector"
+        data-dev-inspector
+        class="di-unannotated-highlight"
+        :style="{
+          top: highlight.top,
+          left: highlight.left,
+          width: highlight.width,
+          height: highlight.height,
+        }"
+        @click="store.quickAnnotate(highlight.selector, highlight.category === 'form' ? 'form' : highlight.category === 'action' ? 'action' : 'datasource')"
+      >
+        <div class="di-unannotated-label">
+          <span>{{ highlight.category === 'binding' ? 'DB' : highlight.category === 'form' ? 'Form' : 'Act' }}</span>
+          <span v-if="highlight.text" class="di-unannotated-label-text">{{ highlight.text }}</span>
+        </div>
       </div>
     </template>
   </Teleport>
@@ -657,6 +955,50 @@ watch(() => store.isPickMode, (isPicking) => {
   border-radius: 3px;
   white-space: nowrap;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Note highlight (dashed border, card-style) */
+.di-note-highlight {
+  position: absolute;
+  z-index: 9996;
+  border: 2px dashed;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  animation: di-note-fadein 0.4s ease-out;
+}
+.di-note-highlight:hover {
+  filter: brightness(1.15);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+.di-note-label-row {
+  position: absolute;
+  bottom: calc(100% + 2px);
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+.di-note-label-row .di-annotation-label {
+  position: static;
+}
+
+.di-note-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+@keyframes di-note-fadein {
+  from {
+    opacity: 0.3;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Scanned element highlights */
@@ -958,5 +1300,41 @@ watch(() => store.isPickMode, (isPicking) => {
 }
 .di-analysis-banner-close:hover {
   background: rgba(255, 255, 255, 0.3);
+}
+
+/* Unannotated element highlights (orange dashed) */
+.di-unannotated-highlight {
+  position: absolute;
+  z-index: 9993;
+  border: 2px dashed #f97316;
+  background: rgba(249, 115, 22, 0.08);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.di-unannotated-highlight:hover {
+  background: rgba(249, 115, 22, 0.18);
+  border-color: #ea580c;
+}
+.di-unannotated-label {
+  position: absolute;
+  top: -20px;
+  left: 0;
+  padding: 1px 6px;
+  background: #f97316;
+  color: white;
+  font-size: 9px;
+  font-weight: 600;
+  border-radius: 3px;
+  white-space: nowrap;
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+.di-unannotated-label-text {
+  font-weight: 400;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 </style>

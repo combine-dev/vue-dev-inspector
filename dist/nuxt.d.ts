@@ -70,6 +70,15 @@ declare interface DevInspectorOptions {
     autoLoadAnalysis?: boolean;
     /** Auto-apply analysis to page after loading (default: true) */
     autoApplyAnalysis?: boolean;
+    /** Enable real-time server sync via Vite dev server (default: true in dev mode) */
+    serverSync?: boolean;
+    /** Supabase sync for remote collaboration (overrides serverSync) */
+    supabase?: {
+        url: string;
+        anonKey: string;
+        table?: string;
+        pollInterval?: number;
+    };
 }
 
 declare interface DevMeta {
@@ -84,8 +93,12 @@ declare interface DevMeta {
 declare interface ElementConfig {
     id: string;
     componentPath: string;
+    pagePath?: string;
+    elementType?: 'datasource' | 'action' | 'form';
     fieldInfo?: FieldInfo;
+    fieldInfoList?: FieldInfo[];
     actionInfo?: ActionInfo;
+    formInfo?: FormInfo;
     note?: ElementNote;
     links?: LinkInfo;
     devMeta?: DevMeta;
@@ -98,6 +111,23 @@ declare interface ElementNote {
     text: string;
     author?: string;
     type?: 'info' | 'warning' | 'todo' | 'question';
+    displayType?: 'db_direct' | 'db_formatted' | 'calculated' | 'static' | 'other';
+    formatDescription?: string;
+    calcDescription?: string;
+    calcSources?: string[];
+    sampleValue?: string;
+    decimalHandling?: string;
+    unit?: string;
+    nullDisplay?: string;
+    displayFormat?: string;
+    storedCalc?: boolean;
+    storedCalcLogic?: string;
+    storedCalcSources?: string[];
+    storedCalcTiming?: 'on_save' | 'trigger' | 'batch' | 'realtime';
+    condition?: string;
+    conditionColumn?: string;
+    hiddenBehavior?: 'hidden' | 'disabled' | 'different_value' | 'empty';
+    hiddenNote?: string;
 }
 
 declare type ElementTag = 'db' | 'form' | 'button' | 'link' | 'modal' | 'conditional' | 'computed' | 'api';
@@ -107,6 +137,15 @@ declare interface FieldInfo {
     column: string;
     type?: string;
     validation?: string[];
+    description?: string;
+}
+
+declare interface FormInfo {
+    inputType?: string;
+    required?: boolean;
+    validation?: string[];
+    placeholder?: string;
+    defaultValue?: string;
     description?: string;
 }
 
