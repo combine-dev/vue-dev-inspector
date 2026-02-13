@@ -108,7 +108,10 @@ export async function exportScreenSpecToXlsx(
         api: 'API呼び出し',
         modal: 'モーダル表示',
         emit: 'イベント発火',
-        function: '関数実行'
+        function: '関数実行',
+        csv_export: 'CSV出力',
+        csv_import: 'CSV取込',
+        email: 'メール送信'
       }
       remarks = `[${actionLabels[config.actionInfo.type] || config.actionInfo.type}]`
       if (config.actionInfo.target) {

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { X, Code, FileText, ExternalLink, Server, AlertCircle, Edit3, Download, Upload, Trash2, MousePointer2, GitBranch, FileSpreadsheet, Scan, Loader2, Eye, EyeOff, Lock, Shield, PenSquare, AlertTriangle, Database, Plus, Search, ClipboardList, GitMerge } from 'lucide-vue-next'
-import type { MasterDefinition, MasterEntry, CrossSearchMode, CrossSearchResult } from '../composables/useDevInspector'
+import { X, Code, FileText, ExternalLink, Server, AlertCircle, Edit3, Download, Upload, Trash2, MousePointer2, GitBranch, FileSpreadsheet, Scan, Loader2, Eye, EyeOff, Lock, Shield, PenSquare, AlertTriangle, Database, Plus, Search, ClipboardList, GitMerge, Clock } from 'lucide-vue-next'
+import type { MasterDefinition, MasterEntry, StateTransition, BatchDefinition, BatchStep, CrossSearchMode, CrossSearchResult } from '../composables/useDevInspector'
 import { useDevInspectorStore } from '../composables/useDevInspector'
 import { exportScreenSpecToXlsx } from '../utils/exportScreenSpec'
 
 const store = useDevInspectorStore()
+
+const activeTab = ref<'elements' | 'masters' | 'batches' | 'export'>('elements')
 
 const showExportModal = ref(false)
 const showImportModal = ref(false)
@@ -229,6 +231,7 @@ const masterForm = ref({
   columnType: '',
   description: '',
   entries: [] as MasterEntry[],
+  transitions: [] as StateTransition[],
 })
 
 const masterCount = computed(() => Object.keys(store.masterDefinitions).length)
@@ -255,6 +258,7 @@ function startMasterEdit(id?: string) {
         columnType: m.columnType || '',
         description: m.description || '',
         entries: [...m.entries.map(e => ({ ...e }))],
+        transitions: m.transitions ? m.transitions.map(t => ({ ...t })) : [],
       }
     }
   } else {
@@ -266,6 +270,7 @@ function startMasterEdit(id?: string) {
       columnType: '',
       description: '',
       entries: [{ value: '', label: '' }],
+      transitions: [],
     }
   }
   showMasterEditor.value = true
@@ -276,6 +281,7 @@ function saveMasterForm() {
   if (!f.table || !f.column) return
 
   const id = `${f.table}.${f.column}`
+  const validTransitions = f.transitions.filter(t => t.from || t.to || t.trigger)
   const def: MasterDefinition = {
     id,
     table: f.table,
@@ -284,6 +290,7 @@ function saveMasterForm() {
     columnType: f.columnType || undefined,
     description: f.description || undefined,
     entries: f.entries.filter(e => e.value || e.label),
+    transitions: validTransitions.length > 0 ? validTransitions : undefined,
     updatedAt: new Date().toISOString(),
   }
   store.setMasterDefinition(def)
@@ -298,10 +305,143 @@ function removeMasterEntry(index: number) {
   masterForm.value.entries.splice(index, 1)
 }
 
+function addTransition() {
+  masterForm.value.transitions.push({ from: '', to: '', trigger: '' })
+}
+
+function removeTransition(index: number) {
+  masterForm.value.transitions.splice(index, 1)
+}
+
 function handleDeleteMaster(id: string) {
   if (confirm(`マスタ定義「${id}」を削除しますか？`)) {
     store.deleteMasterDefinition(id)
   }
+}
+
+// ===== Batch Definitions =====
+const showBatchEditor = ref(false)
+const editingBatchId = ref<string | null>(null)
+const batchForm = ref({
+  name: '',
+  schedule: '',
+  trigger: '',
+  description: '',
+  inputTables: [] as string[],
+  outputTables: [] as string[],
+  steps: [] as BatchStep[],
+  timeout: '',
+  retryPolicy: '',
+  notifyOnError: '',
+  notifyOnComplete: '',
+})
+const batchInputTableInput = ref('')
+const batchOutputTableInput = ref('')
+
+const batchCount = computed(() => Object.keys(store.batchDefinitions).length)
+const batchList = computed(() => Object.values(store.batchDefinitions))
+
+function startBatchEdit(id?: string) {
+  if (id) {
+    const b = store.getBatchDefinition(id)
+    if (b) {
+      editingBatchId.value = id
+      batchForm.value = {
+        name: b.name,
+        schedule: b.schedule || '',
+        trigger: b.trigger || '',
+        description: b.description || '',
+        inputTables: b.inputTables ? [...b.inputTables] : [],
+        outputTables: b.outputTables ? [...b.outputTables] : [],
+        steps: b.steps.map(s => ({ ...s })),
+        timeout: b.timeout || '',
+        retryPolicy: b.retryPolicy || '',
+        notifyOnError: b.notifyOnError || '',
+        notifyOnComplete: b.notifyOnComplete || '',
+      }
+    }
+  } else {
+    editingBatchId.value = null
+    batchForm.value = {
+      name: '',
+      schedule: '',
+      trigger: '',
+      description: '',
+      inputTables: [],
+      outputTables: [],
+      steps: [{ order: 1, description: '' }],
+      timeout: '',
+      retryPolicy: '',
+      notifyOnError: '',
+      notifyOnComplete: '',
+    }
+  }
+  batchInputTableInput.value = ''
+  batchOutputTableInput.value = ''
+  showBatchEditor.value = true
+}
+
+function saveBatchForm() {
+  const f = batchForm.value
+  if (!f.name) return
+
+  const id = editingBatchId.value || `batch_${f.name.replace(/\s+/g, '_').toLowerCase()}_${Date.now()}`
+  const def: BatchDefinition = {
+    id,
+    name: f.name,
+    schedule: f.schedule || undefined,
+    trigger: f.trigger || undefined,
+    description: f.description || undefined,
+    inputTables: f.inputTables.length > 0 ? f.inputTables : undefined,
+    outputTables: f.outputTables.length > 0 ? f.outputTables : undefined,
+    steps: f.steps.filter(s => s.description).map((s, i) => ({ ...s, order: i + 1 })),
+    timeout: f.timeout || undefined,
+    retryPolicy: f.retryPolicy || undefined,
+    notifyOnError: f.notifyOnError || undefined,
+    notifyOnComplete: f.notifyOnComplete || undefined,
+    updatedAt: new Date().toISOString(),
+  }
+  store.setBatchDefinition(def)
+  showBatchEditor.value = false
+}
+
+function addBatchStep() {
+  const nextOrder = batchForm.value.steps.length + 1
+  batchForm.value.steps.push({ order: nextOrder, description: '' })
+}
+
+function removeBatchStep(index: number) {
+  batchForm.value.steps.splice(index, 1)
+}
+
+function handleDeleteBatch(id: string) {
+  if (confirm(`バッチ定義「${store.getBatchDefinition(id)?.name || id}」を削除しますか？`)) {
+    store.deleteBatchDefinition(id)
+  }
+}
+
+function addBatchInputTable() {
+  const val = batchInputTableInput.value.trim()
+  if (val && !batchForm.value.inputTables.includes(val)) {
+    batchForm.value.inputTables.push(val)
+  }
+  batchInputTableInput.value = ''
+}
+
+function removeBatchInputTable(index: number) {
+  batchForm.value.inputTables.splice(index, 1)
+}
+
+function addBatchOutputTable() {
+  const val = batchOutputTableInput.value.trim()
+  if (val && !batchForm.value.outputTables.includes(val)) {
+    batchForm.value.outputTables.push(val)
+  }
+  batchOutputTableInput.value = ''
+}
+
+function removeBatchOutputTable(index: number) {
+  batchForm.value.outputTables.splice(index, 1)
 }
 
 async function restoreHiddenElements() {
@@ -443,8 +583,47 @@ function handleFlowEdgeClick(selector: string) {
         </button>
       </div>
 
-      <!-- Tools Section -->
-      <div class="di-edit-section">
+      <!-- Tab Bar -->
+      <div class="di-tab-bar">
+        <button
+          @click="activeTab = 'elements'"
+          class="di-tab-btn"
+          :class="{ active: activeTab === 'elements' }"
+        >
+          <Edit3 style="width: 14px; height: 14px;" />
+          <span>要素設定</span>
+          <span v-if="elementCount > 0" class="di-tab-badge">{{ elementCount }}</span>
+        </button>
+        <button
+          @click="activeTab = 'masters'"
+          class="di-tab-btn"
+          :class="{ active: activeTab === 'masters' }"
+        >
+          <Database style="width: 14px; height: 14px;" />
+          <span>マスタ</span>
+          <span v-if="masterCount > 0" class="di-tab-badge">{{ masterCount }}</span>
+        </button>
+        <button
+          @click="activeTab = 'batches'"
+          class="di-tab-btn"
+          :class="{ active: activeTab === 'batches' }"
+        >
+          <Clock style="width: 14px; height: 14px;" />
+          <span>バッチ</span>
+          <span v-if="batchCount > 0" class="di-tab-badge">{{ batchCount }}</span>
+        </button>
+        <button
+          @click="activeTab = 'export'"
+          class="di-tab-btn"
+          :class="{ active: activeTab === 'export' }"
+        >
+          <Download style="width: 14px; height: 14px;" />
+          <span>出力</span>
+        </button>
+      </div>
+
+      <!-- Tools Section (elements tab only) -->
+      <div v-show="activeTab === 'elements'" class="di-edit-section">
         <!-- Pick Mode Button -->
         <button
           @click="store.togglePickMode"
@@ -688,6 +867,9 @@ function handleFlowEdgeClick(selector: string) {
 
       <!-- Content -->
       <div class="di-content">
+
+        <!-- ===== ELEMENTS TAB ===== -->
+        <div v-show="activeTab === 'elements'">
         <!-- Cross Search Section -->
         <div class="di-cross-search-section">
           <button
@@ -892,7 +1074,11 @@ function handleFlowEdgeClick(selector: string) {
               <span class="di-count-badge">{{ elementCount }}</span>
             </div>
           </div>
+        </div>
+        </div><!-- /elements tab -->
 
+        <!-- ===== MASTERS TAB ===== -->
+        <div v-show="activeTab === 'masters'">
           <!-- Master Definitions Section -->
           <div class="di-section">
             <div class="di-section-header" style="margin-bottom: 8px;">
@@ -998,6 +1184,47 @@ function handleFlowEdgeClick(selector: string) {
                       </button>
                     </div>
                   </div>
+
+                  <!-- State Transitions -->
+                  <div class="di-master-entries-header" style="margin-top: 16px;">
+                    <label>状態遷移</label>
+                    <button @click="addTransition" class="di-btn-icon" title="遷移を追加">
+                      <Plus style="width: 14px; height: 14px;" />
+                    </button>
+                  </div>
+                  <div v-if="masterForm.transitions.length > 0" class="di-master-entries-list">
+                    <div class="di-transition-header">
+                      <span class="di-transition-col-from">遷移元</span>
+                      <span class="di-transition-col-arrow">→</span>
+                      <span class="di-transition-col-to">遷移先</span>
+                      <span class="di-transition-col-trigger">トリガー</span>
+                      <span class="di-transition-col-condition">条件</span>
+                      <span class="di-transition-col-act"></span>
+                    </div>
+                    <div
+                      v-for="(trans, idx) in masterForm.transitions"
+                      :key="idx"
+                      class="di-transition-row"
+                    >
+                      <select v-model="trans.from" class="di-transition-select di-transition-col-from">
+                        <option value="">-</option>
+                        <option v-for="e in masterForm.entries.filter(e => e.value)" :key="e.value" :value="e.value">{{ e.label || e.value }}</option>
+                      </select>
+                      <span class="di-transition-col-arrow">→</span>
+                      <select v-model="trans.to" class="di-transition-select di-transition-col-to">
+                        <option value="">-</option>
+                        <option v-for="e in masterForm.entries.filter(e => e.value)" :key="e.value" :value="e.value">{{ e.label || e.value }}</option>
+                      </select>
+                      <input v-model="trans.trigger" placeholder="トリガー" class="di-transition-input di-transition-col-trigger" />
+                      <input v-model="trans.condition" placeholder="条件" class="di-transition-input di-transition-col-condition" />
+                      <button @click="removeTransition(idx)" class="di-btn-icon di-btn-icon-danger">
+                        <X style="width: 12px; height: 12px;" />
+                      </button>
+                    </div>
+                  </div>
+                  <div v-else class="di-master-empty" style="margin-top: 4px; font-size: 11px;">
+                    状態遷移を定義（任意）
+                  </div>
                 </div>
 
                 <div class="di-master-editor-footer">
@@ -1009,9 +1236,184 @@ function handleFlowEdgeClick(selector: string) {
               </div>
             </div>
           </Teleport>
+        </div><!-- /masters tab -->
 
+        <!-- ===== BATCHES TAB ===== -->
+        <div v-show="activeTab === 'batches'">
+          <!-- Batch Definitions Section -->
+          <div class="di-section">
+            <div class="di-section-header" style="margin-bottom: 8px;">
+              <Clock style="width: 16px; height: 16px; color: #f59e0b;" />
+              <span>バッチ処理</span>
+              <span v-if="batchCount > 0" class="di-section-badge">{{ batchCount }}</span>
+              <button @click="startBatchEdit()" class="di-btn-icon" style="margin-left: auto;" title="新規追加">
+                <Plus style="width: 14px; height: 14px;" />
+              </button>
+            </div>
+
+            <template v-if="batchCount > 0">
+              <div
+                v-for="b in batchList"
+                :key="b.id"
+                class="di-batch-item"
+                @click="startBatchEdit(b.id)"
+              >
+                <div class="di-batch-item-info">
+                  <div class="di-batch-item-name">{{ b.name }}</div>
+                  <div v-if="b.schedule" class="di-batch-item-schedule">{{ b.schedule }}</div>
+                </div>
+              </div>
+            </template>
+            <div v-else class="di-batch-empty" @click="startBatchEdit()">
+              <span>バッチ処理を定義</span>
+            </div>
+          </div>
+
+          <!-- Batch Editor Modal -->
+          <Teleport to="body">
+            <div v-if="showBatchEditor" data-dev-inspector class="di-modal-overlay" @click.self="showBatchEditor = false">
+              <div class="di-batch-editor">
+                <div class="di-batch-editor-header">
+                  <h3>{{ editingBatchId ? 'バッチ処理を編集' : '新規バッチ処理' }}</h3>
+                  <button @click="showBatchEditor = false" class="di-close-btn">
+                    <X style="width: 16px; height: 16px;" />
+                  </button>
+                </div>
+
+                <div class="di-batch-editor-body">
+                  <!-- Basic Info -->
+                  <div class="di-batch-row">
+                    <div class="di-batch-field">
+                      <label>バッチ名 *</label>
+                      <input v-model="batchForm.name" placeholder="月次レポート生成" />
+                    </div>
+                    <div class="di-batch-field">
+                      <label>スケジュール</label>
+                      <input v-model="batchForm.schedule" placeholder="毎月1日 AM2:00" />
+                    </div>
+                  </div>
+                  <div class="di-batch-row">
+                    <div class="di-batch-field">
+                      <label>手動トリガー</label>
+                      <input v-model="batchForm.trigger" placeholder="管理画面から実行" />
+                    </div>
+                  </div>
+                  <div class="di-batch-field" style="margin-bottom: 12px;">
+                    <label>説明</label>
+                    <textarea v-model="batchForm.description" rows="2" placeholder="バッチ処理の概要..."></textarea>
+                  </div>
+
+                  <!-- Input/Output Tables -->
+                  <div class="di-batch-section-label">入出力テーブル</div>
+                  <div class="di-batch-row">
+                    <div class="di-batch-field">
+                      <label>入力テーブル</label>
+                      <div class="di-batch-tags-input">
+                        <span v-for="(t, i) in batchForm.inputTables" :key="i" class="di-batch-tag">
+                          {{ t }}
+                          <button @click="removeBatchInputTable(i)" class="di-batch-tag-remove">&times;</button>
+                        </span>
+                        <input
+                          v-model="batchInputTableInput"
+                          @keydown.enter.prevent="addBatchInputTable()"
+                          type="text"
+                          placeholder="テーブル名"
+                          class="di-batch-tag-input"
+                        />
+                      </div>
+                    </div>
+                    <div class="di-batch-field">
+                      <label>出力テーブル</label>
+                      <div class="di-batch-tags-input">
+                        <span v-for="(t, i) in batchForm.outputTables" :key="i" class="di-batch-tag">
+                          {{ t }}
+                          <button @click="removeBatchOutputTable(i)" class="di-batch-tag-remove">&times;</button>
+                        </span>
+                        <input
+                          v-model="batchOutputTableInput"
+                          @keydown.enter.prevent="addBatchOutputTable()"
+                          type="text"
+                          placeholder="テーブル名"
+                          class="di-batch-tag-input"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Processing Steps -->
+                  <div class="di-batch-section-label">
+                    処理ステップ
+                    <button @click="addBatchStep" class="di-btn-icon" style="margin-left: auto;" title="ステップ追加">
+                      <Plus style="width: 14px; height: 14px;" />
+                    </button>
+                  </div>
+                  <div v-if="batchForm.steps.length > 0">
+                    <div class="di-batch-steps-header">
+                      <span class="di-batch-step-no">No</span>
+                      <span class="di-batch-step-desc">処理内容</span>
+                      <span class="di-batch-step-target">対象</span>
+                      <span class="di-batch-step-type">種別</span>
+                      <span class="di-batch-step-error">エラー処理</span>
+                      <span class="di-batch-step-act"></span>
+                    </div>
+                    <div v-for="(step, idx) in batchForm.steps" :key="idx" class="di-batch-step-row">
+                      <span class="di-batch-step-no">{{ idx + 1 }}</span>
+                      <input v-model="step.description" placeholder="処理内容" class="di-batch-step-input di-batch-step-desc" />
+                      <input v-model="step.target" placeholder="対象テーブル" class="di-batch-step-input di-batch-step-target" />
+                      <select v-model="step.type" class="di-batch-step-select di-batch-step-type">
+                        <option value="">-</option>
+                        <option value="query">query</option>
+                        <option value="api">api</option>
+                        <option value="file">file</option>
+                        <option value="mail">mail</option>
+                        <option value="other">other</option>
+                      </select>
+                      <input v-model="step.errorHandling" placeholder="エラー時" class="di-batch-step-input di-batch-step-error" />
+                      <button @click="removeBatchStep(idx)" class="di-btn-icon di-btn-icon-danger">
+                        <X style="width: 12px; height: 12px;" />
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Operation Settings -->
+                  <div class="di-batch-section-label">運用設定</div>
+                  <div class="di-batch-row">
+                    <div class="di-batch-field">
+                      <label>タイムアウト</label>
+                      <input v-model="batchForm.timeout" placeholder="30分" />
+                    </div>
+                    <div class="di-batch-field">
+                      <label>リトライ</label>
+                      <input v-model="batchForm.retryPolicy" placeholder="3回まで、5分間隔" />
+                    </div>
+                  </div>
+                  <div class="di-batch-row">
+                    <div class="di-batch-field">
+                      <label>エラー通知先</label>
+                      <input v-model="batchForm.notifyOnError" placeholder="admin@example.com" />
+                    </div>
+                    <div class="di-batch-field">
+                      <label>完了通知先</label>
+                      <input v-model="batchForm.notifyOnComplete" placeholder="manager@example.com" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="di-batch-editor-footer">
+                  <button v-if="editingBatchId" @click="handleDeleteBatch(editingBatchId); showBatchEditor = false" class="di-btn-small di-btn-danger">削除</button>
+                  <div style="flex: 1;"></div>
+                  <button @click="showBatchEditor = false" class="di-btn-small">キャンセル</button>
+                  <button @click="saveBatchForm" class="di-btn-small di-btn-primary" :disabled="!batchForm.name">保存</button>
+                </div>
+              </div>
+            </div>
+          </Teleport>
+        </div><!-- /batches tab -->
+
+        <!-- ===== EXPORT TAB ===== -->
+        <div v-show="activeTab === 'export'">
           <!-- Export Buttons -->
-          <div v-if="elementCount > 0" class="di-export-buttons">
+          <div class="di-export-buttons">
             <button @click="downloadForGit" class="di-btn-green">
               <GitBranch style="width: 16px; height: 16px;" />
               Git管理用に保存
@@ -1029,7 +1431,7 @@ function handleFlowEdgeClick(selector: string) {
               納品用仕様書 (md)
             </button>
           </div>
-          <p v-if="elementCount > 0" class="di-export-hint">
+          <p class="di-export-hint">
             JSON: <code>dev-annotations.json</code> に配置してcommit
           </p>
 
@@ -1047,7 +1449,24 @@ function handleFlowEdgeClick(selector: string) {
               全削除
             </button>
           </div>
-        </div>
+
+          <!-- Summary stats -->
+          <div v-if="elementCount > 0 || masterCount > 0 || batchCount > 0" class="di-export-summary">
+            <div class="di-export-summary-title">登録状況</div>
+            <div class="di-export-summary-row">
+              <span>要素設定</span>
+              <span class="di-export-summary-count">{{ elementCount }}件</span>
+            </div>
+            <div class="di-export-summary-row">
+              <span>マスタ定義</span>
+              <span class="di-export-summary-count">{{ masterCount }}件</span>
+            </div>
+            <div class="di-export-summary-row">
+              <span>バッチ処理</span>
+              <span class="di-export-summary-count">{{ batchCount }}件</span>
+            </div>
+          </div>
+        </div><!-- /export tab -->
       </div>
 
       <!-- Footer -->
@@ -1190,6 +1609,52 @@ function handleFlowEdgeClick(selector: string) {
 }
 .di-close-btn:hover {
   background: #334155;
+}
+
+/* Tab Bar */
+.di-tab-bar {
+  display: flex;
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+  padding: 0 4px;
+  gap: 2px;
+}
+.di-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 4px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+.di-tab-btn:hover {
+  color: #94a3b8;
+  background: rgba(51, 65, 85, 0.3);
+}
+.di-tab-btn.active {
+  color: #60a5fa;
+  border-bottom-color: #60a5fa;
+}
+.di-tab-badge {
+  padding: 1px 5px;
+  background: #334155;
+  border-radius: 8px;
+  font-size: 9px;
+  color: #94a3b8;
+  line-height: 1.2;
+}
+.di-tab-btn.active .di-tab-badge {
+  background: rgba(96, 165, 250, 0.15);
+  color: #60a5fa;
 }
 
 /* Edit Section */
@@ -2864,5 +3329,337 @@ function handleFlowEdgeClick(selector: string) {
   background: #0f172a;
   border-radius: 3px;
   margin: 2px 3px 2px 0;
+}
+
+/* State Transitions */
+.di-transition-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+  font-size: 10px;
+  color: #64748b;
+  border-bottom: 1px solid #334155;
+  margin-bottom: 4px;
+}
+.di-transition-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 0;
+}
+.di-transition-col-from,
+.di-transition-col-to {
+  flex: 1;
+  min-width: 0;
+}
+.di-transition-col-arrow {
+  width: 20px;
+  text-align: center;
+  color: #64748b;
+  flex-shrink: 0;
+}
+.di-transition-col-trigger {
+  flex: 1.2;
+  min-width: 0;
+}
+.di-transition-col-condition {
+  flex: 1;
+  min-width: 0;
+}
+.di-transition-col-act {
+  width: 28px;
+  flex-shrink: 0;
+}
+.di-transition-select {
+  width: 100%;
+  padding: 4px 4px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: white;
+  font-size: 11px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.di-transition-select:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+.di-transition-input {
+  width: 100%;
+  padding: 4px 6px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: white;
+  font-size: 11px;
+  box-sizing: border-box;
+}
+.di-transition-input:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+
+/* Batch Processing */
+.di-batch-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  background: rgba(15, 23, 42, 0.6);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-bottom: 4px;
+}
+.di-batch-item:hover {
+  background: rgba(30, 41, 59, 0.8);
+}
+.di-batch-item-info {
+  flex: 1;
+  min-width: 0;
+}
+.di-batch-item-name {
+  font-size: 12px;
+  color: #e2e8f0;
+  font-weight: 500;
+}
+.di-batch-item-schedule {
+  font-size: 10px;
+  color: #64748b;
+}
+.di-batch-empty {
+  padding: 8px;
+  text-align: center;
+  color: #64748b;
+  font-size: 11px;
+  cursor: pointer;
+  border-radius: 6px;
+  border: 1px dashed #334155;
+  transition: border-color 0.2s;
+}
+.di-batch-empty:hover {
+  border-color: #60a5fa;
+  color: #94a3b8;
+}
+.di-batch-editor {
+  background: #1e293b;
+  border-radius: 12px;
+  width: 600px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+.di-batch-editor-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid #334155;
+}
+.di-batch-editor-header h3 {
+  margin: 0;
+  font-size: 14px;
+  color: white;
+}
+.di-batch-editor-body {
+  padding: 16px;
+}
+.di-batch-editor-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #334155;
+}
+.di-batch-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.di-batch-field {
+  flex: 1;
+}
+.di-batch-field label {
+  display: block;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-bottom: 4px;
+}
+.di-batch-field input,
+.di-batch-field textarea,
+.di-batch-field select {
+  width: 100%;
+  padding: 6px 8px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  color: white;
+  font-size: 12px;
+  box-sizing: border-box;
+}
+.di-batch-field input:focus,
+.di-batch-field textarea:focus,
+.di-batch-field select:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+.di-batch-field textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+.di-batch-tags-input {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  min-height: 32px;
+}
+.di-batch-tags-input:focus-within {
+  border-color: #60a5fa;
+}
+.di-batch-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  padding: 2px 6px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 3px;
+  font-size: 10px;
+  color: #93c5fd;
+}
+.di-batch-tag-remove {
+  background: none;
+  border: none;
+  color: #93c5fd;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1;
+}
+.di-batch-tag-remove:hover {
+  color: #ef4444;
+}
+.di-batch-tag-input {
+  flex: 1;
+  min-width: 80px;
+  border: none;
+  background: transparent;
+  color: white;
+  font-size: 11px;
+  outline: none;
+}
+.di-batch-steps-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+  font-size: 10px;
+  color: #64748b;
+  border-bottom: 1px solid #334155;
+  margin-bottom: 4px;
+}
+.di-batch-step-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 0;
+}
+.di-batch-step-no {
+  width: 28px;
+  flex-shrink: 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 11px;
+}
+.di-batch-step-desc {
+  flex: 2;
+  min-width: 0;
+}
+.di-batch-step-target {
+  flex: 1;
+  min-width: 0;
+}
+.di-batch-step-type {
+  width: 72px;
+  flex-shrink: 0;
+}
+.di-batch-step-error {
+  flex: 1;
+  min-width: 0;
+}
+.di-batch-step-act {
+  width: 28px;
+  flex-shrink: 0;
+}
+.di-batch-step-input {
+  width: 100%;
+  padding: 4px 6px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: white;
+  font-size: 11px;
+  box-sizing: border-box;
+}
+.di-batch-step-input:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+.di-batch-step-select {
+  width: 100%;
+  padding: 4px 4px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: white;
+  font-size: 10px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.di-batch-step-select:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+.di-batch-section-label {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+  margin: 12px 0 8px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid #334155;
+}
+
+/* Export Summary */
+.di-export-summary {
+  margin-top: 16px;
+  padding: 12px;
+  background: #1e293b;
+  border-radius: 8px;
+}
+.di-export-summary-title {
+  font-size: 11px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin-bottom: 8px;
+}
+.di-export-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  font-size: 12px;
+  color: #cbd5e1;
+}
+.di-export-summary-count {
+  color: #60a5fa;
+  font-weight: 600;
 }
 </style>

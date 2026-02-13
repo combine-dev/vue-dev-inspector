@@ -33,11 +33,13 @@ declare type __VLS_WithDefaults<P, D> = {
 };
 
 export declare interface ActionInfo {
-    type: 'navigate' | 'api' | 'modal' | 'emit' | 'function';
+    type: 'navigate' | 'api' | 'modal' | 'emit' | 'function' | 'csv_export' | 'csv_import' | 'email';
     target?: string;
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     description?: string;
     params?: Record<string, string>;
+    csvSpec?: CsvSpec;
+    emailSpec?: EmailSpec;
 }
 
 export declare interface AnalyzedElement {
@@ -66,6 +68,30 @@ export declare interface AnalyzedElement {
     };
     component?: string;
     line?: number;
+}
+
+declare interface BatchDefinition {
+    id: string;
+    name: string;
+    schedule?: string;
+    trigger?: string;
+    description?: string;
+    inputTables?: string[];
+    outputTables?: string[];
+    steps: BatchStep[];
+    timeout?: string;
+    retryPolicy?: string;
+    notifyOnError?: string;
+    notifyOnComplete?: string;
+    updatedAt: string;
+}
+
+declare interface BatchStep {
+    order: number;
+    description: string;
+    target?: string;
+    type?: 'query' | 'api' | 'file' | 'mail' | 'other';
+    errorHandling?: string;
 }
 
 declare interface BindingCandidate {
@@ -100,6 +126,40 @@ export declare interface CrossSearchResult {
     elementType?: 'datasource' | 'action' | 'form';
     matchedField: string;
     matchContext: string;
+}
+
+declare interface CsvColumnDef {
+    name: string;
+    dbMapping?: string;
+    processing?: string;
+    type?: string;
+    required?: boolean;
+    validation?: string;
+    format?: string;
+    defaultValue?: string;
+    description?: string;
+}
+
+declare interface CsvErrorDef {
+    condition: string;
+    message: string;
+    column?: string;
+    severity?: 'error' | 'warning';
+}
+
+declare interface CsvSpec {
+    columns: CsvColumnDef[];
+    encoding?: 'UTF-8' | 'Shift_JIS' | 'EUC-JP' | 'UTF-8 BOM';
+    delimiter?: ',' | '\t' | '|';
+    hasHeaderRow?: boolean;
+    filenamePattern?: string;
+    sortOrder?: string;
+    filterCondition?: string;
+    maxRows?: number;
+    errorHandling?: 'stop_on_first' | 'skip_and_continue' | 'collect_all';
+    duplicateHandling?: 'skip' | 'overwrite' | 'error';
+    preValidation?: string;
+    errorDefs?: CsvErrorDef[];
 }
 
 declare interface DbColumnSchema {
@@ -223,6 +283,20 @@ export declare interface ElementNote {
 
 declare type ElementTag = 'db' | 'form' | 'button' | 'link' | 'modal' | 'conditional' | 'computed' | 'api';
 
+declare interface EmailSpec {
+    trigger: string;
+    to: string;
+    cc?: string;
+    bcc?: string;
+    subject: string;
+    bodyTemplate?: string;
+    templatePath?: string;
+    variables?: string[];
+    attachments?: string;
+    conditions?: string;
+    errorHandling?: string;
+}
+
 export declare interface FieldInfo {
     table: string;
     column: string;
@@ -258,6 +332,7 @@ export declare interface MasterDefinition {
     columnType?: string;
     description?: string;
     entries: MasterEntry[];
+    transitions?: StateTransition[];
     updatedAt: string;
 }
 
@@ -363,6 +438,14 @@ export declare interface SourceBindingInfo {
     isStatic?: boolean;
 }
 
+declare interface StateTransition {
+    from: string;
+    to: string;
+    trigger: string;
+    condition?: string;
+    description?: string;
+}
+
 export declare interface UnannotatedElement {
     selector: string;
     tagName: string;
@@ -463,11 +546,53 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
+csvSpec?: {
+columns: {
+name: string;
+dbMapping?: string | undefined;
+processing?: string | undefined;
+type?: string | undefined;
+required?: boolean | undefined;
+validation?: string | undefined;
+format?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+}[];
+encoding?: "UTF-8" | "Shift_JIS" | "EUC-JP" | "UTF-8 BOM" | undefined;
+delimiter?: "," | "\t" | "|" | undefined;
+hasHeaderRow?: boolean | undefined;
+filenamePattern?: string | undefined;
+sortOrder?: string | undefined;
+filterCondition?: string | undefined;
+maxRows?: number | undefined;
+errorHandling?: "stop_on_first" | "skip_and_continue" | "collect_all" | undefined;
+duplicateHandling?: "skip" | "overwrite" | "error" | undefined;
+preValidation?: string | undefined;
+errorDefs?: {
+condition: string;
+message: string;
+column?: string | undefined;
+severity?: "error" | "warning" | undefined;
+}[] | undefined;
+} | undefined;
+emailSpec?: {
+trigger: string;
+to: string;
+cc?: string | undefined;
+bcc?: string | undefined;
+subject: string;
+bodyTemplate?: string | undefined;
+templatePath?: string | undefined;
+variables?: string[] | undefined;
+attachments?: string | undefined;
+conditions?: string | undefined;
+errorHandling?: string | undefined;
+} | undefined;
 } | undefined;
 formInfo?: {
 inputType?: string | undefined;
@@ -552,11 +677,53 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
+csvSpec?: {
+columns: {
+name: string;
+dbMapping?: string | undefined;
+processing?: string | undefined;
+type?: string | undefined;
+required?: boolean | undefined;
+validation?: string | undefined;
+format?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+}[];
+encoding?: "UTF-8" | "Shift_JIS" | "EUC-JP" | "UTF-8 BOM" | undefined;
+delimiter?: "," | "\t" | "|" | undefined;
+hasHeaderRow?: boolean | undefined;
+filenamePattern?: string | undefined;
+sortOrder?: string | undefined;
+filterCondition?: string | undefined;
+maxRows?: number | undefined;
+errorHandling?: "stop_on_first" | "skip_and_continue" | "collect_all" | undefined;
+duplicateHandling?: "skip" | "overwrite" | "error" | undefined;
+preValidation?: string | undefined;
+errorDefs?: {
+condition: string;
+message: string;
+column?: string | undefined;
+severity?: "error" | "warning" | undefined;
+}[] | undefined;
+} | undefined;
+emailSpec?: {
+trigger: string;
+to: string;
+cc?: string | undefined;
+bcc?: string | undefined;
+subject: string;
+bodyTemplate?: string | undefined;
+templatePath?: string | undefined;
+variables?: string[] | undefined;
+attachments?: string | undefined;
+conditions?: string | undefined;
+errorHandling?: string | undefined;
+} | undefined;
 } | undefined;
 formInfo?: {
 inputType?: string | undefined;
@@ -763,6 +930,10 @@ setMasterDefinition: (def: MasterDefinition) => void;
 deleteMasterDefinition: (id: string) => void;
 getMastersForTable: (table: string) => MasterDefinition[];
 getMasterEntries: (tableColumn: string) => MasterEntry[];
+batchDefinitions: Ref<Record<string, BatchDefinition>, Record<string, BatchDefinition>>;
+getBatchDefinition: (id: string) => BatchDefinition | undefined;
+setBatchDefinition: (def: BatchDefinition) => void;
+deleteBatchDefinition: (id: string) => void;
 brokenAnnotations: Ref<string[], string[]>;
 remapTargetId: Ref<string | null, string | null>;
 detectBrokenAnnotations: () => string[];
@@ -796,7 +967,7 @@ nodes: ScreenFlowNode[];
 edges: ScreenFlowEdge[];
 orphanPages: ScreenFlowNode[];
 }>;
-}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "screenConfigs" | "editingScreen" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter" | "showNoteHighlights" | "noteHighlightFilter" | "masterDefinitions" | "brokenAnnotations" | "remapTargetId" | "showCrossSearch" | "crossSearchQuery" | "crossSearchMode" | "showUnannotatedDetection" | "unannotatedElements" | "hoveredUnannotatedSelector" | "showScreenFlow">, Pick<{
+}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "screenConfigs" | "editingScreen" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter" | "showNoteHighlights" | "noteHighlightFilter" | "masterDefinitions" | "batchDefinitions" | "brokenAnnotations" | "remapTargetId" | "showCrossSearch" | "crossSearchQuery" | "crossSearchMode" | "showUnannotatedDetection" | "unannotatedElements" | "hoveredUnannotatedSelector" | "showScreenFlow">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -888,11 +1059,53 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
+csvSpec?: {
+columns: {
+name: string;
+dbMapping?: string | undefined;
+processing?: string | undefined;
+type?: string | undefined;
+required?: boolean | undefined;
+validation?: string | undefined;
+format?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+}[];
+encoding?: "UTF-8" | "Shift_JIS" | "EUC-JP" | "UTF-8 BOM" | undefined;
+delimiter?: "," | "\t" | "|" | undefined;
+hasHeaderRow?: boolean | undefined;
+filenamePattern?: string | undefined;
+sortOrder?: string | undefined;
+filterCondition?: string | undefined;
+maxRows?: number | undefined;
+errorHandling?: "stop_on_first" | "skip_and_continue" | "collect_all" | undefined;
+duplicateHandling?: "skip" | "overwrite" | "error" | undefined;
+preValidation?: string | undefined;
+errorDefs?: {
+condition: string;
+message: string;
+column?: string | undefined;
+severity?: "error" | "warning" | undefined;
+}[] | undefined;
+} | undefined;
+emailSpec?: {
+trigger: string;
+to: string;
+cc?: string | undefined;
+bcc?: string | undefined;
+subject: string;
+bodyTemplate?: string | undefined;
+templatePath?: string | undefined;
+variables?: string[] | undefined;
+attachments?: string | undefined;
+conditions?: string | undefined;
+errorHandling?: string | undefined;
+} | undefined;
 } | undefined;
 formInfo?: {
 inputType?: string | undefined;
@@ -977,11 +1190,53 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
+csvSpec?: {
+columns: {
+name: string;
+dbMapping?: string | undefined;
+processing?: string | undefined;
+type?: string | undefined;
+required?: boolean | undefined;
+validation?: string | undefined;
+format?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+}[];
+encoding?: "UTF-8" | "Shift_JIS" | "EUC-JP" | "UTF-8 BOM" | undefined;
+delimiter?: "," | "\t" | "|" | undefined;
+hasHeaderRow?: boolean | undefined;
+filenamePattern?: string | undefined;
+sortOrder?: string | undefined;
+filterCondition?: string | undefined;
+maxRows?: number | undefined;
+errorHandling?: "stop_on_first" | "skip_and_continue" | "collect_all" | undefined;
+duplicateHandling?: "skip" | "overwrite" | "error" | undefined;
+preValidation?: string | undefined;
+errorDefs?: {
+condition: string;
+message: string;
+column?: string | undefined;
+severity?: "error" | "warning" | undefined;
+}[] | undefined;
+} | undefined;
+emailSpec?: {
+trigger: string;
+to: string;
+cc?: string | undefined;
+bcc?: string | undefined;
+subject: string;
+bodyTemplate?: string | undefined;
+templatePath?: string | undefined;
+variables?: string[] | undefined;
+attachments?: string | undefined;
+conditions?: string | undefined;
+errorHandling?: string | undefined;
+} | undefined;
 } | undefined;
 formInfo?: {
 inputType?: string | undefined;
@@ -1188,6 +1443,10 @@ setMasterDefinition: (def: MasterDefinition) => void;
 deleteMasterDefinition: (id: string) => void;
 getMastersForTable: (table: string) => MasterDefinition[];
 getMasterEntries: (tableColumn: string) => MasterEntry[];
+batchDefinitions: Ref<Record<string, BatchDefinition>, Record<string, BatchDefinition>>;
+getBatchDefinition: (id: string) => BatchDefinition | undefined;
+setBatchDefinition: (def: BatchDefinition) => void;
+deleteBatchDefinition: (id: string) => void;
 brokenAnnotations: Ref<string[], string[]>;
 remapTargetId: Ref<string | null, string | null>;
 detectBrokenAnnotations: () => string[];
@@ -1313,11 +1572,53 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
+csvSpec?: {
+columns: {
+name: string;
+dbMapping?: string | undefined;
+processing?: string | undefined;
+type?: string | undefined;
+required?: boolean | undefined;
+validation?: string | undefined;
+format?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+}[];
+encoding?: "UTF-8" | "Shift_JIS" | "EUC-JP" | "UTF-8 BOM" | undefined;
+delimiter?: "," | "\t" | "|" | undefined;
+hasHeaderRow?: boolean | undefined;
+filenamePattern?: string | undefined;
+sortOrder?: string | undefined;
+filterCondition?: string | undefined;
+maxRows?: number | undefined;
+errorHandling?: "stop_on_first" | "skip_and_continue" | "collect_all" | undefined;
+duplicateHandling?: "skip" | "overwrite" | "error" | undefined;
+preValidation?: string | undefined;
+errorDefs?: {
+condition: string;
+message: string;
+column?: string | undefined;
+severity?: "error" | "warning" | undefined;
+}[] | undefined;
+} | undefined;
+emailSpec?: {
+trigger: string;
+to: string;
+cc?: string | undefined;
+bcc?: string | undefined;
+subject: string;
+bodyTemplate?: string | undefined;
+templatePath?: string | undefined;
+variables?: string[] | undefined;
+attachments?: string | undefined;
+conditions?: string | undefined;
+errorHandling?: string | undefined;
+} | undefined;
 } | undefined;
 formInfo?: {
 inputType?: string | undefined;
@@ -1402,11 +1703,53 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
+csvSpec?: {
+columns: {
+name: string;
+dbMapping?: string | undefined;
+processing?: string | undefined;
+type?: string | undefined;
+required?: boolean | undefined;
+validation?: string | undefined;
+format?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+}[];
+encoding?: "UTF-8" | "Shift_JIS" | "EUC-JP" | "UTF-8 BOM" | undefined;
+delimiter?: "," | "\t" | "|" | undefined;
+hasHeaderRow?: boolean | undefined;
+filenamePattern?: string | undefined;
+sortOrder?: string | undefined;
+filterCondition?: string | undefined;
+maxRows?: number | undefined;
+errorHandling?: "stop_on_first" | "skip_and_continue" | "collect_all" | undefined;
+duplicateHandling?: "skip" | "overwrite" | "error" | undefined;
+preValidation?: string | undefined;
+errorDefs?: {
+condition: string;
+message: string;
+column?: string | undefined;
+severity?: "error" | "warning" | undefined;
+}[] | undefined;
+} | undefined;
+emailSpec?: {
+trigger: string;
+to: string;
+cc?: string | undefined;
+bcc?: string | undefined;
+subject: string;
+bodyTemplate?: string | undefined;
+templatePath?: string | undefined;
+variables?: string[] | undefined;
+attachments?: string | undefined;
+conditions?: string | undefined;
+errorHandling?: string | undefined;
+} | undefined;
 } | undefined;
 formInfo?: {
 inputType?: string | undefined;
@@ -1613,6 +1956,10 @@ setMasterDefinition: (def: MasterDefinition) => void;
 deleteMasterDefinition: (id: string) => void;
 getMastersForTable: (table: string) => MasterDefinition[];
 getMasterEntries: (tableColumn: string) => MasterEntry[];
+batchDefinitions: Ref<Record<string, BatchDefinition>, Record<string, BatchDefinition>>;
+getBatchDefinition: (id: string) => BatchDefinition | undefined;
+setBatchDefinition: (def: BatchDefinition) => void;
+deleteBatchDefinition: (id: string) => void;
 brokenAnnotations: Ref<string[], string[]>;
 remapTargetId: Ref<string | null, string | null>;
 detectBrokenAnnotations: () => string[];
@@ -1646,7 +1993,7 @@ nodes: ScreenFlowNode[];
 edges: ScreenFlowEdge[];
 orphanPages: ScreenFlowNode[];
 }>;
-}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "downloadSddSpec" | "downloadClientSpec" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "detectBrokenAnnotations" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate">>;
+}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "downloadSddSpec" | "downloadClientSpec" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "getBatchDefinition" | "setBatchDefinition" | "deleteBatchDefinition" | "detectBrokenAnnotations" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate">>;
 
 export declare const useDevInspectorStore: StoreDefinition<"devInspector", Pick<{
 isEnabled: Ref<boolean, boolean>;
@@ -1740,11 +2087,53 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
+csvSpec?: {
+columns: {
+name: string;
+dbMapping?: string | undefined;
+processing?: string | undefined;
+type?: string | undefined;
+required?: boolean | undefined;
+validation?: string | undefined;
+format?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+}[];
+encoding?: "UTF-8" | "Shift_JIS" | "EUC-JP" | "UTF-8 BOM" | undefined;
+delimiter?: "," | "\t" | "|" | undefined;
+hasHeaderRow?: boolean | undefined;
+filenamePattern?: string | undefined;
+sortOrder?: string | undefined;
+filterCondition?: string | undefined;
+maxRows?: number | undefined;
+errorHandling?: "stop_on_first" | "skip_and_continue" | "collect_all" | undefined;
+duplicateHandling?: "skip" | "overwrite" | "error" | undefined;
+preValidation?: string | undefined;
+errorDefs?: {
+condition: string;
+message: string;
+column?: string | undefined;
+severity?: "error" | "warning" | undefined;
+}[] | undefined;
+} | undefined;
+emailSpec?: {
+trigger: string;
+to: string;
+cc?: string | undefined;
+bcc?: string | undefined;
+subject: string;
+bodyTemplate?: string | undefined;
+templatePath?: string | undefined;
+variables?: string[] | undefined;
+attachments?: string | undefined;
+conditions?: string | undefined;
+errorHandling?: string | undefined;
+} | undefined;
 } | undefined;
 formInfo?: {
 inputType?: string | undefined;
@@ -1829,11 +2218,53 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
+csvSpec?: {
+columns: {
+name: string;
+dbMapping?: string | undefined;
+processing?: string | undefined;
+type?: string | undefined;
+required?: boolean | undefined;
+validation?: string | undefined;
+format?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+}[];
+encoding?: "UTF-8" | "Shift_JIS" | "EUC-JP" | "UTF-8 BOM" | undefined;
+delimiter?: "," | "\t" | "|" | undefined;
+hasHeaderRow?: boolean | undefined;
+filenamePattern?: string | undefined;
+sortOrder?: string | undefined;
+filterCondition?: string | undefined;
+maxRows?: number | undefined;
+errorHandling?: "stop_on_first" | "skip_and_continue" | "collect_all" | undefined;
+duplicateHandling?: "skip" | "overwrite" | "error" | undefined;
+preValidation?: string | undefined;
+errorDefs?: {
+condition: string;
+message: string;
+column?: string | undefined;
+severity?: "error" | "warning" | undefined;
+}[] | undefined;
+} | undefined;
+emailSpec?: {
+trigger: string;
+to: string;
+cc?: string | undefined;
+bcc?: string | undefined;
+subject: string;
+bodyTemplate?: string | undefined;
+templatePath?: string | undefined;
+variables?: string[] | undefined;
+attachments?: string | undefined;
+conditions?: string | undefined;
+errorHandling?: string | undefined;
+} | undefined;
 } | undefined;
 formInfo?: {
 inputType?: string | undefined;
@@ -2040,6 +2471,10 @@ setMasterDefinition: (def: MasterDefinition) => void;
 deleteMasterDefinition: (id: string) => void;
 getMastersForTable: (table: string) => MasterDefinition[];
 getMasterEntries: (tableColumn: string) => MasterEntry[];
+batchDefinitions: Ref<Record<string, BatchDefinition>, Record<string, BatchDefinition>>;
+getBatchDefinition: (id: string) => BatchDefinition | undefined;
+setBatchDefinition: (def: BatchDefinition) => void;
+deleteBatchDefinition: (id: string) => void;
 brokenAnnotations: Ref<string[], string[]>;
 remapTargetId: Ref<string | null, string | null>;
 detectBrokenAnnotations: () => string[];
@@ -2073,7 +2508,7 @@ nodes: ScreenFlowNode[];
 edges: ScreenFlowEdge[];
 orphanPages: ScreenFlowNode[];
 }>;
-}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "screenConfigs" | "editingScreen" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter" | "showNoteHighlights" | "noteHighlightFilter" | "masterDefinitions" | "brokenAnnotations" | "remapTargetId" | "showCrossSearch" | "crossSearchQuery" | "crossSearchMode" | "showUnannotatedDetection" | "unannotatedElements" | "hoveredUnannotatedSelector" | "showScreenFlow">, Pick<{
+}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "screenConfigs" | "editingScreen" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter" | "showNoteHighlights" | "noteHighlightFilter" | "masterDefinitions" | "batchDefinitions" | "brokenAnnotations" | "remapTargetId" | "showCrossSearch" | "crossSearchQuery" | "crossSearchMode" | "showUnannotatedDetection" | "unannotatedElements" | "hoveredUnannotatedSelector" | "showScreenFlow">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -2165,11 +2600,53 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
+csvSpec?: {
+columns: {
+name: string;
+dbMapping?: string | undefined;
+processing?: string | undefined;
+type?: string | undefined;
+required?: boolean | undefined;
+validation?: string | undefined;
+format?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+}[];
+encoding?: "UTF-8" | "Shift_JIS" | "EUC-JP" | "UTF-8 BOM" | undefined;
+delimiter?: "," | "\t" | "|" | undefined;
+hasHeaderRow?: boolean | undefined;
+filenamePattern?: string | undefined;
+sortOrder?: string | undefined;
+filterCondition?: string | undefined;
+maxRows?: number | undefined;
+errorHandling?: "stop_on_first" | "skip_and_continue" | "collect_all" | undefined;
+duplicateHandling?: "skip" | "overwrite" | "error" | undefined;
+preValidation?: string | undefined;
+errorDefs?: {
+condition: string;
+message: string;
+column?: string | undefined;
+severity?: "error" | "warning" | undefined;
+}[] | undefined;
+} | undefined;
+emailSpec?: {
+trigger: string;
+to: string;
+cc?: string | undefined;
+bcc?: string | undefined;
+subject: string;
+bodyTemplate?: string | undefined;
+templatePath?: string | undefined;
+variables?: string[] | undefined;
+attachments?: string | undefined;
+conditions?: string | undefined;
+errorHandling?: string | undefined;
+} | undefined;
 } | undefined;
 formInfo?: {
 inputType?: string | undefined;
@@ -2254,11 +2731,53 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
+csvSpec?: {
+columns: {
+name: string;
+dbMapping?: string | undefined;
+processing?: string | undefined;
+type?: string | undefined;
+required?: boolean | undefined;
+validation?: string | undefined;
+format?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+}[];
+encoding?: "UTF-8" | "Shift_JIS" | "EUC-JP" | "UTF-8 BOM" | undefined;
+delimiter?: "," | "\t" | "|" | undefined;
+hasHeaderRow?: boolean | undefined;
+filenamePattern?: string | undefined;
+sortOrder?: string | undefined;
+filterCondition?: string | undefined;
+maxRows?: number | undefined;
+errorHandling?: "stop_on_first" | "skip_and_continue" | "collect_all" | undefined;
+duplicateHandling?: "skip" | "overwrite" | "error" | undefined;
+preValidation?: string | undefined;
+errorDefs?: {
+condition: string;
+message: string;
+column?: string | undefined;
+severity?: "error" | "warning" | undefined;
+}[] | undefined;
+} | undefined;
+emailSpec?: {
+trigger: string;
+to: string;
+cc?: string | undefined;
+bcc?: string | undefined;
+subject: string;
+bodyTemplate?: string | undefined;
+templatePath?: string | undefined;
+variables?: string[] | undefined;
+attachments?: string | undefined;
+conditions?: string | undefined;
+errorHandling?: string | undefined;
+} | undefined;
 } | undefined;
 formInfo?: {
 inputType?: string | undefined;
@@ -2465,6 +2984,10 @@ setMasterDefinition: (def: MasterDefinition) => void;
 deleteMasterDefinition: (id: string) => void;
 getMastersForTable: (table: string) => MasterDefinition[];
 getMasterEntries: (tableColumn: string) => MasterEntry[];
+batchDefinitions: Ref<Record<string, BatchDefinition>, Record<string, BatchDefinition>>;
+getBatchDefinition: (id: string) => BatchDefinition | undefined;
+setBatchDefinition: (def: BatchDefinition) => void;
+deleteBatchDefinition: (id: string) => void;
 brokenAnnotations: Ref<string[], string[]>;
 remapTargetId: Ref<string | null, string | null>;
 detectBrokenAnnotations: () => string[];
@@ -2590,11 +3113,53 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
+csvSpec?: {
+columns: {
+name: string;
+dbMapping?: string | undefined;
+processing?: string | undefined;
+type?: string | undefined;
+required?: boolean | undefined;
+validation?: string | undefined;
+format?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+}[];
+encoding?: "UTF-8" | "Shift_JIS" | "EUC-JP" | "UTF-8 BOM" | undefined;
+delimiter?: "," | "\t" | "|" | undefined;
+hasHeaderRow?: boolean | undefined;
+filenamePattern?: string | undefined;
+sortOrder?: string | undefined;
+filterCondition?: string | undefined;
+maxRows?: number | undefined;
+errorHandling?: "stop_on_first" | "skip_and_continue" | "collect_all" | undefined;
+duplicateHandling?: "skip" | "overwrite" | "error" | undefined;
+preValidation?: string | undefined;
+errorDefs?: {
+condition: string;
+message: string;
+column?: string | undefined;
+severity?: "error" | "warning" | undefined;
+}[] | undefined;
+} | undefined;
+emailSpec?: {
+trigger: string;
+to: string;
+cc?: string | undefined;
+bcc?: string | undefined;
+subject: string;
+bodyTemplate?: string | undefined;
+templatePath?: string | undefined;
+variables?: string[] | undefined;
+attachments?: string | undefined;
+conditions?: string | undefined;
+errorHandling?: string | undefined;
+} | undefined;
 } | undefined;
 formInfo?: {
 inputType?: string | undefined;
@@ -2679,11 +3244,53 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
 params?: Record<string, string> | undefined;
+csvSpec?: {
+columns: {
+name: string;
+dbMapping?: string | undefined;
+processing?: string | undefined;
+type?: string | undefined;
+required?: boolean | undefined;
+validation?: string | undefined;
+format?: string | undefined;
+defaultValue?: string | undefined;
+description?: string | undefined;
+}[];
+encoding?: "UTF-8" | "Shift_JIS" | "EUC-JP" | "UTF-8 BOM" | undefined;
+delimiter?: "," | "\t" | "|" | undefined;
+hasHeaderRow?: boolean | undefined;
+filenamePattern?: string | undefined;
+sortOrder?: string | undefined;
+filterCondition?: string | undefined;
+maxRows?: number | undefined;
+errorHandling?: "stop_on_first" | "skip_and_continue" | "collect_all" | undefined;
+duplicateHandling?: "skip" | "overwrite" | "error" | undefined;
+preValidation?: string | undefined;
+errorDefs?: {
+condition: string;
+message: string;
+column?: string | undefined;
+severity?: "error" | "warning" | undefined;
+}[] | undefined;
+} | undefined;
+emailSpec?: {
+trigger: string;
+to: string;
+cc?: string | undefined;
+bcc?: string | undefined;
+subject: string;
+bodyTemplate?: string | undefined;
+templatePath?: string | undefined;
+variables?: string[] | undefined;
+attachments?: string | undefined;
+conditions?: string | undefined;
+errorHandling?: string | undefined;
+} | undefined;
 } | undefined;
 formInfo?: {
 inputType?: string | undefined;
@@ -2890,6 +3497,10 @@ setMasterDefinition: (def: MasterDefinition) => void;
 deleteMasterDefinition: (id: string) => void;
 getMastersForTable: (table: string) => MasterDefinition[];
 getMasterEntries: (tableColumn: string) => MasterEntry[];
+batchDefinitions: Ref<Record<string, BatchDefinition>, Record<string, BatchDefinition>>;
+getBatchDefinition: (id: string) => BatchDefinition | undefined;
+setBatchDefinition: (def: BatchDefinition) => void;
+deleteBatchDefinition: (id: string) => void;
 brokenAnnotations: Ref<string[], string[]>;
 remapTargetId: Ref<string | null, string | null>;
 detectBrokenAnnotations: () => string[];
@@ -2923,7 +3534,7 @@ nodes: ScreenFlowNode[];
 edges: ScreenFlowEdge[];
 orphanPages: ScreenFlowNode[];
 }>;
-}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "downloadSddSpec" | "downloadClientSpec" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "detectBrokenAnnotations" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate">>;
+}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "downloadSddSpec" | "downloadClientSpec" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "getBatchDefinition" | "setBatchDefinition" | "deleteBatchDefinition" | "detectBrokenAnnotations" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate">>;
 
 export declare function vitePluginDevInspector(options?: DevInspectorVitePluginOptions): Plugin_3;
 

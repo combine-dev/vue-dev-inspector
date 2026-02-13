@@ -1,9 +1,11 @@
 declare interface ActionInfo {
-    type: 'navigate' | 'api' | 'modal' | 'emit' | 'function';
+    type: 'navigate' | 'api' | 'modal' | 'emit' | 'function' | 'csv_export' | 'csv_import' | 'email';
     target?: string;
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     description?: string;
     params?: Record<string, string>;
+    csvSpec?: CsvSpec;
+    emailSpec?: EmailSpec;
 }
 
 declare interface AnalyzedElement {
@@ -41,6 +43,40 @@ declare interface ComponentApi {
     loadTrigger: LoadTrigger;
     variable?: string;
     responseType?: string;
+}
+
+declare interface CsvColumnDef {
+    name: string;
+    dbMapping?: string;
+    processing?: string;
+    type?: string;
+    required?: boolean;
+    validation?: string;
+    format?: string;
+    defaultValue?: string;
+    description?: string;
+}
+
+declare interface CsvErrorDef {
+    condition: string;
+    message: string;
+    column?: string;
+    severity?: 'error' | 'warning';
+}
+
+declare interface CsvSpec {
+    columns: CsvColumnDef[];
+    encoding?: 'UTF-8' | 'Shift_JIS' | 'EUC-JP' | 'UTF-8 BOM';
+    delimiter?: ',' | '\t' | '|';
+    hasHeaderRow?: boolean;
+    filenamePattern?: string;
+    sortOrder?: string;
+    filterCondition?: string;
+    maxRows?: number;
+    errorHandling?: 'stop_on_first' | 'skip_and_continue' | 'collect_all';
+    duplicateHandling?: 'skip' | 'overwrite' | 'error';
+    preValidation?: string;
+    errorDefs?: CsvErrorDef[];
 }
 
 declare interface DbColumnSchema {
@@ -122,6 +158,20 @@ declare interface ElementNote {
 }
 
 declare type ElementTag = 'db' | 'form' | 'button' | 'link' | 'modal' | 'conditional' | 'computed' | 'api';
+
+declare interface EmailSpec {
+    trigger: string;
+    to: string;
+    cc?: string;
+    bcc?: string;
+    subject: string;
+    bodyTemplate?: string;
+    templatePath?: string;
+    variables?: string[];
+    attachments?: string;
+    conditions?: string;
+    errorHandling?: string;
+}
 
 declare interface FieldInfo {
     table: string;

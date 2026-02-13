@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { X, Database, Save, Trash2, MessageSquare, Wand2, Calculator, Type, ShieldQuestion, Zap, FormInput, Plus, List } from 'lucide-vue-next'
-import { useDevInspectorStore, type FieldInfo, type ElementNote, type SourceBindingInfo, type ActionInfo, type FormInfo, type MasterEntry } from '../composables/useDevInspector'
+import { X, Database, Save, Trash2, MessageSquare, Wand2, Calculator, Type, ShieldQuestion, Zap, FormInput, List, ChevronUp, ChevronDown, FileSpreadsheet, Mail } from 'lucide-vue-next'
+import { useDevInspectorStore, type FieldInfo, type ElementNote, type SourceBindingInfo, type ActionInfo, type FormInfo, type MasterEntry, type CsvColumnDef, type CsvSpec, type CsvErrorDef, type EmailSpec } from '../composables/useDevInspector'
 
 const store = useDevInspectorStore()
 
@@ -22,6 +22,34 @@ const formValidationInput = ref('')
 const formPlaceholder = ref('')
 const formDefaultValue = ref('')
 const formDescription = ref('')
+
+// CSV spec refs
+const csvColumns = ref<CsvColumnDef[]>([])
+const csvEncoding = ref<CsvSpec['encoding']>('UTF-8')
+const csvDelimiter = ref<CsvSpec['delimiter']>(',')
+const csvHasHeaderRow = ref(true)
+const csvFilenamePattern = ref('')
+const csvSortOrder = ref('')
+const csvFilterCondition = ref('')
+const csvMaxRows = ref<number | undefined>(undefined)
+const csvErrorHandling = ref<CsvSpec['errorHandling'] | ''>('')
+const csvDuplicateHandling = ref<CsvSpec['duplicateHandling'] | ''>('')
+const csvPreValidation = ref('')
+const csvErrorDefs = ref<CsvErrorDef[]>([])
+
+// Email spec refs
+const emailTrigger = ref('')
+const emailTo = ref('')
+const emailCc = ref('')
+const emailBcc = ref('')
+const emailSubject = ref('')
+const emailBodyTemplate = ref('')
+const emailTemplatePath = ref('')
+const emailVariables = ref<string[]>([])
+const emailVariableInput = ref('')
+const emailAttachments = ref('')
+const emailConditions = ref('')
+const emailErrorHandling = ref('')
 
 // Master definition inline editing
 const showMasterSection = ref(false)
@@ -96,6 +124,9 @@ const sourceBindingIsStatic = ref(false)
 
 const isEditing = computed(() => store.editingElementId !== null)
 const elementId = computed(() => store.editingElementId)
+const isCsvMode = computed(() => actionType.value === 'csv_export' || actionType.value === 'csv_import')
+const isEmailMode = computed(() => actionType.value === 'email')
+const isWideMode = computed(() => isCsvMode.value || isEmailMode.value)
 
 // Display type options for card selection
 const displayTypeOptions: { value: NonNullable<ElementNote['displayType']>; label: string; icon: typeof Database; color: string; description: string }[] = [
@@ -204,6 +235,37 @@ watch(elementId, (id) => {
       actionTarget.value = config.actionInfo.target || ''
       actionMethod.value = config.actionInfo.method || ''
       actionDescription.value = config.actionInfo.description || ''
+      // Load CSV spec
+      if (config.actionInfo.csvSpec) {
+        const spec = config.actionInfo.csvSpec
+        csvColumns.value = spec.columns.map(c => ({ ...c }))
+        csvEncoding.value = spec.encoding || 'UTF-8'
+        csvDelimiter.value = spec.delimiter || ','
+        csvHasHeaderRow.value = spec.hasHeaderRow !== false
+        csvFilenamePattern.value = spec.filenamePattern || ''
+        csvSortOrder.value = spec.sortOrder || ''
+        csvFilterCondition.value = spec.filterCondition || ''
+        csvMaxRows.value = spec.maxRows
+        csvErrorHandling.value = spec.errorHandling || ''
+        csvDuplicateHandling.value = spec.duplicateHandling || ''
+        csvPreValidation.value = spec.preValidation || ''
+        csvErrorDefs.value = spec.errorDefs ? spec.errorDefs.map(e => ({ ...e })) : []
+      }
+      // Load email spec
+      if (config.actionInfo.emailSpec) {
+        const spec = config.actionInfo.emailSpec
+        emailTrigger.value = spec.trigger || ''
+        emailTo.value = spec.to || ''
+        emailCc.value = spec.cc || ''
+        emailBcc.value = spec.bcc || ''
+        emailSubject.value = spec.subject || ''
+        emailBodyTemplate.value = spec.bodyTemplate || ''
+        emailTemplatePath.value = spec.templatePath || ''
+        emailVariables.value = spec.variables ? [...spec.variables] : []
+        emailAttachments.value = spec.attachments || ''
+        emailConditions.value = spec.conditions || ''
+        emailErrorHandling.value = spec.errorHandling || ''
+      }
     }
     // Load form info
     if (config?.formInfo) {
@@ -254,6 +316,19 @@ function resetForm() {
   actionTarget.value = ''
   actionMethod.value = ''
   actionDescription.value = ''
+  // CSV refs
+  csvColumns.value = []
+  csvEncoding.value = 'UTF-8'
+  csvDelimiter.value = ','
+  csvHasHeaderRow.value = true
+  csvFilenamePattern.value = ''
+  csvSortOrder.value = ''
+  csvFilterCondition.value = ''
+  csvMaxRows.value = undefined
+  csvErrorHandling.value = ''
+  csvDuplicateHandling.value = ''
+  csvPreValidation.value = ''
+  csvErrorDefs.value = []
   // Form refs
   formInputType.value = ''
   formRequired.value = false
@@ -262,6 +337,19 @@ function resetForm() {
   formPlaceholder.value = ''
   formDefaultValue.value = ''
   formDescription.value = ''
+  // Email refs
+  emailTrigger.value = ''
+  emailTo.value = ''
+  emailCc.value = ''
+  emailBcc.value = ''
+  emailSubject.value = ''
+  emailBodyTemplate.value = ''
+  emailTemplatePath.value = ''
+  emailVariables.value = []
+  emailVariableInput.value = ''
+  emailAttachments.value = ''
+  emailConditions.value = ''
+  emailErrorHandling.value = ''
   // Master refs
   showMasterSection.value = false
   masterEntries.value = []
@@ -370,6 +458,8 @@ function save() {
         target: actionTarget.value || undefined,
         method: actionMethod.value ? actionMethod.value as ActionInfo['method'] : undefined,
         description: actionDescription.value || undefined,
+        csvSpec: buildCsvSpec(),
+        emailSpec: buildEmailSpec(),
       }
     : undefined
 
@@ -706,6 +796,94 @@ function onFormValidationKeydown(e: KeyboardEvent) {
   }
 }
 
+// CSV column helpers
+function addCsvColumn() {
+  csvColumns.value.push({ name: '', dbMapping: '', type: 'string', required: false, description: '' })
+}
+
+function removeCsvColumn(index: number) {
+  csvColumns.value.splice(index, 1)
+}
+
+function moveCsvColumn(index: number, direction: -1 | 1) {
+  const newIndex = index + direction
+  if (newIndex < 0 || newIndex >= csvColumns.value.length) return
+  const temp = csvColumns.value[index]
+  csvColumns.value[index] = csvColumns.value[newIndex]
+  csvColumns.value[newIndex] = temp
+  // Force reactivity
+  csvColumns.value = [...csvColumns.value]
+}
+
+// CSV error definition helpers
+function addCsvErrorDef() {
+  csvErrorDefs.value.push({ condition: '', message: '', column: '', severity: 'error' })
+}
+
+function removeCsvErrorDef(index: number) {
+  csvErrorDefs.value.splice(index, 1)
+}
+
+// CSV column name options for error def dropdown
+const csvColumnNames = computed(() => {
+  return csvColumns.value.filter(c => c.name).map(c => c.name)
+})
+
+function buildCsvSpec(): CsvSpec | undefined {
+  if (actionType.value !== 'csv_export' && actionType.value !== 'csv_import') return undefined
+  const validErrorDefs = csvErrorDefs.value.filter(e => e.condition || e.message)
+  return {
+    columns: csvColumns.value.filter(c => c.name),
+    encoding: csvEncoding.value || undefined,
+    delimiter: csvDelimiter.value || undefined,
+    hasHeaderRow: csvHasHeaderRow.value,
+    filenamePattern: csvFilenamePattern.value || undefined,
+    sortOrder: csvSortOrder.value || undefined,
+    filterCondition: csvFilterCondition.value || undefined,
+    maxRows: csvMaxRows.value || undefined,
+    errorHandling: (csvErrorHandling.value as CsvSpec['errorHandling']) || undefined,
+    duplicateHandling: (csvDuplicateHandling.value as CsvSpec['duplicateHandling']) || undefined,
+    preValidation: csvPreValidation.value || undefined,
+    errorDefs: validErrorDefs.length > 0 ? validErrorDefs : undefined,
+  }
+}
+
+// Email spec helpers
+function buildEmailSpec(): EmailSpec | undefined {
+  if (actionType.value !== 'email') return undefined
+  return {
+    trigger: emailTrigger.value || '',
+    to: emailTo.value || '',
+    cc: emailCc.value || undefined,
+    bcc: emailBcc.value || undefined,
+    subject: emailSubject.value || '',
+    bodyTemplate: emailBodyTemplate.value || undefined,
+    templatePath: emailTemplatePath.value || undefined,
+    variables: emailVariables.value.length > 0 ? emailVariables.value : undefined,
+    attachments: emailAttachments.value || undefined,
+    conditions: emailConditions.value || undefined,
+    errorHandling: emailErrorHandling.value || undefined,
+  }
+}
+
+function addEmailVariable() {
+  const val = emailVariableInput.value.trim()
+  if (val && !emailVariables.value.includes(val)) {
+    emailVariables.value.push(val)
+  }
+  emailVariableInput.value = ''
+}
+
+function removeEmailVariable(index: number) {
+  emailVariables.value.splice(index, 1)
+}
+
+function onEmailVariableKeydown(e: KeyboardEvent) {
+  if (e.key === 'Backspace' && !emailVariableInput.value && emailVariables.value.length > 0) {
+    emailVariables.value.pop()
+  }
+}
+
 // Master definition helpers
 watch(currentMasterKey, (key) => {
   if (key) {
@@ -769,7 +947,7 @@ function saveMasterEntries() {
 <template>
   <Teleport to="body">
     <div v-if="isEditing" class="di-editor-overlay" @click.self="close" data-dev-inspector>
-      <div class="di-editor-modal">
+      <div class="di-editor-modal" :class="{ 'di-editor-modal-wide': isWideMode }">
         <!-- Header -->
         <div class="di-editor-header">
           <h3>要素情報を編集</h3>
@@ -1213,6 +1391,9 @@ function saveMasterEntries() {
                 <option value="modal">モーダル表示</option>
                 <option value="emit">イベント発火</option>
                 <option value="function">関数実行</option>
+                <option value="csv_export">CSV出力</option>
+                <option value="csv_import">CSV取込</option>
+                <option value="email">メール送信</option>
               </select>
             </div>
 
@@ -1221,7 +1402,7 @@ function saveMasterEntries() {
               <input
                 v-model="actionTarget"
                 type="text"
-                :placeholder="actionType === 'navigate' ? '/tasks' : actionType === 'api' ? '/api/users' : actionType === 'modal' ? 'confirm-dialog' : ''"
+                :placeholder="actionType === 'navigate' ? '/tasks' : actionType === 'api' ? '/api/users' : actionType === 'modal' ? 'confirm-dialog' : actionType === 'csv_export' ? '/api/export/users' : actionType === 'csv_import' ? '/api/import/users' : ''"
                 class="di-input di-input-mono"
               />
             </div>
@@ -1242,6 +1423,261 @@ function saveMasterEntries() {
               <label class="di-form-label">説明</label>
               <textarea v-model="actionDescription" rows="3" placeholder="このアクションの説明..." class="di-textarea"></textarea>
             </div>
+
+            <!-- ==================== CSV仕様セクション ==================== -->
+            <template v-if="actionType === 'csv_export' || actionType === 'csv_import'">
+              <div class="di-form-divider">
+                <span><FileSpreadsheet style="width: 12px; height: 12px; display: inline; vertical-align: middle;" /> CSV仕様</span>
+              </div>
+
+              <!-- ファイル設定 -->
+              <div class="di-csv-file-settings">
+                <label class="di-form-label">ファイル設定</label>
+                <div class="di-form-row">
+                  <div class="di-form-group">
+                    <label class="di-form-label">エンコーディング</label>
+                    <select v-model="csvEncoding" class="di-select">
+                      <option value="UTF-8">UTF-8</option>
+                      <option value="Shift_JIS">Shift_JIS</option>
+                      <option value="EUC-JP">EUC-JP</option>
+                      <option value="UTF-8 BOM">UTF-8 BOM</option>
+                    </select>
+                  </div>
+                  <div class="di-form-group">
+                    <label class="di-form-label">区切り文字</label>
+                    <select v-model="csvDelimiter" class="di-select">
+                      <option value=",">カンマ (,)</option>
+                      <option value="&#9;">タブ</option>
+                      <option value="|">パイプ (|)</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="di-form-row" style="align-items: center;">
+                  <label class="di-csv-checkbox-label">
+                    <input type="checkbox" v-model="csvHasHeaderRow" class="di-checkbox" />
+                    ヘッダー行あり
+                  </label>
+                </div>
+                <div class="di-form-group">
+                  <label class="di-form-label">ファイル名パターン</label>
+                  <input v-model="csvFilenamePattern" type="text" placeholder="users_{YYYYMMDD}.csv" class="di-input di-input-mono" />
+                </div>
+              </div>
+
+              <!-- CSV列定義 -->
+              <div class="di-csv-columns-section">
+                <label class="di-form-label">CSV列定義</label>
+                <div v-if="csvColumns.length > 0" class="di-csv-columns-table">
+                  <div class="di-csv-columns-header">
+                    <span class="di-csv-col-no">No</span>
+                    <span class="di-csv-col-name">項目名</span>
+                    <span class="di-csv-col-db">DBマッピング</span>
+                    <span class="di-csv-col-proc">加工</span>
+                    <span class="di-csv-col-type">型</span>
+                    <span class="di-csv-col-req">必須</span>
+                    <span class="di-csv-col-desc">説明</span>
+                    <span class="di-csv-col-act"></span>
+                  </div>
+                  <div v-for="(col, idx) in csvColumns" :key="idx" class="di-csv-column-row">
+                    <span class="di-csv-col-no">{{ idx + 1 }}</span>
+                    <input v-model="col.name" placeholder="項目名" class="di-csv-input di-csv-col-name" />
+                    <input v-model="col.dbMapping" placeholder="table.col" class="di-csv-input di-csv-col-db" />
+                    <input v-model="col.processing" placeholder="姓+名, IF..." class="di-csv-input di-csv-col-proc" />
+                    <select v-model="col.type" class="di-csv-select di-csv-col-type">
+                      <option value="">-</option>
+                      <option value="string">string</option>
+                      <option value="integer">integer</option>
+                      <option value="decimal">decimal</option>
+                      <option value="date">date</option>
+                      <option value="datetime">datetime</option>
+                      <option value="boolean">boolean</option>
+                    </select>
+                    <label class="di-csv-col-req di-csv-checkbox-center">
+                      <input type="checkbox" v-model="col.required" class="di-checkbox" />
+                    </label>
+                    <input v-model="col.description" placeholder="備考" class="di-csv-input di-csv-col-desc" />
+                    <div class="di-csv-col-act">
+                      <button @click="moveCsvColumn(idx, -1)" :disabled="idx === 0" class="di-csv-move-btn" title="上へ">
+                        <ChevronUp style="width: 12px; height: 12px;" />
+                      </button>
+                      <button @click="moveCsvColumn(idx, 1)" :disabled="idx === csvColumns.length - 1" class="di-csv-move-btn" title="下へ">
+                        <ChevronDown style="width: 12px; height: 12px;" />
+                      </button>
+                      <button @click="removeCsvColumn(idx)" class="di-csv-remove-btn" title="削除">&times;</button>
+                    </div>
+                  </div>
+                </div>
+                <button @click="addCsvColumn" class="di-btn-add-field">
+                  + 列を追加
+                </button>
+              </div>
+
+              <!-- 出力オプション (csv_exportのみ) -->
+              <template v-if="actionType === 'csv_export'">
+                <div class="di-form-divider">
+                  <span>出力オプション</span>
+                </div>
+                <div class="di-form-group">
+                  <label class="di-form-label">ソート順</label>
+                  <input v-model="csvSortOrder" type="text" placeholder="created_at DESC" class="di-input di-input-mono" />
+                </div>
+                <div class="di-form-group">
+                  <label class="di-form-label">抽出条件</label>
+                  <input v-model="csvFilterCondition" type="text" placeholder="status = 'active'" class="di-input di-input-mono" />
+                </div>
+                <div class="di-form-group">
+                  <label class="di-form-label">最大行数</label>
+                  <input v-model.number="csvMaxRows" type="number" placeholder="10000" class="di-input" />
+                </div>
+              </template>
+
+              <!-- 取込オプション (csv_importのみ) -->
+              <template v-if="actionType === 'csv_import'">
+                <div class="di-form-divider">
+                  <span>取込オプション</span>
+                </div>
+                <div class="di-form-group">
+                  <label class="di-form-label">エラー処理</label>
+                  <select v-model="csvErrorHandling" class="di-select">
+                    <option value="">未指定</option>
+                    <option value="stop_on_first">最初のエラーで停止</option>
+                    <option value="skip_and_continue">スキップして続行</option>
+                    <option value="collect_all">全エラー収集</option>
+                  </select>
+                </div>
+                <div class="di-form-group">
+                  <label class="di-form-label">重複処理</label>
+                  <select v-model="csvDuplicateHandling" class="di-select">
+                    <option value="">未指定</option>
+                    <option value="skip">スキップ</option>
+                    <option value="overwrite">上書き</option>
+                    <option value="error">エラー</option>
+                  </select>
+                </div>
+                <div class="di-form-group">
+                  <label class="di-form-label">事前バリデーション</label>
+                  <textarea v-model="csvPreValidation" rows="2" placeholder="取込前のチェック内容..." class="di-textarea"></textarea>
+                </div>
+              </template>
+
+              <!-- エラー定義 (csv_export / csv_import 共通) -->
+              <div class="di-form-divider">
+                <span>エラー定義</span>
+              </div>
+              <div class="di-csv-error-section">
+                <div v-if="csvErrorDefs.length > 0" class="di-csv-columns-table">
+                  <div class="di-csv-columns-header">
+                    <span class="di-csv-err-col">対象列</span>
+                    <span class="di-csv-err-cond">エラー条件</span>
+                    <span class="di-csv-err-msg">エラーメッセージ</span>
+                    <span class="di-csv-err-sev">種別</span>
+                    <span class="di-csv-err-act"></span>
+                  </div>
+                  <div v-for="(errDef, idx) in csvErrorDefs" :key="idx" class="di-csv-column-row">
+                    <select v-model="errDef.column" class="di-csv-select di-csv-err-col">
+                      <option value="">（全体）</option>
+                      <option v-for="colName in csvColumnNames" :key="colName" :value="colName">{{ colName }}</option>
+                    </select>
+                    <input v-model="errDef.condition" placeholder="必須項目が空" class="di-csv-input di-csv-err-cond" />
+                    <input v-model="errDef.message" placeholder="○○は必須です" class="di-csv-input di-csv-err-msg" />
+                    <select v-model="errDef.severity" class="di-csv-select di-csv-err-sev">
+                      <option value="error">エラー</option>
+                      <option value="warning">警告</option>
+                    </select>
+                    <button @click="removeCsvErrorDef(idx)" class="di-csv-remove-btn" title="削除">&times;</button>
+                  </div>
+                </div>
+                <button @click="addCsvErrorDef" class="di-btn-add-field">
+                  + エラー定義を追加
+                </button>
+              </div>
+            </template>
+
+            <!-- ==================== メール送信仕様セクション ==================== -->
+            <template v-if="actionType === 'email'">
+              <div class="di-form-divider">
+                <span><Mail style="width: 12px; height: 12px; display: inline; vertical-align: middle;" /> メール基本設定</span>
+              </div>
+
+              <div class="di-form-row">
+                <div class="di-form-group">
+                  <label class="di-form-label">トリガー *</label>
+                  <input v-model="emailTrigger" type="text" placeholder="注文確定時、ボタンクリック" class="di-input" />
+                </div>
+                <div class="di-form-group">
+                  <label class="di-form-label">宛先 *</label>
+                  <input v-model="emailTo" type="text" placeholder="ユーザーメール、管理者固定" class="di-input" />
+                </div>
+              </div>
+
+              <div class="di-form-row">
+                <div class="di-form-group">
+                  <label class="di-form-label">CC</label>
+                  <input v-model="emailCc" type="text" placeholder="CC宛先" class="di-input" />
+                </div>
+                <div class="di-form-group">
+                  <label class="di-form-label">BCC</label>
+                  <input v-model="emailBcc" type="text" placeholder="BCC宛先" class="di-input" />
+                </div>
+              </div>
+
+              <div class="di-form-group">
+                <label class="di-form-label">件名テンプレート *</label>
+                <input v-model="emailSubject" type="text" placeholder="【注文確認】ご注文番号 {orderNumber}" class="di-input" />
+              </div>
+
+              <div class="di-form-group">
+                <label class="di-form-label">本文テンプレート概要</label>
+                <textarea v-model="emailBodyTemplate" rows="3" placeholder="本文の概要を記述..." class="di-textarea"></textarea>
+              </div>
+
+              <div class="di-form-group">
+                <label class="di-form-label">テンプレートファイルパス</label>
+                <input v-model="emailTemplatePath" type="text" placeholder="resources/mail/order_confirm.blade.php" class="di-input di-input-mono" />
+              </div>
+
+              <div class="di-form-divider">
+                <span>差し込み変数</span>
+              </div>
+
+              <div class="di-form-group">
+                <div class="di-email-variables-input">
+                  <span v-for="(v, i) in emailVariables" :key="i" class="di-calc-tag">
+                    {{ v }}
+                    <button @click.stop="removeEmailVariable(i)" class="di-calc-tag-remove">&times;</button>
+                  </span>
+                  <input
+                    v-model="emailVariableInput"
+                    @keydown.enter.prevent="addEmailVariable()"
+                    @keydown="onEmailVariableKeydown"
+                    type="text"
+                    placeholder="変数名を入力してEnter (例: userName)"
+                    class="di-calc-tags-field"
+                    autocomplete="off"
+                  />
+                </div>
+                <span class="di-form-hint">Enter で追加</span>
+              </div>
+
+              <div class="di-form-divider">
+                <span>オプション</span>
+              </div>
+
+              <div class="di-form-group">
+                <label class="di-form-label">添付ファイル</label>
+                <input v-model="emailAttachments" type="text" placeholder="添付ファイルの説明" class="di-input" />
+              </div>
+
+              <div class="di-form-group">
+                <label class="di-form-label">送信条件</label>
+                <input v-model="emailConditions" type="text" placeholder="メール送信設定がONの場合" class="di-input" />
+              </div>
+
+              <div class="di-form-group">
+                <label class="di-form-label">エラー処理</label>
+                <input v-model="emailErrorHandling" type="text" placeholder="キューに入れてリトライ" class="di-input" />
+              </div>
+            </template>
 
             <div class="di-form-group">
               <label class="di-form-label">補足メモ（任意）</label>
@@ -2180,5 +2616,225 @@ function saveMasterEntries() {
 .di-master-entry-remove:hover {
   color: #ef4444;
   background: rgba(239, 68, 68, 0.1);
+}
+
+/* Wide modal for CSV mode */
+.di-editor-modal-wide {
+  width: 680px;
+}
+.di-editor-modal-wide .di-editor-content {
+  max-height: 500px;
+}
+
+/* CSV Spec Styles */
+.di-csv-file-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  border-radius: 8px;
+}
+.di-csv-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #94a3b8;
+  font-size: 11px;
+  cursor: pointer;
+}
+.di-checkbox {
+  width: 14px;
+  height: 14px;
+  accent-color: #3b82f6;
+  cursor: pointer;
+}
+.di-csv-columns-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.di-csv-columns-table {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border: 1px solid #334155;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.di-csv-columns-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  background: #0f172a;
+  font-size: 9px;
+  color: #64748b;
+  border-bottom: 1px solid #334155;
+}
+.di-csv-column-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #1e293b;
+  border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+}
+.di-csv-column-row:last-child {
+  border-bottom: none;
+}
+.di-csv-col-no {
+  width: 24px;
+  flex-shrink: 0;
+  text-align: center;
+  color: #64748b;
+  font-size: 10px;
+}
+.di-csv-col-name {
+  flex: 2;
+  min-width: 0;
+}
+.di-csv-col-db {
+  flex: 2;
+  min-width: 0;
+}
+.di-csv-col-type {
+  width: 70px;
+  flex-shrink: 0;
+}
+.di-csv-col-req {
+  width: 28px;
+  flex-shrink: 0;
+  text-align: center;
+}
+.di-csv-checkbox-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.di-csv-col-proc {
+  flex: 2;
+  min-width: 0;
+}
+.di-csv-col-desc {
+  flex: 2;
+  min-width: 0;
+}
+.di-csv-col-act {
+  width: 56px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.di-csv-input {
+  padding: 4px 6px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: white;
+  font-size: 10px;
+  font-family: monospace;
+  box-sizing: border-box;
+  transition: border-color 0.2s;
+}
+.di-csv-input:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+.di-csv-input::placeholder {
+  color: #475569;
+}
+.di-csv-select {
+  padding: 4px 4px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: white;
+  font-size: 10px;
+  box-sizing: border-box;
+  cursor: pointer;
+}
+.di-csv-select:focus {
+  outline: none;
+  border-color: #60a5fa;
+}
+.di-csv-move-btn {
+  padding: 2px;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.di-csv-move-btn:hover:not(:disabled) {
+  color: #93c5fd;
+  background: #334155;
+}
+.di-csv-move-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.di-csv-remove-btn {
+  padding: 0 3px;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 14px;
+  line-height: 1;
+  cursor: pointer;
+  border-radius: 3px;
+}
+.di-csv-remove-btn:hover {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* CSV Error Definition */
+.di-csv-error-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.di-csv-err-col {
+  width: 80px;
+  flex-shrink: 0;
+}
+.di-csv-err-cond {
+  flex: 2;
+  min-width: 0;
+}
+.di-csv-err-msg {
+  flex: 3;
+  min-width: 0;
+}
+.di-csv-err-sev {
+  width: 64px;
+  flex-shrink: 0;
+}
+.di-csv-err-act {
+  width: 24px;
+  flex-shrink: 0;
+}
+
+/* Email variables input */
+.di-email-variables-input {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 6px;
+  min-height: 36px;
+  cursor: text;
+}
+.di-email-variables-input:focus-within {
+  border-color: #60a5fa;
 }
 </style>

@@ -21,12 +21,51 @@ export interface FieldInfo {
   description?: string
 }
 
+export interface CsvColumnDef {
+  name: string              // CSVヘッダー名 (例: "受注番号")
+  dbMapping?: string        // table.column (例: "orders.order_number")
+  processing?: string       // 加工ロジック (例: "姓 + ' ' + 名", "IF status=1 THEN '有効'")
+  type?: string             // string, integer, date, decimal, etc.
+  required?: boolean
+  validation?: string       // バリデーションルール (例: "max:255, 日付形式")
+  format?: string           // 出力フォーマット (例: "YYYY/MM/DD")
+  defaultValue?: string     // 取込時のデフォルト値
+  description?: string      // 備考
+}
+
+export interface CsvErrorDef {
+  condition: string         // エラー条件 (例: "必須項目が空", "日付形式不正")
+  message: string           // エラーメッセージ (例: "受注番号は必須です")
+  column?: string           // 対象列名 (空なら全体チェック)
+  severity?: 'error' | 'warning'
+}
+
+export interface CsvSpec {
+  columns: CsvColumnDef[]
+  encoding?: 'UTF-8' | 'Shift_JIS' | 'EUC-JP' | 'UTF-8 BOM'
+  delimiter?: ',' | '\t' | '|'
+  hasHeaderRow?: boolean
+  filenamePattern?: string        // 例: "users_{YYYYMMDD}.csv"
+  // 出力用
+  sortOrder?: string
+  filterCondition?: string
+  maxRows?: number
+  // 取込用
+  errorHandling?: 'stop_on_first' | 'skip_and_continue' | 'collect_all'
+  duplicateHandling?: 'skip' | 'overwrite' | 'error'
+  preValidation?: string
+  // エラー定義
+  errorDefs?: CsvErrorDef[]
+}
+
 export interface ActionInfo {
-  type: 'navigate' | 'api' | 'modal' | 'emit' | 'function'
+  type: 'navigate' | 'api' | 'modal' | 'emit' | 'function' | 'csv_export' | 'csv_import' | 'email'
   target?: string
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
   description?: string
   params?: Record<string, string>
+  csvSpec?: CsvSpec
+  emailSpec?: EmailSpec
 }
 
 export interface FormInfo {
@@ -72,6 +111,14 @@ export interface MasterEntry {
   description?: string   // 説明
 }
 
+export interface StateTransition {
+  from: string        // マスタ値 (例: "1" = 受付)
+  to: string          // マスタ値 (例: "2" = 処理中)
+  trigger: string     // トリガー (例: "承認ボタン", "バッチ処理")
+  condition?: string  // 条件 (例: "承認者権限が必要")
+  description?: string
+}
+
 export interface MasterDefinition {
   id: string             // 'orders.status'
   table: string
@@ -80,6 +127,45 @@ export interface MasterDefinition {
   columnType?: string    // 'integer', 'varchar'
   description?: string
   entries: MasterEntry[]
+  transitions?: StateTransition[]
+  updatedAt: string
+}
+
+export interface EmailSpec {
+  trigger: string             // 送信トリガー (例: "注文確定時", "ボタンクリック")
+  to: string                  // 宛先 (例: "ユーザーメール", "管理者固定")
+  cc?: string
+  bcc?: string
+  subject: string             // 件名テンプレート
+  bodyTemplate?: string       // 本文テンプレート概要
+  templatePath?: string       // テンプレートファイルパス
+  variables?: string[]        // 差し込み変数 (例: ["userName", "orderNumber"])
+  attachments?: string        // 添付ファイル説明
+  conditions?: string         // 送信条件
+  errorHandling?: string      // 送信失敗時の処理
+}
+
+export interface BatchStep {
+  order: number
+  description: string          // 処理内容
+  target?: string              // 対象テーブル or API
+  type?: 'query' | 'api' | 'file' | 'mail' | 'other'
+  errorHandling?: string       // エラー時の処理
+}
+
+export interface BatchDefinition {
+  id: string                   // ユニークID (例: "batch_monthly_report")
+  name: string                 // バッチ名 (例: "月次レポート生成")
+  schedule?: string            // スケジュール (例: "毎月1日 AM2:00", "cron: 0 2 1 * *")
+  trigger?: string             // 手動トリガー (例: "管理画面から実行")
+  description?: string
+  inputTables?: string[]       // 入力テーブル
+  outputTables?: string[]      // 出力テーブル
+  steps: BatchStep[]
+  timeout?: string             // タイムアウト (例: "30分")
+  retryPolicy?: string         // リトライ (例: "3回まで、5分間隔")
+  notifyOnError?: string       // エラー通知先
+  notifyOnComplete?: string    // 完了通知先
   updatedAt: string
 }
 
@@ -308,6 +394,7 @@ export interface DevInspectorOptions {
 const STORAGE_KEY_DEFAULT = 'devInspector:elementConfigs'
 const SCREEN_STORAGE_KEY = 'devInspector:screenConfigs'
 const MASTER_STORAGE_KEY = 'devInspector:masterDefinitions'
+const BATCH_STORAGE_KEY = 'devInspector:batchDefinitions'
 
 export const useDevInspectorStore = defineStore('devInspector', () => {
   // Options (set via init)
@@ -330,6 +417,9 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
 
   // Master definitions (table.column → MasterDefinition)
   const masterDefinitions = ref<Record<string, MasterDefinition>>({})
+
+  // Batch definitions (id → BatchDefinition)
+  const batchDefinitions = ref<Record<string, BatchDefinition>>({})
 
   // Computed
   const storageKey = computed(() => options.value.storageKey || STORAGE_KEY_DEFAULT)
@@ -380,6 +470,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     loadConfigs()
     loadScreenConfigs()
     loadMasterDefinitions()
+    loadBatchDefinitions()
     loadHiddenSelectors()
 
     // Load analysis data if provided directly
@@ -588,6 +679,54 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   // Get master entries for a table.column (shortcut for displaying in UI)
   function getMasterEntries(tableColumn: string): MasterEntry[] {
     return masterDefinitions.value[tableColumn]?.entries || []
+  }
+
+  // ===== Batch Definitions =====
+  function loadBatchDefinitions() {
+    try {
+      if (typeof window !== 'undefined') {
+        const stored = localStorage.getItem(BATCH_STORAGE_KEY)
+        if (stored) {
+          batchDefinitions.value = JSON.parse(stored)
+        }
+      }
+    } catch (e) {
+      console.error('[DevInspector] Failed to load batch definitions:', e)
+    }
+  }
+
+  function saveBatchDefinitions() {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(BATCH_STORAGE_KEY, JSON.stringify(batchDefinitions.value))
+      }
+    } catch (e) {
+      console.error('[DevInspector] Failed to save batch definitions:', e)
+    }
+  }
+
+  watch(batchDefinitions, () => {
+    nextTick(() => {
+      saveBatchDefinitions()
+    })
+  }, { deep: true })
+
+  function getBatchDefinition(id: string): BatchDefinition | undefined {
+    return batchDefinitions.value[id]
+  }
+
+  function setBatchDefinition(def: BatchDefinition) {
+    batchDefinitions.value = {
+      ...batchDefinitions.value,
+      [def.id]: { ...def, updatedAt: new Date().toISOString() },
+    }
+    nextTick(() => saveBatchDefinitions())
+  }
+
+  function deleteBatchDefinition(id: string) {
+    const { [id]: _, ...rest } = batchDefinitions.value
+    batchDefinitions.value = rest
+    nextTick(() => saveBatchDefinitions())
   }
 
   // Suggest APIs based on element annotations + analysis data
@@ -833,6 +972,15 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       }
     }
 
+    // Resolve configured selectors to DOM elements for ancestor check
+    const configuredElements = new Set<Element>()
+    for (const sel of configuredSelectors) {
+      try {
+        const el = document.querySelector(sel)
+        if (el) configuredElements.add(el)
+      } catch { /* invalid selector */ }
+    }
+
     const detected: UnannotatedElement[] = []
     const seenSelectors = new Set<string>()
     const seenBindings = new Set<string>()
@@ -841,7 +989,12 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     function isAlreadySeen(element: HTMLElement): boolean {
       if (element.closest('[data-dev-inspector]')) return true
       const selector = generateSelector(element)
-      return configuredSelectors.has(selector) || seenSelectors.has(selector)
+      if (configuredSelectors.has(selector) || seenSelectors.has(selector)) return true
+      // Check if this element is a child of any configured (annotated) element
+      for (const configured of configuredElements) {
+        if (configured.contains(element) && configured !== element) return true
+      }
+      return false
     }
 
     function addDetected(element: HTMLElement, category: UnannotatedElement['category'], text: string, suggestedType: UnannotatedElement['suggestedType']) {
@@ -2317,7 +2470,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   }
 
   function downloadSddSpec(filename = 'screen-spec-sdd.md') {
-    const content = exportForSDD(elementConfigs.value, screenConfigs.value, masterDefinitions.value)
+    const content = exportForSDD(elementConfigs.value, screenConfigs.value, masterDefinitions.value, batchDefinitions.value)
     const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -2330,7 +2483,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   }
 
   function downloadClientSpec(filename = 'screen-spec-client.md') {
-    const content = exportForClient(elementConfigs.value, screenConfigs.value, masterDefinitions.value)
+    const content = exportForClient(elementConfigs.value, screenConfigs.value, masterDefinitions.value, batchDefinitions.value)
     const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -2432,6 +2585,11 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     deleteMasterDefinition,
     getMastersForTable,
     getMasterEntries,
+    // Batch definitions
+    batchDefinitions,
+    getBatchDefinition,
+    setBatchDefinition,
+    deleteBatchDefinition,
     // Broken annotation detection
     brokenAnnotations,
     remapTargetId,
