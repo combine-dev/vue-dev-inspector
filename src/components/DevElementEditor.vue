@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { X, Database, Save, Trash2, MessageSquare, Wand2, Calculator, Type, ShieldQuestion, Zap, FormInput, List, ChevronUp, ChevronDown, FileSpreadsheet, Mail } from 'lucide-vue-next'
-import { useDevInspectorStore, type FieldInfo, type ElementNote, type SourceBindingInfo, type ActionInfo, type FormInfo, type MasterEntry, type CsvColumnDef, type CsvSpec, type CsvErrorDef, type EmailSpec } from '../composables/useDevInspector'
+import { X, Database, Save, Trash2, MessageSquare, Wand2, Calculator, Type, ShieldQuestion, Zap, FormInput, List, ChevronUp, ChevronDown, FileSpreadsheet, Mail, ArrowUpDown } from 'lucide-vue-next'
+import { useDevInspectorStore, type FieldInfo, type ElementNote, type SourceBindingInfo, type ActionInfo, type FormInfo, type SortInfo, type MasterEntry, type CsvColumnDef, type CsvSpec, type CsvErrorDef, type EmailSpec } from '../composables/useDevInspector'
+
+// (SortInfo is now part of ActionInfo.sortSpec)
 
 const store = useDevInspectorStore()
 
@@ -50,6 +52,15 @@ const emailVariableInput = ref('')
 const emailAttachments = ref('')
 const emailConditions = ref('')
 const emailErrorHandling = ref('')
+
+// Sort spec refs (action type = 'sort')
+const sortSortable = ref(true)
+const sortType = ref<SortInfo['sortType'] | ''>('')
+const sortKey = ref('')
+const sortDefaultDirection = ref<SortInfo['defaultDirection'] | ''>('')
+const sortIsDefaultSort = ref(false)
+const sortUnsortedOrder = ref('')
+const sortDescription = ref('')
 
 // Master definition inline editing
 const showMasterSection = ref(false)
@@ -276,6 +287,17 @@ watch(elementId, (id) => {
       formDefaultValue.value = config.formInfo.defaultValue || ''
       formDescription.value = config.formInfo.description || ''
     }
+    // Load sort spec (from actionInfo)
+    if (config?.actionInfo?.sortSpec) {
+      const spec = config.actionInfo.sortSpec
+      sortSortable.value = spec.sortable !== false
+      sortType.value = spec.sortType || ''
+      sortKey.value = spec.sortKey || ''
+      sortDefaultDirection.value = spec.defaultDirection || ''
+      sortIsDefaultSort.value = spec.isDefaultSort || false
+      sortUnsortedOrder.value = spec.unsortedOrder || ''
+      sortDescription.value = spec.description || ''
+    }
   } else {
     resetForm()
   }
@@ -350,6 +372,14 @@ function resetForm() {
   emailAttachments.value = ''
   emailConditions.value = ''
   emailErrorHandling.value = ''
+  // Sort refs
+  sortSortable.value = true
+  sortType.value = ''
+  sortKey.value = ''
+  sortDefaultDirection.value = ''
+  sortIsDefaultSort.value = false
+  sortUnsortedOrder.value = ''
+  sortDescription.value = ''
   // Master refs
   showMasterSection.value = false
   masterEntries.value = []
@@ -460,6 +490,7 @@ function save() {
         description: actionDescription.value || undefined,
         csvSpec: buildCsvSpec(),
         emailSpec: buildEmailSpec(),
+        sortSpec: buildSortSpec(),
       }
     : undefined
 
@@ -881,6 +912,19 @@ function removeEmailVariable(index: number) {
 function onEmailVariableKeydown(e: KeyboardEvent) {
   if (e.key === 'Backspace' && !emailVariableInput.value && emailVariables.value.length > 0) {
     emailVariables.value.pop()
+  }
+}
+
+function buildSortSpec(): SortInfo | undefined {
+  if (actionType.value !== 'sort') return undefined
+  return {
+    sortable: sortSortable.value,
+    sortType: sortType.value ? sortType.value as SortInfo['sortType'] : undefined,
+    sortKey: sortKey.value || undefined,
+    defaultDirection: sortDefaultDirection.value ? sortDefaultDirection.value as SortInfo['defaultDirection'] : undefined,
+    isDefaultSort: sortIsDefaultSort.value || undefined,
+    unsortedOrder: sortUnsortedOrder.value || undefined,
+    description: sortDescription.value || undefined,
   }
 }
 
@@ -1394,6 +1438,7 @@ function saveMasterEntries() {
                 <option value="csv_export">CSV出力</option>
                 <option value="csv_import">CSV取込</option>
                 <option value="email">メール送信</option>
+                <option value="sort">ソート</option>
               </select>
             </div>
 
@@ -1679,6 +1724,65 @@ function saveMasterEntries() {
               </div>
             </template>
 
+            <!-- ==================== ソート定義セクション ==================== -->
+            <template v-if="actionType === 'sort'">
+              <div class="di-form-divider">
+                <span><ArrowUpDown style="width: 12px; height: 12px; display: inline; vertical-align: middle;" /> ソート設定</span>
+              </div>
+
+              <div class="di-form-group">
+                <label class="di-form-label" style="display: flex; align-items: center; gap: 8px;">
+                  <input type="checkbox" v-model="sortSortable" class="di-checkbox" />
+                  このカラムはソート可能
+                </label>
+              </div>
+
+              <template v-if="sortSortable">
+                <div class="di-form-row">
+                  <div class="di-form-group">
+                    <label class="di-form-label">データ型</label>
+                    <select v-model="sortType" class="di-select">
+                      <option value="">未指定</option>
+                      <option value="string">文字列</option>
+                      <option value="number">数値</option>
+                      <option value="date">日付</option>
+                      <option value="custom">カスタム</option>
+                    </select>
+                  </div>
+                  <div class="di-form-group">
+                    <label class="di-form-label">デフォルト方向</label>
+                    <select v-model="sortDefaultDirection" class="di-select">
+                      <option value="">未指定</option>
+                      <option value="asc">昇順 (A→Z, 1→9)</option>
+                      <option value="desc">降順 (Z→A, 9→1)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="di-form-group">
+                  <label class="di-form-label">ソートキー (DBカラム/APIフィールド)</label>
+                  <input v-model="sortKey" type="text" placeholder="users.name / created_at" class="di-input di-input-mono" />
+                </div>
+
+                <div class="di-form-group">
+                  <label class="di-form-label" style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" v-model="sortIsDefaultSort" class="di-checkbox" />
+                    初期表示時のデフォルトソート
+                  </label>
+                </div>
+              </template>
+
+              <div class="di-form-group">
+                <label class="di-form-label">未ソート時の並び順</label>
+                <input v-model="sortUnsortedOrder" type="text" placeholder="ID昇順 / 登録日降順 / APIレスポンス順" class="di-input" />
+              </div>
+
+              <div class="di-form-group">
+                <label class="di-form-label">補足</label>
+                <input v-model="sortDescription" type="text" placeholder="サーバーサイドソート / ページネーション時はリセット" class="di-input" />
+              </div>
+            </template>
+
             <div class="di-form-group">
               <label class="di-form-label">補足メモ（任意）</label>
               <textarea v-model="noteText" rows="2" placeholder="補足情報があれば..." class="di-textarea"></textarea>
@@ -1838,6 +1942,9 @@ function saveMasterEntries() {
               <textarea v-model="noteText" rows="2" placeholder="補足情報があれば..." class="di-textarea"></textarea>
             </div>
           </template>
+
+
+
         </div>
 
         <!-- Footer -->

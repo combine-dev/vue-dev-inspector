@@ -33,13 +33,14 @@ declare type __VLS_WithDefaults<P, D> = {
 };
 
 export declare interface ActionInfo {
-    type: 'navigate' | 'api' | 'modal' | 'emit' | 'function' | 'csv_export' | 'csv_import' | 'email';
+    type: 'navigate' | 'api' | 'modal' | 'emit' | 'function' | 'csv_export' | 'csv_import' | 'email' | 'sort';
     target?: string;
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     description?: string;
     params?: Record<string, string>;
     csvSpec?: CsvSpec;
     emailSpec?: EmailSpec;
+    sortSpec?: SortInfo;
 }
 
 export declare interface AnalyzedElement {
@@ -246,6 +247,7 @@ export declare interface ElementConfig {
     componentPath: string;
     pagePath?: string;
     elementType?: 'datasource' | 'action' | 'form';
+    isConditional?: boolean;
     fieldInfo?: FieldInfo;
     fieldInfoList?: FieldInfo[];
     actionInfo?: ActionInfo;
@@ -429,6 +431,16 @@ export declare interface ScreenSpec {
     notes?: string[];
 }
 
+declare interface SortInfo {
+    sortable: boolean;
+    sortType?: 'string' | 'number' | 'date' | 'custom';
+    sortKey?: string;
+    defaultDirection?: 'asc' | 'desc';
+    isDefaultSort?: boolean;
+    unsortedOrder?: string;
+    description?: string;
+}
+
 export declare interface SourceBindingInfo {
     type: 'static' | 'v-model' | 'prop' | 'computed' | 'store' | 'api';
     source?: string;
@@ -531,6 +543,7 @@ id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
 elementType?: "datasource" | "action" | "form" | undefined;
+isConditional?: boolean | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -546,7 +559,7 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email" | "sort";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
@@ -592,6 +605,15 @@ variables?: string[] | undefined;
 attachments?: string | undefined;
 conditions?: string | undefined;
 errorHandling?: string | undefined;
+} | undefined;
+sortSpec?: {
+sortable: boolean;
+sortType?: "string" | "number" | "date" | "custom" | undefined;
+sortKey?: string | undefined;
+defaultDirection?: "asc" | "desc" | undefined;
+isDefaultSort?: boolean | undefined;
+unsortedOrder?: string | undefined;
+description?: string | undefined;
 } | undefined;
 } | undefined;
 formInfo?: {
@@ -662,6 +684,7 @@ id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
 elementType?: "datasource" | "action" | "form" | undefined;
+isConditional?: boolean | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -677,7 +700,7 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email" | "sort";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
@@ -723,6 +746,15 @@ variables?: string[] | undefined;
 attachments?: string | undefined;
 conditions?: string | undefined;
 errorHandling?: string | undefined;
+} | undefined;
+sortSpec?: {
+sortable: boolean;
+sortType?: "string" | "number" | "date" | "custom" | undefined;
+sortKey?: string | undefined;
+defaultDirection?: "asc" | "desc" | undefined;
+isDefaultSort?: boolean | undefined;
+unsortedOrder?: string | undefined;
+description?: string | undefined;
 } | undefined;
 } | undefined;
 formInfo?: {
@@ -1044,6 +1076,7 @@ id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
 elementType?: "datasource" | "action" | "form" | undefined;
+isConditional?: boolean | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1059,7 +1092,7 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email" | "sort";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
@@ -1105,6 +1138,15 @@ variables?: string[] | undefined;
 attachments?: string | undefined;
 conditions?: string | undefined;
 errorHandling?: string | undefined;
+} | undefined;
+sortSpec?: {
+sortable: boolean;
+sortType?: "string" | "number" | "date" | "custom" | undefined;
+sortKey?: string | undefined;
+defaultDirection?: "asc" | "desc" | undefined;
+isDefaultSort?: boolean | undefined;
+unsortedOrder?: string | undefined;
+description?: string | undefined;
 } | undefined;
 } | undefined;
 formInfo?: {
@@ -1175,6 +1217,7 @@ id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
 elementType?: "datasource" | "action" | "form" | undefined;
+isConditional?: boolean | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1190,7 +1233,7 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email" | "sort";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
@@ -1236,6 +1279,15 @@ variables?: string[] | undefined;
 attachments?: string | undefined;
 conditions?: string | undefined;
 errorHandling?: string | undefined;
+} | undefined;
+sortSpec?: {
+sortable: boolean;
+sortType?: "string" | "number" | "date" | "custom" | undefined;
+sortKey?: string | undefined;
+defaultDirection?: "asc" | "desc" | undefined;
+isDefaultSort?: boolean | undefined;
+unsortedOrder?: string | undefined;
+description?: string | undefined;
 } | undefined;
 } | undefined;
 formInfo?: {
@@ -1557,6 +1609,7 @@ id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
 elementType?: "datasource" | "action" | "form" | undefined;
+isConditional?: boolean | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1572,7 +1625,7 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email" | "sort";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
@@ -1618,6 +1671,15 @@ variables?: string[] | undefined;
 attachments?: string | undefined;
 conditions?: string | undefined;
 errorHandling?: string | undefined;
+} | undefined;
+sortSpec?: {
+sortable: boolean;
+sortType?: "string" | "number" | "date" | "custom" | undefined;
+sortKey?: string | undefined;
+defaultDirection?: "asc" | "desc" | undefined;
+isDefaultSort?: boolean | undefined;
+unsortedOrder?: string | undefined;
+description?: string | undefined;
 } | undefined;
 } | undefined;
 formInfo?: {
@@ -1688,6 +1750,7 @@ id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
 elementType?: "datasource" | "action" | "form" | undefined;
+isConditional?: boolean | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1703,7 +1766,7 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email" | "sort";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
@@ -1749,6 +1812,15 @@ variables?: string[] | undefined;
 attachments?: string | undefined;
 conditions?: string | undefined;
 errorHandling?: string | undefined;
+} | undefined;
+sortSpec?: {
+sortable: boolean;
+sortType?: "string" | "number" | "date" | "custom" | undefined;
+sortKey?: string | undefined;
+defaultDirection?: "asc" | "desc" | undefined;
+isDefaultSort?: boolean | undefined;
+unsortedOrder?: string | undefined;
+description?: string | undefined;
 } | undefined;
 } | undefined;
 formInfo?: {
@@ -2072,6 +2144,7 @@ id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
 elementType?: "datasource" | "action" | "form" | undefined;
+isConditional?: boolean | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -2087,7 +2160,7 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email" | "sort";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
@@ -2133,6 +2206,15 @@ variables?: string[] | undefined;
 attachments?: string | undefined;
 conditions?: string | undefined;
 errorHandling?: string | undefined;
+} | undefined;
+sortSpec?: {
+sortable: boolean;
+sortType?: "string" | "number" | "date" | "custom" | undefined;
+sortKey?: string | undefined;
+defaultDirection?: "asc" | "desc" | undefined;
+isDefaultSort?: boolean | undefined;
+unsortedOrder?: string | undefined;
+description?: string | undefined;
 } | undefined;
 } | undefined;
 formInfo?: {
@@ -2203,6 +2285,7 @@ id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
 elementType?: "datasource" | "action" | "form" | undefined;
+isConditional?: boolean | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -2218,7 +2301,7 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email" | "sort";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
@@ -2264,6 +2347,15 @@ variables?: string[] | undefined;
 attachments?: string | undefined;
 conditions?: string | undefined;
 errorHandling?: string | undefined;
+} | undefined;
+sortSpec?: {
+sortable: boolean;
+sortType?: "string" | "number" | "date" | "custom" | undefined;
+sortKey?: string | undefined;
+defaultDirection?: "asc" | "desc" | undefined;
+isDefaultSort?: boolean | undefined;
+unsortedOrder?: string | undefined;
+description?: string | undefined;
 } | undefined;
 } | undefined;
 formInfo?: {
@@ -2585,6 +2677,7 @@ id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
 elementType?: "datasource" | "action" | "form" | undefined;
+isConditional?: boolean | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -2600,7 +2693,7 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email" | "sort";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
@@ -2646,6 +2739,15 @@ variables?: string[] | undefined;
 attachments?: string | undefined;
 conditions?: string | undefined;
 errorHandling?: string | undefined;
+} | undefined;
+sortSpec?: {
+sortable: boolean;
+sortType?: "string" | "number" | "date" | "custom" | undefined;
+sortKey?: string | undefined;
+defaultDirection?: "asc" | "desc" | undefined;
+isDefaultSort?: boolean | undefined;
+unsortedOrder?: string | undefined;
+description?: string | undefined;
 } | undefined;
 } | undefined;
 formInfo?: {
@@ -2716,6 +2818,7 @@ id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
 elementType?: "datasource" | "action" | "form" | undefined;
+isConditional?: boolean | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -2731,7 +2834,7 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email" | "sort";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
@@ -2777,6 +2880,15 @@ variables?: string[] | undefined;
 attachments?: string | undefined;
 conditions?: string | undefined;
 errorHandling?: string | undefined;
+} | undefined;
+sortSpec?: {
+sortable: boolean;
+sortType?: "string" | "number" | "date" | "custom" | undefined;
+sortKey?: string | undefined;
+defaultDirection?: "asc" | "desc" | undefined;
+isDefaultSort?: boolean | undefined;
+unsortedOrder?: string | undefined;
+description?: string | undefined;
 } | undefined;
 } | undefined;
 formInfo?: {
@@ -3098,6 +3210,7 @@ id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
 elementType?: "datasource" | "action" | "form" | undefined;
+isConditional?: boolean | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -3113,7 +3226,7 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email" | "sort";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
@@ -3159,6 +3272,15 @@ variables?: string[] | undefined;
 attachments?: string | undefined;
 conditions?: string | undefined;
 errorHandling?: string | undefined;
+} | undefined;
+sortSpec?: {
+sortable: boolean;
+sortType?: "string" | "number" | "date" | "custom" | undefined;
+sortKey?: string | undefined;
+defaultDirection?: "asc" | "desc" | undefined;
+isDefaultSort?: boolean | undefined;
+unsortedOrder?: string | undefined;
+description?: string | undefined;
 } | undefined;
 } | undefined;
 formInfo?: {
@@ -3229,6 +3351,7 @@ id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
 elementType?: "datasource" | "action" | "form" | undefined;
+isConditional?: boolean | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -3244,7 +3367,7 @@ validation?: string[] | undefined;
 description?: string | undefined;
 }[] | undefined;
 actionInfo?: {
-type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email";
+type: "navigate" | "api" | "modal" | "emit" | "function" | "csv_export" | "csv_import" | "email" | "sort";
 target?: string | undefined;
 method?: "GET" | "POST" | "PUT" | "DELETE" | "PATCH" | undefined;
 description?: string | undefined;
@@ -3290,6 +3413,15 @@ variables?: string[] | undefined;
 attachments?: string | undefined;
 conditions?: string | undefined;
 errorHandling?: string | undefined;
+} | undefined;
+sortSpec?: {
+sortable: boolean;
+sortType?: "string" | "number" | "date" | "custom" | undefined;
+sortKey?: string | undefined;
+defaultDirection?: "asc" | "desc" | undefined;
+isDefaultSort?: boolean | undefined;
+unsortedOrder?: string | undefined;
+description?: string | undefined;
 } | undefined;
 } | undefined;
 formInfo?: {

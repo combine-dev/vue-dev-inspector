@@ -57,7 +57,7 @@ const currentPageElementsAll = computed(() => {
       else if (config.formInfo) desc = config.formInfo.label || config.formInfo.inputType || 'フォーム'
       if (!desc) desc = id
 
-      return { id, desc, type: config.elementType, config }
+      return { id, desc, type: config.elementType, isConditional: !!config.isConditional, config }
     })
 })
 const currentPageElements = computed(() => {
@@ -81,6 +81,9 @@ const currentPageElements = computed(() => {
     }
   })
 })
+const pageElements = computed(() => currentPageElements.value.filter(el => !el.isConditional))
+const modalElements = computed(() => currentPageElements.value.filter(el => el.isConditional))
+const showModalGroup = ref(false)
 const noteCount = computed(() => {
   return Object.values(store.elementConfigs).filter(c => !!(c.note?.text || c.note?.displayType)).length
 })
@@ -730,9 +733,10 @@ function handleFlowEdgeClick(selector: string) {
             <span>登録済み要素</span>
             <span class="di-count-badge">{{ currentPageElements.length }}<span v-if="currentPageElements.length !== currentPageElementsAll.length"> / {{ currentPageElementsAll.length }}</span></span>
           </div>
-          <div class="di-element-list">
+          <!-- Page Elements -->
+          <div v-if="pageElements.length > 0" class="di-element-list">
             <div
-              v-for="el in currentPageElements"
+              v-for="el in pageElements"
               :key="el.id"
               class="di-element-item"
               :class="{ 'di-element-item-active': store.hoveredSelector === el.id }"
@@ -748,6 +752,36 @@ function handleFlowEdgeClick(selector: string) {
               </span>
               <div class="di-element-item-body">
                 <div class="di-element-item-label">{{ el.desc }}</div>
+              </div>
+            </div>
+          </div>
+          <!-- Modal Elements Group -->
+          <div v-if="modalElements.length > 0" class="di-modal-group">
+            <button class="di-modal-group-header" @click="showModalGroup = !showModalGroup">
+              <span class="di-modal-group-icon">{{ showModalGroup ? '▼' : '▶' }}</span>
+              <span class="di-element-conditional-badge">M</span>
+              <span>モーダル要素</span>
+              <span class="di-count-badge">{{ modalElements.length }}</span>
+            </button>
+            <div v-if="showModalGroup" class="di-element-list">
+              <div
+                v-for="el in modalElements"
+                :key="el.id"
+                class="di-element-item"
+                :class="{ 'di-element-item-active': store.hoveredSelector === el.id }"
+                @click="store.startEditing(el.id)"
+                @mouseenter="highlightElement(el.id)"
+                @mouseleave="clearElementHighlight"
+              >
+                <span
+                  class="di-element-type-badge"
+                  :class="'di-element-type-' + (el.type || 'other')"
+                >
+                  {{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}
+                </span>
+                <div class="di-element-item-body">
+                  <div class="di-element-item-label">{{ el.desc }}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -3789,6 +3823,43 @@ function handleFlowEdgeClick(selector: string) {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.di-element-conditional-badge {
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  background: rgba(168, 85, 247, 0.2);
+  color: #a855f7;
+  vertical-align: middle;
+}
+.di-modal-group {
+  margin-top: 6px;
+  border-top: 1px solid #334155;
+  padding-top: 6px;
+}
+.di-modal-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 4px 6px;
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+.di-modal-group-header:hover {
+  background: rgba(148, 163, 184, 0.1);
+}
+.di-modal-group-icon {
+  font-size: 8px;
+  color: #64748b;
 }
 .di-element-item-id {
   font-size: 9px;

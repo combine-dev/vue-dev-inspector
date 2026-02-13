@@ -111,7 +111,8 @@ export async function exportScreenSpecToXlsx(
         function: '関数実行',
         csv_export: 'CSV出力',
         csv_import: 'CSV取込',
-        email: 'メール送信'
+        email: 'メール送信',
+        sort: 'ソート'
       }
       remarks = `[${actionLabels[config.actionInfo.type] || config.actionInfo.type}]`
       if (config.actionInfo.target) {

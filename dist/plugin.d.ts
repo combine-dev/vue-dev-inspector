@@ -1,13 +1,14 @@
 import { Plugin as Plugin_2 } from 'vue';
 
 declare interface ActionInfo {
-    type: 'navigate' | 'api' | 'modal' | 'emit' | 'function' | 'csv_export' | 'csv_import' | 'email';
+    type: 'navigate' | 'api' | 'modal' | 'emit' | 'function' | 'csv_export' | 'csv_import' | 'email' | 'sort';
     target?: string;
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     description?: string;
     params?: Record<string, string>;
     csvSpec?: CsvSpec;
     emailSpec?: EmailSpec;
+    sortSpec?: SortInfo;
 }
 
 declare interface AnalyzedElement {
@@ -121,6 +122,7 @@ declare interface ElementConfig {
     componentPath: string;
     pagePath?: string;
     elementType?: 'datasource' | 'action' | 'form';
+    isConditional?: boolean;
     fieldInfo?: FieldInfo;
     fieldInfoList?: FieldInfo[];
     actionInfo?: ActionInfo;
@@ -228,6 +230,16 @@ declare interface ProjectAnalysis {
     dbSchema?: {
         tables: Record<string, DbTableSchema>;
     };
+}
+
+declare interface SortInfo {
+    sortable: boolean;
+    sortType?: 'string' | 'number' | 'date' | 'custom';
+    sortKey?: string;
+    defaultDirection?: 'asc' | 'desc';
+    isDefaultSort?: boolean;
+    unsortedOrder?: string;
+    description?: string;
 }
 
 declare interface SourceBindingInfo {

@@ -115,6 +115,60 @@ function matchesNoteFilter(selector: string): boolean {
   }
 }
 
+// Detect if a modal/dialog overlay is currently open
+function detectOpenModal(): Element | null {
+  // Check for <dialog open>
+  const openDialog = document.querySelector('dialog[open]')
+  if (openDialog) return openDialog
+  // Check for role="dialog" that is visible
+  const roleDialogs = document.querySelectorAll('[role="dialog"], [role="alertdialog"]')
+  for (const d of roleDialogs) {
+    const rect = (d as HTMLElement).getBoundingClientRect()
+    if (rect.width > 0 && rect.height > 0) return d
+  }
+  // Check common modal overlay patterns (visible ones)
+  const modalSelectors = '.v-overlay--active .v-overlay__content, .el-dialog__wrapper:not([style*="display: none"]) .el-dialog, .modal.show .modal-dialog, .modal-overlay[style*="display: block"], .v-dialog--active'
+  try {
+    const modal = document.querySelector(modalSelectors)
+    if (modal) {
+      const rect = (modal as HTMLElement).getBoundingClientRect()
+      if (rect.width > 0 && rect.height > 0) return modal
+    }
+  } catch { /* invalid selector */ }
+  // Check for custom modal pattern: position:fixed full-screen overlay with high z-index
+  // Common in Tailwind: <div class="fixed inset-0 z-50 ...">
+  // Check body's direct children and common overlay selectors
+  const candidates = document.querySelectorAll('.fixed.inset-0, .fixed.inset-x-0.inset-y-0, [data-modal], [data-overlay]')
+  for (const el of candidates) {
+    if ((el as HTMLElement).dataset?.devInspector !== undefined) continue
+    const style = getComputedStyle(el)
+    const z = parseInt(style.zIndex, 10)
+    if (isNaN(z) || z < 40) continue
+    const rect = (el as HTMLElement).getBoundingClientRect()
+    if (rect.width >= window.innerWidth * 0.9 && rect.height >= window.innerHeight * 0.9) {
+      return el
+    }
+  }
+  // Fallback: check body direct children with position:fixed
+  for (const el of document.body.children) {
+    if ((el as HTMLElement).dataset?.devInspector !== undefined) continue
+    const style = getComputedStyle(el)
+    if (style.position !== 'fixed') continue
+    const z = parseInt(style.zIndex, 10)
+    if (isNaN(z) || z < 40) continue
+    const rect = (el as HTMLElement).getBoundingClientRect()
+    if (rect.width >= window.innerWidth * 0.9 && rect.height >= window.innerHeight * 0.9) {
+      return el
+    }
+  }
+  return null
+}
+
+// Check if an element is inside a modal container
+function isInsideModal(element: Element, modalContainer: Element): boolean {
+  return modalContainer.contains(element)
+}
+
 // Existing annotations on current page (as highlight boxes)
 const existingAnnotations = computed(() => {
   // Access scroll values and layout version to make this reactive
@@ -138,11 +192,17 @@ const existingAnnotations = computed(() => {
 
   if (!store.isEnabled) return annotations
 
+  // Detect if a modal is open — if so, only show annotations inside the modal
+  const openModal = detectOpenModal()
+
   const selectors = store.getConfiguredSelectors()
   for (const selector of selectors) {
     try {
       const element = document.querySelector(selector) as HTMLElement | null
       if (element) {
+        // If modal is open, skip elements NOT inside the modal
+        if (openModal && !isInsideModal(element, openModal)) continue
+
         const rect = element.getBoundingClientRect()
         const config = store.getElementConfig(selector)
         const isStatic = config?.sourceBinding?.isStatic || false
@@ -351,10 +411,13 @@ const scannedHighlights = computed(() => {
 
   if (!store.isEnabled || store.scanResults.length === 0) return highlights
 
+  const openModal = detectOpenModal()
+
   for (const result of store.scanResults) {
     try {
       const element = document.querySelector(result.selector) as HTMLElement | null
       if (element) {
+        if (openModal && !isInsideModal(element, openModal)) continue
         const rect = element.getBoundingClientRect()
         highlights.push({
           selector: result.selector,
@@ -400,6 +463,8 @@ const analysisHighlights = computed(() => {
   if (filter === 'none') return highlights
   if (!store.isEnabled || store.analysisResults.length === 0) return highlights
 
+  const openModal = detectOpenModal()
+
   for (const result of store.analysisResults) {
     if (!result.matched) continue
 
@@ -408,6 +473,7 @@ const analysisHighlights = computed(() => {
     try {
       const element = document.querySelector(result.selector) as HTMLElement | null
       if (!element) continue
+      if (openModal && !isInsideModal(element, openModal)) continue
 
       const rect = element.getBoundingClientRect()
 
@@ -552,10 +618,13 @@ const unannotatedHighlights = computed(() => {
 
   if (!store.isEnabled || !store.showUnannotatedDetection || store.unannotatedElements.length === 0) return highlights
 
+  const openModal = detectOpenModal()
+
   for (const uEl of store.unannotatedElements) {
     try {
       const element = document.querySelector(uEl.selector) as HTMLElement | null
       if (!element) continue
+      if (openModal && !isInsideModal(element, openModal)) continue
 
       const rect = element.getBoundingClientRect()
       highlights.push({
@@ -654,12 +723,21 @@ function updateAnnotationPositions() {
   layoutVersion.value++
 }
 
+// MutationObserver to detect modal open/close (DOM changes)
+let domObserver: MutationObserver | null = null
+
 onMounted(() => {
   window.addEventListener('mousemove', handleMouseMove, true)
   window.addEventListener('click', handleClick, true)
   window.addEventListener('keydown', handleKeydown)
   window.addEventListener('scroll', updateAnnotationPositions)
   window.addEventListener('resize', updateAnnotationPositions)
+
+  // Observe DOM changes to detect modal open/close
+  domObserver = new MutationObserver(() => {
+    layoutVersion.value++
+  })
+  domObserver.observe(document.body, { childList: true, subtree: false })
 })
 
 onUnmounted(() => {
@@ -668,6 +746,7 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
   window.removeEventListener('scroll', updateAnnotationPositions)
   window.removeEventListener('resize', updateAnnotationPositions)
+  domObserver?.disconnect()
 })
 
 // Clear highlight when pick mode is disabled

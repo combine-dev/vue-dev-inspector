@@ -59,13 +59,14 @@ export interface CsvSpec {
 }
 
 export interface ActionInfo {
-  type: 'navigate' | 'api' | 'modal' | 'emit' | 'function' | 'csv_export' | 'csv_import' | 'email'
+  type: 'navigate' | 'api' | 'modal' | 'emit' | 'function' | 'csv_export' | 'csv_import' | 'email' | 'sort'
   target?: string
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
   description?: string
   params?: Record<string, string>
   csvSpec?: CsvSpec
   emailSpec?: EmailSpec
+  sortSpec?: SortInfo
 }
 
 export interface FormInfo {
@@ -75,6 +76,16 @@ export interface FormInfo {
   placeholder?: string
   defaultValue?: string
   description?: string
+}
+
+export interface SortInfo {
+  sortable: boolean                                     // ソート可能か
+  sortType?: 'string' | 'number' | 'date' | 'custom'   // ソートのデータ型
+  sortKey?: string                                      // ソートに使うDBカラムやAPIフィールド
+  defaultDirection?: 'asc' | 'desc'                     // デフォルトのソート方向
+  isDefaultSort?: boolean                               // ページ読み込み時のデフォルトソートか
+  unsortedOrder?: string                                // 未ソート時の並び順 (例: "ID昇順", "登録日降順")
+  description?: string                                  // ソートに関する補足説明
 }
 
 export interface ElementNote {
@@ -191,6 +202,7 @@ export interface ElementConfig {
   componentPath: string
   pagePath?: string  // URL pathname this annotation belongs to
   elementType?: 'datasource' | 'action' | 'form'  // 要素の役割
+  isConditional?: boolean  // true if element is inside modal/dialog (conditionally rendered)
   fieldInfo?: FieldInfo
   fieldInfoList?: FieldInfo[]  // Multiple DB columns
   actionInfo?: ActionInfo
@@ -1385,15 +1397,57 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     return elementConfigs.value[id]
   }
 
+  // Detect if an element is inside a modal/dialog container
+  function isInsideConditionalContainer(selector: string): boolean {
+    if (typeof document === 'undefined') return false
+    try {
+      const el = document.querySelector(selector)
+      if (!el) return false
+      let parent = el.parentElement
+      while (parent && parent !== document.body) {
+        // Check for dialog element
+        if (parent.tagName === 'DIALOG') return true
+        // Check for role="dialog" or role="alertdialog"
+        const role = parent.getAttribute('role')
+        if (role === 'dialog' || role === 'alertdialog') return true
+        // Check for common modal class patterns
+        const cls = parent.className || ''
+        if (typeof cls === 'string' && /\b(modal|dialog|v-dialog|el-dialog|v-overlay|drawer)\b/i.test(cls)) return true
+        // Check for Vue teleport target (commonly used for modals)
+        if (parent.id === 'teleported' || parent.hasAttribute('data-teleport')) return true
+        // Check for fixed full-screen overlay (Tailwind pattern: fixed inset-0 z-50)
+        if (typeof cls === 'string') {
+          const style = window.getComputedStyle(parent)
+          if (style.position === 'fixed') {
+            const z = parseInt(style.zIndex, 10)
+            if (!isNaN(z) && z >= 40) {
+              const rect = parent.getBoundingClientRect()
+              if (rect.width >= window.innerWidth * 0.9 && rect.height >= window.innerHeight * 0.9) {
+                return true
+              }
+            }
+          }
+        }
+        parent = parent.parentElement
+      }
+    } catch { /* invalid selector */ }
+    return false
+  }
+
   function setElementConfig(id: string, config: Partial<ElementConfig>) {
     const now = new Date().toISOString()
     const existing = elementConfigs.value[id]
 
     const currentPage = typeof window !== 'undefined' ? window.location.pathname : '/'
+
+    // Auto-detect if element is inside a modal/dialog
+    const isConditional = config.isConditional ?? existing?.isConditional ?? isInsideConditionalContainer(id)
+
     const newConfig: ElementConfig = {
       ...existing,
       ...config,
       id,
+      isConditional,
       pagePath: config.pagePath || existing?.pagePath || currentPage,
       componentPath: config.componentPath || currentScreenSpec.value?.componentPath || '',
       createdAt: existing?.createdAt || now,
@@ -2368,6 +2422,11 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     for (const [id, config] of Object.entries(elementConfigs.value)) {
       // Skip annotations that belong to a different page
       if (config.componentPath && !config.componentPath.includes(currentPath) && currentPath !== '/') {
+        continue
+      }
+
+      // Skip conditional elements (modal/dialog) — they may not be in DOM
+      if (config.isConditional) {
         continue
       }
 

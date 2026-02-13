@@ -352,6 +352,44 @@ export function exportForSDD(
       }
     }
 
+    // Sort Definitions (SDD)
+    const sortElements = elements.filter(e => e.config.actionInfo?.type === 'sort' && e.config.actionInfo?.sortSpec)
+    if (sortElements.length > 0) {
+      lines.push('### ソート定義')
+      // Unsorted order (from first element that has it)
+      const unsortedOrder = sortElements.find(e => e.config.actionInfo?.sortSpec?.unsortedOrder)?.config.actionInfo?.sortSpec?.unsortedOrder
+      if (unsortedOrder) {
+        lines.push(`- 未ソート時の並び順: ${unsortedOrder}`)
+        lines.push('')
+      }
+      // Default sort
+      const defaultSort = sortElements.find(e => e.config.actionInfo?.sortSpec?.isDefaultSort)
+      if (defaultSort) {
+        const si = defaultSort.config.actionInfo!.sortSpec!
+        const dirLabel = si.defaultDirection === 'desc' ? '降順' : '昇順'
+        lines.push(`- デフォルトソート: ${si.sortKey || defaultSort.config.actionInfo?.description || defaultSort.selector} (${dirLabel})`)
+        lines.push('')
+      }
+      const sortable = sortElements.filter(e => e.config.actionInfo?.sortSpec?.sortable)
+      if (sortable.length > 0) {
+        lines.push('| 項目 | ソートキー | データ型 | デフォルト方向 | 備考 |')
+        lines.push('|------|----------|---------|-------------|------|')
+        for (const { config } of sortable) {
+          const si = config.actionInfo!.sortSpec!
+          const name = config.actionInfo?.description || config.note?.text || config.fieldInfo ? `${config.fieldInfo?.table}.${config.fieldInfo?.column}` : config.id
+          const typeLabels: Record<string, string> = { string: '文字列', number: '数値', date: '日付', custom: 'カスタム' }
+          const typeLabel = si.sortType ? typeLabels[si.sortType] || si.sortType : ''
+          const dirLabel = si.defaultDirection === 'desc' ? '降順' : si.defaultDirection === 'asc' ? '昇順' : ''
+          const notes = [
+            si.isDefaultSort ? '初期ソート' : '',
+            si.description || '',
+          ].filter(Boolean).join(' / ')
+          lines.push(`| ${escMd(name)} | ${escMd(si.sortKey || '')} | ${typeLabel} | ${dirLabel} | ${escMd(notes)} |`)
+        }
+        lines.push('')
+      }
+    }
+
     lines.push('---')
     lines.push('')
   }
@@ -605,6 +643,25 @@ export function exportForClient(
         }
         lines.push('')
       }
+    }
+
+    // Sort Definitions (Client - simplified)
+    const sortElementsClient = elements.filter(e => e.config.actionInfo?.type === 'sort' && e.config.actionInfo?.sortSpec)
+    if (sortElementsClient.length > 0) {
+      lines.push('### ソート')
+      const unsortedOrder = sortElementsClient.find(e => e.config.actionInfo?.sortSpec?.unsortedOrder)?.config.actionInfo?.sortSpec?.unsortedOrder
+      if (unsortedOrder) lines.push(`- 初期並び順: ${unsortedOrder}`)
+      const sortable = sortElementsClient.filter(e => e.config.actionInfo?.sortSpec?.sortable)
+      if (sortable.length > 0) {
+        lines.push(`- ソート可能項目: ${sortable.map(e => e.config.note?.text || e.config.fieldInfo?.column || e.selector).join('、')}`)
+      }
+      const defaultSort = sortElementsClient.find(e => e.config.actionInfo?.sortSpec?.isDefaultSort)
+      if (defaultSort) {
+        const si = defaultSort.config.actionInfo!.sortSpec!
+        const dirLabel = si.defaultDirection === 'desc' ? '降順' : '昇順'
+        lines.push(`- デフォルト: ${defaultSort.config.note?.text || si.sortKey || ''} ${dirLabel}`)
+      }
+      lines.push('')
     }
 
     // Notes
