@@ -16,6 +16,7 @@ const hoveredElement = ref<HTMLElement | null>(null)
 // Scroll position for reactive updates
 const scrollY = ref(0)
 const scrollX = ref(0)
+const layoutVersion = ref(0) // Bumped on resize to force highlight recalc
 
 // Display type colors
 const displayTypeColors: Record<string, string> = {
@@ -116,9 +117,10 @@ function matchesNoteFilter(selector: string): boolean {
 
 // Existing annotations on current page (as highlight boxes)
 const existingAnnotations = computed(() => {
-  // Access scroll values to make this reactive
+  // Access scroll values and layout version to make this reactive
   const _scrollY = scrollY.value
   const _scrollX = scrollX.value
+  void layoutVersion.value
 
   const annotations: Array<{
     selector: string
@@ -336,6 +338,7 @@ const scannedHighlights = computed(() => {
   // Access scroll values to make this reactive
   const _scrollY = scrollY.value
   const _scrollX = scrollX.value
+  void layoutVersion.value
 
   const highlights: Array<{
     selector: string
@@ -374,6 +377,7 @@ const scannedHighlights = computed(() => {
 const analysisHighlights = computed(() => {
   const _scrollY = scrollY.value
   const _scrollX = scrollX.value
+  void layoutVersion.value
 
   const highlights: Array<{
     selector: string
@@ -534,6 +538,7 @@ const analysisHighlights = computed(() => {
 const unannotatedHighlights = computed(() => {
   const _scrollY = scrollY.value
   const _scrollX = scrollX.value
+  void layoutVersion.value
 
   const highlights: Array<{
     selector: string
@@ -646,6 +651,7 @@ function handleKeydown(e: KeyboardEvent) {
 function updateAnnotationPositions() {
   scrollY.value = window.scrollY
   scrollX.value = window.scrollX
+  layoutVersion.value++
 }
 
 onMounted(() => {
@@ -712,14 +718,19 @@ watch(() => store.isPickMode, (isPicking) => {
         :key="annotation.selector"
         v-show="!annotation.hasNote || (store.showNoteHighlights && matchesNoteFilter(annotation.selector))"
         data-dev-inspector
-        :class="annotation.hasNote ? 'di-note-highlight' : 'di-annotation-box'"
+        :class="[
+          annotation.hasNote ? 'di-note-highlight' : 'di-annotation-box',
+          { 'di-element-hovered-pulse': store.hoveredSelector === annotation.selector }
+        ]"
         :style="{
           top: annotation.top,
           left: annotation.left,
           width: annotation.width,
           height: annotation.height,
           borderColor: annotation.hasNote ? annotation.color : annotation.color,
-          backgroundColor: annotation.color + (annotation.hasNote ? '18' : '15'),
+          backgroundColor: store.hoveredSelector === annotation.selector
+            ? annotation.color + '30'
+            : annotation.color + (annotation.hasNote ? '18' : '15'),
         }"
         @click="store.startEditing(annotation.selector)"
       >
@@ -974,6 +985,18 @@ watch(() => store.isPickMode, (isPicking) => {
 .di-note-highlight:hover {
   filter: brightness(1.15);
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Pulse animation when hovered from panel list */
+.di-element-hovered-pulse {
+  animation: di-element-pulse 1s ease-in-out infinite !important;
+  box-shadow: 0 0 20px rgba(96, 165, 250, 0.4);
+  border-width: 3px !important;
+  z-index: 9997 !important;
+}
+@keyframes di-element-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
 }
 
 .di-note-label-row {

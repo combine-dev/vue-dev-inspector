@@ -39,6 +39,48 @@ const screenInfo = computed(() => {
   }
 })
 const elementCount = computed(() => Object.keys(store.elementConfigs).length)
+const currentPageElementsAll = computed(() => {
+  const curPath = typeof window !== 'undefined' ? window.location.pathname : '/'
+  return Object.entries(store.elementConfigs)
+    .filter(([, config]) => !config.pagePath || config.pagePath === curPath)
+    .map(([id, config]) => {
+      // Build description from available info
+      let desc = ''
+      if (config.note?.text) desc = config.note.text
+      else if (config.fieldInfo) desc = `${config.fieldInfo.table}.${config.fieldInfo.column}`
+      else if (config.actionInfo?.description) desc = config.actionInfo.description
+      else if (config.actionInfo?.type) {
+        const labels: Record<string, string> = { navigate: '画面遷移', api: 'API', modal: 'モーダル', emit: 'イベント', function: '関数', csv_export: 'CSV出力', csv_import: 'CSV取込', email: 'メール送信' }
+        desc = labels[config.actionInfo.type] || config.actionInfo.type
+        if (config.actionInfo.target) desc += ` → ${config.actionInfo.target}`
+      }
+      else if (config.formInfo) desc = config.formInfo.label || config.formInfo.inputType || 'フォーム'
+      if (!desc) desc = id
+
+      return { id, desc, type: config.elementType, config }
+    })
+})
+const currentPageElements = computed(() => {
+  const filter = store.noteHighlightFilter
+  if (filter === 'all') return currentPageElementsAll.value
+  return currentPageElementsAll.value.filter(el => {
+    const c = el.config
+    const dt = c.note?.displayType
+    const hasCondition = !!(c.note?.condition || c.note?.conditionColumn)
+    const isStoredCalc = !!(c.note?.storedCalc)
+    switch (filter) {
+      case 'db': return dt === 'db_direct' || dt === 'db_formatted'
+      case 'calculated': return dt === 'calculated'
+      case 'storedCalc': return isStoredCalc
+      case 'static': return dt === 'static'
+      case 'conditional': return hasCondition
+      case 'action': return c.elementType === 'action'
+      case 'form': return c.elementType === 'form'
+      case 'other': return dt === 'other' || (!dt && !c.elementType && !!c.note?.text)
+      default: return true
+    }
+  })
+})
 const noteCount = computed(() => {
   return Object.values(store.elementConfigs).filter(c => !!(c.note?.text || c.note?.displayType)).length
 })
@@ -524,6 +566,22 @@ function clearHighlight() {
   store.hoveredUnannotatedSelector = null
 }
 
+function highlightElement(selector: string) {
+  store.hoveredSelector = selector
+  try {
+    const el = document.querySelector(selector) as HTMLElement | null
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    if (rect.bottom < 0 || rect.top > window.innerHeight) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  } catch { /* ignore */ }
+}
+
+function clearElementHighlight() {
+  store.hoveredSelector = null
+}
+
 // ===== Screen Flow =====
 const currentPath = computed(() => typeof window !== 'undefined' ? window.location.pathname : '/')
 
@@ -665,6 +723,36 @@ function handleFlowEdgeClick(selector: string) {
           </div>
         </div>
 
+        <!-- Registered Elements List -->
+        <div v-if="currentPageElementsAll.length > 0" class="di-element-list-section">
+          <div class="di-element-list-header">
+            <Edit3 style="width: 14px; height: 14px; color: #94a3b8;" />
+            <span>登録済み要素</span>
+            <span class="di-count-badge">{{ currentPageElements.length }}<span v-if="currentPageElements.length !== currentPageElementsAll.length"> / {{ currentPageElementsAll.length }}</span></span>
+          </div>
+          <div class="di-element-list">
+            <div
+              v-for="el in currentPageElements"
+              :key="el.id"
+              class="di-element-item"
+              :class="{ 'di-element-item-active': store.hoveredSelector === el.id }"
+              @click="store.startEditing(el.id)"
+              @mouseenter="highlightElement(el.id)"
+              @mouseleave="clearElementHighlight"
+            >
+              <span
+                class="di-element-type-badge"
+                :class="'di-element-type-' + (el.type || 'other')"
+              >
+                {{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}
+              </span>
+              <div class="di-element-item-body">
+                <div class="di-element-item-label">{{ el.desc }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Unannotated Detection -->
         <button
           @click="handleDetectUnannotated"
@@ -751,8 +839,8 @@ function handleFlowEdgeClick(selector: string) {
           </div>
         </div>
 
-        <!-- Analysis Data Section -->
-        <div class="di-analysis-section">
+        <!-- Analysis Data Section (hidden) -->
+        <div v-if="false" class="di-analysis-section">
           <div class="di-analysis-header">
             <Server style="width: 16px; height: 16px; color: #3b82f6;" />
             <span>CLIソース解析</span>
@@ -870,118 +958,9 @@ function handleFlowEdgeClick(selector: string) {
 
         <!-- ===== ELEMENTS TAB ===== -->
         <div v-show="activeTab === 'elements'">
-        <!-- Cross Search Section -->
-        <div class="di-cross-search-section">
-          <button
-            @click="store.showCrossSearch = !store.showCrossSearch"
-            class="di-cross-search-toggle"
-            :class="{ active: store.showCrossSearch }"
-          >
-            <Search style="width: 14px; height: 14px;" />
-            <span>横断検索</span>
-          </button>
 
-          <div v-if="store.showCrossSearch" class="di-cross-search-body">
-            <!-- Mode switcher -->
-            <div class="di-filter-buttons" style="margin-bottom: 8px;">
-              <button
-                v-for="m in crossSearchModes"
-                :key="m.value"
-                @click="store.crossSearchMode = m.value"
-                class="di-filter-btn"
-                :class="{ active: store.crossSearchMode === m.value }"
-              >
-                {{ m.label }}
-              </button>
-            </div>
-
-            <!-- Search input -->
-            <input
-              v-model="store.crossSearchQuery"
-              type="text"
-              class="di-cross-search-input"
-              :placeholder="crossSearchPlaceholder"
-            />
-
-            <!-- Result count -->
-            <div v-if="store.crossSearchQuery.trim()" class="di-cross-search-count">
-              {{ store.crossSearchResults.length }}件 ({{ crossSearchPageCount }}画面)
-            </div>
-
-            <!-- Results grouped by page -->
-            <div v-if="crossSearchGrouped.length > 0" class="di-cross-search-results">
-              <div v-for="group in crossSearchGrouped" :key="group.pagePath" class="di-cross-search-group">
-                <div class="di-cross-search-page-header">
-                  {{ group.pagePath }}
-                  <span v-if="group.pageName !== group.pagePath" class="di-cross-search-page-name">({{ group.pageName }})</span>
-                </div>
-                <div
-                  v-for="(item, idx) in group.items"
-                  :key="idx"
-                  class="di-cross-search-item"
-                  :class="item.elementType ? 'di-cross-item-' + item.elementType : ''"
-                  @click="item.selector && store.startEditing(item.selector)"
-                >
-                  <span class="di-cross-search-field">{{ item.matchedField }}</span>
-                  <span v-if="item.matchContext" class="di-cross-search-context">{{ item.matchContext }}</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Screen Flow Section -->
-        <div class="di-screen-flow-section">
-          <button
-            @click="store.showScreenFlow = !store.showScreenFlow"
-            class="di-screen-flow-toggle"
-            :class="{ active: store.showScreenFlow }"
-          >
-            <GitMerge style="width: 14px; height: 14px;" />
-            <span>画面フロー</span>
-            <span v-if="store.screenFlowData.edges.length > 0" class="di-screen-flow-badge">
-              {{ store.screenFlowData.nodes.length }}画面 / {{ store.screenFlowData.edges.length }}遷移
-            </span>
-          </button>
-
-          <div v-if="store.showScreenFlow" class="di-screen-flow-body">
-            <div v-if="store.screenFlowData.edges.length === 0" class="di-screen-flow-empty">
-              navigate型のアクションが登録されていません
-            </div>
-
-            <!-- Page transition list -->
-            <div v-for="group in screenFlowGrouped" :key="group.node.path" class="di-flow-group">
-              <div
-                class="di-flow-node"
-                :class="{ 'di-flow-node-current': group.node.path === currentPath }"
-              >
-                <span class="di-flow-node-path">{{ group.node.path }}</span>
-                <span v-if="group.node.name !== group.node.path" class="di-flow-node-name">({{ group.node.name }})</span>
-              </div>
-              <div
-                v-for="edge in group.edges"
-                :key="edge.from + edge.to"
-                class="di-flow-edge"
-                @click="handleFlowEdgeClick(edge.selector)"
-              >
-                <span class="di-flow-arrow">→</span>
-                <span class="di-flow-target">{{ edge.to }}</span>
-                <span v-if="edge.label" class="di-flow-edge-label">[{{ edge.label }}]</span>
-              </div>
-            </div>
-
-            <!-- Orphan pages -->
-            <div v-if="store.screenFlowData.orphanPages.length > 0" class="di-flow-orphans">
-              <div class="di-flow-orphans-header">遷移なしのページ</div>
-              <span v-for="p in store.screenFlowData.orphanPages" :key="p.path" class="di-flow-orphan-item">
-                {{ p.path }}
-              </span>
-            </div>
-          </div>
-        </div>
-
+        <!-- Screen Info (top priority) -->
         <template v-if="screenInfo">
-          <!-- Screen Name + Edit Button -->
           <div class="di-section">
             <div class="di-screen-header">
               <h2 class="di-screen-name">{{ screenInfo.name }}</h2>
@@ -990,7 +969,6 @@ function handleFlowEdgeClick(selector: string) {
               </button>
             </div>
             <p v-if="screenInfo.description" class="di-screen-desc">{{ screenInfo.description }}</p>
-            <!-- Auth badges -->
             <div v-if="screenInfo.auth" class="di-auth-badges">
               <span v-if="screenInfo.auth.required" class="di-auth-badge di-auth-required">
                 <Lock style="width: 11px; height: 11px;" />
@@ -1004,7 +982,6 @@ function handleFlowEdgeClick(selector: string) {
             </div>
           </div>
 
-          <!-- Component Path -->
           <div v-if="screenInfo.componentPath" class="di-card">
             <div class="di-card-label">
               <Code style="width: 16px; height: 16px;" />
@@ -1013,7 +990,6 @@ function handleFlowEdgeClick(selector: string) {
             <code class="di-code-blue">{{ screenInfo.componentPath }}</code>
           </div>
 
-          <!-- Figma Link -->
           <div v-if="screenInfo.figmaUrl" class="di-card">
             <div class="di-card-label">
               <ExternalLink style="width: 16px; height: 16px;" />
@@ -1022,7 +998,6 @@ function handleFlowEdgeClick(selector: string) {
             <a :href="screenInfo.figmaUrl" target="_blank" class="di-link-purple">{{ screenInfo.figmaUrl }}</a>
           </div>
 
-          <!-- APIs -->
           <div v-if="screenInfo.apis.length" class="di-card">
             <div class="di-card-label">
               <Server style="width: 16px; height: 16px;" />
@@ -1045,7 +1020,6 @@ function handleFlowEdgeClick(selector: string) {
             </div>
           </div>
 
-          <!-- Notes -->
           <div v-if="screenInfo.notes" class="di-card">
             <div class="di-card-label">
               <AlertCircle style="width: 16px; height: 16px;" />
@@ -1065,16 +1039,101 @@ function handleFlowEdgeClick(selector: string) {
           </button>
         </div>
 
-        <!-- Element Configs Section -->
-        <div class="di-card">
-          <div class="di-card-header">
-            <div class="di-card-label">
-              <Edit3 style="width: 16px; height: 16px;" />
-              <span>登録済み要素</span>
-              <span class="di-count-badge">{{ elementCount }}</span>
+        <!-- Cross Search Section -->
+        <div class="di-card di-cross-search-section">
+          <div class="di-cross-search-header">
+            <Search style="width: 14px; height: 14px; color: #94a3b8;" />
+            <span>横断検索</span>
+          </div>
+          <div class="di-cross-search-desc">全画面のメモを横断検索。カラム名・APIエンドポイント・メモ内テキストで絞り込めます。</div>
+          <div class="di-cross-search-body">
+            <div class="di-filter-buttons" style="margin-bottom: 8px;">
+              <button
+                v-for="m in crossSearchModes"
+                :key="m.value"
+                @click="store.crossSearchMode = m.value"
+                class="di-filter-btn"
+                :class="{ active: store.crossSearchMode === m.value }"
+              >
+                {{ m.label }}
+              </button>
+            </div>
+            <input
+              v-model="store.crossSearchQuery"
+              type="text"
+              class="di-cross-search-input"
+              :placeholder="crossSearchPlaceholder"
+            />
+            <div v-if="store.crossSearchQuery.trim()" class="di-cross-search-count">
+              {{ store.crossSearchResults.length }}件 ({{ crossSearchPageCount }}画面)
+            </div>
+            <div v-if="crossSearchGrouped.length > 0" class="di-cross-search-results">
+              <div v-for="group in crossSearchGrouped" :key="group.pagePath" class="di-cross-search-group">
+                <div class="di-cross-search-page-header">
+                  {{ group.pagePath }}
+                  <span v-if="group.pageName !== group.pagePath" class="di-cross-search-page-name">({{ group.pageName }})</span>
+                </div>
+                <div
+                  v-for="(item, idx) in group.items"
+                  :key="idx"
+                  class="di-cross-search-item"
+                  :class="item.elementType ? 'di-cross-item-' + item.elementType : ''"
+                  @click="item.selector && store.startEditing(item.selector)"
+                >
+                  <span class="di-cross-search-field">{{ item.matchedField }}</span>
+                  <span v-if="item.matchContext" class="di-cross-search-context">{{ item.matchContext }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+
+        <!-- Screen Flow Section -->
+        <div class="di-card di-screen-flow-section">
+          <button
+            @click="store.showScreenFlow = !store.showScreenFlow"
+            class="di-screen-flow-toggle"
+            :class="{ active: store.showScreenFlow }"
+          >
+            <GitMerge style="width: 14px; height: 14px;" />
+            <span>画面フロー</span>
+            <span v-if="store.screenFlowData.edges.length > 0" class="di-screen-flow-badge">
+              {{ store.screenFlowData.nodes.length }}画面 / {{ store.screenFlowData.edges.length }}遷移
+            </span>
+          </button>
+
+          <div v-if="store.showScreenFlow" class="di-screen-flow-body">
+            <div v-if="store.screenFlowData.edges.length === 0" class="di-screen-flow-empty">
+              navigate型のアクションが登録されていません
+            </div>
+            <div v-for="group in screenFlowGrouped" :key="group.node.path" class="di-flow-group">
+              <div
+                class="di-flow-node"
+                :class="{ 'di-flow-node-current': group.node.path === currentPath }"
+              >
+                <span class="di-flow-node-path">{{ group.node.path }}</span>
+                <span v-if="group.node.name !== group.node.path" class="di-flow-node-name">({{ group.node.name }})</span>
+              </div>
+              <div
+                v-for="edge in group.edges"
+                :key="edge.from + edge.to"
+                class="di-flow-edge"
+                @click="handleFlowEdgeClick(edge.selector)"
+              >
+                <span class="di-flow-arrow">→</span>
+                <span class="di-flow-target">{{ edge.to }}</span>
+                <span v-if="edge.label" class="di-flow-edge-label">[{{ edge.label }}]</span>
+              </div>
+            </div>
+            <div v-if="store.screenFlowData.orphanPages.length > 0" class="di-flow-orphans">
+              <div class="di-flow-orphans-header">遷移なしのページ</div>
+              <span v-for="p in store.screenFlowData.orphanPages" :key="p.path" class="di-flow-orphan-item">
+                {{ p.path }}
+              </span>
+            </div>
+          </div>
+        </div>
+
         </div><!-- /elements tab -->
 
         <!-- ===== MASTERS TAB ===== -->
@@ -2968,8 +3027,25 @@ function handleFlowEdgeClick(selector: string) {
   border-color: #60a5fa;
   background: rgba(96, 165, 250, 0.08);
 }
+.di-cross-search-section {
+  margin-bottom: 16px;
+}
+.di-cross-search-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 4px;
+}
 .di-cross-search-body {
   margin-top: 8px;
+}
+.di-cross-search-desc {
+  font-size: 10px;
+  color: #64748b;
+  line-height: 1.4;
 }
 .di-cross-search-input {
   width: 100%;
@@ -3635,6 +3711,98 @@ function handleFlowEdgeClick(selector: string) {
   margin: 12px 0 8px;
   padding-bottom: 4px;
   border-bottom: 1px solid #334155;
+}
+
+/* Element List */
+.di-element-list-section {
+  margin-top: 10px;
+  padding: 8px;
+  background: #1e293b;
+  border-radius: 8px;
+}
+.di-element-list-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+.di-element-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.di-element-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgba(15, 23, 42, 0.5);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.di-element-item:hover,
+.di-element-item-active {
+  background: rgba(51, 65, 85, 0.6);
+}
+.di-element-item-active {
+  outline: 1px solid rgba(96, 165, 250, 0.4);
+}
+.di-element-type-badge {
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  text-align: center;
+  min-width: 32px;
+}
+.di-element-type-datasource {
+  background: rgba(96, 165, 250, 0.15);
+  color: #60a5fa;
+}
+.di-element-type-action {
+  background: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+}
+.di-element-type-form {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+}
+.di-element-type-other {
+  background: rgba(100, 116, 139, 0.15);
+  color: #64748b;
+}
+.di-element-item-body {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+.di-element-item-label {
+  font-size: 12px;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.di-element-item-id {
+  font-size: 9px;
+  color: #64748b;
+  font-family: monospace;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.di-element-list-empty {
+  font-size: 11px;
+  color: #64748b;
+  text-align: center;
+  padding: 12px 0;
 }
 
 /* Export Summary */

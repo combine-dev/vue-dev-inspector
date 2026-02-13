@@ -1349,15 +1349,35 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   }
 
   function togglePanel() {
-    isPanelOpen.value = !isPanelOpen.value
+    if (isPanelOpen.value) {
+      closePanel()
+    } else {
+      openPanel()
+    }
+  }
+
+  function triggerLayoutRecalc() {
+    // Fire multiple times during transition for smooth highlight tracking
+    const times = [0, 50, 100, 150, 200, 250, 320]
+    times.forEach(t => setTimeout(() => window.dispatchEvent(new Event('resize')), t))
   }
 
   function openPanel() {
     isPanelOpen.value = true
+    if (typeof document !== 'undefined') {
+      document.body.style.transition = 'margin-right 0.3s ease'
+      document.body.style.marginRight = '360px'
+      triggerLayoutRecalc()
+    }
   }
 
   function closePanel() {
     isPanelOpen.value = false
+    if (typeof document !== 'undefined') {
+      document.body.style.transition = 'margin-right 0.3s ease'
+      document.body.style.marginRight = ''
+      triggerLayoutRecalc()
+    }
   }
 
   // Element config management
@@ -2387,7 +2407,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     remapTargetId.value = oldId
     isPickMode.value = true
     isEditMode.value = false
-    isPanelOpen.value = false
+    closePanel()
   }
 
   // Delete all broken annotations

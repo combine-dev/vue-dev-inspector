@@ -1,9 +1,9 @@
-import { ref as L, computed as Te, watch as Ee, nextTick as Z } from "vue";
-import { defineStore as Jt } from "pinia";
+import { ref as L, computed as Te, watch as Ee, nextTick as X } from "vue";
+import { defineStore as Gt } from "pinia";
 function u(y) {
   return y.replace(/\|/g, "\\|").replace(/\n/g, " ");
 }
-function Ge(y) {
+function Ke(y) {
   const C = {};
   for (const [q, B] of Object.entries(y)) {
     const t = B.pagePath || "/";
@@ -11,11 +11,11 @@ function Ge(y) {
   }
   return C;
 }
-function Gt(y) {
-  var C, q, B, t, W, z;
-  return y.elementType === "form" ? "入力" : y.elementType === "action" ? ((C = y.actionInfo) == null ? void 0 : C.type) === "navigate" ? "リンク" : (((q = y.actionInfo) == null ? void 0 : q.type) === "modal", "ボタン") : y.fieldInfo || ((B = y.note) == null ? void 0 : B.displayType) === "db_direct" || ((t = y.note) == null ? void 0 : t.displayType) === "db_formatted" ? "表示" : ((W = y.note) == null ? void 0 : W.displayType) === "calculated" ? "表示(計算)" : ((z = y.note) == null ? void 0 : z.displayType) === "static" ? "表示(固定)" : "表示";
-}
 function Wt(y) {
+  var C, q, B, t, W, Z;
+  return y.elementType === "form" ? "入力" : y.elementType === "action" ? ((C = y.actionInfo) == null ? void 0 : C.type) === "navigate" ? "リンク" : (((q = y.actionInfo) == null ? void 0 : q.type) === "modal", "ボタン") : y.fieldInfo || ((B = y.note) == null ? void 0 : B.displayType) === "db_direct" || ((t = y.note) == null ? void 0 : t.displayType) === "db_formatted" ? "表示" : ((W = y.note) == null ? void 0 : W.displayType) === "calculated" ? "表示(計算)" : ((Z = y.note) == null ? void 0 : Z.displayType) === "static" ? "表示(固定)" : "表示";
+}
+function zt(y) {
   var C, q, B, t;
   return (C = y.note) != null && C.text ? y.note.text : (q = y.fieldInfo) != null && q.description ? y.fieldInfo.description : y.fieldInfo ? `${y.fieldInfo.table}.${y.fieldInfo.column}` : (B = y.actionInfo) != null && B.description ? y.actionInfo.description : (t = y.formInfo) != null && t.description ? y.formInfo.description : y.id;
 }
@@ -37,11 +37,11 @@ function Kt(y) {
   }
   return (B = y.formInfo) != null && B.description && C.push(y.formInfo.description), C.join(" / ");
 }
-function We(y) {
-  var z, b, K;
+function Ye(y) {
+  var Z, b, z;
   const C = [], q = /* @__PURE__ */ new Set();
   for (const J of Object.values(y))
-    if ((z = J.auth) != null && z.roles)
+    if ((Z = J.auth) != null && Z.roles)
       for (const x of J.auth.roles)
         q.add(x);
   const B = [...q].sort();
@@ -54,7 +54,7 @@ function We(y) {
   C.push(`|------|------|------|${W ? W + "|" : ""}`);
   for (const [J, x] of Object.entries(y)) {
     const ie = x.name || J, H = (b = x.auth) != null && b.required ? "必須" : "不要";
-    if ((K = x.auth) != null && K.required) {
+    if ((z = x.auth) != null && z.required) {
       const A = x.auth.roles || [], O = B.map((T) => A.length === 0 || A.includes(T) ? " ○ " : " × ").join("|");
       C.push(`| ${u(ie)} | ${u(J)} | ${H} |${O ? O + "|" : ""}`);
     } else {
@@ -64,12 +64,12 @@ function We(y) {
   }
   return C.push(""), C;
 }
-function zt(y, C, q, B = {}) {
-  var ie, H, A, O, T, ae, Q, le, E, M, R, re, ee, te, X, U;
+function Yt(y, C, q, B = {}) {
+  var ie, H, A, O, T, ae, Q, le, E, M, R, re, ee, te, Y, U;
   const t = [];
   t.push("# 画面仕様（SDD）"), t.push("");
-  const W = Ge(y), z = /* @__PURE__ */ new Set([...Object.keys(C), ...Object.keys(W)]);
-  for (const f of z) {
+  const W = Ke(y), Z = /* @__PURE__ */ new Set([...Object.keys(C), ...Object.keys(W)]);
+  for (const f of Z) {
     const v = C[f], G = W[f] || [];
     if (t.push(`## ${f} — ${(v == null ? void 0 : v.name) || f}`), t.push(""), t.push("### 画面情報"), v != null && v.auth) {
       const $ = (ie = v.auth.roles) != null && ie.length ? ` (${v.auth.roles.join(", ")})` : "";
@@ -91,9 +91,9 @@ function zt(y, C, q, B = {}) {
     if (de.length > 0 || Se.length > 0) {
       t.push("### データソース"), t.push("| セレクタ | DB | 型 | NULL時 | 表示形式 | 計算ロジック |"), t.push("|---------|-----|-----|--------|---------|------------|");
       for (const { selector: $, config: P } of [...de, ...Se]) {
-        const i = P.fieldInfo, ne = i ? `${i.table}.${i.column}` : "", oe = (i == null ? void 0 : i.type) || "", Y = ((H = P.note) == null ? void 0 : H.nullDisplay) || "-", F = ((A = P.note) == null ? void 0 : A.displayFormat) || "";
+        const i = P.fieldInfo, ne = i ? `${i.table}.${i.column}` : "", oe = (i == null ? void 0 : i.type) || "", K = ((H = P.note) == null ? void 0 : H.nullDisplay) || "-", F = ((A = P.note) == null ? void 0 : A.displayFormat) || "";
         let _ = "";
-        ((O = P.note) == null ? void 0 : O.displayType) === "calculated" && P.note.calcDescription && (_ = P.note.calcDescription), (T = P.note) != null && T.storedCalc && P.note.storedCalcLogic && (_ = P.note.storedCalcLogic), t.push(`| ${u($)} | ${u(ne)} | ${u(oe)} | ${u(Y)} | ${u(F)} | ${u(_)} |`);
+        ((O = P.note) == null ? void 0 : O.displayType) === "calculated" && P.note.calcDescription && (_ = P.note.calcDescription), (T = P.note) != null && T.storedCalc && P.note.storedCalcLogic && (_ = P.note.storedCalcLogic), t.push(`| ${u($)} | ${u(ne)} | ${u(oe)} | ${u(K)} | ${u(F)} | ${u(_)} |`);
       }
       t.push("");
     }
@@ -103,19 +103,19 @@ function zt(y, C, q, B = {}) {
         const i = P.actionInfo, ne = (i == null ? void 0 : i.type) || "";
         let oe = (i == null ? void 0 : i.target) || "";
         i != null && i.method && (oe = `${i.method} ${oe}`);
-        const Y = (i == null ? void 0 : i.description) || ((ae = P.note) == null ? void 0 : ae.text) || "";
-        t.push(`| ${u($)} | ${u(ne)} | ${u(oe)} | ${u(Y)} |`);
+        const K = (i == null ? void 0 : i.description) || ((ae = P.note) == null ? void 0 : ae.text) || "";
+        t.push(`| ${u($)} | ${u(ne)} | ${u(oe)} | ${u(K)} |`);
       }
       t.push("");
     }
     if (ue.length > 0) {
       t.push("### フォーム"), t.push("| セレクタ | DB | 入力タイプ | 必須 | バリデーション | 初期値 |"), t.push("|---------|-----|----------|------|--------------|--------|");
       for (const { selector: $, config: P } of ue) {
-        const i = P.fieldInfo, ne = i ? `${i.table}.${i.column}` : "", oe = ((Q = P.formInfo) == null ? void 0 : Q.inputType) || "", Y = (le = P.formInfo) != null && le.required ? "Yes" : "", F = [
+        const i = P.fieldInfo, ne = i ? `${i.table}.${i.column}` : "", oe = ((Q = P.formInfo) == null ? void 0 : Q.inputType) || "", K = (le = P.formInfo) != null && le.required ? "Yes" : "", F = [
           ...((E = P.formInfo) == null ? void 0 : E.validation) || [],
           ...(i == null ? void 0 : i.validation) || []
         ].join(", "), _ = ((M = P.formInfo) == null ? void 0 : M.defaultValue) || "";
-        t.push(`| ${u($)} | ${u(ne)} | ${u(oe)} | ${Y} | ${u(F)} | ${u(_)} |`);
+        t.push(`| ${u($)} | ${u(ne)} | ${u(oe)} | ${K} | ${u(F)} | ${u(_)} |`);
       }
       t.push("");
     }
@@ -130,12 +130,12 @@ function zt(y, C, q, B = {}) {
       for (const { config: $ } of fe) {
         const P = $.actionInfo, i = P.csvSpec, ne = P.type === "csv_export" ? "CSV出力" : "CSV取込", oe = P.description || ((R = $.note) == null ? void 0 : R.text) || "";
         if (t.push(`#### ${ne}: ${oe}`), t.push(""), i) {
-          const Y = [];
-          if (i.encoding && Y.push(`- エンコーディング: ${i.encoding}`), i.delimiter) {
+          const K = [];
+          if (i.encoding && K.push(`- エンコーディング: ${i.encoding}`), i.delimiter) {
             const F = { ",": "カンマ", "	": "タブ", "|": "パイプ" };
-            Y.push(`- 区切り文字: ${F[i.delimiter] || i.delimiter}`);
+            K.push(`- 区切り文字: ${F[i.delimiter] || i.delimiter}`);
           }
-          if (i.hasHeaderRow !== void 0 && Y.push(`- ヘッダー行: ${i.hasHeaderRow ? "あり" : "なし"}`), i.filenamePattern && Y.push(`- ファイル名: ${i.filenamePattern}`), Y.length > 0 && (t.push("**ファイル設定**"), t.push(...Y), t.push("")), i.columns.length > 0 && (i.columns.some((_) => _.processing) ? (t.push("| No | 項目名 | DBマッピング | 加工ロジック | 型 | 必須 | バリデーション | フォーマット | 説明 |"), t.push("|----|--------|-------------|------------|-----|------|--------------|------------|------|"), i.columns.forEach((_, ge) => {
+          if (i.hasHeaderRow !== void 0 && K.push(`- ヘッダー行: ${i.hasHeaderRow ? "あり" : "なし"}`), i.filenamePattern && K.push(`- ファイル名: ${i.filenamePattern}`), K.length > 0 && (t.push("**ファイル設定**"), t.push(...K), t.push("")), i.columns.length > 0 && (i.columns.some((_) => _.processing) ? (t.push("| No | 項目名 | DBマッピング | 加工ロジック | 型 | 必須 | バリデーション | フォーマット | 説明 |"), t.push("|----|--------|-------------|------------|-----|------|--------------|------------|------|"), i.columns.forEach((_, ge) => {
             t.push(`| ${ge + 1} | ${u(_.name)} | ${u(_.dbMapping || "")} | ${u(_.processing || "")} | ${u(_.type || "")} | ${_.required ? "Yes" : ""} | ${u(_.validation || "")} | ${u(_.format || "")} | ${u(_.description || "")} |`);
           })) : (t.push("| No | 項目名 | DBマッピング | 型 | 必須 | バリデーション | フォーマット | 説明 |"), t.push("|----|--------|-------------|-----|------|--------------|------------|------|"), i.columns.forEach((_, ge) => {
             t.push(`| ${ge + 1} | ${u(_.name)} | ${u(_.dbMapping || "")} | ${u(_.type || "")} | ${_.required ? "Yes" : ""} | ${u(_.validation || "")} | ${u(_.format || "")} | ${u(_.description || "")} |`);
@@ -179,22 +179,22 @@ function zt(y, C, q, B = {}) {
     }
     t.push("---"), t.push("");
   }
-  const b = We(C);
+  const b = Ye(C);
   b.length > 0 && t.push(...b);
-  const K = [];
+  const z = [];
   for (const [f, v] of Object.entries(y))
     if (((ee = v.actionInfo) == null ? void 0 : ee.type) === "navigate" && v.actionInfo.target) {
       const G = v.pagePath || "/";
-      K.push({
+      z.push({
         from: G,
         to: v.actionInfo.target,
         trigger: v.actionInfo.description || ((te = v.note) == null ? void 0 : te.text) || f
       });
     }
-  if (K.length > 0) {
+  if (z.length > 0) {
     t.push("## 画面フロー"), t.push("| 遷移元 | 遷移先 | トリガー |"), t.push("|--------|--------|---------|");
-    for (const f of K) {
-      const v = ((X = C[f.from]) == null ? void 0 : X.name) || f.from, G = ((U = C[f.to]) == null ? void 0 : U.name) || f.to;
+    for (const f of z) {
+      const v = ((Y = C[f.from]) == null ? void 0 : Y.name) || f.from, G = ((U = C[f.to]) == null ? void 0 : U.name) || f.to;
       t.push(`| ${u(v)} (${u(f.from)}) | ${u(G)} (${u(f.to)}) | ${u(f.trigger)} |`);
     }
     t.push("");
@@ -232,12 +232,12 @@ function zt(y, C, q, B = {}) {
   return t.join(`
 `);
 }
-function Yt(y, C, q, B = {}) {
+function Xt(y, C, q, B = {}) {
   var x, ie, H;
   const t = [];
   t.push("# 画面仕様書"), t.push("");
-  const W = Ge(y), z = /* @__PURE__ */ new Set([...Object.keys(C), ...Object.keys(W)]);
-  for (const A of z) {
+  const W = Ke(y), Z = /* @__PURE__ */ new Set([...Object.keys(C), ...Object.keys(W)]);
+  for (const A of Z) {
     const O = C[A], T = W[A] || [];
     if (t.push(`## ${(O == null ? void 0 : O.name) || A}`), t.push(`**URL:** ${A}`), t.push(""), O != null && O.description && (t.push("### 概要"), t.push(O.description), t.push("")), O != null && O.auth) {
       if (t.push("### 認証"), t.push(`- ${O.auth.required ? "ログイン必須" : "ログイン不要"}`), (x = O.auth.roles) != null && x.length) {
@@ -248,8 +248,8 @@ function Yt(y, C, q, B = {}) {
     }
     T.length > 0 && (t.push("### 画面項目"), t.push("| No | 項目名 | 種別 | 説明 | 必須 | 備考 |"), t.push("|----|--------|------|------|------|------|"), T.forEach(({ config: E }, M) => {
       var U, f, v, G;
-      const R = Wt(E), re = Gt(E), ee = Kt(E), te = (U = E.formInfo) != null && U.required ? "必須" : "", X = [];
-      (f = E.note) != null && f.condition && X.push(E.note.condition), (v = E.note) != null && v.unit && X.push(`単位: ${E.note.unit}`), (G = E.note) != null && G.nullDisplay && E.note.nullDisplay !== "-" && X.push(`空欄時: ${E.note.nullDisplay}`), t.push(`| ${M + 1} | ${u(R)} | ${re} | ${u(ee)} | ${te} | ${u(X.join(" / "))} |`);
+      const R = zt(E), re = Wt(E), ee = Kt(E), te = (U = E.formInfo) != null && U.required ? "必須" : "", Y = [];
+      (f = E.note) != null && f.condition && Y.push(E.note.condition), (v = E.note) != null && v.unit && Y.push(`単位: ${E.note.unit}`), (G = E.note) != null && G.nullDisplay && E.note.nullDisplay !== "-" && Y.push(`空欄時: ${E.note.nullDisplay}`), t.push(`| ${M + 1} | ${u(R)} | ${re} | ${u(ee)} | ${te} | ${u(Y.join(" / "))} |`);
     }), t.push(""));
     const ae = (O == null ? void 0 : O.apis) || [];
     if (ae.length > 0) {
@@ -276,9 +276,9 @@ function Yt(y, C, q, B = {}) {
             t.push(`| ${f + 1} | ${u(U.name)} | ${u(U.type || "")} | ${U.required ? "必須" : ""} | ${u(U.description || "")} |`);
           })), t.push("")), R.errorDefs && R.errorDefs.length > 0) {
             t.push("**エラー時の動作**"), t.push("| エラー条件 | メッセージ |"), t.push("|----------|----------|");
-            for (const X of R.errorDefs) {
-              const U = X.column ? `[${X.column}] ` : "";
-              t.push(`| ${u(U + X.condition)} | ${u(X.message)} |`);
+            for (const Y of R.errorDefs) {
+              const U = Y.column ? `[${Y.column}] ` : "";
+              t.push(`| ${u(U + Y.condition)} | ${u(Y.message)} |`);
             }
             t.push("");
           }
@@ -310,20 +310,20 @@ function Yt(y, C, q, B = {}) {
       t.push("");
     }
   }
-  const K = Object.values(B);
-  if (K.length > 0) {
+  const z = Object.values(B);
+  if (z.length > 0) {
     t.push("## バッチ処理"), t.push("");
-    for (const A of K)
+    for (const A of z)
       t.push(`### ${A.name}`), A.schedule && t.push(`- 実行タイミング: ${A.schedule}`), A.description && t.push(`- 概要: ${A.description}`), t.push("");
   }
-  const J = We(C);
+  const J = Ye(C);
   return J.length > 0 && t.push(...J), t.join(`
 `);
 }
-const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConfigs", Ve = "devInspector:masterDefinitions", Je = "devInspector:batchDefinitions", Qt = Jt("devInspector", () => {
-  const y = L({}), C = L(!1), q = L(!1), B = L(!1), t = L(!1), W = L(null), z = L(!1), b = L({}), K = L(null), J = L(null), x = L({}), ie = L(!1), H = L({}), A = L({}), O = Te(() => y.value.storageKey || Zt), T = L(null), ae = L("all"), Q = L(!0), le = L("all"), E = L(!1), M = L(""), R = L("column"), re = L(!1), ee = L([]), te = L(null), X = L(!1), U = L(/* @__PURE__ */ new Set()), f = "devInspector:hiddenAnalysisSelectors", v = Te(() => y.value.enabledInProduction ? !0 : typeof import.meta < "u" && Xt ? !1 : process.env.NODE_ENV === "development"), G = L(!1);
+const Zt = {}, Qt = "devInspector:elementConfigs", Ge = "devInspector:screenConfigs", We = "devInspector:masterDefinitions", ze = "devInspector:batchDefinitions", en = Gt("devInspector", () => {
+  const y = L({}), C = L(!1), q = L(!1), B = L(!1), t = L(!1), W = L(null), Z = L(!1), b = L({}), z = L(null), J = L(null), x = L({}), ie = L(!1), H = L({}), A = L({}), O = Te(() => y.value.storageKey || Qt), T = L(null), ae = L("all"), Q = L(!0), le = L("all"), E = L(!1), M = L(""), R = L("column"), re = L(!1), ee = L([]), te = L(null), Y = L(!1), U = L(/* @__PURE__ */ new Set()), f = "devInspector:hiddenAnalysisSelectors", v = Te(() => y.value.enabledInProduction ? !0 : typeof import.meta < "u" && Zt ? !1 : process.env.NODE_ENV === "development"), G = L(!1);
   function he(e = {}) {
-    y.value = e, Se(), we(), oe(), Ye(), wt(), e.analysisData && (T.value = e.analysisData);
+    y.value = e, Se(), we(), oe(), Qe(), Ct(), e.analysisData && (T.value = e.analysisData);
     const n = e.analysisDataUrl ?? "/dev-inspector-analysis.json";
     e.autoLoadAnalysis !== !1 && v.value && de(n);
   }
@@ -376,14 +376,14 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     }
   }
   Ee(b, () => {
-    Z(() => {
+    X(() => {
       fe();
     });
   }, { deep: !0 });
   function we() {
     try {
       if (typeof window < "u") {
-        const e = localStorage.getItem(He);
+        const e = localStorage.getItem(Ge);
         e && (x.value = JSON.parse(e));
       }
     } catch (e) {
@@ -394,14 +394,14 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     try {
       if (typeof window < "u") {
         const e = JSON.stringify(x.value);
-        localStorage.setItem(He, e);
+        localStorage.setItem(Ge, e);
       }
     } catch (e) {
       console.error("[DevInspector] Failed to save screen configs:", e);
     }
   }
   Ee(x, () => {
-    Z(() => {
+    X(() => {
       $();
     });
   }, { deep: !0 });
@@ -413,32 +413,32 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     x.value = {
       ...x.value,
       [e.path]: e
-    }, Z(() => $());
+    }, X(() => $());
   }
   function ne(e) {
     const { [e]: n, ...o } = x.value;
-    x.value = o, Z(() => $());
+    x.value = o, X(() => $());
   }
   function oe() {
     try {
       if (typeof window < "u") {
-        const e = localStorage.getItem(Ve);
+        const e = localStorage.getItem(We);
         e && (H.value = JSON.parse(e));
       }
     } catch (e) {
       console.error("[DevInspector] Failed to load master definitions:", e);
     }
   }
-  function Y() {
+  function K() {
     try {
-      typeof window < "u" && localStorage.setItem(Ve, JSON.stringify(H.value));
+      typeof window < "u" && localStorage.setItem(We, JSON.stringify(H.value));
     } catch (e) {
       console.error("[DevInspector] Failed to save master definitions:", e);
     }
   }
   Ee(H, () => {
-    Z(() => {
-      Y();
+    X(() => {
+      K();
     });
   }, { deep: !0 });
   function F(e) {
@@ -448,23 +448,23 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     H.value = {
       ...H.value,
       [e.id]: { ...e, updatedAt: (/* @__PURE__ */ new Date()).toISOString() }
-    }, Z(() => Y());
+    }, X(() => K());
   }
   function ge(e) {
     const { [e]: n, ...o } = H.value;
-    H.value = o, Z(() => Y());
+    H.value = o, X(() => K());
   }
-  function Ke(e) {
+  function Xe(e) {
     return Object.values(H.value).filter((n) => n.table === e);
   }
-  function ze(e) {
+  function Ze(e) {
     var n;
     return ((n = H.value[e]) == null ? void 0 : n.entries) || [];
   }
-  function Ye() {
+  function Qe() {
     try {
       if (typeof window < "u") {
-        const e = localStorage.getItem(Je);
+        const e = localStorage.getItem(ze);
         e && (A.value = JSON.parse(e));
       }
     } catch (e) {
@@ -473,30 +473,30 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
   }
   function Pe() {
     try {
-      typeof window < "u" && localStorage.setItem(Je, JSON.stringify(A.value));
+      typeof window < "u" && localStorage.setItem(ze, JSON.stringify(A.value));
     } catch (e) {
       console.error("[DevInspector] Failed to save batch definitions:", e);
     }
   }
   Ee(A, () => {
-    Z(() => {
+    X(() => {
       Pe();
     });
   }, { deep: !0 });
-  function Xe(e) {
+  function et(e) {
     return A.value[e];
   }
-  function Ze(e) {
+  function tt(e) {
     A.value = {
       ...A.value,
       [e.id]: { ...e, updatedAt: (/* @__PURE__ */ new Date()).toISOString() }
-    }, Z(() => Pe());
+    }, X(() => Pe());
   }
-  function Qe(e) {
+  function nt(e) {
     const { [e]: n, ...o } = A.value;
-    A.value = o, Z(() => Pe());
+    A.value = o, X(() => Pe());
   }
-  function et() {
+  function ot() {
     var s, r, h, c, m;
     const e = [], n = /* @__PURE__ */ new Set(), o = {};
     for (const d of Object.values(b.value)) {
@@ -563,7 +563,7 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     }
     return e;
   }
-  const tt = Te(() => {
+  const st = Te(() => {
     var s, r, h, c, m, d, S, p, a, l, g, k, j, I, D;
     const e = M.value.trim().toLowerCase();
     if (!e) return [];
@@ -571,8 +571,8 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     for (const [N, w] of Object.entries(b.value)) {
       const V = w.pagePath || "/", ye = x.value[V], Ie = (ye == null ? void 0 : ye.name) || V;
       if (n === "column") {
-        const Le = (s = w.fieldInfoList) != null && s.length ? w.fieldInfoList : w.fieldInfo ? [w.fieldInfo] : [];
-        for (const se of Le)
+        const Ne = (s = w.fieldInfoList) != null && s.length ? w.fieldInfoList : w.fieldInfo ? [w.fieldInfo] : [];
+        for (const se of Ne)
           (`${se.table}.${se.column}`.toLowerCase().includes(e) || se.table.toLowerCase().includes(e) || se.column.toLowerCase().includes(e)) && o.push({
             pagePath: V,
             pageName: Ie,
@@ -581,8 +581,8 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
             matchedField: `${se.table}.${se.column}`,
             matchContext: `${se.type || ""} ${se.description || ""}`.trim()
           });
-        const Ae = ((r = w.note) == null ? void 0 : r.calcSources) || [], Vt = ((h = w.note) == null ? void 0 : h.storedCalcSources) || [];
-        for (const se of [...Ae, ...Vt])
+        const Ae = ((r = w.note) == null ? void 0 : r.calcSources) || [], Jt = ((h = w.note) == null ? void 0 : h.storedCalcSources) || [];
+        for (const se of [...Ae, ...Jt])
           se.toLowerCase().includes(e) && o.push({
             pagePath: V,
             pageName: Ie,
@@ -601,7 +601,7 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
           matchContext: w.actionInfo.description || w.actionInfo.type
         });
       else if (n === "text") {
-        const Le = [
+        const Ne = [
           (p = w.note) == null ? void 0 : p.text,
           (a = w.note) == null ? void 0 : a.calcDescription,
           (l = w.note) == null ? void 0 : l.formatDescription,
@@ -611,7 +611,7 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
           N
           // selector itself
         ].filter(Boolean);
-        for (const Ae of Le)
+        for (const Ae of Ne)
           if (Ae.toLowerCase().includes(e)) {
             o.push({
               pagePath: V,
@@ -638,7 +638,7 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
           });
     return o;
   });
-  function nt() {
+  function it() {
     if (typeof document > "u") return [];
     const e = typeof window < "u" ? window.location.pathname : "/", n = /* @__PURE__ */ new Set();
     for (const [a, l] of Object.entries(b.value))
@@ -731,15 +731,15 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     });
     return ee.value = p, p;
   }
-  function ot(e, n) {
+  function at(e, n) {
     const o = {
       elementType: n,
       pagePath: typeof window < "u" ? window.location.pathname : "/",
       note: { text: "", type: "todo" }
     };
-    n === "action" ? o.actionInfo = { type: "function", description: "" } : n === "form" && (o.formInfo = { inputType: "text" }), Oe(e, o), K.value = e, ee.value = ee.value.filter((s) => s.selector !== e);
+    n === "action" ? o.actionInfo = { type: "function", description: "" } : n === "form" && (o.formInfo = { inputType: "text" }), De(e, o), z.value = e, ee.value = ee.value.filter((s) => s.selector !== e);
   }
-  const st = Te(() => {
+  const rt = Te(() => {
     var c, m, d, S;
     const e = /* @__PURE__ */ new Map(), n = [], o = /* @__PURE__ */ new Set();
     for (const [p, a] of Object.entries(x.value))
@@ -790,31 +790,31 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     const h = s.filter((p) => !r.has(p.path));
     return { nodes: s, edges: n, orphanPages: h };
   });
-  async function it() {
-    v.value && (C.value ? (C.value = !1, q.value = !1, K.value = null) : await Ne());
+  async function ct() {
+    v.value && (C.value ? (C.value = !1, q.value = !1, z.value = null) : await xe());
   }
-  async function Ne() {
+  async function xe() {
     if (!v.value) return;
     if (T.value && !G.value && y.value.autoApplyAnalysis !== !1) {
       t.value = !0, C.value = !0;
       try {
-        await new Promise((n) => setTimeout(n, 300)), ke(), G.value = !0;
+        await new Promise((n) => setTimeout(n, 300)), qe(), G.value = !0;
       } finally {
         t.value = !1;
       }
     } else
       C.value = !0;
   }
-  function at() {
-    C.value = !1, q.value = !1, K.value = null;
+  function lt() {
+    C.value = !1, q.value = !1, z.value = null;
   }
-  function rt() {
-    q.value = !q.value, q.value || (K.value = null), q.value && (B.value = !1);
+  function ut() {
+    q.value = !q.value, q.value || (z.value = null), q.value && (B.value = !1);
   }
-  function ct() {
+  function ft() {
     B.value = !B.value, B.value && (q.value = !1), J.value = null;
   }
-  function lt(e) {
+  function dt(e) {
     J.value = e;
   }
   function pe(e) {
@@ -848,32 +848,35 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     }
     return n.join(" > ");
   }
-  function ut() {
+  function pt() {
     const e = typeof window < "u" ? window.location.pathname : "/";
     return Object.keys(b.value).filter((n) => {
       const o = b.value[n];
       return o ? (n.includes(">") || n.startsWith("#") || n.startsWith("[") || n.startsWith(".")) && (!o.componentPath || o.componentPath.includes(e) || e === "/") : !1;
     });
   }
-  function ft(e) {
+  function ht(e) {
     W.value = e;
   }
-  function dt() {
+  function mt() {
     W.value = null;
   }
-  function pt() {
-    z.value = !z.value;
+  function gt() {
+    Z.value ? Oe() : Re();
   }
-  function ht() {
-    z.value = !0;
+  function je() {
+    [0, 50, 100, 150, 200, 250, 320].forEach((n) => setTimeout(() => window.dispatchEvent(new Event("resize")), n));
   }
-  function mt() {
-    z.value = !1;
+  function Re() {
+    Z.value = !0, typeof document < "u" && (document.body.style.transition = "margin-right 0.3s ease", document.body.style.marginRight = "360px", je());
   }
-  function gt(e) {
+  function Oe() {
+    Z.value = !1, typeof document < "u" && (document.body.style.transition = "margin-right 0.3s ease", document.body.style.marginRight = "", je());
+  }
+  function vt(e) {
     return b.value[e];
   }
-  function Oe(e, n) {
+  function De(e, n) {
     var c;
     const o = (/* @__PURE__ */ new Date()).toISOString(), s = b.value[e], r = typeof window < "u" ? window.location.pathname : "/", h = {
       ...s,
@@ -887,13 +890,13 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     b.value = {
       ...b.value,
       [e]: h
-    }, Z(() => fe());
+    }, X(() => fe());
   }
-  function vt(e) {
+  function yt(e) {
     const { [e]: n, ...o } = b.value;
-    b.value = o, Z(() => fe());
+    b.value = o, X(() => fe());
   }
-  function xe(e) {
+  function _e(e) {
     var j;
     const n = ((j = e.textContent) == null ? void 0 : j.trim()) || "", o = e.tagName.toUpperCase();
     if (!n && o !== "INPUT" && o !== "SELECT" && o !== "TEXTAREA")
@@ -1061,7 +1064,7 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
       isStatic: !1
     } : null;
   }
-  function je(e, n) {
+  function ke(e, n) {
     var l, g, k, j, I;
     const o = {}, s = ((l = e.textContent) == null ? void 0 : l.trim()) || "", r = e.getAttribute("data-di-binding");
     e.getAttribute("data-di-db"), e.getAttribute("data-di-component"), e.getAttribute("data-di-db-comment");
@@ -1092,7 +1095,7 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
         text: `【データバインディング】${c}${m ? ` → ${m}` : ""}`
       }, o;
     }
-    const a = xe(e);
+    const a = _e(e);
     if (a)
       if (o.sourceBinding = a, a.isStatic)
         o.note = {
@@ -1115,7 +1118,7 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     return o;
   }
   const be = L(!1), $e = L(0), Ce = L([]);
-  async function Re(e = {}) {
+  async function Be(e = {}) {
     be.value = !0, $e.value = 0, Ce.value = [];
     const { rescan: n = !1 } = e;
     if (n) {
@@ -1125,7 +1128,7 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
       });
       for (const r of s)
         delete b.value[r];
-      Z(() => fe());
+      X(() => fe());
     }
     try {
       const o = [
@@ -1185,8 +1188,8 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
       for (let S = 0; S < r.length; S += d) {
         const p = r.slice(S, S + d);
         for (const a of p) {
-          const l = pe(a), g = je(a, l);
-          g.sourceBinding && (Ce.value.push({ selector: l, element: a, detected: g }), Oe(l, g), m++), c++, $e.value = Math.round(c / h * 100);
+          const l = pe(a), g = ke(a, l);
+          g.sourceBinding && (Ce.value.push({ selector: l, element: a, detected: g }), De(l, g), m++), c++, $e.value = Math.round(c / h * 100);
         }
         await new Promise((a) => setTimeout(a, 10));
       }
@@ -1195,8 +1198,8 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
       be.value = !1, $e.value = 100;
     }
   }
-  const _e = L([]), De = L("");
-  async function yt(e) {
+  const Ue = L([]), Le = L("");
+  async function bt(e) {
     var o;
     if (!e)
       return console.warn("[DevInspector] Router not provided for all pages scan"), [];
@@ -1206,12 +1209,12 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
       const s = e.getRoutes(), r = [];
       for (const h of s)
         h.path.includes(":") && !h.path.includes("?") || h.redirect || h.path !== "/:pathMatch(.*)*" && ((o = h.meta) != null && o.devInspectorSkip || r.push(h.path));
-      _e.value = r;
+      Ue.value = r;
       for (const h of r) {
-        De.value = h;
+        Le.value = h;
         try {
           await e.push(h), await new Promise((m) => setTimeout(m, 500));
-          const c = await Re();
+          const c = await Be();
           n.push({ page: h, count: c });
         } catch (c) {
           console.warn(`[DevInspector] Failed to scan page ${h}:`, c), n.push({ page: h, count: 0 });
@@ -1219,14 +1222,14 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
       }
       return n;
     } finally {
-      be.value = !1, De.value = "";
+      be.value = !1, Le.value = "";
     }
   }
-  function bt() {
+  function $t() {
     Ce.value = [], $e.value = 0;
   }
   const ce = L([]);
-  async function ke() {
+  async function qe() {
     var h;
     if (!T.value)
       return console.warn("[DevInspector] No analysis data loaded. Call loadAnalysisData first."), 0;
@@ -1309,20 +1312,20 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     }
     return console.log(`[DevInspector] Applied analysis: ${ce.value.filter((c) => c.matched).length}/${ce.value.length} elements matched`), ce.value.filter((c) => c.matched).length;
   }
-  function $t() {
+  function St() {
     ce.value = [];
   }
-  function St(e) {
-    ce.value = ce.value.filter((n) => n.selector !== e), U.value.add(e), Ct();
+  function wt(e) {
+    ce.value = ce.value.filter((n) => n.selector !== e), U.value.add(e), It();
   }
-  function wt() {
+  function Ct() {
     try {
       const e = localStorage.getItem(f);
       e && (U.value = new Set(JSON.parse(e)));
     } catch {
     }
   }
-  function Ct() {
+  function It() {
     try {
       localStorage.setItem(
         f,
@@ -1331,21 +1334,21 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     } catch {
     }
   }
-  function It() {
+  function At() {
     U.value.clear(), localStorage.removeItem(f);
   }
-  function Be() {
+  function Fe() {
     const e = {
       removed: [...U.value],
       exportedAt: (/* @__PURE__ */ new Date()).toISOString()
     };
     return JSON.stringify(e, null, 2);
   }
-  function At(e = "dev-inspector-changes.json") {
-    const n = Be(), o = new Blob([n], { type: "application/json" }), s = URL.createObjectURL(o), r = document.createElement("a");
+  function Tt(e = "dev-inspector-changes.json") {
+    const n = Fe(), o = new Blob([n], { type: "application/json" }), s = URL.createObjectURL(o), r = document.createElement("a");
     r.href = s, r.download = e, document.body.appendChild(r), r.click(), document.body.removeChild(r), URL.revokeObjectURL(s);
   }
-  function Ue() {
+  function Me() {
     if (!T.value) return [];
     const e = [], n = /* @__PURE__ */ new Set();
     for (const o of Object.values(T.value.components))
@@ -1358,8 +1361,8 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
         }));
     return e.sort((o, s) => o.db && !s.db ? -1 : !o.db && s.db ? 1 : o.binding.localeCompare(s.binding));
   }
-  function Tt(e) {
-    const n = Ue();
+  function Et(e) {
+    const n = Me();
     if (!e) return n;
     const o = e.toLowerCase();
     return n.filter(
@@ -1369,7 +1372,7 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
       }
     );
   }
-  function qe() {
+  function He() {
     var n, o;
     if (!((o = (n = T.value) == null ? void 0 : n.dbSchema) != null && o.tables)) return [];
     const e = [];
@@ -1384,8 +1387,8 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
         });
     return e.sort((s, r) => s.table !== r.table ? s.table.localeCompare(r.table) : s.column.localeCompare(r.column));
   }
-  function Et(e) {
-    const n = qe();
+  function Pt(e) {
+    const n = He();
     if (!e) return n;
     const o = e.toLowerCase();
     return n.filter(
@@ -1395,7 +1398,7 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
       }
     );
   }
-  function Pt() {
+  function Ot() {
     var o, s;
     const e = [], n = [];
     if (!((o = T.value) != null && o.components)) return { pageLoad: e, action: n };
@@ -1408,7 +1411,7 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     }
     return { pageLoad: e, action: n };
   }
-  function Ot(e) {
+  function Dt(e) {
     var n;
     if (!((n = T.value) != null && n.components)) return null;
     for (const o of Object.values(T.value.components))
@@ -1419,12 +1422,12 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
       }
     return null;
   }
-  function Dt(e) {
+  function Lt(e) {
     const n = e.tagName.toUpperCase();
     return n === "INPUT" || n === "SELECT" || n === "TEXTAREA" ? "form" : n === "BUTTON" || n === "A" && e.hasAttribute("href") || e.getAttribute("role") === "button" || e.closest("button") || e.closest("a[href]") ? "action" : "datasource";
   }
-  const ve = L([]), Fe = L(null);
-  function Lt() {
+  const ve = L([]), Ve = L(null);
+  function Nt() {
     if (typeof document > "u") return [];
     const e = typeof window < "u" ? window.location.pathname : "/", n = [];
     for (const [o, s] of Object.entries(b.value))
@@ -1436,42 +1439,42 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
         }
     return ve.value = n, n;
   }
-  function Nt(e, n) {
+  function xt(e, n) {
     const o = b.value[e];
     if (!o) return;
     const { [e]: s, ...r } = b.value;
     b.value = {
       ...r,
       [n]: { ...o, id: n, updatedAt: (/* @__PURE__ */ new Date()).toISOString() }
-    }, ve.value = ve.value.filter((h) => h !== e), Z(() => fe());
+    }, ve.value = ve.value.filter((h) => h !== e), X(() => fe());
   }
-  function xt(e) {
-    Fe.value = e, B.value = !0, q.value = !1, z.value = !1;
+  function jt(e) {
+    Ve.value = e, B.value = !0, q.value = !1, Oe();
   }
-  function jt() {
+  function Rt() {
     const e = ve.value;
     if (e.length === 0) return;
     const n = { ...b.value };
     for (const o of e)
       delete n[o];
-    b.value = n, ve.value = [], Z(() => fe());
+    b.value = n, ve.value = [], X(() => fe());
   }
-  function Rt() {
+  function _t() {
     Q.value = !Q.value;
   }
-  function _t(e) {
-    K.value = e;
-  }
-  function kt() {
-    K.value = null;
+  function kt(e) {
+    z.value = e;
   }
   function Bt() {
+    z.value = null;
+  }
+  function Ut() {
     return JSON.stringify({
       elementConfigs: b.value,
       screenConfigs: x.value
     }, null, 2);
   }
-  function Me() {
+  function Je() {
     const e = {
       _meta: {
         version: "1.0.0",
@@ -1483,11 +1486,11 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     };
     return JSON.stringify(e, null, 2);
   }
-  function Ut(e = "dev-annotations.json") {
-    const n = Me(), o = new Blob([n], { type: "application/json" }), s = URL.createObjectURL(o), r = document.createElement("a");
+  function qt(e = "dev-annotations.json") {
+    const n = Je(), o = new Blob([n], { type: "application/json" }), s = URL.createObjectURL(o), r = document.createElement("a");
     r.href = s, r.download = e, document.body.appendChild(r), r.click(), document.body.removeChild(r), URL.revokeObjectURL(s);
   }
-  function qt(e) {
+  function Ft(e) {
     try {
       const n = JSON.parse(e), o = n.annotations || n.elementConfigs || n;
       b.value = { ...b.value, ...o }, n.screenConfigs && (x.value = { ...x.value, ...n.screenConfigs });
@@ -1495,15 +1498,15 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
       throw console.error("[DevInspector] Failed to import configs:", n), new Error("Invalid JSON format");
     }
   }
-  function Ft() {
+  function Mt() {
     b.value = {};
   }
-  function Mt(e = "screen-spec-sdd.md") {
-    const n = zt(b.value, x.value, H.value, A.value), o = new Blob([n], { type: "text/markdown;charset=utf-8" }), s = URL.createObjectURL(o), r = document.createElement("a");
+  function Ht(e = "screen-spec-sdd.md") {
+    const n = Yt(b.value, x.value, H.value, A.value), o = new Blob([n], { type: "text/markdown;charset=utf-8" }), s = URL.createObjectURL(o), r = document.createElement("a");
     r.href = s, r.download = e, document.body.appendChild(r), r.click(), document.body.removeChild(r), URL.revokeObjectURL(s);
   }
-  function Ht(e = "screen-spec-client.md") {
-    const n = Yt(b.value, x.value, H.value, A.value), o = new Blob([n], { type: "text/markdown;charset=utf-8" }), s = URL.createObjectURL(o), r = document.createElement("a");
+  function Vt(e = "screen-spec-client.md") {
+    const n = Xt(b.value, x.value, H.value, A.value), o = new Blob([n], { type: "text/markdown;charset=utf-8" }), s = URL.createObjectURL(o), r = document.createElement("a");
     r.href = s, r.download = e, document.body.appendChild(r), r.click(), document.body.removeChild(r), URL.revokeObjectURL(s);
   }
   return {
@@ -1515,119 +1518,119 @@ const Xt = {}, Zt = "devInspector:elementConfigs", He = "devInspector:screenConf
     isInitializing: t,
     hoveredSelector: J,
     currentScreenSpec: W,
-    isPanelOpen: z,
+    isPanelOpen: Z,
     elementConfigs: b,
-    editingElementId: K,
+    editingElementId: z,
     // Screen configs
     screenConfigs: x,
     editingScreen: ie,
     getScreenConfig: P,
     setScreenConfig: i,
     deleteScreenConfig: ne,
-    suggestScreenApis: et,
+    suggestScreenApis: ot,
     // Actions
     init: he,
-    toggle: it,
-    enable: Ne,
-    disable: at,
-    toggleEditMode: rt,
-    togglePickMode: ct,
-    setHoveredSelector: lt,
+    toggle: ct,
+    enable: xe,
+    disable: lt,
+    toggleEditMode: ut,
+    togglePickMode: ft,
+    setHoveredSelector: dt,
     generateSelector: pe,
-    getConfiguredSelectors: ut,
-    setScreenSpec: ft,
-    clearScreenSpec: dt,
-    togglePanel: pt,
-    openPanel: ht,
-    closePanel: mt,
-    getElementConfig: gt,
-    setElementConfig: Oe,
-    deleteElementConfig: vt,
-    startEditing: _t,
-    stopEditing: kt,
-    exportConfigs: Bt,
-    exportAsFile: Me,
-    downloadAnnotations: Ut,
-    downloadSddSpec: Mt,
-    downloadClientSpec: Ht,
-    importConfigs: qt,
-    clearAllConfigs: Ft,
-    detectSourceBinding: xe,
-    autoDetectElementInfo: je,
+    getConfiguredSelectors: pt,
+    setScreenSpec: ht,
+    clearScreenSpec: mt,
+    togglePanel: gt,
+    openPanel: Re,
+    closePanel: Oe,
+    getElementConfig: vt,
+    setElementConfig: De,
+    deleteElementConfig: yt,
+    startEditing: kt,
+    stopEditing: Bt,
+    exportConfigs: Ut,
+    exportAsFile: Je,
+    downloadAnnotations: qt,
+    downloadSddSpec: Ht,
+    downloadClientSpec: Vt,
+    importConfigs: Ft,
+    clearAllConfigs: Mt,
+    detectSourceBinding: _e,
+    autoDetectElementInfo: ke,
     // Scan
     isScanning: be,
     scanProgress: $e,
     scanResults: Ce,
-    scanCurrentPage: Re,
-    scanAllPages: yt,
-    allPagesRoutes: _e,
-    currentScanPage: De,
-    clearScanResults: bt,
+    scanCurrentPage: Be,
+    scanAllPages: bt,
+    allPagesRoutes: Ue,
+    currentScanPage: Le,
+    clearScanResults: $t,
     // Analysis data
     analysisData: T,
     loadAnalysisData: de,
     getAnalyzedElement: me,
     getAnalyzedElementsForPage: ue,
     analysisResults: ce,
-    applyAnalysisToPage: ke,
-    clearAnalysisResults: $t,
-    removeAnalysisResult: St,
-    clearHiddenSelectors: It,
+    applyAnalysisToPage: qe,
+    clearAnalysisResults: St,
+    removeAnalysisResult: wt,
+    clearHiddenSelectors: At,
     hiddenAnalysisSelectors: U,
     analysisFilter: ae,
-    exportChangesForCli: Be,
-    downloadChanges: At,
-    getAvailableBindings: Ue,
-    searchBindings: Tt,
-    getSchemaColumns: qe,
-    searchSchemaColumns: Et,
-    getCurrentPageApis: Pt,
-    getApiSourceForBinding: Ot,
+    exportChangesForCli: Fe,
+    downloadChanges: Tt,
+    getAvailableBindings: Me,
+    searchBindings: Et,
+    getSchemaColumns: He,
+    searchSchemaColumns: Pt,
+    getCurrentPageApis: Ot,
+    getApiSourceForBinding: Dt,
     // Note highlights
     showNoteHighlights: Q,
-    toggleNoteHighlights: Rt,
+    toggleNoteHighlights: _t,
     noteHighlightFilter: le,
     // Element type detection
-    detectElementType: Dt,
+    detectElementType: Lt,
     // Master definitions
     masterDefinitions: H,
     getMasterDefinition: F,
     setMasterDefinition: _,
     deleteMasterDefinition: ge,
-    getMastersForTable: Ke,
-    getMasterEntries: ze,
+    getMastersForTable: Xe,
+    getMasterEntries: Ze,
     // Batch definitions
     batchDefinitions: A,
-    getBatchDefinition: Xe,
-    setBatchDefinition: Ze,
-    deleteBatchDefinition: Qe,
+    getBatchDefinition: et,
+    setBatchDefinition: tt,
+    deleteBatchDefinition: nt,
     // Broken annotation detection
     brokenAnnotations: ve,
-    remapTargetId: Fe,
-    detectBrokenAnnotations: Lt,
-    remapAnnotation: Nt,
-    startRemap: xt,
-    deleteBrokenAnnotations: jt,
+    remapTargetId: Ve,
+    detectBrokenAnnotations: Nt,
+    remapAnnotation: xt,
+    startRemap: jt,
+    deleteBrokenAnnotations: Rt,
     // Cross Search
     showCrossSearch: E,
     crossSearchQuery: M,
     crossSearchMode: R,
-    crossSearchResults: tt,
+    crossSearchResults: st,
     // Unannotated Detection
     showUnannotatedDetection: re,
     unannotatedElements: ee,
     hoveredUnannotatedSelector: te,
-    detectUnannotatedElements: nt,
-    quickAnnotate: ot,
+    detectUnannotatedElements: it,
+    quickAnnotate: at,
     // Screen Flow
-    showScreenFlow: X,
-    screenFlowData: st
+    showScreenFlow: Y,
+    screenFlowData: rt
   };
 });
-function on() {
-  return Qt();
+function sn() {
+  return en();
 }
 export {
-  on as a,
-  Qt as u
+  sn as a,
+  en as u
 };
