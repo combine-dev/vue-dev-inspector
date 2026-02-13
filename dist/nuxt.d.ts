@@ -70,15 +70,6 @@ declare interface DevInspectorOptions {
     autoLoadAnalysis?: boolean;
     /** Auto-apply analysis to page after loading (default: true) */
     autoApplyAnalysis?: boolean;
-    /** Enable real-time server sync via Vite dev server (default: true in dev mode) */
-    serverSync?: boolean;
-    /** Supabase sync for remote collaboration (overrides serverSync) */
-    supabase?: {
-        url: string;
-        anonKey: string;
-        table?: string;
-        pollInterval?: number;
-    };
 }
 
 declare interface DevMeta {

@@ -824,6 +824,10 @@ watch(() => store.isPickMode, (isPicking) => {
         :key="'unannotated-' + highlight.selector"
         data-dev-inspector
         class="di-unannotated-highlight"
+        :class="{
+          'di-unannotated-hovered': store.hoveredUnannotatedSelector === highlight.selector,
+          ['di-unannotated-hovered-' + highlight.category]: store.hoveredUnannotatedSelector === highlight.selector,
+        }"
         :style="{
           top: highlight.top,
           left: highlight.left,
@@ -832,7 +836,7 @@ watch(() => store.isPickMode, (isPicking) => {
         }"
         @click="store.quickAnnotate(highlight.selector, highlight.category === 'form' ? 'form' : highlight.category === 'action' ? 'action' : 'datasource')"
       >
-        <div class="di-unannotated-label">
+        <div class="di-unannotated-label" :class="{ ['di-unannotated-label-' + highlight.category]: store.hoveredUnannotatedSelector === highlight.selector }">
           <span>{{ highlight.category === 'binding' ? 'DB' : highlight.category === 'form' ? 'Form' : 'Act' }}</span>
           <span v-if="highlight.text" class="di-unannotated-label-text">{{ highlight.text }}</span>
         </div>
@@ -1309,11 +1313,34 @@ watch(() => store.isPickMode, (isPicking) => {
   border: 2px dashed #f97316;
   background: rgba(249, 115, 22, 0.08);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
 }
 .di-unannotated-highlight:hover {
   background: rgba(249, 115, 22, 0.18);
   border-color: #ea580c;
+}
+/* Hovered from panel list */
+.di-unannotated-hovered {
+  animation: di-unannotated-pulse 1.5s ease-in-out infinite;
+}
+.di-unannotated-hovered-binding {
+  border-color: #3b82f6;
+  background: rgba(59, 130, 246, 0.12);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.3);
+}
+.di-unannotated-hovered-form {
+  border-color: #ec4899;
+  background: rgba(236, 72, 153, 0.12);
+  box-shadow: 0 0 16px rgba(236, 72, 153, 0.3);
+}
+.di-unannotated-hovered-action {
+  border-color: #a78bfa;
+  background: rgba(167, 139, 250, 0.12);
+  box-shadow: 0 0 16px rgba(167, 139, 250, 0.3);
+}
+@keyframes di-unannotated-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
 }
 .di-unannotated-label {
   position: absolute;
@@ -1330,6 +1357,16 @@ watch(() => store.isPickMode, (isPicking) => {
   gap: 4px;
   align-items: center;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  transition: background 0.2s;
+}
+.di-unannotated-label-binding {
+  background: #3b82f6;
+}
+.di-unannotated-label-form {
+  background: #ec4899;
+}
+.di-unannotated-label-action {
+  background: #a78bfa;
 }
 .di-unannotated-label-text {
   font-weight: 400;

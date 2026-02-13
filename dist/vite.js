@@ -1,94 +1,93 @@
 import * as r from "fs";
-import * as m from "path";
-function T(i) {
-  const l = /* @__PURE__ */ new Map();
+import * as f from "path";
+function O(i) {
+  const a = /* @__PURE__ */ new Map();
   try {
     if (!r.existsSync(i))
-      return console.warn(`[vue-dev-inspector] Analysis file not found: ${i}`), l;
-    const f = JSON.parse(r.readFileSync(i, "utf-8"));
-    for (const [, g] of Object.entries(f.components))
-      for (const v of g.elements)
+      return console.warn(`[vue-dev-inspector] Analysis file not found: ${i}`), a;
+    const u = JSON.parse(r.readFileSync(i, "utf-8"));
+    for (const [, m] of Object.entries(u.components))
+      for (const v of m.elements)
         if (v.binding && v.db) {
-          const h = v.binding.replace(/^\./, "");
-          l.has(h) || l.set(h, v.db);
+          const y = v.binding.replace(/^\./, "");
+          a.has(y) || a.set(y, v.db);
         }
-    console.log(`[vue-dev-inspector] Loaded ${l.size} binding->DB mappings from analysis`);
-  } catch (f) {
-    console.warn("[vue-dev-inspector] Failed to load analysis file:", f);
+    console.log(`[vue-dev-inspector] Loaded ${a.size} binding->DB mappings from analysis`);
+  } catch (u) {
+    console.warn("[vue-dev-inspector] Failed to load analysis file:", u);
   }
-  return l;
+  return a;
 }
-function $(i, l, f) {
-  let g = i;
-  const v = /\{\{\s*([^{}]+?)\s*\}\}/g, h = [];
+function C(i, a, u) {
+  let m = i;
+  const v = /\{\{\s*([^{}]+?)\s*\}\}/g, y = [];
   let s;
   for (; (s = v.exec(i)) !== null; ) {
-    const p = s[0], d = s[1].trim();
-    if (i.slice(Math.max(0, s.index - 100), s.index).includes("data-di-binding") || d.includes("?") && d.includes(":") || d.includes("|"))
+    const c = s[0], t = s[1].trim();
+    if (i.slice(Math.max(0, s.index - 100), s.index).includes("data-di-binding") || t.includes("?") && t.includes(":") || t.includes("|"))
       continue;
-    let e = d.replace(/\?\.?/g, ".").replace(/\s+/g, "").replace(/^\(|\)$/g, "");
-    const S = e.match(/^\w+\(([^)]+)\)$/);
-    S && (e = S[1]);
-    let a = `data-di-binding="${e}"`;
-    a += ` data-di-component="${f}"`;
-    let c = l.get(e);
-    if (!c && e.includes(".")) {
-      const t = e.split(".").pop();
-      for (const [y, u] of l.entries())
-        if (y.endsWith("." + t) || y === t) {
-          c = u;
+    let g = t.replace(/\?\.?/g, ".").replace(/\s+/g, "").replace(/^\(|\)$/g, "");
+    const l = g.match(/^\w+\(([^)]+)\)$/);
+    l && (g = l[1]);
+    let d = `data-di-binding="${g}"`;
+    d += ` data-di-component="${u}"`;
+    let n = a.get(g);
+    if (!n && g.includes(".")) {
+      const p = g.split(".").pop();
+      for (const [h, S] of a.entries())
+        if (h.endsWith("." + p) || h === p) {
+          n = S;
           break;
         }
     }
-    c && (a += ` data-di-db="${c.table}.${c.column}"`, c.type && (a += ` data-di-db-type="${c.type}"`), c.comment && (a += ` data-di-db-comment="${c.comment.replace(/"/g, "&quot;")}"`));
-    const n = `<span ${a}>${p}</span>`;
-    h.push({ original: p, replacement: n });
+    n && (d += ` data-di-db="${n.table}.${n.column}"`, n.type && (d += ` data-di-db-type="${n.type}"`), n.comment && (d += ` data-di-db-comment="${n.comment.replace(/"/g, "&quot;")}"`));
+    const o = `<span ${d}>${c}</span>`;
+    y.push({ original: c, replacement: o });
   }
-  for (const { original: p, replacement: d } of h.reverse())
-    g = g.replace(p, d);
-  return g;
-}
-function A(i) {
-  return m.basename(i, ".vue");
+  for (const { original: c, replacement: t } of y.reverse())
+    m = m.split(c).join(t);
+  return m;
 }
 function w(i) {
+  return f.basename(i, ".vue");
+}
+function b(i) {
   return !i || i === "/" ? "index.json" : i.slice(1).replace(/\//g, "_") + ".json";
 }
-function x(i = {}) {
+function N(i = {}) {
   const {
-    enabled: l = process.env.NODE_ENV !== "production",
-    analysisPath: f,
-    syncDir: g = "./dev-inspector-annotations",
+    enabled: a = process.env.NODE_ENV !== "production",
+    analysisPath: u,
+    syncDir: m = "./dev-inspector-annotations",
     // include = ['**/*.vue'],  // TODO: implement include pattern matching
     exclude: v = ["node_modules/**", "**/node_modules/**"]
   } = i;
-  let h = /* @__PURE__ */ new Map(), s = "";
-  const p = /* @__PURE__ */ new Set();
+  let y = /* @__PURE__ */ new Map(), s = "";
   return {
     name: "vite-plugin-dev-inspector",
     enforce: "pre",
     // Run before @vitejs/plugin-vue processes templates
     configResolved() {
-      if (!l) {
+      if (!a) {
         console.log("[vue-dev-inspector] Plugin disabled");
         return;
       }
-      if (console.log("[vue-dev-inspector] Plugin enabled"), s = m.isAbsolute(g) ? g : m.resolve(process.cwd(), g), f) {
-        const d = m.isAbsolute(f) ? f : m.resolve(process.cwd(), f);
-        h = T(d);
+      if (console.log("[vue-dev-inspector] Plugin enabled"), s = f.isAbsolute(m) ? m : f.resolve(process.cwd(), m), u) {
+        const c = f.isAbsolute(u) ? u : f.resolve(process.cwd(), u);
+        y = O(c);
       }
     },
-    configureServer(d) {
-      l && (r.existsSync(s) || r.mkdirSync(s, { recursive: !0 }), d.middlewares.use((o, e, S) => {
-        var c;
-        const a = new URL(o.url || "", "http://localhost");
-        if (a.pathname === "/__dev-inspector/annotations" && o.method === "GET") {
+    configureServer(c) {
+      a && (r.existsSync(s) || r.mkdirSync(s, { recursive: !0 }), c.middlewares.use((t, e, g) => {
+        var d;
+        const l = new URL(t.url || "", "http://localhost");
+        if (l.pathname === "/__dev-inspector/annotations" && t.method === "GET") {
           e.setHeader("Content-Type", "application/json"), e.setHeader("Access-Control-Allow-Origin", "*");
           try {
-            const n = a.searchParams.get("page") || "/", t = m.join(s, w(n));
-            if (r.existsSync(t)) {
-              const y = r.readFileSync(t, "utf-8");
-              e.end(y);
+            const n = l.searchParams.get("page") || "/", o = f.join(s, b(n));
+            if (r.existsSync(o)) {
+              const p = r.readFileSync(o, "utf-8");
+              e.end(p);
             } else
               e.end(JSON.stringify({ annotations: {}, screenConfig: null }));
           } catch (n) {
@@ -96,38 +95,28 @@ function x(i = {}) {
           }
           return;
         }
-        if (a.pathname === "/__dev-inspector/annotations" && o.method === "POST") {
+        if (l.pathname === "/__dev-inspector/annotations" && t.method === "POST") {
           let n = "";
-          o.on("data", (t) => {
-            n += t;
-          }), o.on("end", () => {
+          t.on("data", (o) => {
+            n += o;
+          }), t.on("end", () => {
             e.setHeader("Content-Type", "application/json"), e.setHeader("Access-Control-Allow-Origin", "*");
             try {
-              const t = JSON.parse(n), { clientId: y, page: u, ...b } = t, C = m.join(s, w(u || "/"));
-              r.existsSync(s) || r.mkdirSync(s, { recursive: !0 }), r.writeFileSync(C, JSON.stringify(b, null, 2), "utf-8");
-              const O = `data: ${JSON.stringify({ type: "update", clientId: y, page: u || "/", ...b })}
-
-`;
-              for (const N of p)
-                try {
-                  N.write(O);
-                } catch {
-                  p.delete(N);
-                }
-              e.end(JSON.stringify({ ok: !0 })), console.log("[vue-dev-inspector] Annotations synced:", w(u || "/"));
-            } catch (t) {
-              e.statusCode = 400, e.end(JSON.stringify({ error: String(t) }));
+              const o = JSON.parse(n), { page: p, ...h } = o, S = f.join(s, b(p || "/"));
+              r.existsSync(s) || r.mkdirSync(s, { recursive: !0 }), r.writeFileSync(S, JSON.stringify(h, null, 2), "utf-8"), e.end(JSON.stringify({ ok: !0 })), console.log("[vue-dev-inspector] Annotations saved:", b(p || "/"));
+            } catch (o) {
+              e.statusCode = 400, e.end(JSON.stringify({ error: String(o) }));
             }
           });
           return;
         }
-        if (a.pathname === "/__dev-inspector/masters" && o.method === "GET") {
+        if (l.pathname === "/__dev-inspector/masters" && t.method === "GET") {
           e.setHeader("Content-Type", "application/json"), e.setHeader("Access-Control-Allow-Origin", "*");
           try {
-            const n = m.join(s, "_masters.json");
+            const n = f.join(s, "_masters.json");
             if (r.existsSync(n)) {
-              const t = r.readFileSync(n, "utf-8");
-              e.end(t);
+              const o = r.readFileSync(n, "utf-8");
+              e.end(o);
             } else
               e.end(JSON.stringify({ masters: {} }));
           } catch (n) {
@@ -135,61 +124,43 @@ function x(i = {}) {
           }
           return;
         }
-        if (a.pathname === "/__dev-inspector/masters" && o.method === "POST") {
+        if (l.pathname === "/__dev-inspector/masters" && t.method === "POST") {
           let n = "";
-          o.on("data", (t) => {
-            n += t;
-          }), o.on("end", () => {
+          t.on("data", (o) => {
+            n += o;
+          }), t.on("end", () => {
             e.setHeader("Content-Type", "application/json"), e.setHeader("Access-Control-Allow-Origin", "*");
             try {
-              const t = JSON.parse(n), { clientId: y, ...u } = t, b = m.join(s, "_masters.json");
-              r.existsSync(s) || r.mkdirSync(s, { recursive: !0 }), r.writeFileSync(b, JSON.stringify(u, null, 2), "utf-8");
-              const C = `data: ${JSON.stringify({ type: "masters", clientId: y, ...u })}
-
-`;
-              for (const O of p)
-                try {
-                  O.write(C);
-                } catch {
-                  p.delete(O);
-                }
-              e.end(JSON.stringify({ ok: !0 })), console.log("[vue-dev-inspector] Masters synced:", Object.keys(u.masters || {}).length, "definitions");
-            } catch (t) {
-              e.statusCode = 400, e.end(JSON.stringify({ error: String(t) }));
+              const o = JSON.parse(n), p = f.join(s, "_masters.json");
+              r.existsSync(s) || r.mkdirSync(s, { recursive: !0 }), r.writeFileSync(p, JSON.stringify(o, null, 2), "utf-8"), e.end(JSON.stringify({ ok: !0 })), console.log("[vue-dev-inspector] Masters saved:", Object.keys(o.masters || {}).length, "definitions");
+            } catch (o) {
+              e.statusCode = 400, e.end(JSON.stringify({ error: String(o) }));
             }
           });
           return;
         }
-        if (a.pathname === "/__dev-inspector/events" && o.method === "GET") {
-          e.setHeader("Content-Type", "text/event-stream"), e.setHeader("Cache-Control", "no-cache"), e.setHeader("Connection", "keep-alive"), e.setHeader("Access-Control-Allow-Origin", "*"), e.flushHeaders(), e.write(`data: {"type":"connected"}
-
-`), p.add(e), o.on("close", () => {
-            p.delete(e);
-          });
-          return;
-        }
-        if ((c = o.url) != null && c.startsWith("/__dev-inspector/") && o.method === "OPTIONS") {
+        if ((d = t.url) != null && d.startsWith("/__dev-inspector/") && t.method === "OPTIONS") {
           e.setHeader("Access-Control-Allow-Origin", "*"), e.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS"), e.setHeader("Access-Control-Allow-Headers", "Content-Type"), e.statusCode = 204, e.end();
           return;
         }
-        S();
+        g();
       }), console.log("[vue-dev-inspector] Sync server ready (dir:", s + ")"));
     },
-    transform(d, o) {
-      if (!l || !o.endsWith(".vue")) return null;
-      console.log(`[vue-dev-inspector] transform called: ${o}`);
-      const e = m.relative(process.cwd(), o);
-      if (v.some((u) => u.includes("**") ? e.includes(u.replace("**/", "").replace("/**", "")) : e.startsWith(u))) return null;
-      const a = d.match(/<template[^>]*>([\s\S]*?)<\/template>/i);
-      if (!a)
-        return console.log(`[vue-dev-inspector] No template found in: ${o}`), null;
-      const c = a[1], n = A(o);
+    transform(c, t) {
+      if (!a || !t.endsWith(".vue")) return null;
+      console.log(`[vue-dev-inspector] transform called: ${t}`);
+      const e = f.relative(process.cwd(), t);
+      if (v.some((h) => h.includes("**") ? e.includes(h.replace("**/", "").replace("/**", "")) : e.startsWith(h))) return null;
+      const l = c.match(/<template[^>]*>([\s\S]*?)<\/template>/i);
+      if (!l)
+        return console.log(`[vue-dev-inspector] No template found in: ${t}`), null;
+      const d = l[1], n = w(t);
       console.log(`[vue-dev-inspector] Processing template for: ${n}`);
-      const t = $(c, h, n);
-      return t === c ? (console.log(`[vue-dev-inspector] No changes for: ${n}`), null) : (console.log(`[vue-dev-inspector] Transformed: ${n}`), {
-        code: d.replace(
+      const o = C(d, y, n);
+      return o === d ? (console.log(`[vue-dev-inspector] No changes for: ${n}`), null) : (console.log(`[vue-dev-inspector] Transformed: ${n}`), {
+        code: c.replace(
           /<template([^>]*)>([\s\S]*?)<\/template>/i,
-          `<template$1>${t}</template>`
+          `<template$1>${o}</template>`
         ),
         map: null
         // TODO: proper source map support
@@ -198,6 +169,6 @@ function x(i = {}) {
   };
 }
 export {
-  x as default,
-  x as vitePluginDevInspector
+  N as default,
+  N as vitePluginDevInspector
 };

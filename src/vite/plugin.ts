@@ -165,9 +165,9 @@ function transformTemplate(
     replacements.push({ original: fullMatch, replacement })
   }
 
-  // Apply replacements (from end to start to preserve indices)
+  // Apply replacements — replaceAll to handle same expression in multiple locations
   for (const { original, replacement } of replacements.reverse()) {
-    result = result.replace(original, replacement)
+    result = result.split(original).join(replacement)
   }
 
   return result
@@ -196,9 +196,6 @@ export function vitePluginDevInspector(options: DevInspectorVitePluginOptions = 
 
   let bindingToDb = new Map<string, DbMapping>()
   let resolvedSyncDir = ''
-
-  // SSE clients for real-time broadcast
-  const sseClients = new Set<import('http').ServerResponse>()
 
   return {
     name: 'vite-plugin-dev-inspector',
@@ -268,7 +265,7 @@ export function vitePluginDevInspector(options: DevInspectorVitePluginOptions = 
             res.setHeader('Access-Control-Allow-Origin', '*')
             try {
               const payload = JSON.parse(body)
-              const { clientId, page, ...data } = payload
+              const { page, ...data } = payload
               const filePath = path.join(resolvedSyncDir, pagePathToFileName(page || '/'))
 
               // Ensure directory exists
@@ -279,14 +276,8 @@ export function vitePluginDevInspector(options: DevInspectorVitePluginOptions = 
               // Write to file
               fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8')
 
-              // Broadcast to all SSE clients (except sender)
-              const event = `data: ${JSON.stringify({ type: 'update', clientId, page: page || '/', ...data })}\n\n`
-              for (const client of sseClients) {
-                try { client.write(event) } catch { sseClients.delete(client) }
-              }
-
               res.end(JSON.stringify({ ok: true }))
-              console.log('[vue-dev-inspector] Annotations synced:', pagePathToFileName(page || '/'))
+              console.log('[vue-dev-inspector] Annotations saved:', pagePathToFileName(page || '/'))
             } catch (e) {
               res.statusCode = 400
               res.end(JSON.stringify({ error: String(e) }))
@@ -323,44 +314,21 @@ export function vitePluginDevInspector(options: DevInspectorVitePluginOptions = 
             res.setHeader('Access-Control-Allow-Origin', '*')
             try {
               const payload = JSON.parse(body)
-              const { clientId, ...data } = payload
               const filePath = path.join(resolvedSyncDir, '_masters.json')
 
               if (!fs.existsSync(resolvedSyncDir)) {
                 fs.mkdirSync(resolvedSyncDir, { recursive: true })
               }
 
-              fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8')
-
-              // Broadcast master update
-              const event = `data: ${JSON.stringify({ type: 'masters', clientId, ...data })}\n\n`
-              for (const client of sseClients) {
-                try { client.write(event) } catch { sseClients.delete(client) }
-              }
+              fs.writeFileSync(filePath, JSON.stringify(payload, null, 2), 'utf-8')
 
               res.end(JSON.stringify({ ok: true }))
-              console.log('[vue-dev-inspector] Masters synced:', Object.keys(data.masters || {}).length, 'definitions')
+              console.log('[vue-dev-inspector] Masters saved:', Object.keys(payload.masters || {}).length, 'definitions')
             } catch (e) {
               res.statusCode = 400
               res.end(JSON.stringify({ error: String(e) }))
             }
           })
-          return
-        }
-
-        // SSE: Event stream for real-time updates
-        if (url.pathname === '/__dev-inspector/events' && req.method === 'GET') {
-          res.setHeader('Content-Type', 'text/event-stream')
-          res.setHeader('Cache-Control', 'no-cache')
-          res.setHeader('Connection', 'keep-alive')
-          res.setHeader('Access-Control-Allow-Origin', '*')
-          res.flushHeaders()
-
-          // Send initial heartbeat
-          res.write('data: {"type":"connected"}\n\n')
-
-          sseClients.add(res)
-          req.on('close', () => { sseClients.delete(res) })
           return
         }
 

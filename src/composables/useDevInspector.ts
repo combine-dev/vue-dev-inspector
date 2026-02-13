@@ -1,5 +1,6 @@
 import { ref, computed, watch, nextTick } from 'vue'
 import { defineStore } from 'pinia'
+import { exportForSDD, exportForClient } from '../utils/exportMarkdown'
 
 // ===== Types =====
 
@@ -301,15 +302,6 @@ export interface DevInspectorOptions {
   autoLoadAnalysis?: boolean
   /** Auto-apply analysis to page after loading (default: true) */
   autoApplyAnalysis?: boolean
-  /** Enable real-time server sync via Vite dev server (default: true in dev mode) */
-  serverSync?: boolean
-  /** Supabase sync for remote collaboration (overrides serverSync) */
-  supabase?: {
-    url: string       // e.g., 'https://xxx.supabase.co'
-    anonKey: string   // public anon key
-    table?: string    // default: 'dev_inspector'
-    pollInterval?: number  // default: 3000 (ms)
-  }
 }
 
 // ===== Store =====
@@ -341,8 +333,6 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
 
   // Computed
   const storageKey = computed(() => options.value.storageKey || STORAGE_KEY_DEFAULT)
-  const syncRowId = computed(() => options.value.storageKey || 'shared')
-
   // Analysis data (from CLI tool)
   const analysisData = ref<ProjectAnalysis | null>(null)
 
@@ -363,6 +353,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   // Unannotated Detection state
   const showUnannotatedDetection = ref(false)
   const unannotatedElements = ref<UnannotatedElement[]>([])
+  const hoveredUnannotatedSelector = ref<string | null>(null)
 
   // Screen Flow state
   const showScreenFlow = ref(false)
@@ -404,16 +395,6 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       loadAnalysisData(autoLoadUrl)
     }
 
-    // Server sync: Supabase or Vite dev server
-    if (getSyncMode() !== 'none' && isAvailable.value) {
-      loadFromServer().then((loaded) => {
-        if (loaded) {
-          console.log(`[DevInspector] ${getSyncMode()} sync active`)
-        }
-      })
-      loadMastersFromServer()
-      setupServerSync()
-    }
   }
 
   // Load analysis data from JSON file (can be called separately)
@@ -493,325 +474,11 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     }
   }
 
-  // ===== Server Sync =====
-  const syncClientId = ref(Math.random().toString(36).slice(2, 10))
-  const isReceivingFromServer = ref(false)
-  let sseSource: EventSource | null = null
-  let saveToServerTimer: ReturnType<typeof setTimeout> | null = null
-  let pollTimer: ReturnType<typeof setInterval> | null = null
-  let lastSyncHash = '' // Detect actual changes to avoid unnecessary updates
 
-  function getSyncMode(): 'supabase' | 'vite' | 'none' {
-    if (options.value.supabase?.url) return 'supabase'
-    if (options.value.serverSync !== false) return 'vite'
-    return 'none'
-  }
-
-  // --- Supabase helpers ---
-  function supabaseHeaders(): Record<string, string> {
-    const sb = options.value.supabase!
-    return {
-      'apikey': sb.anonKey,
-      'Authorization': `Bearer ${sb.anonKey}`,
-      'Content-Type': 'application/json',
-      'Prefer': 'return=representation',
-    }
-  }
-
-  function supabaseRestUrl(): string {
-    const sb = options.value.supabase!
-    const table = sb.table || 'dev_inspector'
-    return `${sb.url}/rest/v1/${table}`
-  }
-
-  // Helper: get current page path
-  function getCurrentPage(): string {
-    return typeof window !== 'undefined' ? window.location.pathname : '/'
-  }
-
-  // Helper: get annotations for a specific page
-  function getAnnotationsForPage(page: string): Record<string, ElementConfig> {
-    const result: Record<string, ElementConfig> = {}
-    for (const [id, config] of Object.entries(elementConfigs.value)) {
-      if (config.pagePath === page || (!config.pagePath && page === '/')) {
-        result[id] = config
-      }
-    }
-    return result
-  }
-
-  // Helper: get screen config for a specific page
-  function getScreenConfigForPage(page: string): ScreenConfig | null {
-    return screenConfigs.value[page] || null
-  }
-
-  // --- Unified sync functions ---
-  async function loadFromServer(page?: string): Promise<boolean> {
-    const mode = getSyncMode()
-    if (mode === 'none') return false
-
-    const targetPage = page || getCurrentPage()
-
-    try {
-      let data: { annotations?: Record<string, ElementConfig>; screenConfig?: ScreenConfig | null } | null = null
-
-      if (mode === 'supabase') {
-        const res = await fetch(`${supabaseRestUrl()}?id=eq.${encodeURIComponent(syncRowId.value)}&select=annotations,screen_configs,updated_at`, {
-          headers: supabaseHeaders(),
-        })
-        if (!res.ok) return false
-        const rows = await res.json()
-        if (rows.length > 0) {
-          // Supabase still stores everything — filter client-side
-          data = {
-            annotations: rows[0].annotations || {},
-            screenConfig: rows[0].screen_configs?.[targetPage] || null,
-          }
-        } else {
-          data = { annotations: {}, screenConfig: null }
-        }
-      } else {
-        // Vite: per-page file
-        const res = await fetch(`/__dev-inspector/annotations?page=${encodeURIComponent(targetPage)}`)
-        if (!res.ok) return false
-        data = await res.json()
-      }
-
-      if (data) {
-        const hash = JSON.stringify(data)
-        if (hash === lastSyncHash) return true
-        lastSyncHash = hash
-
-        isReceivingFromServer.value = true
-
-        if (mode === 'supabase') {
-          // Supabase: full replace (all pages in one row)
-          if (data.annotations) {
-            elementConfigs.value = { ...data.annotations }
-          }
-        } else {
-          // Vite: merge page annotations into store
-          if (data.annotations) {
-            const existing = { ...elementConfigs.value }
-            // Remove old annotations for this page, add new ones
-            for (const id of Object.keys(existing)) {
-              if (existing[id].pagePath === targetPage) {
-                delete existing[id]
-              }
-            }
-            elementConfigs.value = { ...existing, ...data.annotations }
-          }
-        }
-
-        if (data.screenConfig) {
-          screenConfigs.value = {
-            ...screenConfigs.value,
-            [targetPage]: data.screenConfig,
-          }
-        }
-
-        nextTick(() => {
-          saveConfigs()
-          saveScreenConfigs()
-          isReceivingFromServer.value = false
-        })
-        console.log('[DevInspector] Loaded from server:', Object.keys(data.annotations || {}).length, 'annotations for', targetPage)
-        return true
-      }
-    } catch {
-      // Server not available — use localStorage only
-    }
-    return false
-  }
-
-  function saveToServer() {
-    if (isReceivingFromServer.value) return
-    if (saveToServerTimer) clearTimeout(saveToServerTimer)
-
-    const mode = getSyncMode()
-    if (mode === 'none') return
-
-    saveToServerTimer = setTimeout(() => {
-      const currentPage = getCurrentPage()
-
-      if (mode === 'supabase') {
-        const annotations = elementConfigs.value
-        const screenConfigsData = screenConfigs.value
-
-        const hash = JSON.stringify({ annotations, screenConfigs: screenConfigsData })
-        if (hash === lastSyncHash) return
-        lastSyncHash = hash
-
-        // Upsert to Supabase (all pages in one row)
-        const row = {
-          id: syncRowId.value,
-          annotations,
-          screen_configs: screenConfigsData,
-          updated_at: new Date().toISOString(),
-          updated_by: syncClientId.value,
-        }
-        fetch(supabaseRestUrl(), {
-          method: 'POST',
-          headers: { ...supabaseHeaders(), 'Prefer': 'resolution=merge-duplicates' },
-          body: JSON.stringify(row),
-        }).catch(() => {})
-      } else {
-        // Vite: save only current page's annotations
-        const pageAnnotations = getAnnotationsForPage(currentPage)
-        const screenConfig = getScreenConfigForPage(currentPage)
-
-        const hash = JSON.stringify({ annotations: pageAnnotations, screenConfig })
-        if (hash === lastSyncHash) return
-        lastSyncHash = hash
-
-        const payload = {
-          clientId: syncClientId.value,
-          page: currentPage,
-          annotations: pageAnnotations,
-          screenConfig,
-          _meta: {
-            lastUpdated: new Date().toISOString(),
-            updatedBy: syncClientId.value,
-          },
-        }
-        fetch('/__dev-inspector/annotations', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload),
-        }).catch(() => {})
-      }
-    }, 500)
-  }
-
-  function setupServerSync() {
-    if (typeof window === 'undefined') return
-
-    const mode = getSyncMode()
-    if (mode === 'none') return
-
-    if (mode === 'supabase') {
-      // Polling mode for Supabase
-      const interval = options.value.supabase?.pollInterval || 3000
-      pollTimer = setInterval(async () => {
-        try {
-          const res = await fetch(`${supabaseRestUrl()}?id=eq.${encodeURIComponent(syncRowId.value)}&select=annotations,screen_configs,updated_by`, {
-            headers: supabaseHeaders(),
-          })
-          if (!res.ok) return
-          const rows = await res.json()
-          if (rows.length === 0) return
-
-          const row = rows[0]
-          // Skip own updates
-          if (row.updated_by === syncClientId.value) return
-
-          const hash = JSON.stringify({ annotations: row.annotations, screenConfigs: row.screen_configs })
-          if (hash === lastSyncHash) return
-          lastSyncHash = hash
-
-          isReceivingFromServer.value = true
-          if (row.annotations) {
-            elementConfigs.value = { ...row.annotations }
-          }
-          if (row.screen_configs) {
-            screenConfigs.value = { ...row.screen_configs }
-          }
-          nextTick(() => {
-            saveConfigs()
-            saveScreenConfigs()
-            isReceivingFromServer.value = false
-          })
-          console.log('[DevInspector] Synced from Supabase')
-        } catch {
-          // Silent fail
-        }
-      }, interval)
-      console.log(`[DevInspector] Supabase polling started (${interval}ms)`)
-    } else {
-      // SSE mode for Vite dev server
-      if (typeof EventSource === 'undefined') return
-
-      sseSource = new EventSource('/__dev-inspector/events')
-
-      sseSource.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data)
-          if (data.type === 'connected') {
-            console.log('[DevInspector] SSE connected')
-            return
-          }
-          if (data.type === 'update' && data.clientId !== syncClientId.value) {
-            const currentPage = getCurrentPage()
-            // Only apply updates for the current page
-            if (data.page && data.page !== currentPage) return
-
-            isReceivingFromServer.value = true
-            if (data.annotations) {
-              // Merge: remove old annotations for this page, add new ones
-              const existing = { ...elementConfigs.value }
-              for (const id of Object.keys(existing)) {
-                if (existing[id].pagePath === currentPage) {
-                  delete existing[id]
-                }
-              }
-              elementConfigs.value = { ...existing, ...data.annotations }
-            }
-            if (data.screenConfig) {
-              screenConfigs.value = {
-                ...screenConfigs.value,
-                [currentPage]: data.screenConfig,
-              }
-            }
-            nextTick(() => {
-              saveConfigs()
-              saveScreenConfigs()
-              isReceivingFromServer.value = false
-            })
-            console.log('[DevInspector] Synced from another client (page:', currentPage + ')')
-          }
-          // Master definitions update
-          if (data.type === 'masters' && data.clientId !== syncClientId.value) {
-            isReceivingFromServer.value = true
-            if (data.masters) {
-              masterDefinitions.value = { ...data.masters }
-            }
-            nextTick(() => {
-              saveMasterDefinitions()
-              isReceivingFromServer.value = false
-            })
-            console.log('[DevInspector] Masters synced from another client')
-          }
-        } catch {
-          // Ignore parse errors
-        }
-      }
-
-      sseSource.onerror = () => {
-        // SSE will auto-reconnect
-      }
-    }
-  }
-
-  function teardownServerSync() {
-    if (sseSource) {
-      sseSource.close()
-      sseSource = null
-    }
-    if (pollTimer) {
-      clearInterval(pollTimer)
-      pollTimer = null
-    }
-    if (saveToServerTimer) {
-      clearTimeout(saveToServerTimer)
-      saveToServerTimer = null
-    }
-  }
-
-  // Watch for changes and save - use immediate flush to ensure save happens
+  // Watch for changes and save
   watch(elementConfigs, () => {
     nextTick(() => {
       saveConfigs()
-      saveToServer()
     })
   }, { deep: true })
 
@@ -843,7 +510,6 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   watch(screenConfigs, () => {
     nextTick(() => {
       saveScreenConfigs()
-      saveToServer()
     })
   }, { deep: true })
 
@@ -893,7 +559,6 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   watch(masterDefinitions, () => {
     nextTick(() => {
       saveMasterDefinitions()
-      saveMastersToServer()
     })
   }, { deep: true })
 
@@ -923,43 +588,6 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   // Get master entries for a table.column (shortcut for displaying in UI)
   function getMasterEntries(tableColumn: string): MasterEntry[] {
     return masterDefinitions.value[tableColumn]?.entries || []
-  }
-
-  // Server sync for masters
-  function saveMastersToServer() {
-    if (isReceivingFromServer.value) return
-    const mode = getSyncMode()
-    if (mode === 'none') return
-
-    if (mode === 'vite') {
-      fetch('/__dev-inspector/masters', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clientId: syncClientId.value,
-          masters: masterDefinitions.value,
-        }),
-      }).catch(() => {})
-    }
-    // Supabase: masters could be added to the existing row — skip for now
-  }
-
-  async function loadMastersFromServer(): Promise<boolean> {
-    const mode = getSyncMode()
-    if (mode !== 'vite') return false
-
-    try {
-      const res = await fetch('/__dev-inspector/masters')
-      if (!res.ok) return false
-      const data = await res.json()
-      if (data.masters) {
-        masterDefinitions.value = { ...data.masters }
-        nextTick(() => saveMasterDefinitions())
-      }
-      return true
-    } catch {
-      return false
-    }
   }
 
   // Suggest APIs based on element annotations + analysis data
@@ -1207,46 +835,95 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
 
     const detected: UnannotatedElement[] = []
     const seenSelectors = new Set<string>()
+    const seenBindings = new Set<string>()
+    const detectedElements = new Set<Element>() // Track DOM elements for nesting check
+
+    function isAlreadySeen(element: HTMLElement): boolean {
+      if (element.closest('[data-dev-inspector]')) return true
+      const selector = generateSelector(element)
+      return configuredSelectors.has(selector) || seenSelectors.has(selector)
+    }
+
+    function addDetected(element: HTMLElement, category: UnannotatedElement['category'], text: string, suggestedType: UnannotatedElement['suggestedType']) {
+      const selector = generateSelector(element)
+      seenSelectors.add(selector)
+      detectedElements.add(element)
+      detected.push({ selector, tagName: element.tagName.toLowerCase(), category, text: text.substring(0, 50), suggestedType })
+    }
 
     // 1. data-di-binding elements → datasource
+    // Deduplicate by binding value to avoid v-for duplicates
     document.querySelectorAll('[data-di-binding]').forEach((el) => {
       const element = el as HTMLElement
       if (element.closest('[data-dev-inspector]')) return
-      const selector = generateSelector(element)
-      if (configuredSelectors.has(selector) || seenSelectors.has(selector)) return
-      seenSelectors.add(selector)
-      detected.push({
-        selector,
-        tagName: element.tagName.toLowerCase(),
-        category: 'binding',
-        text: (element.textContent?.trim() || '').substring(0, 50),
-        suggestedType: 'datasource',
+      const bindingValue = element.getAttribute('data-di-binding') || ''
+      if (seenBindings.has(bindingValue)) return
+      if (isAlreadySeen(element)) return
+      seenBindings.add(bindingValue)
+      addDetected(element, 'binding', element.textContent?.trim() || '', 'datasource')
+    })
+
+    // 2. Table first-row cells → datasource
+    // Detect <td> cells in the first data row, using <th> headers as labels
+    document.querySelectorAll('table').forEach((table) => {
+      if (table.closest('[data-dev-inspector]')) return
+      const style = window.getComputedStyle(table)
+      if (style.display === 'none' || style.visibility === 'hidden') return
+
+      // Get headers
+      const headers: string[] = []
+      table.querySelectorAll('thead th, thead td').forEach((th) => {
+        headers.push(th.textContent?.trim() || '')
+      })
+      // Fallback: first tr if no thead
+      if (headers.length === 0) {
+        const firstRow = table.querySelector('tr')
+        if (firstRow) {
+          firstRow.querySelectorAll('th, td').forEach((cell) => {
+            headers.push(cell.textContent?.trim() || '')
+          })
+        }
+      }
+
+      // Get first data row
+      const dataRow = table.querySelector('tbody tr') || table.querySelectorAll('tr')[headers.length > 0 ? 1 : 0]
+      if (!dataRow) return
+
+      const cells = dataRow.querySelectorAll('td')
+      cells.forEach((cell, i) => {
+        const td = cell as HTMLElement
+        const text = td.textContent?.trim() || ''
+        if (!text) return
+        // Skip if already covered by data-di-binding detection
+        if (td.querySelector('[data-di-binding]')) return
+        if (isAlreadySeen(td)) return
+        const headerName = headers[i] || `列${i + 1}`
+        addDetected(td, 'binding', `${headerName}: ${text}`, 'datasource')
       })
     })
 
-    // 2. input, select, textarea (exclude hidden) → form
+    // 3. input, select, textarea (exclude hidden) → form
     document.querySelectorAll('input, select, textarea').forEach((el) => {
       const element = el as HTMLInputElement
       if (element.closest('[data-dev-inspector]')) return
       if (element.type === 'hidden') return
       const style = window.getComputedStyle(element)
       if (style.display === 'none' || style.visibility === 'hidden') return
-      const selector = generateSelector(element)
-      if (configuredSelectors.has(selector) || seenSelectors.has(selector)) return
-      seenSelectors.add(selector)
+      if (isAlreadySeen(element)) return
       const label = element.closest('label')?.textContent?.trim() ||
         element.getAttribute('aria-label') ||
         element.placeholder || element.name || element.tagName.toLowerCase()
-      detected.push({
-        selector,
-        tagName: element.tagName.toLowerCase(),
-        category: 'form',
-        text: (label || '').substring(0, 50),
-        suggestedType: 'form',
-      })
+      addDetected(element, 'form', label || '', 'form')
     })
 
-    // 3. button, a[href], [role="button"] (exclude empty text) → action
+    // 4. button, a[href], [role="button"] (exclude empty text) → action
+    // For buttons inside table rows, only detect from the first data row
+    const tableFirstRows = new Set<Element>()
+    document.querySelectorAll('table').forEach((table) => {
+      const firstRow = table.querySelector('tbody tr') || table.querySelectorAll('tr')[1]
+      if (firstRow) tableFirstRows.add(firstRow)
+    })
+
     document.querySelectorAll('button, a[href], [role="button"]').forEach((el) => {
       const element = el as HTMLElement
       if (element.closest('[data-dev-inspector]')) return
@@ -1254,26 +931,43 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       if (!text) return
       const style = window.getComputedStyle(element)
       if (style.display === 'none' || style.visibility === 'hidden') return
-      const selector = generateSelector(element)
-      if (configuredSelectors.has(selector) || seenSelectors.has(selector)) return
-      seenSelectors.add(selector)
-      detected.push({
-        selector,
-        tagName: element.tagName.toLowerCase(),
-        category: 'action',
-        text: text.substring(0, 50),
-        suggestedType: 'action',
-      })
+      // Skip if inside a table row that is NOT the first data row
+      const parentRow = element.closest('tr')
+      if (parentRow) {
+        const parentTable = parentRow.closest('table')
+        if (parentTable) {
+          const firstRow = tableFirstRows.has(parentRow)
+          if (!firstRow) return
+        }
+      }
+      if (isAlreadySeen(element)) return
+      addDetected(element, 'action', text, 'action')
     })
 
-    unannotatedElements.value = detected
-    return detected
+    // 5. Remove nested: if a detected element is inside another detected element, drop the inner one
+    const filteredDetected = detected.filter((entry) => {
+      try {
+        const el = document.querySelector(entry.selector)
+        if (!el) return true
+        for (const other of detectedElements) {
+          if (other !== el && other.contains(el)) {
+            return false // This element is a child of another detected element
+          }
+        }
+        return true
+      } catch {
+        return true
+      }
+    })
+
+    unannotatedElements.value = filteredDetected
+    return filteredDetected
   }
 
   function quickAnnotate(selector: string, suggestedType: 'datasource' | 'action' | 'form') {
     const config: Partial<ElementConfig> = {
       elementType: suggestedType,
-      pagePath: getCurrentPage(),
+      pagePath: typeof window !== 'undefined' ? window.location.pathname : '/',
       note: { text: '', type: 'todo' },
     }
 
@@ -1457,7 +1151,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
         .filter(c =>
           !c.startsWith('hover:') &&
           !c.startsWith('focus:') &&
-          !/[/\[\]()!@#$%^&*=+{}|\\:'"<>,?]/.test(c)
+          !c.startsWith('-') &&
+          !/[/\[\]()!@#$%^&*=+{}|\\:'"<>,?.~]/.test(c)
         )
         .slice(0, 2)
       if (classes.length > 0) {
@@ -1471,7 +1166,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
         )
         if (siblings.length > 1) {
           const index = siblings.indexOf(current) + 1
-          selector += `:nth-child(${index})`
+          selector += `:nth-of-type(${index})`
         }
       }
 
@@ -2621,6 +2316,32 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     elementConfigs.value = {}
   }
 
+  function downloadSddSpec(filename = 'screen-spec-sdd.md') {
+    const content = exportForSDD(elementConfigs.value, screenConfigs.value, masterDefinitions.value)
+    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
+  function downloadClientSpec(filename = 'screen-spec-client.md') {
+    const content = exportForClient(elementConfigs.value, screenConfigs.value, masterDefinitions.value)
+    const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   return {
     // State
     isEnabled,
@@ -2663,6 +2384,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     exportConfigs,
     exportAsFile,
     downloadAnnotations,
+    downloadSddSpec,
+    downloadClientSpec,
     importConfigs,
     clearAllConfigs,
     detectSourceBinding,
@@ -2724,16 +2447,12 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     // Unannotated Detection
     showUnannotatedDetection,
     unannotatedElements,
+    hoveredUnannotatedSelector,
     detectUnannotatedElements,
     quickAnnotate,
     // Screen Flow
     showScreenFlow,
     screenFlowData,
-    // Server sync
-    syncClientId,
-    loadFromServer,
-    saveToServer,
-    teardownServerSync,
   }
 })
 

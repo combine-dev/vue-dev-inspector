@@ -356,10 +356,32 @@ function handleDetectUnannotated() {
   if (store.showUnannotatedDetection) {
     store.showUnannotatedDetection = false
     store.unannotatedElements = []
+    store.hoveredUnannotatedSelector = null
   } else {
     store.showUnannotatedDetection = true
     store.detectUnannotatedElements()
   }
+}
+
+function dismissUnannotated(selector: string) {
+  store.unannotatedElements = store.unannotatedElements.filter(e => e.selector !== selector)
+}
+
+function highlightUnannotated(selector: string) {
+  store.hoveredUnannotatedSelector = selector
+  // Scroll into view if off-screen
+  try {
+    const el = document.querySelector(selector) as HTMLElement | null
+    if (!el) return
+    const rect = el.getBoundingClientRect()
+    if (rect.bottom < 0 || rect.top > window.innerHeight) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  } catch { /* ignore */ }
+}
+
+function clearHighlight() {
+  store.hoveredUnannotatedSelector = null
 }
 
 // ===== Screen Flow =====
@@ -488,6 +510,9 @@ function handleFlowEdgeClick(selector: string) {
               v-for="el in store.unannotatedElements"
               :key="el.selector"
               class="di-unannotated-item"
+              :class="{ 'di-unannotated-item-active': store.hoveredUnannotatedSelector === el.selector, ['di-unannotated-item-' + el.category]: store.hoveredUnannotatedSelector === el.selector }"
+              @mouseenter="highlightUnannotated(el.selector)"
+              @mouseleave="clearHighlight"
             >
               <span class="di-unannotated-category" :class="'di-unannotated-cat-' + el.category">
                 {{ el.category === 'binding' ? 'DB' : el.category === 'form' ? 'Form' : 'Act' }}
@@ -495,6 +520,9 @@ function handleFlowEdgeClick(selector: string) {
               <span class="di-unannotated-text">{{ el.text || el.tagName }}</span>
               <button @click="store.quickAnnotate(el.selector, el.suggestedType)" class="di-unannotated-register">
                 登録
+              </button>
+              <button @click="dismissUnannotated(el.selector)" class="di-unannotated-dismiss">
+                <X style="width: 10px; height: 10px;" />
               </button>
             </div>
           </div>
@@ -991,6 +1019,14 @@ function handleFlowEdgeClick(selector: string) {
             <button @click="exportToXlsx" class="di-btn-blue">
               <FileSpreadsheet style="width: 16px; height: 16px;" />
               画面仕様書 (xlsx) 出力
+            </button>
+            <button @click="store.downloadSddSpec()" class="di-btn-green-outline">
+              <FileText style="width: 16px; height: 16px;" />
+              SDD仕様書 (md)
+            </button>
+            <button @click="store.downloadClientSpec()" class="di-btn-blue-outline">
+              <FileText style="width: 16px; height: 16px;" />
+              納品用仕様書 (md)
             </button>
           </div>
           <p v-if="elementCount > 0" class="di-export-hint">
@@ -1925,6 +1961,44 @@ function handleFlowEdgeClick(selector: string) {
 .di-btn-blue:hover {
   background: #2563eb;
 }
+.di-btn-green-outline {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: transparent;
+  color: #10b981;
+  border: 1px solid #10b981;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.di-btn-green-outline:hover {
+  background: #10b981;
+  color: white;
+}
+.di-btn-blue-outline {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: transparent;
+  color: #3b82f6;
+  border: 1px solid #3b82f6;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+.di-btn-blue-outline:hover {
+  background: #3b82f6;
+  color: white;
+}
 .di-export-hint {
   font-size: 10px;
   color: #64748b;
@@ -2581,6 +2655,21 @@ function handleFlowEdgeClick(selector: string) {
   padding: 4px 6px;
   background: rgba(15, 23, 42, 0.6);
   border-radius: 4px;
+  border-left: 2px solid transparent;
+  transition: all 0.15s ease;
+  cursor: default;
+}
+.di-unannotated-item-active {
+  background: rgba(30, 41, 59, 0.9);
+}
+.di-unannotated-item-binding {
+  border-left-color: #3b82f6;
+}
+.di-unannotated-item-form {
+  border-left-color: #ec4899;
+}
+.di-unannotated-item-action {
+  border-left-color: #a78bfa;
 }
 .di-unannotated-category {
   font-size: 9px;
@@ -2624,6 +2713,24 @@ function handleFlowEdgeClick(selector: string) {
 .di-unannotated-register:hover {
   background: #f97316;
   color: white;
+}
+.di-unannotated-dismiss {
+  padding: 2px;
+  background: transparent;
+  border: 1px solid rgba(100, 116, 139, 0.3);
+  color: #64748b;
+  border-radius: 3px;
+  cursor: pointer;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.di-unannotated-dismiss:hover {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #ef4444;
 }
 .di-unannotated-empty {
   margin-top: 8px;
