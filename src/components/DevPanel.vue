@@ -759,6 +759,30 @@ function onRenameKeydown(event: KeyboardEvent, groupKey: string) {
   }
 }
 
+// ===== Inline modal name editing (unnamed group header) =====
+const editingModalId = ref<string | null>(null)
+const editModalInput = ref('')
+
+function startEditModal(key: string, currentName: string) {
+  editingModalId.value = key
+  editModalInput.value = currentName || ''
+}
+
+function commitEditModalGroup() {
+  const modalName = editModalInput.value.trim()
+  editingModalId.value = null
+  if (!modalName) return
+  // Set modalName on all unnamed modal elements
+  for (const el of unnamedModalElements.value) {
+    store.setElementConfig(el.id, { modalName, isConditional: true })
+  }
+}
+
+function cancelEditModal() {
+  editingModalId.value = null
+  editModalInput.value = ''
+}
+
 // ===== Screen Flow =====
 const currentPath = computed(() => typeof window !== 'undefined' ? window.location.pathname : '/')
 
@@ -940,11 +964,12 @@ function handleFlowEdgeClick(selector: string) {
                     class="di-element-type-badge"
                     :class="'di-element-type-' + (el.type || 'other')"
                   >
-                    {{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}
+                    {{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : el.type === 'chart' ? 'Chart' : '-' }}
                   </span>
                   <div class="di-element-item-body">
                     <div class="di-element-item-label">{{ el.desc }}</div>
                   </div>
+                  <button class="di-element-delete-btn" @click.stop="store.deleteElementConfig(el.id)" title="削除">&times;</button>
                 </div>
               </div>
             </div>
@@ -972,8 +997,9 @@ function handleFlowEdgeClick(selector: string) {
                   <div v-if="showTabGroup[l1Name]">
                     <div v-if="l1.elements.length > 0" class="di-element-list">
                       <div v-for="el in l1.elements" :key="el.id" class="di-element-item" :class="{ 'di-element-item-active': store.hoveredSelector === el.id, 'di-dragging': draggedElementId === el.id }" draggable="true" @dragstart="onDragStart($event, el.id)" @dragend="onDragEnd" @click="store.startEditing(el.id)" @mouseenter="highlightElement(el.id)" @mouseleave="clearElementHighlight">
-                        <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}</span>
+                        <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : el.type === 'chart' ? 'Chart' : '-' }}</span>
                         <div class="di-element-item-body"><div class="di-element-item-label">{{ el.desc }}</div></div>
+                        <button class="di-element-delete-btn" @click.stop="store.deleteElementConfig(el.id)" title="削除">&times;</button>
                       </div>
                     </div>
                     <!-- Level 2 -->
@@ -993,8 +1019,9 @@ function handleFlowEdgeClick(selector: string) {
                         <div v-if="showTabGroup[l1Name + '>' + l2Name]">
                           <div v-if="l2.elements.length > 0" class="di-element-list">
                             <div v-for="el in l2.elements" :key="el.id" class="di-element-item" :class="{ 'di-element-item-active': store.hoveredSelector === el.id, 'di-dragging': draggedElementId === el.id }" draggable="true" @dragstart="onDragStart($event, el.id)" @dragend="onDragEnd" @click="store.startEditing(el.id)" @mouseenter="highlightElement(el.id)" @mouseleave="clearElementHighlight">
-                              <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}</span>
+                              <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : el.type === 'chart' ? 'Chart' : '-' }}</span>
                               <div class="di-element-item-body"><div class="di-element-item-label">{{ el.desc }}</div></div>
+                              <button class="di-element-delete-btn" @click.stop="store.deleteElementConfig(el.id)" title="削除">&times;</button>
                             </div>
                           </div>
                           <!-- Level 3 -->
@@ -1014,8 +1041,9 @@ function handleFlowEdgeClick(selector: string) {
                               <div v-if="showTabGroup[l1Name + '>' + l2Name + '>' + l3Name]">
                                 <div v-if="l3.elements.length > 0" class="di-element-list">
                                   <div v-for="el in l3.elements" :key="el.id" class="di-element-item" :class="{ 'di-element-item-active': store.hoveredSelector === el.id, 'di-dragging': draggedElementId === el.id }" draggable="true" @dragstart="onDragStart($event, el.id)" @dragend="onDragEnd" @click="store.startEditing(el.id)" @mouseenter="highlightElement(el.id)" @mouseleave="clearElementHighlight">
-                                    <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}</span>
+                                    <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : el.type === 'chart' ? 'Chart' : '-' }}</span>
                                     <div class="di-element-item-body"><div class="di-element-item-label">{{ el.desc }}</div></div>
+                                    <button class="di-element-delete-btn" @click.stop="store.deleteElementConfig(el.id)" title="削除">&times;</button>
                                   </div>
                                 </div>
                               </div>
@@ -1052,8 +1080,9 @@ function handleFlowEdgeClick(selector: string) {
                   <div v-if="showModalGroup[String(m1Name)]">
                     <div v-if="m1.elements.length > 0" class="di-element-list">
                       <div v-for="el in m1.elements" :key="el.id" class="di-element-item" :class="{ 'di-element-item-active': store.hoveredSelector === el.id, 'di-dragging': draggedElementId === el.id }" draggable="true" @dragstart="onDragStart($event, el.id)" @dragend="onDragEnd" @click="store.startEditing(el.id)" @mouseenter="highlightElement(el.id)" @mouseleave="clearElementHighlight">
-                        <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}</span>
+                        <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : el.type === 'chart' ? 'Chart' : '-' }}</span>
                         <div class="di-element-item-body"><div class="di-element-item-label">{{ el.desc }}</div></div>
+                        <button class="di-element-delete-btn" @click.stop="store.deleteElementConfig(el.id)" title="削除">&times;</button>
                       </div>
                     </div>
                     <!-- Modal tree Level 2 -->
@@ -1073,8 +1102,9 @@ function handleFlowEdgeClick(selector: string) {
                         <div v-if="showModalGroup[m1Name + '>' + m2Name]">
                           <div v-if="m2.elements.length > 0" class="di-element-list">
                             <div v-for="el in m2.elements" :key="el.id" class="di-element-item" :class="{ 'di-element-item-active': store.hoveredSelector === el.id, 'di-dragging': draggedElementId === el.id }" draggable="true" @dragstart="onDragStart($event, el.id)" @dragend="onDragEnd" @click="store.startEditing(el.id)" @mouseenter="highlightElement(el.id)" @mouseleave="clearElementHighlight">
-                              <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}</span>
+                              <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : el.type === 'chart' ? 'Chart' : '-' }}</span>
                               <div class="di-element-item-body"><div class="di-element-item-label">{{ el.desc }}</div></div>
+                              <button class="di-element-delete-btn" @click.stop="store.deleteElementConfig(el.id)" title="削除">&times;</button>
                             </div>
                           </div>
                         </div>
@@ -1084,11 +1114,19 @@ function handleFlowEdgeClick(selector: string) {
                 </div>
                 <!-- Unnamed modal elements -->
                 <div v-if="unnamedModalElements.length > 0 || dropTargetGroup === '__modal_unnamed__'" class="di-tree-subgroup">
-                  <button class="di-tree-group-header di-tree-subgroup-header" :class="{ 'di-drop-target': dropTargetGroup === '__modal_unnamed__' }" @click="showModalGroup['__unnamed'] = !showModalGroup['__unnamed']" @dragover="onDragOver($event, '__modal_unnamed__')" @dragleave="onDragLeave($event, '__modal_unnamed__')" @drop="onDrop($event, '__modal_unnamed__')">
+                  <div v-if="editingModalId === '__unnamed__'" class="di-rename-row">
+                    <span class="di-tree-badge di-tree-badge-modal">M</span>
+                    <input class="di-rename-input" v-model="editModalInput"
+                           @keydown.enter="commitEditModalGroup"
+                           @keydown.escape="cancelEditModal"
+                           @blur="commitEditModalGroup" autofocus />
+                  </div>
+                  <button v-else class="di-tree-group-header di-tree-subgroup-header" :class="{ 'di-drop-target': dropTargetGroup === '__modal_unnamed__' }" @click="showModalGroup['__unnamed'] = !showModalGroup['__unnamed']" @dragover="onDragOver($event, '__modal_unnamed__')" @dragleave="onDragLeave($event, '__modal_unnamed__')" @drop="onDrop($event, '__modal_unnamed__')">
                     <span class="di-tree-icon">{{ showModalGroup['__unnamed'] ? '▼' : '▶' }}</span>
                     <span class="di-tree-badge di-tree-badge-modal">M</span>
                     <span>未分類</span>
                     <span class="di-count-badge">{{ unnamedModalElements.length }}</span>
+                    <span class="di-rename-btn" @click.stop="startEditModal('__unnamed__', '')" title="モーダル名を設定">✏</span>
                   </button>
                   <div v-if="showModalGroup['__unnamed']" class="di-element-list">
                     <div
@@ -1107,11 +1145,12 @@ function handleFlowEdgeClick(selector: string) {
                         class="di-element-type-badge"
                         :class="'di-element-type-' + (el.type || 'other')"
                       >
-                        {{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}
+                        {{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : el.type === 'chart' ? 'Chart' : '-' }}
                       </span>
                       <div class="di-element-item-body">
                         <div class="di-element-item-label">{{ el.desc }}</div>
                       </div>
+                      <button class="di-element-delete-btn" @click.stop="store.deleteElementConfig(el.id)" title="削除">&times;</button>
                     </div>
                   </div>
                 </div>
@@ -4145,6 +4184,31 @@ function handleFlowEdgeClick(selector: string) {
   background: rgba(100, 116, 139, 0.15);
   color: #64748b;
 }
+.di-element-type-chart {
+  background: rgba(244, 114, 182, 0.15);
+  color: #f472b6;
+}
+/* Delete button */
+.di-element-delete-btn {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 0 2px;
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+  line-height: 1;
+}
+.di-element-item:hover .di-element-delete-btn {
+  opacity: 0.6;
+}
+.di-element-delete-btn:hover {
+  opacity: 1 !important;
+  color: #ef4444;
+}
+
 .di-element-item-body {
   flex: 1;
   min-width: 0;

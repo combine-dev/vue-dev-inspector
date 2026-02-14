@@ -76,8 +76,10 @@ const chartDescription = ref('')
 // Tab context
 const tabContextInput = ref('')
 const modalNameInput = ref('')
+const showTabDropdown = ref(false)
+const showModalDropdown = ref(false)
 
-// Existing tab/modal names for datalist suggestions
+// Existing tab/modal names for dropdown suggestions
 const existingTabNames = computed(() => {
   const names = new Set<string>()
   for (const config of Object.values(store.elementConfigs)) {
@@ -92,6 +94,31 @@ const existingModalNames = computed(() => {
   }
   return [...names].sort()
 })
+const filteredTabNames = computed(() => {
+  const q = tabContextInput.value.toLowerCase()
+  if (!q) return existingTabNames.value
+  return existingTabNames.value.filter(n => n.toLowerCase().includes(q))
+})
+const filteredModalNames = computed(() => {
+  const q = modalNameInput.value.toLowerCase()
+  if (!q) return existingModalNames.value
+  return existingModalNames.value.filter(n => n.toLowerCase().includes(q))
+})
+function selectTab(name: string) {
+  tabContextInput.value = name
+  showTabDropdown.value = false
+}
+function selectModal(name: string) {
+  modalNameInput.value = name
+  showModalDropdown.value = false
+}
+function onTabBlur() {
+  // Delay to allow click on dropdown item
+  setTimeout(() => { showTabDropdown.value = false }, 150)
+}
+function onModalBlur() {
+  setTimeout(() => { showModalDropdown.value = false }, 150)
+}
 
 // Master definition inline editing
 const showMasterSection = ref(false)
@@ -1129,31 +1156,39 @@ function saveMasterEntries() {
 
         <!-- Tab Context & Modal Name -->
         <div class="di-context-row">
-          <div class="di-context-field">
+          <div class="di-context-field di-context-field-dropdown">
             <label class="di-context-label di-context-label-tab">タブ:</label>
-            <input
-              v-model="tabContextInput"
-              type="text"
-              list="di-tab-names"
-              class="di-context-input"
-              placeholder="例: 予習, 受講者一覧"
-            />
-            <datalist id="di-tab-names">
-              <option v-for="name in existingTabNames" :key="name" :value="name" />
-            </datalist>
+            <div class="di-dropdown-wrapper">
+              <input
+                v-model="tabContextInput"
+                type="text"
+                class="di-context-input"
+                placeholder="例: 予習, 受講者一覧"
+                @focus="showTabDropdown = true"
+                @blur="onTabBlur"
+                autocomplete="off"
+              />
+              <div v-if="showTabDropdown && filteredTabNames.length > 0" class="di-dropdown-list">
+                <div v-for="name in filteredTabNames" :key="name" class="di-dropdown-item" @mousedown.prevent="selectTab(name)">{{ name }}</div>
+              </div>
+            </div>
           </div>
-          <div class="di-context-field">
+          <div class="di-context-field di-context-field-dropdown">
             <label class="di-context-label di-context-label-modal">モーダル:</label>
-            <input
-              v-model="modalNameInput"
-              type="text"
-              list="di-modal-names"
-              class="di-context-input"
-              placeholder="例: 確認ダイアログ"
-            />
-            <datalist id="di-modal-names">
-              <option v-for="name in existingModalNames" :key="name" :value="name" />
-            </datalist>
+            <div class="di-dropdown-wrapper">
+              <input
+                v-model="modalNameInput"
+                type="text"
+                class="di-context-input"
+                placeholder="例: 確認ダイアログ"
+                @focus="showModalDropdown = true"
+                @blur="onModalBlur"
+                autocomplete="off"
+              />
+              <div v-if="showModalDropdown && filteredModalNames.length > 0" class="di-dropdown-list">
+                <div v-for="name in filteredModalNames" :key="name" class="di-dropdown-item" @mousedown.prevent="selectModal(name)">{{ name }}</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -2363,6 +2398,36 @@ function saveMasterEntries() {
 }
 .di-context-input::placeholder {
   color: #475569;
+}
+.di-dropdown-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+.di-dropdown-wrapper .di-context-input {
+  width: 100%;
+}
+.di-dropdown-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-top: none;
+  border-radius: 0 0 4px 4px;
+  max-height: 120px;
+  overflow-y: auto;
+}
+.di-dropdown-item {
+  padding: 4px 8px;
+  font-size: 11px;
+  color: #e2e8f0;
+  cursor: pointer;
+}
+.di-dropdown-item:hover {
+  background: rgba(96, 165, 250, 0.15);
 }
 
 .di-editor-content {
