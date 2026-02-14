@@ -57,7 +57,7 @@ const currentPageElementsAll = computed(() => {
       else if (config.formInfo) desc = config.formInfo.label || config.formInfo.inputType || 'フォーム'
       if (!desc) desc = id
 
-      return { id, desc, type: config.elementType, isConditional: !!config.isConditional, config }
+      return { id, desc, type: config.elementType, isConditional: !!config.isConditional, tabContext: config.tabContext || '', modalName: config.modalName || '', config }
     })
 })
 const currentPageElements = computed(() => {
@@ -81,9 +81,49 @@ const currentPageElements = computed(() => {
     }
   })
 })
-const pageElements = computed(() => currentPageElements.value.filter(el => !el.isConditional))
+const pageElements = computed(() => currentPageElements.value.filter(el => !el.isConditional && !el.tabContext))
+// Tree node type (shared by tab and modal trees)
+interface TreeNode {
+  elements: typeof currentPageElements.value
+  children: Record<string, TreeNode>
+}
+function countTreeNode(node: TreeNode): number {
+  let c = node.elements.length
+  for (const child of Object.values(node.children)) c += countTreeNode(child)
+  return c
+}
+function buildTree(items: typeof currentPageElements.value, pathKey: 'tabContext' | 'modalName'): Record<string, TreeNode> {
+  const root: Record<string, TreeNode> = {}
+  items.forEach(el => {
+    const pathStr = el[pathKey]
+    if (!pathStr) return
+    const parts = pathStr.split('>').map(s => s.trim()).filter(Boolean)
+    let level = root
+    for (let i = 0; i < parts.length; i++) {
+      const part = parts[i]
+      if (!level[part]) level[part] = { elements: [], children: {} }
+      if (i === parts.length - 1) {
+        level[part].elements.push(el)
+      }
+      level = level[part].children
+    }
+  })
+  return root
+}
+const tabTree = computed(() => buildTree(
+  currentPageElements.value.filter(el => el.tabContext && !el.isConditional),
+  'tabContext'
+))
+const allTabElements = computed(() => currentPageElements.value.filter(el => el.tabContext && !el.isConditional))
+const showPageGroup = ref(true)
+const showTabParent = ref(false)
+const showTabGroup = ref<Record<string, boolean>>({})
 const modalElements = computed(() => currentPageElements.value.filter(el => el.isConditional))
-const showModalGroup = ref(false)
+const namedModalElements = computed(() => currentPageElements.value.filter(el => el.isConditional && el.modalName))
+const modalTree = computed(() => buildTree(namedModalElements.value, 'modalName'))
+const unnamedModalElements = computed(() => currentPageElements.value.filter(el => el.isConditional && !el.modalName))
+const showModalParent = ref(false)
+const showModalGroup = ref<Record<string, boolean>>({})
 const noteCount = computed(() => {
   return Object.values(store.elementConfigs).filter(c => !!(c.note?.text || c.note?.displayType)).length
 })
@@ -585,6 +625,140 @@ function clearElementHighlight() {
   store.hoveredSelector = null
 }
 
+// ===== Drag & Drop for element tree =====
+const draggedElementId = ref<string | null>(null)
+const dropTargetGroup = ref<string | null>(null)
+
+function onDragStart(event: DragEvent, elementId: string) {
+  draggedElementId.value = elementId
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/plain', elementId)
+  }
+}
+
+function onDragEnd() {
+  draggedElementId.value = null
+  dropTargetGroup.value = null
+}
+
+function onDragOver(event: DragEvent, groupKey: string) {
+  event.preventDefault()
+  if (event.dataTransfer) event.dataTransfer.dropEffect = 'move'
+  dropTargetGroup.value = groupKey
+}
+
+function onDragLeave(event: DragEvent, groupKey: string) {
+  // Only clear if actually leaving the target (not entering a child)
+  const relatedTarget = event.relatedTarget as HTMLElement | null
+  const currentTarget = event.currentTarget as HTMLElement | null
+  if (currentTarget && relatedTarget && currentTarget.contains(relatedTarget)) return
+  if (dropTargetGroup.value === groupKey) dropTargetGroup.value = null
+}
+
+function onDrop(event: DragEvent, groupKey: string) {
+  event.preventDefault()
+  dropTargetGroup.value = null
+  const elId = draggedElementId.value
+  draggedElementId.value = null
+  if (!elId) return
+
+  const existing = store.elementConfigs[elId]
+  if (!existing) return
+
+  // Determine new tabContext / modalName / isConditional based on drop target
+  if (groupKey === '__page__') {
+    // タブ外: clear both tabContext and modal
+    store.setElementConfig(elId, { tabContext: undefined, modalName: undefined, isConditional: false })
+  } else if (groupKey.startsWith('tab:')) {
+    // Tab group: set tabContext path
+    const tabPath = groupKey.slice(4) // remove 'tab:' prefix
+    store.setElementConfig(elId, { tabContext: tabPath, modalName: undefined, isConditional: false })
+  } else if (groupKey === '__modal_unnamed__') {
+    // 未分類 modal: set isConditional, clear names
+    store.setElementConfig(elId, { isConditional: true, modalName: undefined, tabContext: undefined })
+  } else if (groupKey.startsWith('modal:')) {
+    // Named modal group
+    const mName = groupKey.slice(6)
+    store.setElementConfig(elId, { isConditional: true, modalName: mName, tabContext: undefined })
+  }
+}
+
+// ===== Inline rename for tab/modal groups =====
+const renamingGroup = ref<string | null>(null) // 'tab:予習' or 'modal:確認ダイアログ'
+const renameInput = ref('')
+
+function startRenameGroup(groupKey: string, currentName: string, event: Event) {
+  event.stopPropagation()
+  renamingGroup.value = groupKey
+  renameInput.value = currentName
+}
+
+function commitRename(groupKey: string) {
+  const newSegment = renameInput.value.trim()
+  renamingGroup.value = null
+  if (!newSegment) return
+
+  if (groupKey.startsWith('tab:')) {
+    const oldTabPath = groupKey.slice(4)
+    // Rebuild full new path: replace last segment only
+    const parts = oldTabPath.split(' > ')
+    parts[parts.length - 1] = newSegment
+    const newTabPath = parts.join(' > ')
+    if (oldTabPath === newTabPath) return
+    // Update all elements whose tabContext starts with the old path
+    for (const [id, config] of Object.entries(store.elementConfigs)) {
+      if (!config.tabContext) continue
+      if (config.tabContext === oldTabPath) {
+        store.setElementConfig(id, { tabContext: newTabPath })
+      } else if (config.tabContext.startsWith(oldTabPath + ' > ')) {
+        store.setElementConfig(id, { tabContext: newTabPath + config.tabContext.slice(oldTabPath.length) })
+      }
+    }
+    // Transfer show/hide state
+    const oldKey = oldTabPath.replace(/ > /g, '>')
+    const newKey = newTabPath.replace(/ > /g, '>')
+    if (showTabGroup.value[oldKey] !== undefined) {
+      showTabGroup.value[newKey] = showTabGroup.value[oldKey]
+      delete showTabGroup.value[oldKey]
+    }
+  } else if (groupKey.startsWith('modal:')) {
+    const oldModalPath = groupKey.slice(6)
+    // Rebuild full new path: replace last segment only
+    const mParts = oldModalPath.split(' > ')
+    mParts[mParts.length - 1] = newSegment
+    const newModalPath = mParts.join(' > ')
+    if (oldModalPath === newModalPath) return
+    for (const [id, config] of Object.entries(store.elementConfigs)) {
+      if (!config.modalName) continue
+      if (config.modalName === oldModalPath) {
+        store.setElementConfig(id, { modalName: newModalPath })
+      } else if (config.modalName.startsWith(oldModalPath + ' > ')) {
+        store.setElementConfig(id, { modalName: newModalPath + config.modalName.slice(oldModalPath.length) })
+      }
+    }
+    const oldMKey = oldModalPath.replace(/ > /g, '>')
+    const newMKey = newModalPath.replace(/ > /g, '>')
+    if (showModalGroup.value[oldMKey] !== undefined) {
+      showModalGroup.value[newMKey] = showModalGroup.value[oldMKey]
+      delete showModalGroup.value[oldMKey]
+    }
+  }
+}
+
+function cancelRename() {
+  renamingGroup.value = null
+  renameInput.value = ''
+}
+
+function onRenameKeydown(event: KeyboardEvent, groupKey: string) {
+  if (event.key === 'Enter') {
+    commitRename(groupKey)
+  } else if (event.key === 'Escape') {
+    cancelRename()
+  }
+}
+
 // ===== Screen Flow =====
 const currentPath = computed(() => typeof window !== 'undefined' ? window.location.pathname : '/')
 
@@ -733,54 +907,213 @@ function handleFlowEdgeClick(selector: string) {
             <span>登録済み要素</span>
             <span class="di-count-badge">{{ currentPageElements.length }}<span v-if="currentPageElements.length !== currentPageElementsAll.length"> / {{ currentPageElementsAll.length }}</span></span>
           </div>
-          <!-- Page Elements -->
-          <div v-if="pageElements.length > 0" class="di-element-list">
-            <div
-              v-for="el in pageElements"
-              :key="el.id"
-              class="di-element-item"
-              :class="{ 'di-element-item-active': store.hoveredSelector === el.id }"
-              @click="store.startEditing(el.id)"
-              @mouseenter="highlightElement(el.id)"
-              @mouseleave="clearElementHighlight"
-            >
-              <span
-                class="di-element-type-badge"
-                :class="'di-element-type-' + (el.type || 'other')"
+          <!-- Element Tree -->
+          <div class="di-element-tree">
+            <!-- タブ外 -->
+            <div v-if="pageElements.length > 0 || dropTargetGroup === '__page__'" class="di-tree-group">
+              <button
+                class="di-tree-group-header"
+                :class="{ 'di-drop-target': dropTargetGroup === '__page__' }"
+                @click="showPageGroup = !showPageGroup"
+                @dragover="onDragOver($event, '__page__')"
+                @dragleave="onDragLeave($event, '__page__')"
+                @drop="onDrop($event, '__page__')"
               >
-                {{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}
-              </span>
-              <div class="di-element-item-body">
-                <div class="di-element-item-label">{{ el.desc }}</div>
+                <span class="di-tree-icon">{{ showPageGroup ? '▼' : '▶' }}</span>
+                <span>タブ外</span>
+                <span class="di-count-badge">{{ pageElements.length }}</span>
+              </button>
+              <div v-if="showPageGroup" class="di-element-list">
+                <div
+                  v-for="el in pageElements"
+                  :key="el.id"
+                  class="di-element-item"
+                  :class="{ 'di-element-item-active': store.hoveredSelector === el.id, 'di-dragging': draggedElementId === el.id }"
+                  draggable="true"
+                  @dragstart="onDragStart($event, el.id)"
+                  @dragend="onDragEnd"
+                  @click="store.startEditing(el.id)"
+                  @mouseenter="highlightElement(el.id)"
+                  @mouseleave="clearElementHighlight"
+                >
+                  <span
+                    class="di-element-type-badge"
+                    :class="'di-element-type-' + (el.type || 'other')"
+                  >
+                    {{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}
+                  </span>
+                  <div class="di-element-item-body">
+                    <div class="di-element-item-label">{{ el.desc }}</div>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-          <!-- Modal Elements Group -->
-          <div v-if="modalElements.length > 0" class="di-modal-group">
-            <button class="di-modal-group-header" @click="showModalGroup = !showModalGroup">
-              <span class="di-modal-group-icon">{{ showModalGroup ? '▼' : '▶' }}</span>
-              <span class="di-element-conditional-badge">M</span>
-              <span>モーダル要素</span>
-              <span class="di-count-badge">{{ modalElements.length }}</span>
-            </button>
-            <div v-if="showModalGroup" class="di-element-list">
-              <div
-                v-for="el in modalElements"
-                :key="el.id"
-                class="di-element-item"
-                :class="{ 'di-element-item-active': store.hoveredSelector === el.id }"
-                @click="store.startEditing(el.id)"
-                @mouseenter="highlightElement(el.id)"
-                @mouseleave="clearElementHighlight"
-              >
-                <span
-                  class="di-element-type-badge"
-                  :class="'di-element-type-' + (el.type || 'other')"
-                >
-                  {{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}
-                </span>
-                <div class="di-element-item-body">
-                  <div class="di-element-item-label">{{ el.desc }}</div>
+            <!-- タブ内 (tree) -->
+            <div v-if="allTabElements.length > 0 || (draggedElementId && !dropTargetGroup?.startsWith('modal:') && dropTargetGroup !== '__modal_unnamed__')" class="di-tree-group">
+              <button class="di-tree-group-header" @click="showTabParent = !showTabParent">
+                <span class="di-tree-icon">{{ showTabParent ? '▼' : '▶' }}</span>
+                <span>タブ内</span>
+                <span class="di-count-badge">{{ allTabElements.length }}</span>
+              </button>
+              <div v-if="showTabParent" class="di-tree-children">
+                <!-- Level 1 -->
+                <div v-for="(l1, l1Name) in tabTree" :key="'t1-' + l1Name" class="di-tree-subgroup">
+                  <div v-if="renamingGroup === 'tab:' + l1Name" class="di-rename-row">
+                    <span class="di-tree-badge di-tree-badge-tab">T</span>
+                    <input class="di-rename-input" v-model="renameInput" @keydown="onRenameKeydown($event, 'tab:' + l1Name)" @blur="commitRename('tab:' + l1Name)" ref="renameInputRef" autofocus />
+                  </div>
+                  <button v-else class="di-tree-group-header di-tree-subgroup-header" :class="{ 'di-drop-target': dropTargetGroup === 'tab:' + l1Name }" @click="showTabGroup[l1Name] = !showTabGroup[l1Name]" @dragover="onDragOver($event, 'tab:' + l1Name)" @dragleave="onDragLeave($event, 'tab:' + l1Name)" @drop="onDrop($event, 'tab:' + l1Name)">
+                    <span class="di-tree-icon">{{ showTabGroup[l1Name] ? '▼' : '▶' }}</span>
+                    <span class="di-tree-badge di-tree-badge-tab">T</span>
+                    <span>{{ l1Name }}</span>
+                    <span class="di-count-badge">{{ countTreeNode(l1) }}</span>
+                    <span class="di-rename-btn" @click="startRenameGroup('tab:' + l1Name, String(l1Name), $event)" title="名前変更">✏</span>
+                  </button>
+                  <div v-if="showTabGroup[l1Name]">
+                    <div v-if="l1.elements.length > 0" class="di-element-list">
+                      <div v-for="el in l1.elements" :key="el.id" class="di-element-item" :class="{ 'di-element-item-active': store.hoveredSelector === el.id, 'di-dragging': draggedElementId === el.id }" draggable="true" @dragstart="onDragStart($event, el.id)" @dragend="onDragEnd" @click="store.startEditing(el.id)" @mouseenter="highlightElement(el.id)" @mouseleave="clearElementHighlight">
+                        <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}</span>
+                        <div class="di-element-item-body"><div class="di-element-item-label">{{ el.desc }}</div></div>
+                      </div>
+                    </div>
+                    <!-- Level 2 -->
+                    <div v-if="Object.keys(l1.children).length > 0" class="di-tree-children">
+                      <div v-for="(l2, l2Name) in l1.children" :key="'t2-' + l2Name" class="di-tree-subgroup">
+                        <div v-if="renamingGroup === 'tab:' + l1Name + ' > ' + l2Name" class="di-rename-row">
+                          <span class="di-tree-badge di-tree-badge-tab">T</span>
+                          <input class="di-rename-input" v-model="renameInput" @keydown="onRenameKeydown($event, 'tab:' + l1Name + ' > ' + l2Name)" @blur="commitRename('tab:' + l1Name + ' > ' + l2Name)" autofocus />
+                        </div>
+                        <button v-else class="di-tree-group-header di-tree-subgroup-header" :class="{ 'di-drop-target': dropTargetGroup === 'tab:' + l1Name + ' > ' + l2Name }" @click="showTabGroup[l1Name + '>' + l2Name] = !showTabGroup[l1Name + '>' + l2Name]" @dragover="onDragOver($event, 'tab:' + l1Name + ' > ' + l2Name)" @dragleave="onDragLeave($event, 'tab:' + l1Name + ' > ' + l2Name)" @drop="onDrop($event, 'tab:' + l1Name + ' > ' + l2Name)">
+                          <span class="di-tree-icon">{{ showTabGroup[l1Name + '>' + l2Name] ? '▼' : '▶' }}</span>
+                          <span class="di-tree-badge di-tree-badge-tab">T</span>
+                          <span>{{ l2Name }}</span>
+                          <span class="di-count-badge">{{ countTreeNode(l2) }}</span>
+                          <span class="di-rename-btn" @click="startRenameGroup('tab:' + l1Name + ' > ' + l2Name, String(l2Name), $event)" title="名前変更">✏</span>
+                        </button>
+                        <div v-if="showTabGroup[l1Name + '>' + l2Name]">
+                          <div v-if="l2.elements.length > 0" class="di-element-list">
+                            <div v-for="el in l2.elements" :key="el.id" class="di-element-item" :class="{ 'di-element-item-active': store.hoveredSelector === el.id, 'di-dragging': draggedElementId === el.id }" draggable="true" @dragstart="onDragStart($event, el.id)" @dragend="onDragEnd" @click="store.startEditing(el.id)" @mouseenter="highlightElement(el.id)" @mouseleave="clearElementHighlight">
+                              <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}</span>
+                              <div class="di-element-item-body"><div class="di-element-item-label">{{ el.desc }}</div></div>
+                            </div>
+                          </div>
+                          <!-- Level 3 -->
+                          <div v-if="Object.keys(l2.children).length > 0" class="di-tree-children">
+                            <div v-for="(l3, l3Name) in l2.children" :key="'t3-' + l3Name" class="di-tree-subgroup">
+                              <div v-if="renamingGroup === 'tab:' + l1Name + ' > ' + l2Name + ' > ' + l3Name" class="di-rename-row">
+                                <span class="di-tree-badge di-tree-badge-tab">T</span>
+                                <input class="di-rename-input" v-model="renameInput" @keydown="onRenameKeydown($event, 'tab:' + l1Name + ' > ' + l2Name + ' > ' + l3Name)" @blur="commitRename('tab:' + l1Name + ' > ' + l2Name + ' > ' + l3Name)" autofocus />
+                              </div>
+                              <button v-else class="di-tree-group-header di-tree-subgroup-header" :class="{ 'di-drop-target': dropTargetGroup === 'tab:' + l1Name + ' > ' + l2Name + ' > ' + l3Name }" @click="showTabGroup[l1Name + '>' + l2Name + '>' + l3Name] = !showTabGroup[l1Name + '>' + l2Name + '>' + l3Name]" @dragover="onDragOver($event, 'tab:' + l1Name + ' > ' + l2Name + ' > ' + l3Name)" @dragleave="onDragLeave($event, 'tab:' + l1Name + ' > ' + l2Name + ' > ' + l3Name)" @drop="onDrop($event, 'tab:' + l1Name + ' > ' + l2Name + ' > ' + l3Name)">
+                                <span class="di-tree-icon">{{ showTabGroup[l1Name + '>' + l2Name + '>' + l3Name] ? '▼' : '▶' }}</span>
+                                <span class="di-tree-badge di-tree-badge-tab">T</span>
+                                <span>{{ l3Name }}</span>
+                                <span class="di-count-badge">{{ countTreeNode(l3) }}</span>
+                                <span class="di-rename-btn" @click="startRenameGroup('tab:' + l1Name + ' > ' + l2Name + ' > ' + l3Name, String(l3Name), $event)" title="名前変更">✏</span>
+                              </button>
+                              <div v-if="showTabGroup[l1Name + '>' + l2Name + '>' + l3Name]">
+                                <div v-if="l3.elements.length > 0" class="di-element-list">
+                                  <div v-for="el in l3.elements" :key="el.id" class="di-element-item" :class="{ 'di-element-item-active': store.hoveredSelector === el.id, 'di-dragging': draggedElementId === el.id }" draggable="true" @dragstart="onDragStart($event, el.id)" @dragend="onDragEnd" @click="store.startEditing(el.id)" @mouseenter="highlightElement(el.id)" @mouseleave="clearElementHighlight">
+                                    <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}</span>
+                                    <div class="di-element-item-body"><div class="di-element-item-label">{{ el.desc }}</div></div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- モーダル要素 (tree) -->
+            <div v-if="modalElements.length > 0 || (draggedElementId && (dropTargetGroup?.startsWith('modal:') || dropTargetGroup === '__modal_unnamed__'))" class="di-tree-group">
+              <button class="di-tree-group-header" @click="showModalParent = !showModalParent">
+                <span class="di-tree-icon">{{ showModalParent ? '▼' : '▶' }}</span>
+                <span>モーダル</span>
+                <span class="di-count-badge">{{ modalElements.length }}</span>
+              </button>
+              <div v-if="showModalParent" class="di-tree-children">
+                <!-- Modal tree Level 1 -->
+                <div v-for="(m1, m1Name) in modalTree" :key="'m1-' + m1Name" class="di-tree-subgroup">
+                  <div v-if="renamingGroup === 'modal:' + m1Name" class="di-rename-row">
+                    <span class="di-tree-badge di-tree-badge-modal">M</span>
+                    <input class="di-rename-input" v-model="renameInput" @keydown="onRenameKeydown($event, 'modal:' + m1Name)" @blur="commitRename('modal:' + m1Name)" autofocus />
+                  </div>
+                  <button v-else class="di-tree-group-header di-tree-subgroup-header" :class="{ 'di-drop-target': dropTargetGroup === 'modal:' + m1Name }" @click="showModalGroup[String(m1Name)] = !showModalGroup[String(m1Name)]" @dragover="onDragOver($event, 'modal:' + m1Name)" @dragleave="onDragLeave($event, 'modal:' + m1Name)" @drop="onDrop($event, 'modal:' + m1Name)">
+                    <span class="di-tree-icon">{{ showModalGroup[String(m1Name)] ? '▼' : '▶' }}</span>
+                    <span class="di-tree-badge di-tree-badge-modal">M</span>
+                    <span>{{ m1Name }}</span>
+                    <span class="di-count-badge">{{ countTreeNode(m1) }}</span>
+                    <span class="di-rename-btn" @click="startRenameGroup('modal:' + m1Name, String(m1Name), $event)" title="名前変更">✏</span>
+                  </button>
+                  <div v-if="showModalGroup[String(m1Name)]">
+                    <div v-if="m1.elements.length > 0" class="di-element-list">
+                      <div v-for="el in m1.elements" :key="el.id" class="di-element-item" :class="{ 'di-element-item-active': store.hoveredSelector === el.id, 'di-dragging': draggedElementId === el.id }" draggable="true" @dragstart="onDragStart($event, el.id)" @dragend="onDragEnd" @click="store.startEditing(el.id)" @mouseenter="highlightElement(el.id)" @mouseleave="clearElementHighlight">
+                        <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}</span>
+                        <div class="di-element-item-body"><div class="di-element-item-label">{{ el.desc }}</div></div>
+                      </div>
+                    </div>
+                    <!-- Modal tree Level 2 -->
+                    <div v-if="Object.keys(m1.children).length > 0" class="di-tree-children">
+                      <div v-for="(m2, m2Name) in m1.children" :key="'m2-' + m2Name" class="di-tree-subgroup">
+                        <div v-if="renamingGroup === 'modal:' + m1Name + ' > ' + m2Name" class="di-rename-row">
+                          <span class="di-tree-badge di-tree-badge-modal">M</span>
+                          <input class="di-rename-input" v-model="renameInput" @keydown="onRenameKeydown($event, 'modal:' + m1Name + ' > ' + m2Name)" @blur="commitRename('modal:' + m1Name + ' > ' + m2Name)" autofocus />
+                        </div>
+                        <button v-else class="di-tree-group-header di-tree-subgroup-header" :class="{ 'di-drop-target': dropTargetGroup === 'modal:' + m1Name + ' > ' + m2Name }" @click="showModalGroup[m1Name + '>' + m2Name] = !showModalGroup[m1Name + '>' + m2Name]" @dragover="onDragOver($event, 'modal:' + m1Name + ' > ' + m2Name)" @dragleave="onDragLeave($event, 'modal:' + m1Name + ' > ' + m2Name)" @drop="onDrop($event, 'modal:' + m1Name + ' > ' + m2Name)">
+                          <span class="di-tree-icon">{{ showModalGroup[m1Name + '>' + m2Name] ? '▼' : '▶' }}</span>
+                          <span class="di-tree-badge di-tree-badge-modal">M</span>
+                          <span>{{ m2Name }}</span>
+                          <span class="di-count-badge">{{ countTreeNode(m2) }}</span>
+                          <span class="di-rename-btn" @click="startRenameGroup('modal:' + m1Name + ' > ' + m2Name, String(m2Name), $event)" title="名前変更">✏</span>
+                        </button>
+                        <div v-if="showModalGroup[m1Name + '>' + m2Name]">
+                          <div v-if="m2.elements.length > 0" class="di-element-list">
+                            <div v-for="el in m2.elements" :key="el.id" class="di-element-item" :class="{ 'di-element-item-active': store.hoveredSelector === el.id, 'di-dragging': draggedElementId === el.id }" draggable="true" @dragstart="onDragStart($event, el.id)" @dragend="onDragEnd" @click="store.startEditing(el.id)" @mouseenter="highlightElement(el.id)" @mouseleave="clearElementHighlight">
+                              <span class="di-element-type-badge" :class="'di-element-type-' + (el.type || 'other')">{{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}</span>
+                              <div class="di-element-item-body"><div class="di-element-item-label">{{ el.desc }}</div></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Unnamed modal elements -->
+                <div v-if="unnamedModalElements.length > 0 || dropTargetGroup === '__modal_unnamed__'" class="di-tree-subgroup">
+                  <button class="di-tree-group-header di-tree-subgroup-header" :class="{ 'di-drop-target': dropTargetGroup === '__modal_unnamed__' }" @click="showModalGroup['__unnamed'] = !showModalGroup['__unnamed']" @dragover="onDragOver($event, '__modal_unnamed__')" @dragleave="onDragLeave($event, '__modal_unnamed__')" @drop="onDrop($event, '__modal_unnamed__')">
+                    <span class="di-tree-icon">{{ showModalGroup['__unnamed'] ? '▼' : '▶' }}</span>
+                    <span class="di-tree-badge di-tree-badge-modal">M</span>
+                    <span>未分類</span>
+                    <span class="di-count-badge">{{ unnamedModalElements.length }}</span>
+                  </button>
+                  <div v-if="showModalGroup['__unnamed']" class="di-element-list">
+                    <div
+                      v-for="el in unnamedModalElements"
+                      :key="el.id"
+                      class="di-element-item"
+                      :class="{ 'di-element-item-active': store.hoveredSelector === el.id, 'di-dragging': draggedElementId === el.id }"
+                      draggable="true"
+                      @dragstart="onDragStart($event, el.id)"
+                      @dragend="onDragEnd"
+                      @click="store.startEditing(el.id)"
+                      @mouseenter="highlightElement(el.id)"
+                      @mouseleave="clearElementHighlight"
+                    >
+                      <span
+                        class="di-element-type-badge"
+                        :class="'di-element-type-' + (el.type || 'other')"
+                      >
+                        {{ el.type === 'datasource' ? 'DB' : el.type === 'action' ? 'Act' : el.type === 'form' ? 'Form' : '-' }}
+                      </span>
+                      <div class="di-element-item-body">
+                        <div class="di-element-item-label">{{ el.desc }}</div>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -3824,22 +4157,21 @@ function handleFlowEdgeClick(selector: string) {
   overflow: hidden;
   text-overflow: ellipsis;
 }
-.di-element-conditional-badge {
-  display: inline-block;
-  padding: 0 4px;
-  border-radius: 3px;
-  font-size: 9px;
-  font-weight: 700;
-  background: rgba(168, 85, 247, 0.2);
-  color: #a855f7;
-  vertical-align: middle;
+/* Element Tree */
+.di-element-tree {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
-.di-modal-group {
-  margin-top: 6px;
+.di-tree-group {
   border-top: 1px solid #334155;
-  padding-top: 6px;
+  padding-top: 4px;
 }
-.di-modal-group-header {
+.di-tree-group:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+.di-tree-group-header {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -3854,12 +4186,98 @@ function handleFlowEdgeClick(selector: string) {
   border-radius: 4px;
   transition: background 0.15s;
 }
-.di-modal-group-header:hover {
+.di-tree-group-header:hover {
   background: rgba(148, 163, 184, 0.1);
 }
-.di-modal-group-icon {
+.di-tree-icon {
   font-size: 8px;
   color: #64748b;
+  width: 10px;
+  text-align: center;
+}
+.di-tree-badge {
+  display: inline-block;
+  padding: 0 4px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 700;
+  vertical-align: middle;
+}
+.di-tree-badge-tab {
+  background: rgba(59, 130, 246, 0.2);
+  color: #3b82f6;
+}
+.di-tree-badge-modal {
+  background: rgba(168, 85, 247, 0.2);
+  color: #a855f7;
+}
+.di-tree-group > .di-element-list {
+  padding-left: 8px;
+}
+.di-tree-children {
+  padding-left: 10px;
+}
+.di-tree-subgroup {
+  border-top: 1px solid #1e293b;
+  padding-top: 2px;
+  margin-top: 2px;
+}
+.di-tree-subgroup:first-child {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 0;
+}
+.di-tree-subgroup-header {
+  font-size: 10px !important;
+}
+.di-tree-subgroup > .di-element-list {
+  padding-left: 8px;
+}
+/* Drag & Drop */
+.di-element-item[draggable="true"] {
+  cursor: grab;
+}
+.di-element-item[draggable="true"]:active {
+  cursor: grabbing;
+}
+.di-dragging {
+  opacity: 0.4;
+}
+.di-drop-target {
+  background: rgba(59, 130, 246, 0.15) !important;
+  outline: 1px dashed #3b82f6;
+  outline-offset: -1px;
+}
+/* Inline rename */
+.di-rename-btn {
+  margin-left: auto;
+  font-size: 10px;
+  opacity: 0;
+  cursor: pointer;
+  padding: 0 2px;
+  transition: opacity 0.15s;
+}
+.di-tree-group-header:hover .di-rename-btn {
+  opacity: 0.6;
+}
+.di-rename-btn:hover {
+  opacity: 1 !important;
+}
+.di-rename-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 6px;
+}
+.di-rename-input {
+  flex: 1;
+  background: #1e293b;
+  border: 1px solid #3b82f6;
+  border-radius: 3px;
+  color: #e2e8f0;
+  font-size: 11px;
+  padding: 2px 6px;
+  outline: none;
 }
 .di-element-item-id {
   font-size: 9px;

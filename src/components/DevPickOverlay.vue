@@ -733,11 +733,16 @@ onMounted(() => {
   window.addEventListener('scroll', updateAnnotationPositions)
   window.addEventListener('resize', updateAnnotationPositions)
 
-  // Observe DOM changes to detect modal open/close
+  // Observe DOM changes to detect modal open/close and tab switches
+  let domDebounceTimer: ReturnType<typeof setTimeout> | null = null
   domObserver = new MutationObserver(() => {
-    layoutVersion.value++
+    // Debounce to avoid excessive recalculations on rapid DOM changes
+    if (domDebounceTimer) clearTimeout(domDebounceTimer)
+    domDebounceTimer = setTimeout(() => {
+      layoutVersion.value++
+    }, 100)
   })
-  domObserver.observe(document.body, { childList: true, subtree: false })
+  domObserver.observe(document.body, { childList: true, subtree: true })
 })
 
 onUnmounted(() => {

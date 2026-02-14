@@ -5,7 +5,7 @@ import { exportForSDD, exportForClient } from '../utils/exportMarkdown'
 // ===== Types =====
 
 export interface SourceBindingInfo {
-  type: 'static' | 'v-model' | 'prop' | 'computed' | 'store' | 'api'
+  type: 'static' | 'v-model' | 'prop' | 'computed' | 'store' | 'api' | 'data'
   source?: string // e.g., 'form.userName', 'userStore.currentUser.name'
   apiEndpoint?: string
   apiMethod?: string
@@ -156,6 +156,24 @@ export interface EmailSpec {
   errorHandling?: string      // 送信失敗時の処理
 }
 
+export interface ChartSeries {
+  label: string          // 系列名 (例: "予習", "復習①")
+  field: string          // DBカラムやAPIフィールド (例: "preview_count")
+  color?: string         // 系列の色
+}
+
+export interface ChartSpec {
+  chartType: 'bar' | 'line' | 'pie' | 'area' | 'scatter' | 'doughnut' | 'radar' | 'other'
+  title?: string          // グラフタイトル
+  xAxis?: string          // X軸 (例: "月", "日付")
+  yAxis?: string          // Y軸 (例: "件数", "金額")
+  series?: ChartSeries[]  // 系列定義
+  dataSource?: string     // データ取得元 (例: "GET /api/stats/monthly")
+  aggregation?: string    // 集計方法 (例: "月別集計")
+  filters?: string        // フィルタ条件
+  description?: string    // 説明
+}
+
 export interface BatchStep {
   order: number
   description: string          // 処理内容
@@ -201,12 +219,15 @@ export interface ElementConfig {
   id: string
   componentPath: string
   pagePath?: string  // URL pathname this annotation belongs to
-  elementType?: 'datasource' | 'action' | 'form'  // 要素の役割
+  elementType?: 'datasource' | 'action' | 'form' | 'chart'  // 要素の役割
   isConditional?: boolean  // true if element is inside modal/dialog (conditionally rendered)
+  modalName?: string        // モーダル名（例: "確認ダイアログ", "ユーザー編集"）
+  tabContext?: string       // タブ名（例: "予習", "受講者一覧"）
   fieldInfo?: FieldInfo
   fieldInfoList?: FieldInfo[]  // Multiple DB columns
   actionInfo?: ActionInfo
   formInfo?: FormInfo                               // フォーム固有情報
+  chartSpec?: ChartSpec                              // チャート仕様
   note?: ElementNote
   links?: LinkInfo
   devMeta?: DevMeta
@@ -316,7 +337,7 @@ export interface CrossSearchResult {
   pagePath: string
   pageName: string
   selector: string
-  elementType?: 'datasource' | 'action' | 'form'
+  elementType?: 'datasource' | 'action' | 'form' | 'chart'
   matchedField: string
   matchContext: string
 }
@@ -1434,6 +1455,138 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     return false
   }
 
+  /** Try to detect the modal title from the closest modal container */
+  function detectModalName(selector: string): string | undefined {
+    if (typeof document === 'undefined') return undefined
+    try {
+      const el = document.querySelector(selector)
+      if (!el) return undefined
+      // Collect all modal layers from inner to outer
+      const layers: string[] = []
+      let parent = el.parentElement
+      while (parent && parent !== document.body) {
+        const role = parent.getAttribute('role')
+        const cls = parent.className || ''
+        const isModal = parent.tagName === 'DIALOG'
+          || role === 'dialog' || role === 'alertdialog'
+          || (typeof cls === 'string' && /\b(modal|dialog|v-dialog|el-dialog|drawer)\b/i.test(cls))
+        if (isModal) {
+          // Look for heading or title inside this modal (direct children area, not nested modals)
+          const heading = findModalHeading(parent)
+          if (heading) {
+            layers.push(heading)
+          }
+        }
+        parent = parent.parentElement
+      }
+      if (layers.length === 0) return undefined
+      // Reverse: outer > inner order
+      layers.reverse()
+      return layers.join(' > ')
+    } catch { /* invalid selector */ }
+    return undefined
+  }
+
+  /** Find heading text for a modal container, avoiding text from nested modals */
+  function findModalHeading(modalEl: Element): string | undefined {
+    const candidates = modalEl.querySelectorAll('h1, h2, h3, h4, [class*="title"], [class*="header"] h1, [class*="header"] h2, [class*="header"] h3, [class*="header"] span')
+    for (const heading of candidates) {
+      // Skip if this heading is inside a nested modal
+      let p = heading.parentElement
+      let insideNested = false
+      while (p && p !== modalEl) {
+        const r = p.getAttribute('role')
+        const c = p.className || ''
+        if (p.tagName === 'DIALOG' || r === 'dialog' || r === 'alertdialog'
+          || (typeof c === 'string' && /\b(modal|dialog|v-dialog|el-dialog|drawer)\b/i.test(c))) {
+          insideNested = true
+          break
+        }
+        p = p.parentElement
+      }
+      if (insideNested) continue
+      const text = heading.textContent?.trim()
+      if (text && text.length <= 30) return text
+    }
+    return undefined
+  }
+
+  /** Determine if a button looks "active" compared to its siblings */
+  function isActiveTab(btn: HTMLElement, allBtns: HTMLElement[]): boolean {
+    if (btn.getAttribute('aria-selected') === 'true') return true
+    if (btn.classList.contains('active') || btn.classList.contains('is-active')) return true
+    const cls = btn.className || ''
+    // border-t or border-b (active tab indicator)
+    if (/border-[tb]-[2-9]/.test(cls)) return true
+    // Colored background (primary/blue etc)
+    if (/\b(bg-blue|bg-primary|bg-indigo)\b/.test(cls)) return true
+    // text-white usually = active on colored bg
+    if (/\btext-white\b/.test(cls) && allBtns.some(s => s !== btn && !/\btext-white\b/.test(s.className || ''))) return true
+    // bg-white/bg-surface without inset shadow, when siblings differ
+    if (/\b(bg-white|bg-surface)\b/.test(cls) && !/shadow-inset|shadow-\[inset/.test(cls)) {
+      if (allBtns.some(s => s !== btn && !/\b(bg-white|bg-surface)\b/.test(s.className || ''))) return true
+    }
+    return false
+  }
+
+  /** Try to find a tab group in candidate element, return active tab text */
+  function findActiveTabIn(candidate: Element): string | undefined {
+    const buttons = [...candidate.querySelectorAll(':scope > button, :scope > a, :scope > [role="tab"]')] as HTMLElement[]
+    if (buttons.length < 2 || buttons.length > 12) return undefined
+    for (const btn of buttons) {
+      if (isActiveTab(btn, buttons)) {
+        const text = btn.textContent?.trim()
+        if (text && text.length <= 30) return text
+      }
+    }
+    return undefined
+  }
+
+  /** Search an element and its direct children for a tab button group, return active tab text */
+  function findTabInElement(candidate: Element): string | undefined {
+    let activeText = findActiveTabIn(candidate)
+    if (activeText) return activeText
+    // Check direct children (the tab bar might be wrapped in a div)
+    for (const child of candidate.children) {
+      activeText = findActiveTabIn(child)
+      if (activeText) return activeText
+    }
+    return undefined
+  }
+
+  /** Try to detect the tab context by finding all tab layers from inner to outer */
+  function detectTabContext(selector: string): string | undefined {
+    if (typeof document === 'undefined') return undefined
+    try {
+      const el = document.querySelector(selector)
+      if (!el) return undefined
+      const layers: string[] = []
+      const checkedContainers = new Set<Element>()
+      let parent = el.parentElement
+      while (parent && parent !== document.body) {
+        // Walk ALL previous siblings (tab bar may not be the immediate prev sibling)
+        let prevSib = parent.previousElementSibling
+        while (prevSib) {
+          if (!checkedContainers.has(prevSib)) {
+            checkedContainers.add(prevSib)
+            const activeText = findTabInElement(prevSib)
+            if (activeText) {
+              layers.push(activeText)
+              break // found tab at this level, move to parent
+            }
+          }
+          prevSib = prevSib.previousElementSibling
+        }
+        parent = parent.parentElement
+      }
+      if (layers.length === 0) return undefined
+      // Reverse: outer first
+      layers.reverse()
+      return layers.join(' > ')
+    } catch { /* invalid selector */ }
+    return undefined
+  }
+
   function setElementConfig(id: string, config: Partial<ElementConfig>) {
     const now = new Date().toISOString()
     const existing = elementConfigs.value[id]
@@ -1443,11 +1596,18 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     // Auto-detect if element is inside a modal/dialog
     const isConditional = config.isConditional ?? existing?.isConditional ?? isInsideConditionalContainer(id)
 
+    const modalName = 'modalName' in config ? config.modalName : existing?.modalName
+    const tabContext = 'tabContext' in config ? config.tabContext : existing?.tabContext
+    const chartSpec = 'chartSpec' in config ? config.chartSpec : existing?.chartSpec
+
     const newConfig: ElementConfig = {
       ...existing,
       ...config,
       id,
       isConditional,
+      modalName,
+      tabContext,
+      chartSpec,
       pagePath: config.pagePath || existing?.pagePath || currentPage,
       componentPath: config.componentPath || currentScreenSpec.value?.componentPath || '',
       createdAt: existing?.createdAt || now,
@@ -1525,7 +1685,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     // Check if inside a table body - table data is almost always dynamic
     if (element.closest('tbody') || element.closest('[role="rowgroup"]')) {
       return {
-        type: 'api',
+        type: 'data',
         source: 'table data',
         isStatic: false,
       }
@@ -1535,7 +1695,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     const listParent = element.closest('ul, ol, [role="list"]')
     if (listParent && listParent.children.length > 1) {
       return {
-        type: 'api',
+        type: 'data',
         source: 'list item',
         isStatic: false,
       }
@@ -1561,7 +1721,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
           )
           if (similarSiblings.length > 0) {
             return {
-              type: 'api',
+              type: 'data',
               source: 'repeated container',
               isStatic: false,
             }
@@ -1576,7 +1736,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
 
     if (isInLoop) {
       return {
-        type: 'api',
+        type: 'data',
         source: 'loop item',
         isStatic: false,
       }
@@ -1595,7 +1755,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
         )
         if (sameStructure.length >= 2) {
           return {
-            type: 'api',
+            type: 'data',
             source: 'repeated element',
             isStatic: false,
           }
@@ -1624,7 +1784,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     for (const pattern of dynamicPatterns) {
       if (pattern.test(textContent)) {
         return {
-          type: 'api',
+          type: 'data',
           source: 'dynamic data pattern',
           isStatic: false,
         }
@@ -1641,7 +1801,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     for (const pattern of namePatterns) {
       if (pattern.test(textContent)) {
         return {
-          type: 'api',
+          type: 'data',
           source: 'name pattern',
           isStatic: false,
         }
@@ -1696,7 +1856,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     // Default: assume dynamic (conservative - less false positives for static)
     if (textContent.length > 0 && textContent.length < 200) {
       return {
-        type: 'api',
+        type: 'data',
         source: 'content (assumed dynamic)',
         isStatic: false,
       }
@@ -2430,6 +2590,11 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
         continue
       }
 
+      // Skip tab context elements — they may be on inactive tab
+      if (config.tabContext) {
+        continue
+      }
+
       try {
         const el = document.querySelector(id)
         if (!el) {
@@ -2673,6 +2838,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     brokenAnnotations,
     remapTargetId,
     detectBrokenAnnotations,
+    detectModalName,
+    detectTabContext,
     remapAnnotation,
     startRemap,
     deleteBrokenAnnotations,

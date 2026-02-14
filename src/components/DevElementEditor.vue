@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import { X, Database, Save, Trash2, MessageSquare, Wand2, Calculator, Type, ShieldQuestion, Zap, FormInput, List, ChevronUp, ChevronDown, FileSpreadsheet, Mail, ArrowUpDown } from 'lucide-vue-next'
-import { useDevInspectorStore, type FieldInfo, type ElementNote, type SourceBindingInfo, type ActionInfo, type FormInfo, type SortInfo, type MasterEntry, type CsvColumnDef, type CsvSpec, type CsvErrorDef, type EmailSpec } from '../composables/useDevInspector'
+import { X, Database, Save, Trash2, MessageSquare, Wand2, Calculator, Type, ShieldQuestion, Zap, FormInput, List, ChevronUp, ChevronDown, FileSpreadsheet, Mail, ArrowUpDown, BarChart3 } from 'lucide-vue-next'
+import { useDevInspectorStore, type FieldInfo, type ElementNote, type SourceBindingInfo, type ActionInfo, type FormInfo, type SortInfo, type MasterEntry, type CsvColumnDef, type CsvSpec, type CsvErrorDef, type EmailSpec, type ChartSpec, type ChartSeries } from '../composables/useDevInspector'
 
 // (SortInfo is now part of ActionInfo.sortSpec)
 
 const store = useDevInspectorStore()
 
 // Tab selection
-const activeTab = ref<'datasource' | 'action' | 'form'>('datasource')
+const activeTab = ref<'datasource' | 'action' | 'form' | 'chart'>('datasource')
 
 // Action tab refs
 const actionType = ref<ActionInfo['type'] | ''>('')
@@ -61,6 +61,37 @@ const sortDefaultDirection = ref<SortInfo['defaultDirection'] | ''>('')
 const sortIsDefaultSort = ref(false)
 const sortUnsortedOrder = ref('')
 const sortDescription = ref('')
+
+// Chart spec refs
+const chartType = ref<ChartSpec['chartType'] | ''>('')
+const chartTitle = ref('')
+const chartXAxis = ref('')
+const chartYAxis = ref('')
+const chartSeries = ref<ChartSeries[]>([])
+const chartDataSource = ref('')
+const chartAggregation = ref('')
+const chartFilters = ref('')
+const chartDescription = ref('')
+
+// Tab context
+const tabContextInput = ref('')
+const modalNameInput = ref('')
+
+// Existing tab/modal names for datalist suggestions
+const existingTabNames = computed(() => {
+  const names = new Set<string>()
+  for (const config of Object.values(store.elementConfigs)) {
+    if (config.tabContext) names.add(config.tabContext)
+  }
+  return [...names].sort()
+})
+const existingModalNames = computed(() => {
+  const names = new Set<string>()
+  for (const config of Object.values(store.elementConfigs)) {
+    if (config.modalName) names.add(config.modalName)
+  }
+  return [...names].sort()
+})
 
 // Master definition inline editing
 const showMasterSection = ref(false)
@@ -132,6 +163,20 @@ const noteText = ref('')
 const sourceBindingType = ref<SourceBindingInfo['type'] | ''>('')
 const sourceBindingSource = ref('')
 const sourceBindingIsStatic = ref(false)
+// Source binding display label
+const sourceBindingLabel = computed(() => {
+  if (!sourceBindingType.value) return ''
+  const labels: Record<string, string> = {
+    'data': 'data',
+    'v-model': 'v-model',
+    'prop': 'prop',
+    'static': 'static',
+    'computed': 'computed',
+    'store': 'store',
+    'api': 'data', // legacy compatibility
+  }
+  return labels[sourceBindingType.value] || sourceBindingType.value
+})
 
 const isEditing = computed(() => store.editingElementId !== null)
 const elementId = computed(() => store.editingElementId)
@@ -177,7 +222,7 @@ watch(elementId, (id) => {
 
           if (binding) {
             sourceBindingSource.value = binding
-            sourceBindingType.value = 'api'
+            sourceBindingType.value = 'data'
             sourceBindingIsStatic.value = false
           }
 
@@ -240,6 +285,9 @@ watch(elementId, (id) => {
       sourceBindingSource.value = config.sourceBinding.source || sourceBindingSource.value
       sourceBindingIsStatic.value = config.sourceBinding.isStatic || false
     }
+    // Load tab context & modal name (auto-detect if not saved)
+    tabContextInput.value = config?.tabContext || store.detectTabContext(id) || ''
+    modalNameInput.value = config?.modalName || (config?.isConditional ? store.detectModalName(id) || '' : '')
     // Load action info
     if (config?.actionInfo) {
       actionType.value = config.actionInfo.type || ''
@@ -297,6 +345,19 @@ watch(elementId, (id) => {
       sortIsDefaultSort.value = spec.isDefaultSort || false
       sortUnsortedOrder.value = spec.unsortedOrder || ''
       sortDescription.value = spec.description || ''
+    }
+    // Load chart spec
+    if (config?.chartSpec) {
+      const spec = config.chartSpec
+      chartType.value = spec.chartType || ''
+      chartTitle.value = spec.title || ''
+      chartXAxis.value = spec.xAxis || ''
+      chartYAxis.value = spec.yAxis || ''
+      chartSeries.value = spec.series ? spec.series.map(s => ({ ...s })) : []
+      chartDataSource.value = spec.dataSource || ''
+      chartAggregation.value = spec.aggregation || ''
+      chartFilters.value = spec.filters || ''
+      chartDescription.value = spec.description || ''
     }
   } else {
     resetForm()
@@ -380,6 +441,19 @@ function resetForm() {
   sortIsDefaultSort.value = false
   sortUnsortedOrder.value = ''
   sortDescription.value = ''
+  // Chart refs
+  chartType.value = ''
+  chartTitle.value = ''
+  chartXAxis.value = ''
+  chartYAxis.value = ''
+  chartSeries.value = []
+  chartDataSource.value = ''
+  chartAggregation.value = ''
+  chartFilters.value = ''
+  chartDescription.value = ''
+  // Tab context & modal name
+  tabContextInput.value = ''
+  modalNameInput.value = ''
   // Master refs
   showMasterSection.value = false
   masterEntries.value = []
@@ -506,14 +580,35 @@ function save() {
       }
     : undefined
 
+  // Build chart spec
+  const chartSpec: ChartSpec | undefined = (activeTab.value === 'chart' && chartType.value)
+    ? {
+        chartType: chartType.value as ChartSpec['chartType'],
+        title: chartTitle.value || undefined,
+        xAxis: chartXAxis.value || undefined,
+        yAxis: chartYAxis.value || undefined,
+        series: chartSeries.value.filter(s => s.label || s.field).length > 0
+          ? chartSeries.value.filter(s => s.label || s.field)
+          : undefined,
+        dataSource: chartDataSource.value || undefined,
+        aggregation: chartAggregation.value || undefined,
+        filters: chartFilters.value || undefined,
+        description: chartDescription.value || undefined,
+      }
+    : undefined
+
   store.setElementConfig(elementId.value, {
     elementType: activeTab.value,
     fieldInfo,
     fieldInfoList,
     actionInfo,
     formInfo,
+    chartSpec,
     note,
     sourceBinding,
+    tabContext: tabContextInput.value || undefined,
+    modalName: modalNameInput.value || undefined,
+    isConditional: modalNameInput.value ? true : undefined,
   })
 
   // Save master entries if section was open
@@ -846,6 +941,24 @@ function moveCsvColumn(index: number, direction: -1 | 1) {
   csvColumns.value = [...csvColumns.value]
 }
 
+// Chart series helpers
+function addChartSeries() {
+  chartSeries.value.push({ label: '', field: '', color: '#3b82f6' })
+}
+
+function removeChartSeries(index: number) {
+  chartSeries.value.splice(index, 1)
+}
+
+function moveChartSeries(index: number, direction: -1 | 1) {
+  const newIndex = index + direction
+  if (newIndex < 0 || newIndex >= chartSeries.value.length) return
+  const temp = chartSeries.value[index]
+  chartSeries.value[index] = chartSeries.value[newIndex]
+  chartSeries.value[newIndex] = temp
+  chartSeries.value = [...chartSeries.value]
+}
+
 // CSV error definition helpers
 function addCsvErrorDef() {
   csvErrorDefs.value.push({ condition: '', message: '', column: '', severity: 'error' })
@@ -1005,14 +1118,42 @@ function saveMasterEntries() {
           </div>
         </div>
 
-        <!-- Source binding indicator -->
-        <div v-if="sourceBindingIsStatic" class="di-static-indicator">
-          <span class="di-static-badge">固定文言</span>
-          <span class="di-static-hint">このテキストはソースコードに直接記述されています</span>
+        <!-- Source Binding Indicator -->
+        <div v-if="sourceBindingLabel" class="di-source-badge-row">
+          <span class="di-source-badge" :class="'di-source-' + sourceBindingType">
+            {{ sourceBindingLabel }}
+          </span>
+          <span v-if="sourceBindingSource" class="di-source-detail">{{ sourceBindingSource }}</span>
         </div>
-        <div v-else-if="sourceBindingType" class="di-binding-indicator">
-          <span class="di-binding-badge" :class="'di-binding-' + sourceBindingType">{{ sourceBindingType }}</span>
-          <span v-if="sourceBindingSource" class="di-binding-source">{{ sourceBindingSource }}</span>
+
+        <!-- Tab Context & Modal Name -->
+        <div class="di-context-row">
+          <div class="di-context-field">
+            <label class="di-context-label di-context-label-tab">タブ:</label>
+            <input
+              v-model="tabContextInput"
+              type="text"
+              list="di-tab-names"
+              class="di-context-input"
+              placeholder="例: 予習, 受講者一覧"
+            />
+            <datalist id="di-tab-names">
+              <option v-for="name in existingTabNames" :key="name" :value="name" />
+            </datalist>
+          </div>
+          <div class="di-context-field">
+            <label class="di-context-label di-context-label-modal">モーダル:</label>
+            <input
+              v-model="modalNameInput"
+              type="text"
+              list="di-modal-names"
+              class="di-context-input"
+              placeholder="例: 確認ダイアログ"
+            />
+            <datalist id="di-modal-names">
+              <option v-for="name in existingModalNames" :key="name" :value="name" />
+            </datalist>
+          </div>
         </div>
 
         <!-- Tabs -->
@@ -1040,6 +1181,14 @@ function saveMasterEntries() {
           >
             <FormInput style="width: 14px; height: 14px;" />
             フォーム
+          </button>
+          <button
+            @click="activeTab = 'chart'"
+            class="di-editor-tab"
+            :class="{ 'di-editor-tab-active': activeTab === 'chart' }"
+          >
+            <BarChart3 style="width: 14px; height: 14px;" />
+            チャート
           </button>
         </div>
 
@@ -1943,6 +2092,89 @@ function saveMasterEntries() {
             </div>
           </template>
 
+          <!-- ==================== チャートタブ ==================== -->
+          <template v-if="activeTab === 'chart'">
+            <div class="di-form-group">
+              <label class="di-form-label">チャート種別</label>
+              <select v-model="chartType" class="di-select">
+                <option value="">選択してください</option>
+                <option value="bar">棒グラフ (bar)</option>
+                <option value="line">折れ線グラフ (line)</option>
+                <option value="pie">円グラフ (pie)</option>
+                <option value="area">エリアチャート (area)</option>
+                <option value="scatter">散布図 (scatter)</option>
+                <option value="doughnut">ドーナツ (doughnut)</option>
+                <option value="radar">レーダー (radar)</option>
+                <option value="other">その他 (other)</option>
+              </select>
+            </div>
+
+            <div class="di-form-group">
+              <label class="di-form-label">タイトル</label>
+              <input v-model="chartTitle" type="text" placeholder="例: 月別受講者数" class="di-input" />
+            </div>
+
+            <div class="di-form-row">
+              <div class="di-form-group di-form-half">
+                <label class="di-form-label">X軸</label>
+                <input v-model="chartXAxis" type="text" placeholder="例: 月, 日付" class="di-input" />
+              </div>
+              <div class="di-form-group di-form-half">
+                <label class="di-form-label">Y軸</label>
+                <input v-model="chartYAxis" type="text" placeholder="例: 件数, 金額" class="di-input" />
+              </div>
+            </div>
+
+            <!-- 系列テーブル -->
+            <div class="di-csv-columns-section">
+              <label class="di-form-label">系列定義</label>
+              <div v-if="chartSeries.length > 0" class="di-csv-columns-table">
+                <div class="di-csv-columns-header">
+                  <span class="di-chart-col-label">系列名</span>
+                  <span class="di-chart-col-field">フィールド</span>
+                  <span class="di-chart-col-color">色</span>
+                  <span class="di-csv-col-act"></span>
+                </div>
+                <div v-for="(s, idx) in chartSeries" :key="idx" class="di-csv-column-row">
+                  <input v-model="s.label" placeholder="予習" class="di-csv-input di-chart-col-label" />
+                  <input v-model="s.field" placeholder="preview_count" class="di-csv-input di-chart-col-field" />
+                  <input v-model="s.color" type="color" class="di-master-color-input" />
+                  <div class="di-csv-col-act">
+                    <button @click="moveChartSeries(idx, -1)" :disabled="idx === 0" class="di-csv-move-btn" title="上へ">
+                      <ChevronUp style="width: 12px; height: 12px;" />
+                    </button>
+                    <button @click="moveChartSeries(idx, 1)" :disabled="idx === chartSeries.length - 1" class="di-csv-move-btn" title="下へ">
+                      <ChevronDown style="width: 12px; height: 12px;" />
+                    </button>
+                    <button @click="removeChartSeries(idx)" class="di-csv-remove-btn" title="削除">&times;</button>
+                  </div>
+                </div>
+              </div>
+              <button @click="addChartSeries" class="di-btn-add-field">
+                + 系列を追加
+              </button>
+            </div>
+
+            <div class="di-form-group">
+              <label class="di-form-label">データ取得元</label>
+              <input v-model="chartDataSource" type="text" placeholder="例: GET /api/stats/monthly" class="di-input di-input-mono" />
+            </div>
+
+            <div class="di-form-group">
+              <label class="di-form-label">集計方法</label>
+              <input v-model="chartAggregation" type="text" placeholder="例: 月別集計, GROUP BY month" class="di-input" />
+            </div>
+
+            <div class="di-form-group">
+              <label class="di-form-label">フィルタ条件</label>
+              <input v-model="chartFilters" type="text" placeholder="例: 直近12ヶ月, status=active" class="di-input" />
+            </div>
+
+            <div class="di-form-group">
+              <label class="di-form-label">説明</label>
+              <textarea v-model="chartDescription" rows="3" placeholder="このチャートの説明..." class="di-textarea"></textarea>
+            </div>
+          </template>
 
 
         </div>
@@ -2035,41 +2267,101 @@ function saveMasterEntries() {
   background: #334155;
 }
 
-.di-static-indicator,
-.di-binding-indicator {
+.di-source-badge-row {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  background: #0f172a;
-  border-bottom: 1px solid #334155;
+  padding: 4px 16px 2px;
+}
+.di-source-badge {
   font-size: 11px;
-}
-.di-static-badge {
-  padding: 2px 8px;
-  background: #10b981;
-  color: white;
-  border-radius: 4px;
   font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
-.di-static-hint {
-  color: #64748b;
-}
-.di-binding-badge {
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-weight: 600;
-  color: white;
-}
-.di-binding-v-model { background: #8b5cf6; }
-.di-binding-prop { background: #f59e0b; }
-.di-binding-computed { background: #ec4899; }
-.di-binding-store { background: #06b6d4; }
-.di-binding-api { background: #3b82f6; }
-.di-binding-static { background: #10b981; }
-.di-binding-source {
+.di-source-detail {
+  font-size: 11px;
   color: #94a3b8;
-  font-family: monospace;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 300px;
+}
+/* data = blue-green */
+.di-source-data, .di-source-api {
+  background: rgba(20, 184, 166, 0.2);
+  color: #5eead4;
+}
+/* v-model = green */
+.di-source-v-model {
+  background: rgba(34, 197, 94, 0.2);
+  color: #86efac;
+}
+/* prop = purple */
+.di-source-prop {
+  background: rgba(168, 85, 247, 0.2);
+  color: #c4b5fd;
+}
+/* static = gray */
+.di-source-static {
+  background: rgba(148, 163, 184, 0.2);
+  color: #94a3b8;
+}
+/* computed = orange */
+.di-source-computed {
+  background: rgba(251, 146, 60, 0.2);
+  color: #fdba74;
+}
+/* store = indigo */
+.di-source-store {
+  background: rgba(99, 102, 241, 0.2);
+  color: #a5b4fc;
+}
+
+.di-context-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 16px;
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
+}
+.di-context-field {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  min-width: 0;
+}
+.di-context-label {
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.di-context-label-tab {
+  color: #3b82f6;
+}
+.di-context-label-modal {
+  color: #a855f7;
+}
+.di-context-input {
+  flex: 1;
+  padding: 2px 8px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  color: #e2e8f0;
+  font-size: 11px;
+  outline: none;
+  min-width: 0;
+}
+.di-context-input:focus {
+  border-color: #60a5fa;
+}
+.di-context-input::placeholder {
+  color: #475569;
 }
 
 .di-editor-content {
@@ -2943,5 +3235,19 @@ function saveMasterEntries() {
 }
 .di-email-variables-input:focus-within {
   border-color: #60a5fa;
+}
+
+/* Chart series columns */
+.di-chart-col-label {
+  flex: 2;
+  min-width: 0;
+}
+.di-chart-col-field {
+  flex: 2;
+  min-width: 0;
+}
+.di-chart-col-color {
+  width: 32px;
+  flex-shrink: 0;
 }
 </style>

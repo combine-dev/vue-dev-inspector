@@ -109,6 +109,24 @@ declare interface BindingCandidate {
     component: string;
 }
 
+declare interface ChartSeries {
+    label: string;
+    field: string;
+    color?: string;
+}
+
+declare interface ChartSpec {
+    chartType: 'bar' | 'line' | 'pie' | 'area' | 'scatter' | 'doughnut' | 'radar' | 'other';
+    title?: string;
+    xAxis?: string;
+    yAxis?: string;
+    series?: ChartSeries[];
+    dataSource?: string;
+    aggregation?: string;
+    filters?: string;
+    description?: string;
+}
+
 declare interface ComponentApi {
     endpoint: string;
     method: string;
@@ -124,7 +142,7 @@ export declare interface CrossSearchResult {
     pagePath: string;
     pageName: string;
     selector: string;
-    elementType?: 'datasource' | 'action' | 'form';
+    elementType?: 'datasource' | 'action' | 'form' | 'chart';
     matchedField: string;
     matchContext: string;
 }
@@ -246,12 +264,15 @@ export declare interface ElementConfig {
     id: string;
     componentPath: string;
     pagePath?: string;
-    elementType?: 'datasource' | 'action' | 'form';
+    elementType?: 'datasource' | 'action' | 'form' | 'chart';
     isConditional?: boolean;
+    modalName?: string;
+    tabContext?: string;
     fieldInfo?: FieldInfo;
     fieldInfoList?: FieldInfo[];
     actionInfo?: ActionInfo;
     formInfo?: FormInfo;
+    chartSpec?: ChartSpec;
     note?: ElementNote;
     links?: LinkInfo;
     devMeta?: DevMeta;
@@ -442,7 +463,7 @@ declare interface SortInfo {
 }
 
 export declare interface SourceBindingInfo {
-    type: 'static' | 'v-model' | 'prop' | 'computed' | 'store' | 'api';
+    type: 'static' | 'v-model' | 'prop' | 'computed' | 'store' | 'api' | 'data';
     source?: string;
     apiEndpoint?: string;
     apiMethod?: string;
@@ -542,8 +563,10 @@ detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
-elementType?: "datasource" | "action" | "form" | undefined;
+elementType?: "datasource" | "action" | "form" | "chart" | undefined;
 isConditional?: boolean | undefined;
+modalName?: string | undefined;
+tabContext?: string | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -624,6 +647,21 @@ placeholder?: string | undefined;
 defaultValue?: string | undefined;
 description?: string | undefined;
 } | undefined;
+chartSpec?: {
+chartType: "bar" | "line" | "pie" | "area" | "scatter" | "doughnut" | "radar" | "other";
+title?: string | undefined;
+xAxis?: string | undefined;
+yAxis?: string | undefined;
+series?: {
+label: string;
+field: string;
+color?: string | undefined;
+}[] | undefined;
+dataSource?: string | undefined;
+aggregation?: string | undefined;
+filters?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
@@ -662,7 +700,7 @@ accessibility?: string | undefined;
 responsive?: string | undefined;
 } | undefined;
 sourceBinding?: {
-type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api" | "data";
 source?: string | undefined;
 apiEndpoint?: string | undefined;
 apiMethod?: string | undefined;
@@ -683,8 +721,10 @@ detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
-elementType?: "datasource" | "action" | "form" | undefined;
+elementType?: "datasource" | "action" | "form" | "chart" | undefined;
 isConditional?: boolean | undefined;
+modalName?: string | undefined;
+tabContext?: string | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -765,6 +805,21 @@ placeholder?: string | undefined;
 defaultValue?: string | undefined;
 description?: string | undefined;
 } | undefined;
+chartSpec?: {
+chartType: "bar" | "line" | "pie" | "area" | "scatter" | "doughnut" | "radar" | "other";
+title?: string | undefined;
+xAxis?: string | undefined;
+yAxis?: string | undefined;
+series?: {
+label: string;
+field: string;
+color?: string | undefined;
+}[] | undefined;
+dataSource?: string | undefined;
+aggregation?: string | undefined;
+filters?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
@@ -803,7 +858,7 @@ accessibility?: string | undefined;
 responsive?: string | undefined;
 } | undefined;
 sourceBinding?: {
-type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api" | "data";
 source?: string | undefined;
 apiEndpoint?: string | undefined;
 apiMethod?: string | undefined;
@@ -969,6 +1024,8 @@ deleteBatchDefinition: (id: string) => void;
 brokenAnnotations: Ref<string[], string[]>;
 remapTargetId: Ref<string | null, string | null>;
 detectBrokenAnnotations: () => string[];
+detectModalName: (selector: string) => string | undefined;
+detectTabContext: (selector: string) => string | undefined;
 remapAnnotation: (oldId: string, newId: string) => void;
 startRemap: (oldId: string) => void;
 deleteBrokenAnnotations: () => void;
@@ -1075,8 +1132,10 @@ detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
-elementType?: "datasource" | "action" | "form" | undefined;
+elementType?: "datasource" | "action" | "form" | "chart" | undefined;
 isConditional?: boolean | undefined;
+modalName?: string | undefined;
+tabContext?: string | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1157,6 +1216,21 @@ placeholder?: string | undefined;
 defaultValue?: string | undefined;
 description?: string | undefined;
 } | undefined;
+chartSpec?: {
+chartType: "bar" | "line" | "pie" | "area" | "scatter" | "doughnut" | "radar" | "other";
+title?: string | undefined;
+xAxis?: string | undefined;
+yAxis?: string | undefined;
+series?: {
+label: string;
+field: string;
+color?: string | undefined;
+}[] | undefined;
+dataSource?: string | undefined;
+aggregation?: string | undefined;
+filters?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
@@ -1195,7 +1269,7 @@ accessibility?: string | undefined;
 responsive?: string | undefined;
 } | undefined;
 sourceBinding?: {
-type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api" | "data";
 source?: string | undefined;
 apiEndpoint?: string | undefined;
 apiMethod?: string | undefined;
@@ -1216,8 +1290,10 @@ detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
-elementType?: "datasource" | "action" | "form" | undefined;
+elementType?: "datasource" | "action" | "form" | "chart" | undefined;
 isConditional?: boolean | undefined;
+modalName?: string | undefined;
+tabContext?: string | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1298,6 +1374,21 @@ placeholder?: string | undefined;
 defaultValue?: string | undefined;
 description?: string | undefined;
 } | undefined;
+chartSpec?: {
+chartType: "bar" | "line" | "pie" | "area" | "scatter" | "doughnut" | "radar" | "other";
+title?: string | undefined;
+xAxis?: string | undefined;
+yAxis?: string | undefined;
+series?: {
+label: string;
+field: string;
+color?: string | undefined;
+}[] | undefined;
+dataSource?: string | undefined;
+aggregation?: string | undefined;
+filters?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
@@ -1336,7 +1427,7 @@ accessibility?: string | undefined;
 responsive?: string | undefined;
 } | undefined;
 sourceBinding?: {
-type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api" | "data";
 source?: string | undefined;
 apiEndpoint?: string | undefined;
 apiMethod?: string | undefined;
@@ -1502,6 +1593,8 @@ deleteBatchDefinition: (id: string) => void;
 brokenAnnotations: Ref<string[], string[]>;
 remapTargetId: Ref<string | null, string | null>;
 detectBrokenAnnotations: () => string[];
+detectModalName: (selector: string) => string | undefined;
+detectTabContext: (selector: string) => string | undefined;
 remapAnnotation: (oldId: string, newId: string) => void;
 startRemap: (oldId: string) => void;
 deleteBrokenAnnotations: () => void;
@@ -1608,8 +1701,10 @@ detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
-elementType?: "datasource" | "action" | "form" | undefined;
+elementType?: "datasource" | "action" | "form" | "chart" | undefined;
 isConditional?: boolean | undefined;
+modalName?: string | undefined;
+tabContext?: string | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1690,6 +1785,21 @@ placeholder?: string | undefined;
 defaultValue?: string | undefined;
 description?: string | undefined;
 } | undefined;
+chartSpec?: {
+chartType: "bar" | "line" | "pie" | "area" | "scatter" | "doughnut" | "radar" | "other";
+title?: string | undefined;
+xAxis?: string | undefined;
+yAxis?: string | undefined;
+series?: {
+label: string;
+field: string;
+color?: string | undefined;
+}[] | undefined;
+dataSource?: string | undefined;
+aggregation?: string | undefined;
+filters?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
@@ -1728,7 +1838,7 @@ accessibility?: string | undefined;
 responsive?: string | undefined;
 } | undefined;
 sourceBinding?: {
-type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api" | "data";
 source?: string | undefined;
 apiEndpoint?: string | undefined;
 apiMethod?: string | undefined;
@@ -1749,8 +1859,10 @@ detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
-elementType?: "datasource" | "action" | "form" | undefined;
+elementType?: "datasource" | "action" | "form" | "chart" | undefined;
 isConditional?: boolean | undefined;
+modalName?: string | undefined;
+tabContext?: string | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -1831,6 +1943,21 @@ placeholder?: string | undefined;
 defaultValue?: string | undefined;
 description?: string | undefined;
 } | undefined;
+chartSpec?: {
+chartType: "bar" | "line" | "pie" | "area" | "scatter" | "doughnut" | "radar" | "other";
+title?: string | undefined;
+xAxis?: string | undefined;
+yAxis?: string | undefined;
+series?: {
+label: string;
+field: string;
+color?: string | undefined;
+}[] | undefined;
+dataSource?: string | undefined;
+aggregation?: string | undefined;
+filters?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
@@ -1869,7 +1996,7 @@ accessibility?: string | undefined;
 responsive?: string | undefined;
 } | undefined;
 sourceBinding?: {
-type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api" | "data";
 source?: string | undefined;
 apiEndpoint?: string | undefined;
 apiMethod?: string | undefined;
@@ -2035,6 +2162,8 @@ deleteBatchDefinition: (id: string) => void;
 brokenAnnotations: Ref<string[], string[]>;
 remapTargetId: Ref<string | null, string | null>;
 detectBrokenAnnotations: () => string[];
+detectModalName: (selector: string) => string | undefined;
+detectTabContext: (selector: string) => string | undefined;
 remapAnnotation: (oldId: string, newId: string) => void;
 startRemap: (oldId: string) => void;
 deleteBrokenAnnotations: () => void;
@@ -2065,7 +2194,7 @@ nodes: ScreenFlowNode[];
 edges: ScreenFlowEdge[];
 orphanPages: ScreenFlowNode[];
 }>;
-}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "downloadSddSpec" | "downloadClientSpec" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "getBatchDefinition" | "setBatchDefinition" | "deleteBatchDefinition" | "detectBrokenAnnotations" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate">>;
+}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "downloadSddSpec" | "downloadClientSpec" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "getBatchDefinition" | "setBatchDefinition" | "deleteBatchDefinition" | "detectBrokenAnnotations" | "detectModalName" | "detectTabContext" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate">>;
 
 export declare const useDevInspectorStore: StoreDefinition<"devInspector", Pick<{
 isEnabled: Ref<boolean, boolean>;
@@ -2143,8 +2272,10 @@ detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
-elementType?: "datasource" | "action" | "form" | undefined;
+elementType?: "datasource" | "action" | "form" | "chart" | undefined;
 isConditional?: boolean | undefined;
+modalName?: string | undefined;
+tabContext?: string | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -2225,6 +2356,21 @@ placeholder?: string | undefined;
 defaultValue?: string | undefined;
 description?: string | undefined;
 } | undefined;
+chartSpec?: {
+chartType: "bar" | "line" | "pie" | "area" | "scatter" | "doughnut" | "radar" | "other";
+title?: string | undefined;
+xAxis?: string | undefined;
+yAxis?: string | undefined;
+series?: {
+label: string;
+field: string;
+color?: string | undefined;
+}[] | undefined;
+dataSource?: string | undefined;
+aggregation?: string | undefined;
+filters?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
@@ -2263,7 +2409,7 @@ accessibility?: string | undefined;
 responsive?: string | undefined;
 } | undefined;
 sourceBinding?: {
-type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api" | "data";
 source?: string | undefined;
 apiEndpoint?: string | undefined;
 apiMethod?: string | undefined;
@@ -2284,8 +2430,10 @@ detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
-elementType?: "datasource" | "action" | "form" | undefined;
+elementType?: "datasource" | "action" | "form" | "chart" | undefined;
 isConditional?: boolean | undefined;
+modalName?: string | undefined;
+tabContext?: string | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -2366,6 +2514,21 @@ placeholder?: string | undefined;
 defaultValue?: string | undefined;
 description?: string | undefined;
 } | undefined;
+chartSpec?: {
+chartType: "bar" | "line" | "pie" | "area" | "scatter" | "doughnut" | "radar" | "other";
+title?: string | undefined;
+xAxis?: string | undefined;
+yAxis?: string | undefined;
+series?: {
+label: string;
+field: string;
+color?: string | undefined;
+}[] | undefined;
+dataSource?: string | undefined;
+aggregation?: string | undefined;
+filters?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
@@ -2404,7 +2567,7 @@ accessibility?: string | undefined;
 responsive?: string | undefined;
 } | undefined;
 sourceBinding?: {
-type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api" | "data";
 source?: string | undefined;
 apiEndpoint?: string | undefined;
 apiMethod?: string | undefined;
@@ -2570,6 +2733,8 @@ deleteBatchDefinition: (id: string) => void;
 brokenAnnotations: Ref<string[], string[]>;
 remapTargetId: Ref<string | null, string | null>;
 detectBrokenAnnotations: () => string[];
+detectModalName: (selector: string) => string | undefined;
+detectTabContext: (selector: string) => string | undefined;
 remapAnnotation: (oldId: string, newId: string) => void;
 startRemap: (oldId: string) => void;
 deleteBrokenAnnotations: () => void;
@@ -2676,8 +2841,10 @@ detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
-elementType?: "datasource" | "action" | "form" | undefined;
+elementType?: "datasource" | "action" | "form" | "chart" | undefined;
 isConditional?: boolean | undefined;
+modalName?: string | undefined;
+tabContext?: string | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -2758,6 +2925,21 @@ placeholder?: string | undefined;
 defaultValue?: string | undefined;
 description?: string | undefined;
 } | undefined;
+chartSpec?: {
+chartType: "bar" | "line" | "pie" | "area" | "scatter" | "doughnut" | "radar" | "other";
+title?: string | undefined;
+xAxis?: string | undefined;
+yAxis?: string | undefined;
+series?: {
+label: string;
+field: string;
+color?: string | undefined;
+}[] | undefined;
+dataSource?: string | undefined;
+aggregation?: string | undefined;
+filters?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
@@ -2796,7 +2978,7 @@ accessibility?: string | undefined;
 responsive?: string | undefined;
 } | undefined;
 sourceBinding?: {
-type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api" | "data";
 source?: string | undefined;
 apiEndpoint?: string | undefined;
 apiMethod?: string | undefined;
@@ -2817,8 +2999,10 @@ detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
-elementType?: "datasource" | "action" | "form" | undefined;
+elementType?: "datasource" | "action" | "form" | "chart" | undefined;
 isConditional?: boolean | undefined;
+modalName?: string | undefined;
+tabContext?: string | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -2899,6 +3083,21 @@ placeholder?: string | undefined;
 defaultValue?: string | undefined;
 description?: string | undefined;
 } | undefined;
+chartSpec?: {
+chartType: "bar" | "line" | "pie" | "area" | "scatter" | "doughnut" | "radar" | "other";
+title?: string | undefined;
+xAxis?: string | undefined;
+yAxis?: string | undefined;
+series?: {
+label: string;
+field: string;
+color?: string | undefined;
+}[] | undefined;
+dataSource?: string | undefined;
+aggregation?: string | undefined;
+filters?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
@@ -2937,7 +3136,7 @@ accessibility?: string | undefined;
 responsive?: string | undefined;
 } | undefined;
 sourceBinding?: {
-type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api" | "data";
 source?: string | undefined;
 apiEndpoint?: string | undefined;
 apiMethod?: string | undefined;
@@ -3103,6 +3302,8 @@ deleteBatchDefinition: (id: string) => void;
 brokenAnnotations: Ref<string[], string[]>;
 remapTargetId: Ref<string | null, string | null>;
 detectBrokenAnnotations: () => string[];
+detectModalName: (selector: string) => string | undefined;
+detectTabContext: (selector: string) => string | undefined;
 remapAnnotation: (oldId: string, newId: string) => void;
 startRemap: (oldId: string) => void;
 deleteBrokenAnnotations: () => void;
@@ -3209,8 +3410,10 @@ detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
-elementType?: "datasource" | "action" | "form" | undefined;
+elementType?: "datasource" | "action" | "form" | "chart" | undefined;
 isConditional?: boolean | undefined;
+modalName?: string | undefined;
+tabContext?: string | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -3291,6 +3494,21 @@ placeholder?: string | undefined;
 defaultValue?: string | undefined;
 description?: string | undefined;
 } | undefined;
+chartSpec?: {
+chartType: "bar" | "line" | "pie" | "area" | "scatter" | "doughnut" | "radar" | "other";
+title?: string | undefined;
+xAxis?: string | undefined;
+yAxis?: string | undefined;
+series?: {
+label: string;
+field: string;
+color?: string | undefined;
+}[] | undefined;
+dataSource?: string | undefined;
+aggregation?: string | undefined;
+filters?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
@@ -3329,7 +3547,7 @@ accessibility?: string | undefined;
 responsive?: string | undefined;
 } | undefined;
 sourceBinding?: {
-type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api" | "data";
 source?: string | undefined;
 apiEndpoint?: string | undefined;
 apiMethod?: string | undefined;
@@ -3350,8 +3568,10 @@ detected: {
 id?: string | undefined;
 componentPath?: string | undefined;
 pagePath?: string | undefined;
-elementType?: "datasource" | "action" | "form" | undefined;
+elementType?: "datasource" | "action" | "form" | "chart" | undefined;
 isConditional?: boolean | undefined;
+modalName?: string | undefined;
+tabContext?: string | undefined;
 fieldInfo?: {
 table: string;
 column: string;
@@ -3432,6 +3652,21 @@ placeholder?: string | undefined;
 defaultValue?: string | undefined;
 description?: string | undefined;
 } | undefined;
+chartSpec?: {
+chartType: "bar" | "line" | "pie" | "area" | "scatter" | "doughnut" | "radar" | "other";
+title?: string | undefined;
+xAxis?: string | undefined;
+yAxis?: string | undefined;
+series?: {
+label: string;
+field: string;
+color?: string | undefined;
+}[] | undefined;
+dataSource?: string | undefined;
+aggregation?: string | undefined;
+filters?: string | undefined;
+description?: string | undefined;
+} | undefined;
 note?: {
 text: string;
 author?: string | undefined;
@@ -3470,7 +3705,7 @@ accessibility?: string | undefined;
 responsive?: string | undefined;
 } | undefined;
 sourceBinding?: {
-type: "static" | "v-model" | "prop" | "computed" | "store" | "api";
+type: "static" | "v-model" | "prop" | "computed" | "store" | "api" | "data";
 source?: string | undefined;
 apiEndpoint?: string | undefined;
 apiMethod?: string | undefined;
@@ -3636,6 +3871,8 @@ deleteBatchDefinition: (id: string) => void;
 brokenAnnotations: Ref<string[], string[]>;
 remapTargetId: Ref<string | null, string | null>;
 detectBrokenAnnotations: () => string[];
+detectModalName: (selector: string) => string | undefined;
+detectTabContext: (selector: string) => string | undefined;
 remapAnnotation: (oldId: string, newId: string) => void;
 startRemap: (oldId: string) => void;
 deleteBrokenAnnotations: () => void;
@@ -3666,7 +3903,7 @@ nodes: ScreenFlowNode[];
 edges: ScreenFlowEdge[];
 orphanPages: ScreenFlowNode[];
 }>;
-}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "downloadSddSpec" | "downloadClientSpec" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "getBatchDefinition" | "setBatchDefinition" | "deleteBatchDefinition" | "detectBrokenAnnotations" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate">>;
+}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "downloadSddSpec" | "downloadClientSpec" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "getBatchDefinition" | "setBatchDefinition" | "deleteBatchDefinition" | "detectBrokenAnnotations" | "detectModalName" | "detectTabContext" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate">>;
 
 export declare function vitePluginDevInspector(options?: DevInspectorVitePluginOptions): Plugin_3;
 

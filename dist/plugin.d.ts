@@ -39,6 +39,24 @@ declare interface AnalyzedElement {
     line?: number;
 }
 
+declare interface ChartSeries {
+    label: string;
+    field: string;
+    color?: string;
+}
+
+declare interface ChartSpec {
+    chartType: 'bar' | 'line' | 'pie' | 'area' | 'scatter' | 'doughnut' | 'radar' | 'other';
+    title?: string;
+    xAxis?: string;
+    yAxis?: string;
+    series?: ChartSeries[];
+    dataSource?: string;
+    aggregation?: string;
+    filters?: string;
+    description?: string;
+}
+
 declare interface ComponentApi {
     endpoint: string;
     method: string;
@@ -121,12 +139,15 @@ declare interface ElementConfig {
     id: string;
     componentPath: string;
     pagePath?: string;
-    elementType?: 'datasource' | 'action' | 'form';
+    elementType?: 'datasource' | 'action' | 'form' | 'chart';
     isConditional?: boolean;
+    modalName?: string;
+    tabContext?: string;
     fieldInfo?: FieldInfo;
     fieldInfoList?: FieldInfo[];
     actionInfo?: ActionInfo;
     formInfo?: FormInfo;
+    chartSpec?: ChartSpec;
     note?: ElementNote;
     links?: LinkInfo;
     devMeta?: DevMeta;
@@ -243,7 +264,7 @@ declare interface SortInfo {
 }
 
 declare interface SourceBindingInfo {
-    type: 'static' | 'v-model' | 'prop' | 'computed' | 'store' | 'api';
+    type: 'static' | 'v-model' | 'prop' | 'computed' | 'store' | 'api' | 'data';
     source?: string;
     apiEndpoint?: string;
     apiMethod?: string;

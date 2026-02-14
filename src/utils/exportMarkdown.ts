@@ -19,6 +19,7 @@ function groupByPage(
 }
 
 function getBusinessType(config: ElementConfig): string {
+  if (config.elementType === 'chart') return 'チャート'
   if (config.elementType === 'form') return '入力'
   if (config.elementType === 'action') {
     if (config.actionInfo?.type === 'navigate') return 'リンク'
@@ -61,6 +62,40 @@ function getItemDescription(config: ElementConfig): string {
     parts.push(config.formInfo.description)
   }
   return parts.join(' / ')
+}
+
+// ===== Tab Context Helper =====
+
+function groupByContext(
+  elements: { selector: string; config: ElementConfig }[],
+): {
+  common: typeof elements
+  tabs: Record<string, typeof elements>
+  modals: Record<string, typeof elements>
+  unnamedModals: typeof elements
+} {
+  const common: typeof elements = []
+  const tabs: Record<string, typeof elements> = {}
+  const modals: Record<string, typeof elements> = {}
+  const unnamedModals: typeof elements = []
+  for (const el of elements) {
+    if (el.config.isConditional) {
+      const name = el.config.modalName
+      if (name) {
+        if (!modals[name]) modals[name] = []
+        modals[name].push(el)
+      } else {
+        unnamedModals.push(el)
+      }
+    } else if (el.config.tabContext) {
+      const tab = el.config.tabContext
+      if (!tabs[tab]) tabs[tab] = []
+      tabs[tab].push(el)
+    } else {
+      common.push(el)
+    }
+  }
+  return { common, tabs, modals, unnamedModals }
 }
 
 // ===== Permission Matrix Helper =====
@@ -161,71 +196,102 @@ export function exportForSDD(
       lines.push('')
     }
 
-    // Categorize elements
-    const datasources = elements.filter(e => e.config.elementType === 'datasource' || (!e.config.elementType && e.config.fieldInfo))
-    const actions = elements.filter(e => e.config.elementType === 'action' || (!e.config.elementType && e.config.actionInfo && !e.config.fieldInfo))
-    const forms = elements.filter(e => e.config.elementType === 'form' || (!e.config.elementType && e.config.formInfo && !e.config.fieldInfo && !e.config.actionInfo))
-    const others = elements.filter(e =>
-      !datasources.includes(e) && !actions.includes(e) && !forms.includes(e),
-    )
+    // Group elements by context
+    const { common: commonElements, tabs: tabElements, modals: modalElements, unnamedModals } = groupByContext(elements)
+    const hasTabGroups = Object.keys(tabElements).length > 0
+    const hasModalGroups = Object.keys(modalElements).length > 0 || unnamedModals.length > 0
 
-    // Data sources
-    if (datasources.length > 0 || others.length > 0) {
-      lines.push('### データソース')
-      lines.push('| セレクタ | DB | 型 | NULL時 | 表示形式 | 計算ロジック |')
-      lines.push('|---------|-----|-----|--------|---------|------------|')
-      for (const { selector, config } of [...datasources, ...others]) {
-        const fi = config.fieldInfo
-        const db = fi ? `${fi.table}.${fi.column}` : ''
-        const type = fi?.type || ''
-        const nullDisplay = config.note?.nullDisplay || '-'
-        const displayFormat = config.note?.displayFormat || ''
-        let calcLogic = ''
-        if (config.note?.displayType === 'calculated' && config.note.calcDescription) {
-          calcLogic = config.note.calcDescription
+    // Helper to output categorized element tables for a subset
+    function outputElementGroup(subset: typeof elements, headingPrefix: string) {
+      const datasources = subset.filter(e => e.config.elementType === 'datasource' || (!e.config.elementType && e.config.fieldInfo))
+      const actions = subset.filter(e => e.config.elementType === 'action' || (!e.config.elementType && e.config.actionInfo && !e.config.fieldInfo))
+      const forms = subset.filter(e => e.config.elementType === 'form' || (!e.config.elementType && e.config.formInfo && !e.config.fieldInfo && !e.config.actionInfo))
+      const others = subset.filter(e =>
+        !datasources.includes(e) && !actions.includes(e) && !forms.includes(e),
+      )
+
+      if (datasources.length > 0 || others.length > 0) {
+        lines.push(`${headingPrefix} データソース`)
+        lines.push('| セレクタ | DB | 型 | NULL時 | 表示形式 | 計算ロジック |')
+        lines.push('|---------|-----|-----|--------|---------|------------|')
+        for (const { selector, config } of [...datasources, ...others]) {
+          const fi = config.fieldInfo
+          const db = fi ? `${fi.table}.${fi.column}` : ''
+          const type = fi?.type || ''
+          const nullDisplay = config.note?.nullDisplay || '-'
+          const displayFormat = config.note?.displayFormat || ''
+          let calcLogic = ''
+          if (config.note?.displayType === 'calculated' && config.note.calcDescription) {
+            calcLogic = config.note.calcDescription
+          }
+          if (config.note?.storedCalc && config.note.storedCalcLogic) {
+            calcLogic = config.note.storedCalcLogic
+          }
+          lines.push(`| ${escMd(selector)} | ${escMd(db)} | ${escMd(type)} | ${escMd(nullDisplay)} | ${escMd(displayFormat)} | ${escMd(calcLogic)} |`)
         }
-        if (config.note?.storedCalc && config.note.storedCalcLogic) {
-          calcLogic = config.note.storedCalcLogic
-        }
-        lines.push(`| ${escMd(selector)} | ${escMd(db)} | ${escMd(type)} | ${escMd(nullDisplay)} | ${escMd(displayFormat)} | ${escMd(calcLogic)} |`)
+        lines.push('')
       }
-      lines.push('')
+
+      if (actions.length > 0) {
+        lines.push(`${headingPrefix} アクション`)
+        lines.push('| セレクタ | タイプ | 遷移先/API | 説明 |')
+        lines.push('|---------|--------|-----------|------|')
+        for (const { selector, config } of actions) {
+          const ai = config.actionInfo
+          const type = ai?.type || ''
+          let target = ai?.target || ''
+          if (ai?.method) target = `${ai.method} ${target}`
+          const desc = ai?.description || config.note?.text || ''
+          lines.push(`| ${escMd(selector)} | ${escMd(type)} | ${escMd(target)} | ${escMd(desc)} |`)
+        }
+        lines.push('')
+      }
+
+      if (forms.length > 0) {
+        lines.push(`${headingPrefix} フォーム`)
+        lines.push('| セレクタ | DB | 入力タイプ | 必須 | バリデーション | 初期値 |')
+        lines.push('|---------|-----|----------|------|--------------|--------|')
+        for (const { selector, config } of forms) {
+          const fi = config.fieldInfo
+          const db = fi ? `${fi.table}.${fi.column}` : ''
+          const inputType = config.formInfo?.inputType || ''
+          const required = config.formInfo?.required ? 'Yes' : ''
+          const validation = [
+            ...(config.formInfo?.validation || []),
+            ...(fi?.validation || []),
+          ].join(', ')
+          const defaultValue = config.formInfo?.defaultValue || ''
+          lines.push(`| ${escMd(selector)} | ${escMd(db)} | ${escMd(inputType)} | ${required} | ${escMd(validation)} | ${escMd(defaultValue)} |`)
+        }
+        lines.push('')
+      }
     }
 
-    // Actions
-    if (actions.length > 0) {
-      lines.push('### アクション')
-      lines.push('| セレクタ | タイプ | 遷移先/API | 説明 |')
-      lines.push('|---------|--------|-----------|------|')
-      for (const { selector, config } of actions) {
-        const ai = config.actionInfo
-        const type = ai?.type || ''
-        let target = ai?.target || ''
-        if (ai?.method) target = `${ai.method} ${target}`
-        const desc = ai?.description || config.note?.text || ''
-        lines.push(`| ${escMd(selector)} | ${escMd(type)} | ${escMd(target)} | ${escMd(desc)} |`)
+    // Output elements grouped by context
+    const hasGroups = hasTabGroups || hasModalGroups
+    if (hasGroups) {
+      if (commonElements.length > 0) {
+        lines.push('### ページ共通')
+        lines.push('')
+        outputElementGroup(commonElements, '####')
       }
-      lines.push('')
-    }
-
-    // Forms
-    if (forms.length > 0) {
-      lines.push('### フォーム')
-      lines.push('| セレクタ | DB | 入力タイプ | 必須 | バリデーション | 初期値 |')
-      lines.push('|---------|-----|----------|------|--------------|--------|')
-      for (const { selector, config } of forms) {
-        const fi = config.fieldInfo
-        const db = fi ? `${fi.table}.${fi.column}` : ''
-        const inputType = config.formInfo?.inputType || ''
-        const required = config.formInfo?.required ? 'Yes' : ''
-        const validation = [
-          ...(config.formInfo?.validation || []),
-          ...(fi?.validation || []),
-        ].join(', ')
-        const defaultValue = config.formInfo?.defaultValue || ''
-        lines.push(`| ${escMd(selector)} | ${escMd(db)} | ${escMd(inputType)} | ${required} | ${escMd(validation)} | ${escMd(defaultValue)} |`)
+      for (const [tabName, tabEls] of Object.entries(tabElements)) {
+        lines.push(`### ${tabName}タブ`)
+        lines.push('')
+        outputElementGroup(tabEls, '####')
       }
-      lines.push('')
+      for (const [modalName, modalEls] of Object.entries(modalElements)) {
+        lines.push(`### モーダル: ${modalName}`)
+        lines.push('')
+        outputElementGroup(modalEls, '####')
+      }
+      if (unnamedModals.length > 0) {
+        lines.push('### モーダル要素')
+        lines.push('')
+        outputElementGroup(unnamedModals, '####')
+      }
+    } else {
+      outputElementGroup(commonElements, '###')
     }
 
     // CSV Spec (SDD)
@@ -390,6 +456,49 @@ export function exportForSDD(
       }
     }
 
+    // Chart Spec (SDD)
+    const chartElements = elements.filter(e => e.config.elementType === 'chart' && e.config.chartSpec)
+    if (chartElements.length > 0) {
+      lines.push('### チャート仕様')
+      for (const { config } of chartElements) {
+        const spec = config.chartSpec!
+        const chartTypeLabels: Record<string, string> = {
+          bar: '棒グラフ', line: '折れ線グラフ', pie: '円グラフ', area: 'エリアチャート',
+          scatter: '散布図', doughnut: 'ドーナツ', radar: 'レーダー', other: 'その他',
+        }
+        const typeLabel = chartTypeLabels[spec.chartType] || spec.chartType
+        const title = spec.title || config.note?.text || ''
+        lines.push(`#### ${typeLabel}: ${title}`)
+        lines.push('')
+
+        const details: [string, string][] = []
+        if (spec.xAxis) details.push(['X軸', spec.xAxis])
+        if (spec.yAxis) details.push(['Y軸', spec.yAxis])
+        if (spec.dataSource) details.push(['データ取得', spec.dataSource])
+        if (spec.aggregation) details.push(['集計', spec.aggregation])
+        if (spec.filters) details.push(['フィルタ', spec.filters])
+        if (spec.description) details.push(['説明', spec.description])
+
+        if (details.length > 0) {
+          lines.push('| 項目 | 内容 |')
+          lines.push('|------|------|')
+          for (const [key, val] of details) {
+            lines.push(`| ${key} | ${escMd(val)} |`)
+          }
+          lines.push('')
+        }
+
+        if (spec.series && spec.series.length > 0) {
+          lines.push('| 系列名 | フィールド | 色 |')
+          lines.push('|--------|-----------|-----|')
+          for (const s of spec.series) {
+            lines.push(`| ${escMd(s.label)} | ${escMd(s.field)} | ${escMd(s.color || '')} |`)
+          }
+          lines.push('')
+        }
+      }
+    }
+
     lines.push('---')
     lines.push('')
   }
@@ -538,23 +647,55 @@ export function exportForClient(
       lines.push('')
     }
 
-    // Screen items
+    // Screen items (grouped by context)
     if (elements.length > 0) {
-      lines.push('### 画面項目')
-      lines.push('| No | 項目名 | 種別 | 説明 | 必須 | 備考 |')
-      lines.push('|----|--------|------|------|------|------|')
-      elements.forEach(({ config }, idx) => {
-        const itemName = getItemName(config)
-        const type = getBusinessType(config)
-        const desc = getItemDescription(config)
-        const required = config.formInfo?.required ? '必須' : ''
-        const remarks: string[] = []
-        if (config.note?.condition) remarks.push(config.note.condition)
-        if (config.note?.unit) remarks.push(`単位: ${config.note.unit}`)
-        if (config.note?.nullDisplay && config.note.nullDisplay !== '-') remarks.push(`空欄時: ${config.note.nullDisplay}`)
-        lines.push(`| ${idx + 1} | ${escMd(itemName)} | ${type} | ${escMd(desc)} | ${required} | ${escMd(remarks.join(' / '))} |`)
-      })
-      lines.push('')
+      const { common: clientCommon, tabs: clientTabs, modals: clientModals, unnamedModals: clientUnnamedModals } = groupByContext(elements)
+      const hasClientGroups = Object.keys(clientTabs).length > 0 || Object.keys(clientModals).length > 0 || clientUnnamedModals.length > 0
+
+      function outputClientItemTable(subset: typeof elements, startNo: number) {
+        lines.push('| No | 項目名 | 種別 | 説明 | 必須 | 備考 |')
+        lines.push('|----|--------|------|------|------|------|')
+        subset.forEach(({ config }, idx) => {
+          const itemName = getItemName(config)
+          const type = getBusinessType(config)
+          const desc = getItemDescription(config)
+          const required = config.formInfo?.required ? '必須' : ''
+          const remarks: string[] = []
+          if (config.note?.condition) remarks.push(config.note.condition)
+          if (config.note?.unit) remarks.push(`単位: ${config.note.unit}`)
+          if (config.note?.nullDisplay && config.note.nullDisplay !== '-') remarks.push(`空欄時: ${config.note.nullDisplay}`)
+          lines.push(`| ${startNo + idx} | ${escMd(itemName)} | ${type} | ${escMd(desc)} | ${required} | ${escMd(remarks.join(' / '))} |`)
+        })
+        lines.push('')
+      }
+
+      if (hasClientGroups) {
+        lines.push('### 画面項目')
+        lines.push('')
+        let no = 1
+        if (clientCommon.length > 0) {
+          lines.push('#### ページ共通')
+          outputClientItemTable(clientCommon, no)
+          no += clientCommon.length
+        }
+        for (const [tabName, tabEls] of Object.entries(clientTabs)) {
+          lines.push(`#### ${tabName}タブ`)
+          outputClientItemTable(tabEls, no)
+          no += tabEls.length
+        }
+        for (const [modalName, modalEls] of Object.entries(clientModals)) {
+          lines.push(`#### モーダル: ${modalName}`)
+          outputClientItemTable(modalEls, no)
+          no += modalEls.length
+        }
+        if (clientUnnamedModals.length > 0) {
+          lines.push('#### モーダル要素')
+          outputClientItemTable(clientUnnamedModals, no)
+        }
+      } else {
+        lines.push('### 画面項目')
+        outputClientItemTable(clientCommon, 1)
+      }
     }
 
     // APIs
@@ -662,6 +803,31 @@ export function exportForClient(
         lines.push(`- デフォルト: ${defaultSort.config.note?.text || si.sortKey || ''} ${dirLabel}`)
       }
       lines.push('')
+    }
+
+    // Chart Spec (Client - simplified)
+    const chartElementsClient = elements.filter(e => e.config.elementType === 'chart' && e.config.chartSpec)
+    if (chartElementsClient.length > 0) {
+      lines.push('### チャート')
+      for (const { config } of chartElementsClient) {
+        const spec = config.chartSpec!
+        const chartTypeLabels: Record<string, string> = {
+          bar: '棒グラフ', line: '折れ線グラフ', pie: '円グラフ', area: 'エリアチャート',
+          scatter: '散布図', doughnut: 'ドーナツ', radar: 'レーダー', other: 'その他',
+        }
+        const typeLabel = chartTypeLabels[spec.chartType] || spec.chartType
+        const title = spec.title || config.note?.text || ''
+        lines.push(`#### ${typeLabel}: ${title}`)
+        if (spec.xAxis || spec.yAxis) {
+          const axes = [spec.xAxis ? `X軸: ${spec.xAxis}` : '', spec.yAxis ? `Y軸: ${spec.yAxis}` : ''].filter(Boolean)
+          lines.push(`- ${axes.join(' / ')}`)
+        }
+        if (spec.series && spec.series.length > 0) {
+          lines.push(`- 系列: ${spec.series.map(s => s.label).join('、')}`)
+        }
+        if (spec.description) lines.push(`- ${spec.description}`)
+        lines.push('')
+      }
     }
 
     // Notes
