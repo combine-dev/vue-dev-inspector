@@ -1467,9 +1467,23 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       while (parent && parent !== document.body) {
         const role = parent.getAttribute('role')
         const cls = parent.className || ''
-        const isModal = parent.tagName === 'DIALOG'
+        let isModal = parent.tagName === 'DIALOG'
           || role === 'dialog' || role === 'alertdialog'
           || (typeof cls === 'string' && /\b(modal|dialog|v-dialog|el-dialog|drawer)\b/i.test(cls))
+          || parent.id === 'teleported' || parent.hasAttribute('data-teleport')
+        // Also detect Tailwind fixed overlay pattern (z-index >= 40, covers viewport)
+        if (!isModal && typeof cls === 'string') {
+          const style = window.getComputedStyle(parent)
+          if (style.position === 'fixed') {
+            const z = parseInt(style.zIndex, 10)
+            if (!isNaN(z) && z >= 40) {
+              const rect = parent.getBoundingClientRect()
+              if (rect.width >= window.innerWidth * 0.9 && rect.height >= window.innerHeight * 0.9) {
+                isModal = true
+              }
+            }
+          }
+        }
         if (isModal) {
           // Look for heading or title inside this modal (direct children area, not nested modals)
           const heading = findModalHeading(parent)

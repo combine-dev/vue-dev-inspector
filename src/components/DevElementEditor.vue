@@ -287,7 +287,8 @@ watch(elementId, (id) => {
     }
     // Load tab context & modal name (auto-detect if not saved)
     tabContextInput.value = config?.tabContext || store.detectTabContext(id) || ''
-    modalNameInput.value = config?.modalName || (config?.isConditional ? store.detectModalName(id) || '' : '')
+    const autoModalName = store.detectModalName(id)
+    modalNameInput.value = config?.modalName || autoModalName || ''
     // Load action info
     if (config?.actionInfo) {
       actionType.value = config.actionInfo.type || ''
