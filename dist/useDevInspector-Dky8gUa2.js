@@ -1919,6 +1919,6 @@ function pn() {
   return ln();
 }
 export {
-  pn as a,
-  ln as u
+  ln as a,
+  pn as u
 };

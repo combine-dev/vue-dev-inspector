@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, inject } from 'vue'
 import { useDevInspectorStore } from '../composables/useDevInspector'
 
 const store = useDevInspectorStore()
+const teleportTarget = inject<string | HTMLElement>('teleportTarget', 'body')
 
 const highlightStyle = ref<{
   top: string
@@ -764,7 +765,7 @@ watch(() => store.isPickMode, (isPicking) => {
 </script>
 
 <template>
-  <Teleport to="body">
+  <Teleport :to="teleportTarget">
     <!-- Loading overlay during initialization -->
     <div v-if="store.isInitializing" data-dev-inspector class="di-loading-overlay">
       <div class="di-loading-content">

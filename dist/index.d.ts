@@ -4,7 +4,6 @@ import { ComputedRef } from 'vue';
 import { DefineComponent } from 'vue';
 import { ExtractPropTypes } from 'vue';
 import { Plugin as Plugin_2 } from 'vue';
-import { Plugin as Plugin_3 } from 'vite';
 import { PropType } from 'vue';
 import { PublicProps } from 'vue';
 import { Ref } from 'vue';
@@ -3904,8 +3903,6 @@ edges: ScreenFlowEdge[];
 orphanPages: ScreenFlowNode[];
 }>;
 }, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "downloadSddSpec" | "downloadClientSpec" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "getBatchDefinition" | "setBatchDefinition" | "deleteBatchDefinition" | "detectBrokenAnnotations" | "detectModalName" | "detectTabContext" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate">>;
-
-export declare function vitePluginDevInspector(options?: DevInspectorVitePluginOptions): Plugin_3;
 
 declare const VueDevInspector: Plugin_2<PluginOptions[]>;
 export { VueDevInspector }

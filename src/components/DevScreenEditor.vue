@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, computed } from 'vue'
+import { ref, watch, computed, inject } from 'vue'
 import { X, Save, Trash2, Plus, Minus, Wand2, ChevronDown, Check } from 'lucide-vue-next'
 import { useDevInspectorStore, type ScreenConfig } from '../composables/useDevInspector'
 
 const store = useDevInspectorStore()
+const teleportTarget = inject<string | HTMLElement>('teleportTarget', 'body')
 
 // Form state
 const screenName = ref('')
@@ -160,7 +161,7 @@ const loadTimingOptions: { value: NonNullable<ScreenConfig['apis'][0]['loadTimin
 </script>
 
 <template>
-  <Teleport to="body">
+  <Teleport :to="teleportTarget">
     <div v-if="store.editingScreen" class="di-editor-overlay" @click.self="close" data-dev-inspector>
       <div class="di-editor-modal">
         <!-- Header -->

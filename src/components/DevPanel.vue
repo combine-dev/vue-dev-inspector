@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, inject } from 'vue'
 import { X, Code, FileText, ExternalLink, Server, AlertCircle, Edit3, Download, Upload, Trash2, MousePointer2, GitBranch, FileSpreadsheet, Scan, Loader2, Eye, EyeOff, Lock, Shield, PenSquare, AlertTriangle, Database, Plus, Search, ClipboardList, GitMerge, Clock } from 'lucide-vue-next'
 import type { MasterDefinition, MasterEntry, StateTransition, BatchDefinition, BatchStep, CrossSearchMode, CrossSearchResult } from '../composables/useDevInspector'
 import { useDevInspectorStore } from '../composables/useDevInspector'
+
+const teleportTarget = inject<string | HTMLElement>('teleportTarget', 'body')
 import { exportScreenSpecToXlsx } from '../utils/exportScreenSpec'
 
 const store = useDevInspectorStore()
@@ -812,7 +814,7 @@ function handleFlowEdgeClick(selector: string) {
 
 <template>
   <!-- Floating Toggle Button -->
-  <Teleport to="body">
+  <Teleport :to="teleportTarget">
     <button
       v-if="store.isEnabled && !store.isPanelOpen"
       @click="store.openPanel"
@@ -825,7 +827,7 @@ function handleFlowEdgeClick(selector: string) {
   </Teleport>
 
   <!-- Panel -->
-  <Teleport to="body">
+  <Teleport :to="teleportTarget">
     <div
       v-if="store.isEnabled && store.isPanelOpen"
       class="di-panel"
@@ -1590,7 +1592,7 @@ function handleFlowEdgeClick(selector: string) {
           </div>
 
           <!-- Master Editor Modal -->
-          <Teleport to="body">
+          <Teleport :to="teleportTarget">
             <div v-if="showMasterEditor" data-dev-inspector class="di-modal-overlay" @click.self="showMasterEditor = false">
               <div class="di-master-editor">
                 <div class="di-master-editor-header">
@@ -1735,7 +1737,7 @@ function handleFlowEdgeClick(selector: string) {
           </div>
 
           <!-- Batch Editor Modal -->
-          <Teleport to="body">
+          <Teleport :to="teleportTarget">
             <div v-if="showBatchEditor" data-dev-inspector class="di-modal-overlay" @click.self="showBatchEditor = false">
               <div class="di-batch-editor">
                 <div class="di-batch-editor-header">
@@ -1943,7 +1945,7 @@ function handleFlowEdgeClick(selector: string) {
   </Teleport>
 
   <!-- Dev Mode Indicator -->
-  <Teleport to="body">
+  <Teleport :to="teleportTarget">
     <div v-if="store.isEnabled" class="di-indicator" data-dev-inspector>
       <span class="di-indicator-dot"></span>
       Developer Mode
@@ -1951,7 +1953,7 @@ function handleFlowEdgeClick(selector: string) {
   </Teleport>
 
   <!-- Export Modal -->
-  <Teleport to="body">
+  <Teleport :to="teleportTarget">
     <div
       v-if="showExportModal"
       class="di-modal-overlay"
@@ -1974,7 +1976,7 @@ function handleFlowEdgeClick(selector: string) {
   </Teleport>
 
   <!-- Import Modal -->
-  <Teleport to="body">
+  <Teleport :to="teleportTarget">
     <div
       v-if="showImportModal"
       class="di-modal-overlay"

@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, inject } from 'vue'
 import { X, Database, Save, Trash2, MessageSquare, Wand2, Calculator, Type, ShieldQuestion, Zap, FormInput, List, ChevronUp, ChevronDown, FileSpreadsheet, Mail, ArrowUpDown, BarChart3 } from 'lucide-vue-next'
 import { useDevInspectorStore, type FieldInfo, type ElementNote, type SourceBindingInfo, type ActionInfo, type FormInfo, type SortInfo, type MasterEntry, type CsvColumnDef, type CsvSpec, type CsvErrorDef, type EmailSpec, type ChartSpec, type ChartSeries } from '../composables/useDevInspector'
 
 // (SortInfo is now part of ActionInfo.sortSpec)
 
 const store = useDevInspectorStore()
+const teleportTarget = inject<string | HTMLElement>('teleportTarget', 'body')
 
 // Tab selection
 const activeTab = ref<'datasource' | 'action' | 'form' | 'chart'>('datasource')
@@ -1130,7 +1131,7 @@ function saveMasterEntries() {
 </script>
 
 <template>
-  <Teleport to="body">
+  <Teleport :to="teleportTarget">
     <div v-if="isEditing" class="di-editor-overlay" @click.self="close" data-dev-inspector>
       <div class="di-editor-modal" :class="{ 'di-editor-modal-wide': isWideMode }">
         <!-- Header -->

@@ -1,4 +1,6 @@
-export declare interface DevInspectorVitePluginOptions {
+import { UnpluginInstance } from 'unplugin';
+
+declare interface DevInspectorPluginOptions {
     /**
      * Enable the plugin (default: process.env.NODE_ENV === 'development')
      */
@@ -23,9 +25,11 @@ export declare interface DevInspectorVitePluginOptions {
     exclude?: string[];
 }
 
-declare function vitePluginDevInspector(options?: DevInspectorVitePluginOptions): any;
-export default vitePluginDevInspector;
-export { vitePluginDevInspector }
+export declare const unpluginDevInspector: UnpluginInstance<DevInspectorPluginOptions, boolean>;
+
+export declare const vitePlugin: (options: DevInspectorPluginOptions) => any;
+
+export declare const webpackPlugin: (options: DevInspectorPluginOptions) => any;
 
 export { }
 

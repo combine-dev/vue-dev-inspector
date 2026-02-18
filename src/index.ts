@@ -2,8 +2,8 @@
 export { VueDevInspector, default } from './plugin'
 export type { PluginOptions } from './plugin'
 
-// Vite Plugin (build-time attribute injection)
-export { vitePluginDevInspector } from './vite/plugin'
+// Vite Plugin types only — runtime import from 'vue-dev-inspector/vite' instead
+// (vitePluginDevInspector depends on unplugin which is Node.js-only)
 export type { DevInspectorVitePluginOptions } from './vite/plugin'
 
 // Composable
