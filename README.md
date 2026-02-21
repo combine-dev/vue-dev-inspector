@@ -1,6 +1,6 @@
 # vue-dev-inspector
 
-**動いている画面がそのまま仕様書になる** - Vue 3 / Nuxt 3 対応の開発ドキュメントツール。
+**動いている画面がそのまま仕様書になる** - Vue 3 / Nuxt 3 / Next.js 対応の開発ドキュメントツール。
 
 UI要素をクリックして「このデータはDBのどのカラム？」「このボタンはどのAPIを叩く？」をその場でアノテーション。モックアップを作りながら画面仕様書を自動生成できます。
 
@@ -84,12 +84,12 @@ npx vue-dev-inspector analyze ./src --schema ../backend/db/schema.rb
 
 ---
 
-## クイックスタート
+## クイックスタート（Vue 3 + Vite）
 
 ### 1. インストール
 
 ```bash
-npm install vue-dev-inspector
+npm install git+https://github.com/combine-dev/vue-dev-inspector.git
 ```
 
 ### 2. Viteプラグインを設定
@@ -177,6 +177,79 @@ export default defineNuxtConfig({
   </div>
 </template>
 ```
+
+---
+
+## Next.js
+
+Next.jsプロジェクトでも利用できます。インスペクタUIはShadow DOM内でVueアプリとして動作するため、ホストアプリのスタイルには影響しません。
+
+### 1. インストール
+
+```bash
+npm install git+https://github.com/combine-dev/vue-dev-inspector.git vue pinia
+```
+
+> `vue` と `pinia` はインスペクタUI内部で使用されます。動的読み込みのため、アプリの初期バンドルサイズには影響しません。
+
+### 2. next.config.js
+
+```js
+const { withDevInspector } = require('vue-dev-inspector/next')
+
+module.exports = withDevInspector({
+  // 既存の Next.js config
+})
+```
+
+> **注意:** Turbopack未対応のため、`next dev --webpack` で起動してください。
+
+### 3. app/layout.tsx にインスペクタを配置
+
+```tsx
+import { DevInspector } from 'vue-dev-inspector/react'
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        {process.env.NODE_ENV === 'development' && <DevInspector />}
+      </body>
+    </html>
+  )
+}
+```
+
+### 4. API Route を作成（アノテーション保存用）
+
+```ts
+// app/api/__dev-inspector/annotations/route.ts
+import { createDevInspectorRouteHandlers } from 'vue-dev-inspector/next'
+
+const handlers = createDevInspectorRouteHandlers()
+export const GET = handlers.annotations.GET
+export const POST = handlers.annotations.POST
+export const OPTIONS = handlers.annotations.OPTIONS
+```
+
+```ts
+// app/api/__dev-inspector/masters/route.ts
+import { createDevInspectorRouteHandlers } from 'vue-dev-inspector/next'
+
+const handlers = createDevInspectorRouteHandlers()
+export const GET = handlers.masters.GET
+export const POST = handlers.masters.POST
+export const OPTIONS = handlers.masters.OPTIONS
+```
+
+### 5. 起動
+
+```bash
+next dev --webpack
+```
+
+JSX/TSXファイル内の `{user.name}` のようなバインディングに `data-di-*` 属性が自動注入されます。
 
 ---
 
