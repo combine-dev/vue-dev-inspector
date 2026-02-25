@@ -346,6 +346,17 @@ export declare interface LinkInfo {
 
 declare type LoadTrigger = 'onMount' | 'useFetch' | 'useAsyncData' | 'watch' | 'action' | 'unknown';
 
+declare interface ManualColumnDef {
+    column: string;
+    type?: string;
+}
+
+declare interface ManualTableDef {
+    name: string;
+    columns: ManualColumnDef[];
+    description?: string;
+}
+
 export declare interface MasterDefinition {
     id: string;
     table: string;
@@ -476,6 +487,16 @@ declare interface StateTransition {
     trigger: string;
     condition?: string;
     description?: string;
+}
+
+declare interface TableRelation {
+    id: string;
+    fromTable: string;
+    toTable: string;
+    type: 'has_many' | 'belongs_to' | 'has_one' | 'many_to_many';
+    foreignKey?: string;
+    description?: string;
+    inferred: boolean;
 }
 
 export declare interface UnannotatedElement {
@@ -1009,6 +1030,7 @@ getApiSourceForBinding: (binding: string) => ComponentApi | null;
 showNoteHighlights: Ref<boolean, boolean>;
 toggleNoteHighlights: () => void;
 noteHighlightFilter: Ref<"action" | "form" | "calculated" | "static" | "other" | "conditional" | "storedCalc" | "db" | "all", "action" | "form" | "calculated" | "static" | "other" | "conditional" | "storedCalc" | "db" | "all">;
+noteTableFilter: Ref<string, string>;
 detectElementType: (element: HTMLElement) => "datasource" | "action" | "form";
 masterDefinitions: Ref<Record<string, MasterDefinition>, Record<string, MasterDefinition>>;
 getMasterDefinition: (tableColumn: string) => MasterDefinition | undefined;
@@ -1055,7 +1077,52 @@ nodes: ScreenFlowNode[];
 edges: ScreenFlowEdge[];
 orphanPages: ScreenFlowNode[];
 }>;
-}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "screenConfigs" | "editingScreen" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter" | "showNoteHighlights" | "noteHighlightFilter" | "masterDefinitions" | "batchDefinitions" | "brokenAnnotations" | "remapTargetId" | "showCrossSearch" | "crossSearchQuery" | "crossSearchMode" | "showUnannotatedDetection" | "unannotatedElements" | "hoveredUnannotatedSelector" | "showScreenFlow">, Pick<{
+erTables: ComputedRef<string[]>;
+erRelations: ComputedRef<TableRelation[]>;
+erTableColumns: ComputedRef<Record<string, {
+column: string;
+type?: string;
+}[]>>;
+erFocusTable: Ref<string | null, string | null>;
+tableRelations: Ref<    {
+id: string;
+fromTable: string;
+toTable: string;
+type: "has_many" | "belongs_to" | "has_one" | "many_to_many";
+foreignKey?: string | undefined;
+description?: string | undefined;
+inferred: boolean;
+}[], TableRelation[] | {
+id: string;
+fromTable: string;
+toTable: string;
+type: "has_many" | "belongs_to" | "has_one" | "many_to_many";
+foreignKey?: string | undefined;
+description?: string | undefined;
+inferred: boolean;
+}[]>;
+addTableRelation: (relation: Omit<TableRelation, "id" | "inferred">) => void;
+removeTableRelation: (id: string) => void;
+manualTables: Ref<    {
+name: string;
+columns: {
+column: string;
+type?: string | undefined;
+}[];
+description?: string | undefined;
+}[], ManualTableDef[] | {
+name: string;
+columns: {
+column: string;
+type?: string | undefined;
+}[];
+description?: string | undefined;
+}[]>;
+addManualTable: (name: string) => void;
+removeManualTable: (name: string) => void;
+addManualColumn: (tableName: string, column: string, type?: string) => void;
+removeManualColumn: (tableName: string, columnName: string) => void;
+}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "screenConfigs" | "editingScreen" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter" | "showNoteHighlights" | "noteHighlightFilter" | "noteTableFilter" | "masterDefinitions" | "batchDefinitions" | "brokenAnnotations" | "remapTargetId" | "showCrossSearch" | "crossSearchQuery" | "crossSearchMode" | "showUnannotatedDetection" | "unannotatedElements" | "hoveredUnannotatedSelector" | "showScreenFlow" | "erFocusTable" | "tableRelations" | "manualTables">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -1578,6 +1645,7 @@ getApiSourceForBinding: (binding: string) => ComponentApi | null;
 showNoteHighlights: Ref<boolean, boolean>;
 toggleNoteHighlights: () => void;
 noteHighlightFilter: Ref<"action" | "form" | "calculated" | "static" | "other" | "conditional" | "storedCalc" | "db" | "all", "action" | "form" | "calculated" | "static" | "other" | "conditional" | "storedCalc" | "db" | "all">;
+noteTableFilter: Ref<string, string>;
 detectElementType: (element: HTMLElement) => "datasource" | "action" | "form";
 masterDefinitions: Ref<Record<string, MasterDefinition>, Record<string, MasterDefinition>>;
 getMasterDefinition: (tableColumn: string) => MasterDefinition | undefined;
@@ -1624,7 +1692,52 @@ nodes: ScreenFlowNode[];
 edges: ScreenFlowEdge[];
 orphanPages: ScreenFlowNode[];
 }>;
-}, "isAvailable" | "crossSearchResults" | "screenFlowData">, Pick<{
+erTables: ComputedRef<string[]>;
+erRelations: ComputedRef<TableRelation[]>;
+erTableColumns: ComputedRef<Record<string, {
+column: string;
+type?: string;
+}[]>>;
+erFocusTable: Ref<string | null, string | null>;
+tableRelations: Ref<    {
+id: string;
+fromTable: string;
+toTable: string;
+type: "has_many" | "belongs_to" | "has_one" | "many_to_many";
+foreignKey?: string | undefined;
+description?: string | undefined;
+inferred: boolean;
+}[], TableRelation[] | {
+id: string;
+fromTable: string;
+toTable: string;
+type: "has_many" | "belongs_to" | "has_one" | "many_to_many";
+foreignKey?: string | undefined;
+description?: string | undefined;
+inferred: boolean;
+}[]>;
+addTableRelation: (relation: Omit<TableRelation, "id" | "inferred">) => void;
+removeTableRelation: (id: string) => void;
+manualTables: Ref<    {
+name: string;
+columns: {
+column: string;
+type?: string | undefined;
+}[];
+description?: string | undefined;
+}[], ManualTableDef[] | {
+name: string;
+columns: {
+column: string;
+type?: string | undefined;
+}[];
+description?: string | undefined;
+}[]>;
+addManualTable: (name: string) => void;
+removeManualTable: (name: string) => void;
+addManualColumn: (tableName: string, column: string, type?: string) => void;
+removeManualColumn: (tableName: string, columnName: string) => void;
+}, "isAvailable" | "crossSearchResults" | "screenFlowData" | "erTables" | "erRelations" | "erTableColumns">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -2147,6 +2260,7 @@ getApiSourceForBinding: (binding: string) => ComponentApi | null;
 showNoteHighlights: Ref<boolean, boolean>;
 toggleNoteHighlights: () => void;
 noteHighlightFilter: Ref<"action" | "form" | "calculated" | "static" | "other" | "conditional" | "storedCalc" | "db" | "all", "action" | "form" | "calculated" | "static" | "other" | "conditional" | "storedCalc" | "db" | "all">;
+noteTableFilter: Ref<string, string>;
 detectElementType: (element: HTMLElement) => "datasource" | "action" | "form";
 masterDefinitions: Ref<Record<string, MasterDefinition>, Record<string, MasterDefinition>>;
 getMasterDefinition: (tableColumn: string) => MasterDefinition | undefined;
@@ -2193,7 +2307,52 @@ nodes: ScreenFlowNode[];
 edges: ScreenFlowEdge[];
 orphanPages: ScreenFlowNode[];
 }>;
-}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "downloadSddSpec" | "downloadClientSpec" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "getBatchDefinition" | "setBatchDefinition" | "deleteBatchDefinition" | "detectBrokenAnnotations" | "detectModalName" | "detectTabContext" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate">>;
+erTables: ComputedRef<string[]>;
+erRelations: ComputedRef<TableRelation[]>;
+erTableColumns: ComputedRef<Record<string, {
+column: string;
+type?: string;
+}[]>>;
+erFocusTable: Ref<string | null, string | null>;
+tableRelations: Ref<    {
+id: string;
+fromTable: string;
+toTable: string;
+type: "has_many" | "belongs_to" | "has_one" | "many_to_many";
+foreignKey?: string | undefined;
+description?: string | undefined;
+inferred: boolean;
+}[], TableRelation[] | {
+id: string;
+fromTable: string;
+toTable: string;
+type: "has_many" | "belongs_to" | "has_one" | "many_to_many";
+foreignKey?: string | undefined;
+description?: string | undefined;
+inferred: boolean;
+}[]>;
+addTableRelation: (relation: Omit<TableRelation, "id" | "inferred">) => void;
+removeTableRelation: (id: string) => void;
+manualTables: Ref<    {
+name: string;
+columns: {
+column: string;
+type?: string | undefined;
+}[];
+description?: string | undefined;
+}[], ManualTableDef[] | {
+name: string;
+columns: {
+column: string;
+type?: string | undefined;
+}[];
+description?: string | undefined;
+}[]>;
+addManualTable: (name: string) => void;
+removeManualTable: (name: string) => void;
+addManualColumn: (tableName: string, column: string, type?: string) => void;
+removeManualColumn: (tableName: string, columnName: string) => void;
+}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "downloadSddSpec" | "downloadClientSpec" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "getBatchDefinition" | "setBatchDefinition" | "deleteBatchDefinition" | "detectBrokenAnnotations" | "detectModalName" | "detectTabContext" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate" | "addTableRelation" | "removeTableRelation" | "addManualTable" | "removeManualTable" | "addManualColumn" | "removeManualColumn">>;
 
 export declare const useDevInspectorStore: StoreDefinition<"devInspector", Pick<{
 isEnabled: Ref<boolean, boolean>;
@@ -2718,6 +2877,7 @@ getApiSourceForBinding: (binding: string) => ComponentApi | null;
 showNoteHighlights: Ref<boolean, boolean>;
 toggleNoteHighlights: () => void;
 noteHighlightFilter: Ref<"action" | "form" | "calculated" | "static" | "other" | "conditional" | "storedCalc" | "db" | "all", "action" | "form" | "calculated" | "static" | "other" | "conditional" | "storedCalc" | "db" | "all">;
+noteTableFilter: Ref<string, string>;
 detectElementType: (element: HTMLElement) => "datasource" | "action" | "form";
 masterDefinitions: Ref<Record<string, MasterDefinition>, Record<string, MasterDefinition>>;
 getMasterDefinition: (tableColumn: string) => MasterDefinition | undefined;
@@ -2764,7 +2924,52 @@ nodes: ScreenFlowNode[];
 edges: ScreenFlowEdge[];
 orphanPages: ScreenFlowNode[];
 }>;
-}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "screenConfigs" | "editingScreen" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter" | "showNoteHighlights" | "noteHighlightFilter" | "masterDefinitions" | "batchDefinitions" | "brokenAnnotations" | "remapTargetId" | "showCrossSearch" | "crossSearchQuery" | "crossSearchMode" | "showUnannotatedDetection" | "unannotatedElements" | "hoveredUnannotatedSelector" | "showScreenFlow">, Pick<{
+erTables: ComputedRef<string[]>;
+erRelations: ComputedRef<TableRelation[]>;
+erTableColumns: ComputedRef<Record<string, {
+column: string;
+type?: string;
+}[]>>;
+erFocusTable: Ref<string | null, string | null>;
+tableRelations: Ref<    {
+id: string;
+fromTable: string;
+toTable: string;
+type: "has_many" | "belongs_to" | "has_one" | "many_to_many";
+foreignKey?: string | undefined;
+description?: string | undefined;
+inferred: boolean;
+}[], TableRelation[] | {
+id: string;
+fromTable: string;
+toTable: string;
+type: "has_many" | "belongs_to" | "has_one" | "many_to_many";
+foreignKey?: string | undefined;
+description?: string | undefined;
+inferred: boolean;
+}[]>;
+addTableRelation: (relation: Omit<TableRelation, "id" | "inferred">) => void;
+removeTableRelation: (id: string) => void;
+manualTables: Ref<    {
+name: string;
+columns: {
+column: string;
+type?: string | undefined;
+}[];
+description?: string | undefined;
+}[], ManualTableDef[] | {
+name: string;
+columns: {
+column: string;
+type?: string | undefined;
+}[];
+description?: string | undefined;
+}[]>;
+addManualTable: (name: string) => void;
+removeManualTable: (name: string) => void;
+addManualColumn: (tableName: string, column: string, type?: string) => void;
+removeManualColumn: (tableName: string, columnName: string) => void;
+}, "isEnabled" | "isEditMode" | "isPickMode" | "isInitializing" | "hoveredSelector" | "currentScreenSpec" | "isPanelOpen" | "elementConfigs" | "editingElementId" | "screenConfigs" | "editingScreen" | "isScanning" | "scanProgress" | "scanResults" | "allPagesRoutes" | "currentScanPage" | "analysisData" | "analysisResults" | "hiddenAnalysisSelectors" | "analysisFilter" | "showNoteHighlights" | "noteHighlightFilter" | "noteTableFilter" | "masterDefinitions" | "batchDefinitions" | "brokenAnnotations" | "remapTargetId" | "showCrossSearch" | "crossSearchQuery" | "crossSearchMode" | "showUnannotatedDetection" | "unannotatedElements" | "hoveredUnannotatedSelector" | "showScreenFlow" | "erFocusTable" | "tableRelations" | "manualTables">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -3287,6 +3492,7 @@ getApiSourceForBinding: (binding: string) => ComponentApi | null;
 showNoteHighlights: Ref<boolean, boolean>;
 toggleNoteHighlights: () => void;
 noteHighlightFilter: Ref<"action" | "form" | "calculated" | "static" | "other" | "conditional" | "storedCalc" | "db" | "all", "action" | "form" | "calculated" | "static" | "other" | "conditional" | "storedCalc" | "db" | "all">;
+noteTableFilter: Ref<string, string>;
 detectElementType: (element: HTMLElement) => "datasource" | "action" | "form";
 masterDefinitions: Ref<Record<string, MasterDefinition>, Record<string, MasterDefinition>>;
 getMasterDefinition: (tableColumn: string) => MasterDefinition | undefined;
@@ -3333,7 +3539,52 @@ nodes: ScreenFlowNode[];
 edges: ScreenFlowEdge[];
 orphanPages: ScreenFlowNode[];
 }>;
-}, "isAvailable" | "crossSearchResults" | "screenFlowData">, Pick<{
+erTables: ComputedRef<string[]>;
+erRelations: ComputedRef<TableRelation[]>;
+erTableColumns: ComputedRef<Record<string, {
+column: string;
+type?: string;
+}[]>>;
+erFocusTable: Ref<string | null, string | null>;
+tableRelations: Ref<    {
+id: string;
+fromTable: string;
+toTable: string;
+type: "has_many" | "belongs_to" | "has_one" | "many_to_many";
+foreignKey?: string | undefined;
+description?: string | undefined;
+inferred: boolean;
+}[], TableRelation[] | {
+id: string;
+fromTable: string;
+toTable: string;
+type: "has_many" | "belongs_to" | "has_one" | "many_to_many";
+foreignKey?: string | undefined;
+description?: string | undefined;
+inferred: boolean;
+}[]>;
+addTableRelation: (relation: Omit<TableRelation, "id" | "inferred">) => void;
+removeTableRelation: (id: string) => void;
+manualTables: Ref<    {
+name: string;
+columns: {
+column: string;
+type?: string | undefined;
+}[];
+description?: string | undefined;
+}[], ManualTableDef[] | {
+name: string;
+columns: {
+column: string;
+type?: string | undefined;
+}[];
+description?: string | undefined;
+}[]>;
+addManualTable: (name: string) => void;
+removeManualTable: (name: string) => void;
+addManualColumn: (tableName: string, column: string, type?: string) => void;
+removeManualColumn: (tableName: string, columnName: string) => void;
+}, "isAvailable" | "crossSearchResults" | "screenFlowData" | "erTables" | "erRelations" | "erTableColumns">, Pick<{
 isEnabled: Ref<boolean, boolean>;
 isAvailable: ComputedRef<boolean>;
 isEditMode: Ref<boolean, boolean>;
@@ -3856,6 +4107,7 @@ getApiSourceForBinding: (binding: string) => ComponentApi | null;
 showNoteHighlights: Ref<boolean, boolean>;
 toggleNoteHighlights: () => void;
 noteHighlightFilter: Ref<"action" | "form" | "calculated" | "static" | "other" | "conditional" | "storedCalc" | "db" | "all", "action" | "form" | "calculated" | "static" | "other" | "conditional" | "storedCalc" | "db" | "all">;
+noteTableFilter: Ref<string, string>;
 detectElementType: (element: HTMLElement) => "datasource" | "action" | "form";
 masterDefinitions: Ref<Record<string, MasterDefinition>, Record<string, MasterDefinition>>;
 getMasterDefinition: (tableColumn: string) => MasterDefinition | undefined;
@@ -3902,7 +4154,52 @@ nodes: ScreenFlowNode[];
 edges: ScreenFlowEdge[];
 orphanPages: ScreenFlowNode[];
 }>;
-}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "downloadSddSpec" | "downloadClientSpec" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "getBatchDefinition" | "setBatchDefinition" | "deleteBatchDefinition" | "detectBrokenAnnotations" | "detectModalName" | "detectTabContext" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate">>;
+erTables: ComputedRef<string[]>;
+erRelations: ComputedRef<TableRelation[]>;
+erTableColumns: ComputedRef<Record<string, {
+column: string;
+type?: string;
+}[]>>;
+erFocusTable: Ref<string | null, string | null>;
+tableRelations: Ref<    {
+id: string;
+fromTable: string;
+toTable: string;
+type: "has_many" | "belongs_to" | "has_one" | "many_to_many";
+foreignKey?: string | undefined;
+description?: string | undefined;
+inferred: boolean;
+}[], TableRelation[] | {
+id: string;
+fromTable: string;
+toTable: string;
+type: "has_many" | "belongs_to" | "has_one" | "many_to_many";
+foreignKey?: string | undefined;
+description?: string | undefined;
+inferred: boolean;
+}[]>;
+addTableRelation: (relation: Omit<TableRelation, "id" | "inferred">) => void;
+removeTableRelation: (id: string) => void;
+manualTables: Ref<    {
+name: string;
+columns: {
+column: string;
+type?: string | undefined;
+}[];
+description?: string | undefined;
+}[], ManualTableDef[] | {
+name: string;
+columns: {
+column: string;
+type?: string | undefined;
+}[];
+description?: string | undefined;
+}[]>;
+addManualTable: (name: string) => void;
+removeManualTable: (name: string) => void;
+addManualColumn: (tableName: string, column: string, type?: string) => void;
+removeManualColumn: (tableName: string, columnName: string) => void;
+}, "getScreenConfig" | "setScreenConfig" | "deleteScreenConfig" | "suggestScreenApis" | "init" | "toggle" | "enable" | "disable" | "toggleEditMode" | "togglePickMode" | "setHoveredSelector" | "generateSelector" | "getConfiguredSelectors" | "setScreenSpec" | "clearScreenSpec" | "togglePanel" | "openPanel" | "closePanel" | "getElementConfig" | "setElementConfig" | "deleteElementConfig" | "startEditing" | "stopEditing" | "exportConfigs" | "exportAsFile" | "downloadAnnotations" | "downloadSddSpec" | "downloadClientSpec" | "importConfigs" | "clearAllConfigs" | "detectSourceBinding" | "autoDetectElementInfo" | "scanCurrentPage" | "scanAllPages" | "clearScanResults" | "loadAnalysisData" | "getAnalyzedElement" | "getAnalyzedElementsForPage" | "applyAnalysisToPage" | "clearAnalysisResults" | "removeAnalysisResult" | "clearHiddenSelectors" | "exportChangesForCli" | "downloadChanges" | "getAvailableBindings" | "searchBindings" | "getSchemaColumns" | "searchSchemaColumns" | "getCurrentPageApis" | "getApiSourceForBinding" | "toggleNoteHighlights" | "detectElementType" | "getMasterDefinition" | "setMasterDefinition" | "deleteMasterDefinition" | "getMastersForTable" | "getMasterEntries" | "getBatchDefinition" | "setBatchDefinition" | "deleteBatchDefinition" | "detectBrokenAnnotations" | "detectModalName" | "detectTabContext" | "remapAnnotation" | "startRemap" | "deleteBrokenAnnotations" | "detectUnannotatedElements" | "quickAnnotate" | "addTableRelation" | "removeTableRelation" | "addManualTable" | "removeManualTable" | "addManualColumn" | "removeManualColumn">>;
 
 declare const VueDevInspector: Plugin_2<PluginOptions[]>;
 export { VueDevInspector }

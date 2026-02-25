@@ -9,12 +9,25 @@ import { exportScreenSpecToXlsx } from '../utils/exportScreenSpec'
 
 const store = useDevInspectorStore()
 
-const activeTab = ref<'elements' | 'masters' | 'batches' | 'export'>('elements')
+const activeTab = ref<'elements' | 'masters' | 'batches' | 'tables' | 'export'>('elements')
 
 const showExportModal = ref(false)
 const showImportModal = ref(false)
 const importText = ref('')
 const importError = ref('')
+
+// ER diagram local state
+const erShowAddRelation = ref(false)
+const erNewRelFrom = ref('')
+const erNewRelTo = ref('')
+const erNewRelType = ref<'has_many' | 'belongs_to' | 'has_one' | 'many_to_many'>('has_many')
+
+// Manual table/column add state
+const erShowAddTable = ref(false)
+const erNewTableName = ref('')
+const erAddColumnTable = ref<string | null>(null)
+const erNewColumnName = ref('')
+const erNewColumnType = ref('')
 
 const methodColors: Record<string, string> = {
   GET: '#10b981',
@@ -64,8 +77,22 @@ const currentPageElementsAll = computed(() => {
 })
 const currentPageElements = computed(() => {
   const filter = store.noteHighlightFilter
-  if (filter === 'all') return currentPageElementsAll.value
-  return currentPageElementsAll.value.filter(el => {
+  const tableFilter = store.noteTableFilter
+
+  let items = currentPageElementsAll.value
+
+  // Apply table filter
+  if (tableFilter !== 'all') {
+    items = items.filter(el => {
+      const c = el.config
+      const fields = c.fieldInfoList?.length ? c.fieldInfoList : (c.fieldInfo ? [c.fieldInfo] : [])
+      return fields.some(f => f.table === tableFilter || f.table.startsWith(tableFilter + '.'))
+    })
+  }
+
+  // Apply type filter
+  if (filter === 'all') return items
+  return items.filter(el => {
     const c = el.config
     const dt = c.note?.displayType
     const hasCondition = !!(c.note?.condition || c.note?.conditionColumn)
@@ -154,6 +181,27 @@ const filteredNoteCount = computed(() => {
   }).length
 })
 
+// Collect unique table names from current page annotations
+// For "users.sheets", both "users.sheets" and "users" are included
+const availableTables = computed(() => {
+  const tables = new Set<string>()
+  const curPath = typeof window !== 'undefined' ? window.location.pathname : '/'
+  for (const config of Object.values(store.elementConfigs)) {
+    if (config.pagePath && config.pagePath !== curPath) continue
+    const fields = config.fieldInfoList?.length ? config.fieldInfoList : (config.fieldInfo ? [config.fieldInfo] : [])
+    for (const f of fields) {
+      if (f.table) {
+        tables.add(f.table)
+        // Add root table for relation chains (e.g. "users.sheets" -> "users")
+        if (f.table.includes('.')) {
+          tables.add(f.table.split('.')[0])
+        }
+      }
+    }
+  }
+  return Array.from(tables).sort()
+})
+
 function copyExport() {
   const json = store.exportConfigs()
   navigator.clipboard.writeText(json)
@@ -216,6 +264,67 @@ function clearAll() {
   if (confirm('すべての要素設定を削除しますか？')) {
     store.clearAllConfigs()
   }
+}
+
+// ER diagram helpers
+const filteredErTables = computed(() => {
+  if (!store.erFocusTable) return store.erTables
+  const related = store.erRelations
+    .filter(r => r.fromTable === store.erFocusTable || r.toTable === store.erFocusTable)
+    .flatMap(r => [r.fromTable, r.toTable])
+  return store.erTables.filter(t => t === store.erFocusTable || related.includes(t))
+})
+
+function getRelationsForTable(table: string) {
+  return store.erRelations.filter(r => r.fromTable === table || r.toTable === table)
+}
+
+function addRelation() {
+  if (!erNewRelFrom.value || !erNewRelTo.value) return
+  store.addTableRelation({
+    fromTable: erNewRelFrom.value,
+    toTable: erNewRelTo.value,
+    type: erNewRelType.value,
+  })
+  erNewRelFrom.value = ''
+  erNewRelTo.value = ''
+  erShowAddRelation.value = false
+}
+
+// Manual table/column helpers
+function isManualTable(name: string): boolean {
+  return store.manualTables.some(t => t.name === name)
+}
+
+function isManualColumn(tableName: string, columnName: string): boolean {
+  const t = store.manualTables.find(t => t.name === tableName)
+  return !!t?.columns.some(c => c.column === columnName)
+}
+
+function handleAddTable() {
+  const name = erNewTableName.value.trim()
+  if (!name) return
+  store.addManualTable(name)
+  erNewTableName.value = ''
+  erShowAddTable.value = false
+}
+
+function handleRemoveTable(name: string) {
+  store.removeManualTable(name)
+}
+
+function startAddColumn(table: string) {
+  erAddColumnTable.value = table
+  erNewColumnName.value = ''
+  erNewColumnType.value = ''
+}
+
+function handleAddColumn(table: string) {
+  const col = erNewColumnName.value.trim()
+  if (!col) return
+  store.addManualColumn(table, col, erNewColumnType.value.trim() || undefined)
+  erNewColumnName.value = ''
+  erNewColumnType.value = ''
 }
 
 // Analysis data functions
@@ -874,6 +983,15 @@ function handleFlowEdgeClick(selector: string) {
           <span v-if="batchCount > 0" class="di-tab-badge">{{ batchCount }}</span>
         </button>
         <button
+          @click="activeTab = 'tables'"
+          class="di-tab-btn"
+          :class="{ active: activeTab === 'tables' }"
+        >
+          <GitMerge style="width: 14px; height: 14px;" />
+          <span>テーブル</span>
+          <span v-if="store.erTables.length > 0" class="di-tab-badge">{{ store.erTables.length }}</span>
+        </button>
+        <button
           @click="activeTab = 'export'"
           class="di-tab-btn"
           :class="{ active: activeTab === 'export' }"
@@ -922,6 +1040,32 @@ function handleFlowEdgeClick(selector: string) {
               :class="{ active: store.noteHighlightFilter === opt.value }"
             >
               {{ opt.label }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Table Name Filter -->
+        <div
+          v-if="noteCount > 0 && store.showNoteHighlights && availableTables.length > 0"
+          class="di-note-filter"
+        >
+          <span class="di-filter-label">テーブル:</span>
+          <div class="di-filter-buttons">
+            <button
+              @click="store.noteTableFilter = 'all'"
+              class="di-filter-btn"
+              :class="{ active: store.noteTableFilter === 'all' }"
+            >
+              すべて
+            </button>
+            <button
+              v-for="table in availableTables"
+              :key="table"
+              @click="store.noteTableFilter = table"
+              class="di-filter-btn"
+              :class="{ active: store.noteTableFilter === table }"
+            >
+              {{ table }}
             </button>
           </div>
         </div>
@@ -1876,6 +2020,101 @@ function handleFlowEdgeClick(selector: string) {
             </div>
           </Teleport>
         </div><!-- /batches tab -->
+
+        <!-- ===== TABLES TAB ===== -->
+        <div v-show="activeTab === 'tables'">
+          <!-- フィルタ切り替え -->
+          <div class="di-er-controls">
+            <button
+              @click="store.erFocusTable = null"
+              class="di-filter-chip"
+              :class="{ active: !store.erFocusTable }"
+            >全テーブル</button>
+            <button
+              v-for="table in store.erTables"
+              :key="table"
+              @click="store.erFocusTable = store.erFocusTable === table ? null : table"
+              class="di-filter-chip"
+              :class="{ active: store.erFocusTable === table }"
+            >{{ table }}</button>
+          </div>
+
+          <!-- テーブルカード一覧 -->
+          <div class="di-er-grid">
+            <div
+              v-for="table in filteredErTables"
+              :key="table"
+              class="di-er-card"
+              :class="{ 'di-er-card-focused': store.erFocusTable === table }"
+              @click="store.erFocusTable = store.erFocusTable === table ? null : table"
+            >
+              <div class="di-er-card-header">
+                <span>{{ table }}</span>
+                <button v-if="isManualTable(table)" @click.stop="handleRemoveTable(table)" class="di-er-rel-delete">×</button>
+              </div>
+              <div class="di-er-card-columns">
+                <div v-for="col in (store.erTableColumns[table] || [])" :key="col.column" class="di-er-col">
+                  <span>{{ col.column }}</span>
+                  <span v-if="col.type" class="di-er-col-type">{{ col.type }}</span>
+                  <button v-if="isManualColumn(table, col.column)" @click.stop="store.removeManualColumn(table, col.column)" class="di-er-rel-delete">×</button>
+                </div>
+                <div v-if="!store.erTableColumns[table]?.length" class="di-er-empty">カラム未定義</div>
+                <!-- カラム追加 -->
+                <div v-if="erAddColumnTable === table" class="di-er-add-col-form" @click.stop>
+                  <input v-model="erNewColumnName" placeholder="カラム名" @keyup.enter="handleAddColumn(table)" />
+                  <input v-model="erNewColumnType" placeholder="型" @keyup.enter="handleAddColumn(table)" />
+                  <button @click="handleAddColumn(table)" :disabled="!erNewColumnName.trim()" class="di-er-add-col-btn">+</button>
+                </div>
+                <button v-else @click.stop="startAddColumn(table)" class="di-er-add-col-trigger">+ カラム</button>
+              </div>
+              <!-- リレーション表示 -->
+              <div v-if="getRelationsForTable(table).length" class="di-er-card-relations">
+                <div v-for="rel in getRelationsForTable(table)" :key="rel.id" class="di-er-relation">
+                  <span class="di-er-rel-type">{{ rel.type }}</span>
+                  <span>→ {{ rel.fromTable === table ? rel.toTable : rel.fromTable }}</span>
+                  <button v-if="!rel.inferred" @click.stop="store.removeTableRelation(rel.id)" class="di-er-rel-delete">×</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- テーブル追加・リレーション追加UI -->
+          <div class="di-er-add-section">
+            <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+              <button @click="erShowAddTable = !erShowAddTable; erShowAddRelation = false" class="di-btn-small">
+                <Plus style="width: 12px; height: 12px;" /> テーブル追加
+              </button>
+              <button @click="erShowAddRelation = !erShowAddRelation; erShowAddTable = false" class="di-btn-small">
+                <Plus style="width: 12px; height: 12px;" /> リレーション追加
+              </button>
+            </div>
+            <div v-if="erShowAddTable" class="di-er-add-form">
+              <input v-model="erNewTableName" placeholder="テーブル名" @keyup.enter="handleAddTable" style="background: #1e1e1e; border: 1px solid #333; color: #ccc; border-radius: 4px; padding: 4px 6px; font-size: 11px; outline: none;" />
+              <button @click="handleAddTable" :disabled="!erNewTableName.trim()" class="di-btn-small di-btn-primary">追加</button>
+            </div>
+            <div v-if="erShowAddRelation" class="di-er-add-form">
+              <select v-model="erNewRelFrom">
+                <option value="">From テーブル</option>
+                <option v-for="t in store.erTables" :key="t" :value="t">{{ t }}</option>
+              </select>
+              <select v-model="erNewRelType">
+                <option value="has_many">has_many</option>
+                <option value="belongs_to">belongs_to</option>
+                <option value="has_one">has_one</option>
+                <option value="many_to_many">many_to_many</option>
+              </select>
+              <select v-model="erNewRelTo">
+                <option value="">To テーブル</option>
+                <option v-for="t in store.erTables" :key="t" :value="t">{{ t }}</option>
+              </select>
+              <button
+                @click="addRelation"
+                :disabled="!erNewRelFrom || !erNewRelTo"
+                class="di-btn-small di-btn-primary"
+              >追加</button>
+            </div>
+          </div>
+        </div><!-- /tables tab -->
 
         <!-- ===== EXPORT TAB ===== -->
         <div v-show="activeTab === 'export'">
@@ -4385,4 +4624,89 @@ function handleFlowEdgeClick(selector: string) {
   color: #60a5fa;
   font-weight: 600;
 }
+/* ER Diagram Tab */
+.di-er-controls { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 12px; }
+.di-filter-chip {
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: #999;
+  border-radius: 12px;
+  padding: 3px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.di-filter-chip:hover { border-color: rgba(255,255,255,0.2); color: #ccc; }
+.di-filter-chip.active { background: rgba(59,130,246,0.15); border-color: #3b82f6; color: #60a5fa; }
+.di-er-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; padding: 8px 12px; }
+.di-er-card {
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  background: rgba(255,255,255,0.03);
+  cursor: pointer;
+  transition: border-color 0.15s;
+}
+.di-er-card:hover { border-color: rgba(255,255,255,0.2); }
+.di-er-card-focused { border-color: #3b82f6; background: rgba(59,130,246,0.05); }
+.di-er-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  font-weight: 600;
+  font-size: 12px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  color: #e0e0e0;
+}
+.di-er-card-columns { padding: 4px 10px; }
+.di-er-col { display: flex; justify-content: space-between; font-size: 11px; padding: 2px 0; color: #999; }
+.di-er-col-type { color: #666; font-size: 10px; }
+.di-er-empty { font-size: 11px; color: #555; padding: 4px 0; }
+.di-er-card-relations { padding: 4px 10px 6px; border-top: 1px solid rgba(255,255,255,0.06); }
+.di-er-relation { display: flex; align-items: center; gap: 4px; font-size: 10px; color: #888; padding: 1px 0; }
+.di-er-rel-type { color: #3b82f6; font-weight: 500; }
+.di-er-rel-delete { background: none; border: none; color: #ef4444; cursor: pointer; font-size: 12px; padding: 0 2px; }
+.di-er-add-section { padding: 8px 12px; border-top: 1px solid rgba(255,255,255,0.06); }
+.di-er-add-form { display: flex; gap: 4px; margin-top: 6px; flex-wrap: wrap; }
+.di-er-add-form select { background: #1e1e1e; border: 1px solid #333; color: #ccc; border-radius: 4px; padding: 4px 6px; font-size: 11px; }
+.di-er-add-col-trigger {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #555;
+  font-size: 10px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+.di-er-add-col-trigger:hover { color: #60a5fa; }
+.di-er-add-col-form {
+  display: flex;
+  gap: 4px;
+  padding: 3px 10px;
+}
+.di-er-add-col-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 3px 6px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  color: #e2e8f0;
+  border-radius: 3px;
+  font-size: 10px;
+  outline: none;
+}
+.di-er-add-col-form input:focus { border-color: #60a5fa; }
+.di-er-add-col-btn {
+  background: none;
+  border: 1px solid #334155;
+  color: #60a5fa;
+  border-radius: 3px;
+  padding: 2px 8px;
+  cursor: pointer;
+  font-size: 11px;
+}
+.di-er-add-col-btn:hover { border-color: #60a5fa; }
+.di-er-add-col-btn:disabled { opacity: 0.3; cursor: default; }
 </style>

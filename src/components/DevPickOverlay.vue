@@ -82,13 +82,22 @@ function getNoteColor(selector: string): string {
   return '#60a5fa'
 }
 
-// Check if a note annotation matches the current noteHighlightFilter
+// Check if a note annotation matches the current noteHighlightFilter + noteTableFilter
 function matchesNoteFilter(selector: string): boolean {
   const filter = store.noteHighlightFilter
-  if (filter === 'all') return true
+  const tableFilter = store.noteTableFilter
 
   const config = store.getElementConfig(selector)
   if (!config) return false
+
+  // Check table filter first
+  if (tableFilter !== 'all') {
+    const fields = config.fieldInfoList?.length ? config.fieldInfoList : (config.fieldInfo ? [config.fieldInfo] : [])
+    const matchesTable = fields.some(f => f.table === tableFilter || f.table.startsWith(tableFilter + '.'))
+    if (!matchesTable) return false
+  }
+
+  if (filter === 'all') return true
 
   const dt = config.note?.displayType
   const hasCondition = !!(config.note?.condition || config.note?.conditionColumn)
@@ -205,6 +214,11 @@ const existingAnnotations = computed(() => {
         if (openModal && !isInsideModal(element, openModal)) continue
 
         const rect = element.getBoundingClientRect()
+
+        // Skip elements that are effectively hidden (e.g. inside closed accordion/collapse)
+        if (rect.width === 0 || rect.height === 0) continue
+        if (!element.offsetParent && element.tagName !== 'BODY' && getComputedStyle(element).position !== 'fixed') continue
+
         const config = store.getElementConfig(selector)
         const isStatic = config?.sourceBinding?.isStatic || false
         const bindingType = config?.sourceBinding?.type || ''
@@ -478,6 +492,10 @@ const analysisHighlights = computed(() => {
 
       const rect = element.getBoundingClientRect()
 
+      // Skip elements that are effectively hidden (e.g. inside closed accordion/collapse)
+      if (rect.width === 0 || rect.height === 0) continue
+      if (!element.offsetParent && element.tagName !== 'BODY' && getComputedStyle(element).position !== 'fixed') continue
+
       // Skip very large elements (likely containers)
       if (rect.width > window.innerWidth * 0.8 || rect.height > window.innerHeight * 0.5) {
         continue
@@ -628,6 +646,11 @@ const unannotatedHighlights = computed(() => {
       if (openModal && !isInsideModal(element, openModal)) continue
 
       const rect = element.getBoundingClientRect()
+
+      // Skip elements that are effectively hidden (e.g. inside closed accordion/collapse)
+      if (rect.width === 0 || rect.height === 0) continue
+      if (!element.offsetParent && element.tagName !== 'BODY' && getComputedStyle(element).position !== 'fixed') continue
+
       highlights.push({
         selector: uEl.selector,
         top: `${rect.top + _scrollY}px`,

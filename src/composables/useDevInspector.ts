@@ -142,6 +142,27 @@ export interface MasterDefinition {
   updatedAt: string
 }
 
+export interface TableRelation {
+  id: string                    // "users->sheets" 的なユニークキー
+  fromTable: string             // 親テーブル (例: "users")
+  toTable: string               // 子テーブル (例: "sheets")
+  type: 'has_many' | 'belongs_to' | 'has_one' | 'many_to_many'
+  foreignKey?: string           // 外部キー (例: "user_id")
+  description?: string
+  inferred: boolean             // true = 自動推定, false = 手動追加
+}
+
+export interface ManualColumnDef {
+  column: string
+  type?: string
+}
+
+export interface ManualTableDef {
+  name: string                    // テーブル名 (例: "users")
+  columns: ManualColumnDef[]
+  description?: string
+}
+
 export interface EmailSpec {
   trigger: string             // 送信トリガー (例: "注文確定時", "ボタンクリック")
   to: string                  // 宛先 (例: "ユーザーメール", "管理者固定")
@@ -468,6 +489,16 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   // Note highlight filter by displayType
   const noteHighlightFilter = ref<'all' | 'db' | 'calculated' | 'storedCalc' | 'static' | 'conditional' | 'action' | 'form' | 'other'>('all')
 
+  // Note highlight filter by DB table name
+  const noteTableFilter = ref<string>('all')
+
+  // ER diagram state
+  const tableRelations = ref<TableRelation[]>([])
+  const erFocusTable = ref<string | null>(null)  // null = 全テーブル表示
+
+  // Manual table definitions (ER diagram)
+  const manualTables = ref<ManualTableDef[]>([])
+
   // Cross Search state
   const showCrossSearch = ref(false)
   const crossSearchQuery = ref('')
@@ -505,6 +536,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     loadMasterDefinitions()
     loadBatchDefinitions()
     loadHiddenSelectors()
+    loadTableRelations()
+    loadManualTables()
 
     // Load analysis data if provided directly
     if (opts.analysisData) {
@@ -2678,6 +2711,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     return JSON.stringify({
       elementConfigs: elementConfigs.value,
       screenConfigs: screenConfigs.value,
+      manualTables: manualTables.value,
+      tableRelations: tableRelations.value,
     }, null, 2)
   }
 
@@ -2690,6 +2725,8 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       },
       annotations: elementConfigs.value,
       screenConfigs: screenConfigs.value,
+      manualTables: manualTables.value,
+      tableRelations: tableRelations.value,
     }
     return JSON.stringify(fileContent, null, 2)
   }
@@ -2716,6 +2753,24 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
       // Import screen configs if present
       if (parsed.screenConfigs) {
         screenConfigs.value = { ...screenConfigs.value, ...parsed.screenConfigs }
+      }
+      // Import manual tables if present
+      if (parsed.manualTables?.length) {
+        for (const t of parsed.manualTables) {
+          if (!manualTables.value.some(existing => existing.name === t.name)) {
+            manualTables.value.push(t)
+          }
+        }
+        saveManualTables()
+      }
+      // Import table relations if present
+      if (parsed.tableRelations?.length) {
+        for (const r of parsed.tableRelations) {
+          if (!tableRelations.value.some(existing => existing.id === r.id)) {
+            tableRelations.value.push(r)
+          }
+        }
+        saveTableRelations()
       }
     } catch (e) {
       console.error('[DevInspector] Failed to import configs:', e)
@@ -2751,6 +2806,199 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     a.click()
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
+  }
+
+  // ===== ER Diagram =====
+
+  // 全テーブル名を収集（アノテーション + 手動定義）
+  const erTables = computed(() => {
+    const tables = new Set<string>()
+    // 1. アノテーションから自動収集
+    for (const config of Object.values(elementConfigs.value)) {
+      if (config.fieldInfo?.table) {
+        const parts = config.fieldInfo.table.split('.')
+        parts.forEach((_, i) => tables.add(parts.slice(0, i + 1).join('.')))
+      }
+      if (config.fieldInfoList) {
+        for (const f of config.fieldInfoList) {
+          if (f.table) {
+            const parts = f.table.split('.')
+            parts.forEach((_, i) => tables.add(parts.slice(0, i + 1).join('.')))
+          }
+        }
+      }
+    }
+    // 2. 手動定義を追加
+    for (const t of manualTables.value) {
+      tables.add(t.name)
+    }
+    return [...tables].sort()
+  })
+
+  // リレーション（自動推定 + 手動）
+  const erRelations = computed(() => {
+    const relations: TableRelation[] = []
+    const seen = new Set<string>()
+    const allTables = erTables.value
+
+    // 1. ドット記法から推定: "users.sheets" → users has_many sheets
+    for (const t of allTables) {
+      const parts = t.split('.')
+      if (parts.length >= 2) {
+        const parent = parts.slice(0, -1).join('.')
+        const child = t
+        const key = `${parent}->${child}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          relations.push({
+            id: key, fromTable: parent, toTable: child,
+            type: 'has_many', inferred: true,
+          })
+        }
+      }
+    }
+
+    // 2. _id サフィックスから推定
+    for (const config of Object.values(elementConfigs.value)) {
+      const fields = config.fieldInfoList || (config.fieldInfo ? [config.fieldInfo] : [])
+      for (const f of fields) {
+        if (f.column?.endsWith('_id') && f.table) {
+          const refTable = f.column.slice(0, -3) + 's' // user_id → users
+          if (allTables.includes(refTable) || allTables.some(t => t.endsWith('.' + refTable))) {
+            const key = `${f.table}->${refTable}`
+            if (!seen.has(key)) {
+              seen.add(key)
+              relations.push({
+                id: key, fromTable: f.table, toTable: refTable,
+                type: 'belongs_to', foreignKey: f.column, inferred: true,
+              })
+            }
+          }
+        }
+      }
+    }
+
+    // 3. 手動リレーション追加
+    for (const r of tableRelations.value) {
+      if (!seen.has(r.id)) {
+        seen.add(r.id)
+        relations.push(r)
+      }
+    }
+
+    return relations
+  })
+
+  // テーブルごとのカラム情報（アノテーション + 手動定義）
+  const erTableColumns = computed(() => {
+    const map: Record<string, { column: string; type?: string }[]> = {}
+    // 1. アノテーションから自動収集
+    for (const config of Object.values(elementConfigs.value)) {
+      const fields = config.fieldInfoList || (config.fieldInfo ? [config.fieldInfo] : [])
+      for (const f of fields) {
+        if (!f.table) continue
+        if (!map[f.table]) map[f.table] = []
+        if (!map[f.table].some(c => c.column === f.column)) {
+          map[f.table].push({ column: f.column, type: f.type })
+        }
+      }
+    }
+    // 2. 手動カラムを追加（重複スキップ）
+    for (const t of manualTables.value) {
+      if (!map[t.name]) map[t.name] = []
+      for (const c of t.columns) {
+        if (!map[t.name].some(existing => existing.column === c.column)) {
+          map[t.name].push({ column: c.column, type: c.type })
+        }
+      }
+    }
+    return map
+  })
+
+  function addTableRelation(relation: Omit<TableRelation, 'id' | 'inferred'>) {
+    const id = `${relation.fromTable}->${relation.toTable}`
+    const existing = tableRelations.value.findIndex(r => r.id === id)
+    const newRelation: TableRelation = { ...relation, id, inferred: false }
+    if (existing >= 0) {
+      tableRelations.value[existing] = newRelation
+    } else {
+      tableRelations.value.push(newRelation)
+    }
+    saveTableRelations()
+  }
+
+  function removeTableRelation(id: string) {
+    tableRelations.value = tableRelations.value.filter(r => r.id !== id)
+    saveTableRelations()
+  }
+
+  function saveTableRelations() {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`${storageKey.value}:tableRelations`, JSON.stringify(tableRelations.value))
+      }
+    } catch (e) {
+      console.error('[DevInspector] Failed to save table relations:', e)
+    }
+  }
+
+  function loadTableRelations() {
+    try {
+      if (typeof window !== 'undefined') {
+        const raw = localStorage.getItem(`${storageKey.value}:tableRelations`)
+        if (raw) tableRelations.value = JSON.parse(raw)
+      }
+    } catch (e) {
+      console.error('[DevInspector] Failed to load table relations:', e)
+    }
+  }
+
+  // ===== Manual Table CRUD =====
+
+  function saveManualTables() {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem(`${storageKey.value}:manualTables`, JSON.stringify(manualTables.value))
+      }
+    } catch (e) {
+      console.error('[DevInspector] Failed to save manual tables:', e)
+    }
+  }
+
+  function loadManualTables() {
+    try {
+      if (typeof window !== 'undefined') {
+        const raw = localStorage.getItem(`${storageKey.value}:manualTables`)
+        if (raw) manualTables.value = JSON.parse(raw)
+      }
+    } catch (e) {
+      console.error('[DevInspector] Failed to load manual tables:', e)
+    }
+  }
+
+  function addManualTable(name: string) {
+    if (!name || manualTables.value.some(t => t.name === name)) return
+    manualTables.value.push({ name, columns: [] })
+    saveManualTables()
+  }
+
+  function removeManualTable(name: string) {
+    manualTables.value = manualTables.value.filter(t => t.name !== name)
+    saveManualTables()
+  }
+
+  function addManualColumn(tableName: string, column: string, type?: string) {
+    const table = manualTables.value.find(t => t.name === tableName)
+    if (!table || table.columns.some(c => c.column === column)) return
+    table.columns.push({ column, type })
+    saveManualTables()
+  }
+
+  function removeManualColumn(tableName: string, columnName: string) {
+    const table = manualTables.value.find(t => t.name === tableName)
+    if (!table) return
+    table.columns = table.columns.filter(c => c.column !== columnName)
+    saveManualTables()
   }
 
   return {
@@ -2834,6 +3082,7 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     showNoteHighlights,
     toggleNoteHighlights,
     noteHighlightFilter,
+    noteTableFilter,
     // Element type detection
     detectElementType,
     // Master definitions
@@ -2871,6 +3120,20 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     // Screen Flow
     showScreenFlow,
     screenFlowData,
+    // ER diagram
+    erTables,
+    erRelations,
+    erTableColumns,
+    erFocusTable,
+    tableRelations,
+    addTableRelation,
+    removeTableRelation,
+    // Manual tables
+    manualTables,
+    addManualTable,
+    removeManualTable,
+    addManualColumn,
+    removeManualColumn,
   }
 })
 
