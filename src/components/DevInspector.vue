@@ -15,7 +15,7 @@ const store = useDevInspectorStore()
 
 // Ctrl+Shift+D keyboard shortcut
 function handleKeydown(e: KeyboardEvent) {
-  if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+  if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
     e.preventDefault()
     store.toggle()
   }

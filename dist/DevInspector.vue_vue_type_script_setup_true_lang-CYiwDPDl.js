@@ -23,13 +23,13 @@ var ul = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const mo = (le) => le.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), W = (le, k) => ({ size: r, strokeWidth: D = 2, absoluteStrokeWidth: q, color: N, class: oe, ...ce }, { attrs: be, slots: Y }) => Ml(
+const mo = (le) => le.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), W = (le, k) => ({ size: r, strokeWidth: D = 2, absoluteStrokeWidth: q, color: J, class: oe, ...ce }, { attrs: be, slots: Y }) => Ml(
   "svg",
   {
     ...ul,
     width: r || ul.width,
     height: r || ul.height,
-    stroke: N || ul.stroke,
+    stroke: J || ul.stroke,
     "stroke-width": q ? Number(D) * 24 / Number(r) : D,
     ...be,
     class: ["lucide", `lucide-${mo(le)}`],
@@ -527,7 +527,7 @@ const Bo = W("ZapIcon", [
 ]);
 async function Ao(le, k, r = {}) {
   var De;
-  const D = await import("./xlsx-BopDBbWb.js"), { systemName: q = "System", author: N = "" } = r, oe = /* @__PURE__ */ new Date(), ce = `${oe.getFullYear()}/${oe.getMonth() + 1}/${oe.getDate()}`, be = D.utils.book_new(), Y = [];
+  const D = await import("./xlsx-BopDBbWb.js"), { systemName: q = "System", author: J = "" } = r, oe = /* @__PURE__ */ new Date(), ce = `${oe.getFullYear()}/${oe.getMonth() + 1}/${oe.getDate()}`, be = D.utils.book_new(), Y = [];
   Y.push([
     "画面機能仕様書",
     "",
@@ -567,7 +567,7 @@ async function Ao(le, k, r = {}) {
     "",
     "",
     "",
-    N,
+    J,
     "",
     "作成日",
     "",
@@ -1081,7 +1081,7 @@ const Lo = {
 }, fu = { class: "di-modal-actions" }, bu = ["disabled"], hu = /* @__PURE__ */ ol({
   __name: "DevPanel",
   setup(le) {
-    const k = vl("teleportTarget", "body"), r = nl(), D = h("elements"), q = h(!1), N = h(!1), oe = h(""), ce = h(""), be = h(!1), Y = h(""), me = h(""), Ue = h("has_many"), Ce = h(!1), _e = h(""), De = h(null), U = h(""), Ve = h(""), Ee = {
+    const k = vl("teleportTarget", "body"), r = nl(), D = h("elements"), q = h(!1), J = h(!1), oe = h(""), ce = h(""), be = h(!1), Y = h(""), me = h(""), Ue = h("has_many"), Ce = h(!1), _e = h(""), De = h(null), U = h(""), Ve = h(""), Ee = {
       GET: "#10b981",
       POST: "#3b82f6",
       PUT: "#f59e0b",
@@ -1225,7 +1225,7 @@ const Lo = {
     }
     function dt() {
       try {
-        r.importConfigs(oe.value), oe.value = "", ce.value = "", N.value = !1;
+        r.importConfigs(oe.value), oe.value = "", ce.value = "", J.value = !1;
       } catch {
         ce.value = "JSONの形式が正しくありません";
       }
@@ -1365,7 +1365,7 @@ const Lo = {
     function Pt(u) {
       pe.value.transitions.splice(u, 1);
     }
-    function J(u) {
+    function Q(u) {
       confirm(`マスタ定義「${u}」を削除しますか？`) && r.deleteMasterDefinition(u);
     }
     const he = h(!1), ve = h(null), R = h({
@@ -1507,7 +1507,7 @@ const Lo = {
       } catch {
       }
     }
-    function Q() {
+    function N() {
       r.hoveredSelector = null;
     }
     const xe = h(null), Te = h(null);
@@ -1752,7 +1752,7 @@ const Lo = {
                         onDragend: Lt,
                         onClick: (m) => a(r).startEditing(s.id),
                         onMouseenter: (m) => re(s.id),
-                        onMouseleave: Q
+                        onMouseleave: N
                       }, [
                         e("span", {
                           class: A(["di-element-type-badge", "di-element-type-" + (s.type || "other")])
@@ -1823,7 +1823,7 @@ const Lo = {
                               onDragend: Lt,
                               onClick: ($) => a(r).startEditing(c.id),
                               onMouseenter: ($) => re(c.id),
-                              onMouseleave: Q
+                              onMouseleave: N
                             }, [
                               e("span", {
                                 class: A(["di-element-type-badge", "di-element-type-" + (c.type || "other")])
@@ -1882,7 +1882,7 @@ const Lo = {
                                     onDragend: Lt,
                                     onClick: (ae) => a(r).startEditing(M.id),
                                     onMouseenter: (ae) => re(M.id),
-                                    onMouseleave: Q
+                                    onMouseleave: N
                                   }, [
                                     e("span", {
                                       class: A(["di-element-type-badge", "di-element-type-" + (M.type || "other")])
@@ -1941,7 +1941,7 @@ const Lo = {
                                           onDragend: Lt,
                                           onClick: (wt) => a(r).startEditing(ie.id),
                                           onMouseenter: (wt) => re(ie.id),
-                                          onMouseleave: Q
+                                          onMouseleave: N
                                         }, [
                                           e("span", {
                                             class: A(["di-element-type-badge", "di-element-type-" + (ie.type || "other")])
@@ -2019,7 +2019,7 @@ const Lo = {
                               onDragend: Lt,
                               onClick: ($) => a(r).startEditing(c.id),
                               onMouseenter: ($) => re(c.id),
-                              onMouseleave: Q
+                              onMouseleave: N
                             }, [
                               e("span", {
                                 class: A(["di-element-type-badge", "di-element-type-" + (c.type || "other")])
@@ -2078,7 +2078,7 @@ const Lo = {
                                     onDragend: Lt,
                                     onClick: (ae) => a(r).startEditing(M.id),
                                     onMouseenter: (ae) => re(M.id),
-                                    onMouseleave: Q
+                                    onMouseleave: N
                                   }, [
                                     e("span", {
                                       class: A(["di-element-type-badge", "di-element-type-" + (M.type || "other")])
@@ -2140,7 +2140,7 @@ const Lo = {
                             onDragend: Lt,
                             onClick: (m) => a(r).startEditing(s.id),
                             onMouseenter: (m) => re(s.id),
-                            onMouseleave: Q
+                            onMouseleave: N
                           }, [
                             e("span", {
                               class: A(["di-element-type-badge", "di-element-type-" + (s.type || "other")])
@@ -2674,7 +2674,7 @@ const Lo = {
                         ft.value ? (n(), i("button", {
                           key: 0,
                           onClick: t[41] || (t[41] = (s) => {
-                            J(ft.value), mt.value = !1;
+                            Q(ft.value), mt.value = !1;
                           }),
                           class: "di-btn-small di-btn-danger"
                         }, "削除")) : p("", !0),
@@ -3185,7 +3185,7 @@ const Lo = {
                     t[171] || (t[171] = j(" エクスポート ", -1))
                   ]),
                   e("button", {
-                    onClick: t[75] || (t[75] = (s) => N.value = !0),
+                    onClick: t[75] || (t[75] = (s) => J.value = !0),
                     class: "di-btn-small"
                   }, [
                     I(a(Po), { style: { width: "14px", height: "14px" } }),
@@ -3270,10 +3270,10 @@ const Lo = {
           ])) : p("", !0)
         ], 8, ["to"])),
         (n(), vt(Dt, { to: a(k) }, [
-          N.value ? (n(), i("div", {
+          J.value ? (n(), i("div", {
             key: 0,
             class: "di-modal-overlay",
-            onClick: t[80] || (t[80] = te((s) => N.value = !1, ["self"])),
+            onClick: t[80] || (t[80] = te((s) => J.value = !1, ["self"])),
             "data-dev-inspector": ""
           }, [
             e("div", vu, [
@@ -3297,7 +3297,7 @@ const Lo = {
               e("div", fu, [
                 e("button", {
                   onClick: t[79] || (t[79] = (s) => {
-                    N.value = !1, oe.value = "", ce.value = "";
+                    J.value = !1, oe.value = "", ce.value = "";
                   }),
                   class: "di-btn-small"
                 }, " キャンセル "),
@@ -3464,7 +3464,7 @@ const Lo = {
 }, lp = ["onUpdate:modelValue"], op = ["onUpdate:modelValue"], np = ["onUpdate:modelValue"], sp = { class: "di-csv-col-act" }, ip = ["onClick", "disabled"], ap = ["onClick", "disabled"], dp = ["onClick"], up = { class: "di-form-group" }, rp = { class: "di-form-group" }, cp = { class: "di-form-group" }, vp = { class: "di-form-group" }, pp = { class: "di-editor-footer" }, mp = { class: "di-editor-actions" }, fp = /* @__PURE__ */ ol({
   __name: "DevElementEditor",
   setup(le) {
-    const k = nl(), r = vl("teleportTarget", "body"), D = h("datasource"), q = h(""), N = h(""), oe = h(""), ce = h(""), be = h(""), Y = h(!1), me = h([]), Ue = h(""), Ce = h(""), _e = h(""), De = h(""), U = h([]), Ve = h("UTF-8"), Ee = h(","), Pe = h(!0), st = h(""), Z = h(""), Oe = h(""), Me = h(void 0), ye = h(""), B = h(""), E = h(""), g = h([]), O = h(""), ee = h(""), ne = h(""), G = h(""), K = h(""), L = h(""), _ = h(""), V = h([]), fe = h(""), X = h(""), de = h(""), ue = h(""), qe = h(!0), Xe = h(""), yt = h(""), pt = h(""), it = h(!1), at = h(""), dt = h(""), Qe = h(""), ut = h(""), rt = h(""), Ne = h(""), ge = h([]), Be = h(""), Se = h(""), ct = h(""), Tt = h(""), gt = h(""), et = h(""), Et = h(!1), Ct = h(!1), zt = H(() => {
+    const k = nl(), r = vl("teleportTarget", "body"), D = h("datasource"), q = h(""), J = h(""), oe = h(""), ce = h(""), be = h(""), Y = h(!1), me = h([]), Ue = h(""), Ce = h(""), _e = h(""), De = h(""), U = h([]), Ve = h("UTF-8"), Ee = h(","), Pe = h(!0), st = h(""), Z = h(""), Oe = h(""), Me = h(void 0), ye = h(""), B = h(""), E = h(""), g = h([]), O = h(""), ee = h(""), ne = h(""), G = h(""), K = h(""), L = h(""), _ = h(""), V = h([]), fe = h(""), X = h(""), de = h(""), ue = h(""), qe = h(!0), Xe = h(""), yt = h(""), pt = h(""), it = h(!1), at = h(""), dt = h(""), Qe = h(""), ut = h(""), rt = h(""), Ne = h(""), ge = h([]), Be = h(""), Se = h(""), ct = h(""), Tt = h(""), gt = h(""), et = h(""), Et = h(!1), Ct = h(!1), zt = H(() => {
       const y = /* @__PURE__ */ new Set();
       for (const l of Object.values(k.elementConfigs))
         l.tabContext && y.add(l.tabContext);
@@ -3503,7 +3503,7 @@ const Lo = {
         if (y.table && y.column) return `${y.table}.${y.column}`;
       }
       return "";
-    }), Pt = H(() => We.value && k.getMasterDefinition(We.value) || null), J = h("db_direct"), he = h([]), ve = h(""), R = h(""), Re = h(""), Ke = h(""), Ae = h(""), Ie = h([]), d = h(""), qt = h(!1), It = h(""), se = h(""), $e = h(""), bt = h(""), tt = h(""), Ge = h(!1), Mt = h(""), je = h([]), lt = h(""), Bt = h(!1), At = h(""), Ze = h(""), F = h(""), ke = h(""), Le = h(""), Ye = h(!1), re = h(""), Q = h(""), xe = h(""), Te = h(!1), St = H(() => Q.value ? {
+    }), Pt = H(() => We.value && k.getMasterDefinition(We.value) || null), Q = h("db_direct"), he = h([]), ve = h(""), R = h(""), Re = h(""), Ke = h(""), Ae = h(""), Ie = h([]), d = h(""), qt = h(!1), It = h(""), se = h(""), $e = h(""), bt = h(""), tt = h(""), Ge = h(!1), Mt = h(""), je = h([]), lt = h(""), Bt = h(!1), At = h(""), Ze = h(""), F = h(""), ke = h(""), Le = h(""), Ye = h(!1), re = h(""), N = h(""), xe = h(""), Te = h(!1), St = H(() => N.value ? {
       data: "data",
       "v-model": "v-model",
       prop: "prop",
@@ -3512,7 +3512,7 @@ const Lo = {
       store: "store",
       api: "data"
       // legacy compatibility
-    }[Q.value] || Q.value : ""), Lt = H(() => k.editingElementId !== null), Je = H(() => k.editingElementId), Ft = H(() => q.value === "csv_export" || q.value === "csv_import"), Ot = H(() => q.value === "email"), Ut = H(() => Ft.value || Ot.value), ot = [
+    }[N.value] || N.value : ""), Lt = H(() => k.editingElementId !== null), Je = H(() => k.editingElementId), Ft = H(() => q.value === "csv_export" || q.value === "csv_import"), Ot = H(() => q.value === "email"), Ut = H(() => Ft.value || Ot.value), ot = [
       { value: "db_direct", label: "DBカラム (そのまま)", icon: Kt, color: "#3b82f6", description: "DBの値をそのまま表示" },
       { value: "db_formatted", label: "DBカラム (整形)", icon: cl, color: "#8b5cf6", description: "DBの値を整形して表示" },
       { value: "calculated", label: "計算値", icon: Sl, color: "#f59e0b", description: "複数カラムから計算" },
@@ -3530,24 +3530,24 @@ const Lo = {
             const z = f.querySelector("[data-di-binding]") || (f.hasAttribute("data-di-binding") ? f : null) || f.closest("[data-di-binding]");
             if (z) {
               const Fe = z.getAttribute("data-di-binding"), Wt = z.getAttribute("data-di-db"), bl = z.getAttribute("data-di-db-type"), Zt = z.getAttribute("data-di-db-comment");
-              if (Fe && (xe.value = Fe, Q.value = "data", Te.value = !1), Wt) {
+              if (Fe && (xe.value = Fe, N.value = "data", Te.value = !1), Wt) {
                 const [Tl, Il] = Wt.split(".");
                 Tl && Il && (he.value.push({
                   table: Tl,
                   column: Il,
                   type: bl || void 0,
                   description: Zt || void 0
-                }), J.value || (J.value = "db_direct"));
+                }), Q.value || (Q.value = "db_direct"));
               }
             }
           }
         } catch (f) {
           console.warn("[DevInspector] Failed to read element:", f);
         }
-        o != null && o.fieldInfoList && o.fieldInfoList.length > 0 ? he.value = o.fieldInfoList.map((f) => ({ ...f })) : o != null && o.fieldInfo && (he.value = [{ ...o.fieldInfo }]), ve.value = "", R.value = "", Re.value = "", Ke.value = "", o != null && o.note && (re.value = o.note.text || re.value, J.value = o.note.displayType || J.value, Ae.value = o.note.formatDescription || "", It.value = o.note.sampleValue || "", se.value = o.note.decimalHandling || "", $e.value = o.note.unit || "", bt.value = o.note.nullDisplay || "", tt.value = o.note.displayFormat || "", Xl(o.note.calcDescription || "", o.note.calcSources || []), Ge.value = o.note.storedCalc || !1, Mt.value = o.note.storedCalcLogic || "", je.value = o.note.storedCalcSources ? [...o.note.storedCalcSources] : [], At.value = o.note.storedCalcTiming || "", Ze.value = o.note.condition || "", F.value = o.note.conditionColumn || "", ke.value = o.note.hiddenBehavior || "", Le.value = o.note.hiddenNote || "", Ye.value = !!(o.note.condition || o.note.conditionColumn)), o != null && o.sourceBinding && (Q.value = o.sourceBinding.type || Q.value, xe.value = o.sourceBinding.source || xe.value, Te.value = o.sourceBinding.isStatic || !1), gt.value = (o == null ? void 0 : o.tabContext) || k.detectTabContext(y) || "";
+        o != null && o.fieldInfoList && o.fieldInfoList.length > 0 ? he.value = o.fieldInfoList.map((f) => ({ ...f })) : o != null && o.fieldInfo && (he.value = [{ ...o.fieldInfo }]), ve.value = "", R.value = "", Re.value = "", Ke.value = "", o != null && o.note && (re.value = o.note.text || re.value, Q.value = o.note.displayType || Q.value, Ae.value = o.note.formatDescription || "", It.value = o.note.sampleValue || "", se.value = o.note.decimalHandling || "", $e.value = o.note.unit || "", bt.value = o.note.nullDisplay || "", tt.value = o.note.displayFormat || "", Xl(o.note.calcDescription || "", o.note.calcSources || []), Ge.value = o.note.storedCalc || !1, Mt.value = o.note.storedCalcLogic || "", je.value = o.note.storedCalcSources ? [...o.note.storedCalcSources] : [], At.value = o.note.storedCalcTiming || "", Ze.value = o.note.condition || "", F.value = o.note.conditionColumn || "", ke.value = o.note.hiddenBehavior || "", Le.value = o.note.hiddenNote || "", Ye.value = !!(o.note.condition || o.note.conditionColumn)), o != null && o.sourceBinding && (N.value = o.sourceBinding.type || N.value, xe.value = o.sourceBinding.source || xe.value, Te.value = o.sourceBinding.isStatic || !1), gt.value = (o == null ? void 0 : o.tabContext) || k.detectTabContext(y) || "";
         const C = k.detectModalName(y);
         if (et.value = (o == null ? void 0 : o.modalName) || C || "", o != null && o.actionInfo) {
-          if (q.value = o.actionInfo.type || "", N.value = o.actionInfo.target || "", oe.value = o.actionInfo.method || "", ce.value = o.actionInfo.description || "", o.actionInfo.csvSpec) {
+          if (q.value = o.actionInfo.type || "", J.value = o.actionInfo.target || "", oe.value = o.actionInfo.method || "", ce.value = o.actionInfo.description || "", o.actionInfo.csvSpec) {
             const f = o.actionInfo.csvSpec;
             U.value = f.columns.map((z) => ({ ...z })), Ve.value = f.encoding || "UTF-8", Ee.value = f.delimiter || ",", Pe.value = f.hasHeaderRow !== !1, st.value = f.filenamePattern || "", Z.value = f.sortOrder || "", Oe.value = f.filterCondition || "", Me.value = f.maxRows, ye.value = f.errorHandling || "", B.value = f.duplicateHandling || "", E.value = f.preValidation || "", g.value = f.errorDefs ? f.errorDefs.map((z) => ({ ...z })) : [];
           }
@@ -3568,7 +3568,7 @@ const Lo = {
         Ht();
     });
     function Ht() {
-      D.value = "datasource", J.value = "db_direct", he.value = [], ve.value = "", R.value = "", Re.value = "", Ke.value = "", Ae.value = "", It.value = "", se.value = "", $e.value = "", bt.value = "", tt.value = "", Ie.value = [], d.value = "", Ge.value = !1, Mt.value = "", je.value = [], lt.value = "", At.value = "", Ze.value = "", F.value = "", ke.value = "", Le.value = "", Ye.value = !1, re.value = "", Q.value = "", xe.value = "", Te.value = !1, q.value = "", N.value = "", oe.value = "", ce.value = "", U.value = [], Ve.value = "UTF-8", Ee.value = ",", Pe.value = !0, st.value = "", Z.value = "", Oe.value = "", Me.value = void 0, ye.value = "", B.value = "", E.value = "", g.value = [], be.value = "", Y.value = !1, me.value = [], Ue.value = "", Ce.value = "", _e.value = "", De.value = "", O.value = "", ee.value = "", ne.value = "", G.value = "", K.value = "", L.value = "", _.value = "", V.value = [], fe.value = "", X.value = "", de.value = "", ue.value = "", qe.value = !0, Xe.value = "", yt.value = "", pt.value = "", it.value = !1, at.value = "", dt.value = "", Qe.value = "", ut.value = "", rt.value = "", Ne.value = "", ge.value = [], Be.value = "", Se.value = "", ct.value = "", Tt.value = "", gt.value = "", et.value = "", ze.value = !1, He.value = [];
+      D.value = "datasource", Q.value = "db_direct", he.value = [], ve.value = "", R.value = "", Re.value = "", Ke.value = "", Ae.value = "", It.value = "", se.value = "", $e.value = "", bt.value = "", tt.value = "", Ie.value = [], d.value = "", Ge.value = !1, Mt.value = "", je.value = [], lt.value = "", At.value = "", Ze.value = "", F.value = "", ke.value = "", Le.value = "", Ye.value = !1, re.value = "", N.value = "", xe.value = "", Te.value = !1, q.value = "", J.value = "", oe.value = "", ce.value = "", U.value = [], Ve.value = "UTF-8", Ee.value = ",", Pe.value = !0, st.value = "", Z.value = "", Oe.value = "", Me.value = void 0, ye.value = "", B.value = "", E.value = "", g.value = [], be.value = "", Y.value = !1, me.value = [], Ue.value = "", Ce.value = "", _e.value = "", De.value = "", O.value = "", ee.value = "", ne.value = "", G.value = "", K.value = "", L.value = "", _.value = "", V.value = [], fe.value = "", X.value = "", de.value = "", ue.value = "", qe.value = !0, Xe.value = "", yt.value = "", pt.value = "", it.value = !1, at.value = "", dt.value = "", Qe.value = "", ut.value = "", rt.value = "", Ne.value = "", ge.value = [], Be.value = "", Se.value = "", ct.value = "", Tt.value = "", gt.value = "", et.value = "", ze.value = !1, He.value = [];
     }
     function xt() {
       k.stopEditing(), Ht();
@@ -3579,12 +3579,12 @@ const Lo = {
           const y = document.querySelector(Je.value);
           if (!y) return;
           const l = k.autoDetectElementInfo(y, Je.value);
-          l.sourceBinding && (Q.value = l.sourceBinding.type || "", xe.value = l.sourceBinding.source || "", Te.value = l.sourceBinding.isStatic || !1, l.sourceBinding.isStatic && !J.value && (J.value = "static", re.value = re.value || "固定文言")), l.fieldInfo && (he.value.push({
+          l.sourceBinding && (N.value = l.sourceBinding.type || "", xe.value = l.sourceBinding.source || "", Te.value = l.sourceBinding.isStatic || !1, l.sourceBinding.isStatic && !Q.value && (Q.value = "static", re.value = re.value || "固定文言")), l.fieldInfo && (he.value.push({
             table: l.fieldInfo.table || "",
             column: l.fieldInfo.column || "",
             type: l.fieldInfo.type || void 0,
             description: l.fieldInfo.description || void 0
-          }), J.value || (J.value = "db_direct")), l.note && !re.value && (re.value = l.note.text || "");
+          }), Q.value || (Q.value = "db_direct")), l.note && !re.value && (re.value = l.note.text || "");
         } catch (y) {
           console.error("[DevInspector] Auto-detect failed:", y);
         }
@@ -3592,18 +3592,18 @@ const Lo = {
     function Gt() {
       if (!Je.value) return;
       const y = [...he.value];
-      (J.value === "db_direct" || J.value === "db_formatted") && ve.value && R.value && y.push({
+      (Q.value === "db_direct" || Q.value === "db_formatted") && ve.value && R.value && y.push({
         table: ve.value,
         column: R.value,
         type: Re.value || void 0,
         description: Ke.value || void 0
       });
-      const l = y.length > 0 ? y : void 0, o = y.length > 0 ? y[0] : void 0, C = J.value === "db_direct" || J.value === "db_formatted", f = J.value || re.value ? {
+      const l = y.length > 0 ? y : void 0, o = y.length > 0 ? y[0] : void 0, C = Q.value === "db_direct" || Q.value === "db_formatted", f = Q.value || re.value ? {
         text: re.value || "",
-        displayType: J.value,
-        formatDescription: J.value === "db_formatted" && Ae.value || void 0,
-        calcDescription: J.value === "calculated" && Yl() || void 0,
-        calcSources: J.value === "calculated" && kl().length > 0 ? kl() : void 0,
+        displayType: Q.value,
+        formatDescription: Q.value === "db_formatted" && Ae.value || void 0,
+        calcDescription: Q.value === "calculated" && Yl() || void 0,
+        calcSources: Q.value === "calculated" && kl().length > 0 ? kl() : void 0,
         // 保存済み計算値 (db_direct / db_formatted のみ)
         storedCalc: C && Ge.value ? !0 : void 0,
         storedCalcLogic: C && Ge.value && Mt.value || void 0,
@@ -3618,13 +3618,13 @@ const Lo = {
         conditionColumn: F.value || void 0,
         hiddenBehavior: ke.value || void 0,
         hiddenNote: Le.value || void 0
-      } : void 0, z = Q.value ? {
-        type: Q.value,
+      } : void 0, z = N.value ? {
+        type: N.value,
         source: xe.value || void 0,
         isStatic: Te.value
       } : void 0, Fe = D.value === "action" && q.value ? {
         type: q.value,
-        target: N.value || void 0,
+        target: J.value || void 0,
         method: oe.value ? oe.value : void 0,
         description: ce.value || void 0,
         csvSpec: so(),
@@ -4016,7 +4016,7 @@ const Lo = {
           ]),
           St.value ? (n(), i("div", xu, [
             e("span", {
-              class: A(["di-source-badge", "di-source-" + Q.value])
+              class: A(["di-source-badge", "di-source-" + N.value])
             }, v(St.value), 3),
             xe.value ? (n(), i("span", wu, v(xe.value), 1)) : p("", !0)
           ])) : p("", !0),
@@ -4105,22 +4105,22 @@ const Lo = {
                 e("div", Bu, [
                   (n(), i(T, null, S(ot, (o) => e("button", {
                     key: o.value,
-                    onClick: (C) => J.value = o.value,
-                    class: A(["di-display-type-card", { "di-display-type-active": J.value === o.value }]),
-                    style: nt(J.value === o.value ? { borderColor: o.color, background: o.color + "18" } : {})
+                    onClick: (C) => Q.value = o.value,
+                    class: A(["di-display-type-card", { "di-display-type-active": Q.value === o.value }]),
+                    style: nt(Q.value === o.value ? { borderColor: o.color, background: o.color + "18" } : {})
                   }, [
                     (n(), vt(po(o.icon), {
-                      style: nt([{ width: "20px", height: "20px" }, { color: J.value === o.value ? o.color : "#64748b" }])
+                      style: nt([{ width: "20px", height: "20px" }, { color: Q.value === o.value ? o.color : "#64748b" }])
                     }, null, 8, ["style"])),
                     e("span", {
                       class: "di-display-type-label",
-                      style: nt({ color: J.value === o.value ? o.color : "#94a3b8" })
+                      style: nt({ color: Q.value === o.value ? o.color : "#94a3b8" })
                     }, v(o.label), 5),
                     e("span", Lu, v(o.description), 1)
                   ], 14, Au)), 64))
                 ])
               ]),
-              J.value === "db_direct" || J.value === "db_formatted" ? (n(), i(T, { key: 0 }, [
+              Q.value === "db_direct" || Q.value === "db_formatted" ? (n(), i(T, { key: 0 }, [
                 he.value.length > 0 ? (n(), i("div", Fu, [
                   l[102] || (l[102] = e("label", { class: "di-form-label" }, "登録済みカラム", -1)),
                   e("div", Ou, [
@@ -4300,7 +4300,7 @@ const Lo = {
                     }, " + 値を追加 ")
                   ])) : p("", !0)
                 ])) : p("", !0),
-                J.value === "db_formatted" ? (n(), i("div", gr, [
+                Q.value === "db_formatted" ? (n(), i("div", gr, [
                   l[111] || (l[111] = e("label", { class: "di-form-label" }, "整形方法", -1)),
                   b(e("textarea", {
                     "onUpdate:modelValue": l[18] || (l[18] = (o) => Ae.value = o),
@@ -4388,7 +4388,7 @@ const Lo = {
                   ])
                 ])) : p("", !0)
               ], 64)) : p("", !0),
-              J.value === "calculated" ? (n(), i("div", Ur, [
+              Q.value === "calculated" ? (n(), i("div", Ur, [
                 l[118] || (l[118] = e("label", { class: "di-form-label" }, "計算ロジック", -1)),
                 e("div", {
                   class: "di-calc-tags-input",
@@ -4432,7 +4432,7 @@ const Lo = {
                 ])) : p("", !0),
                 l[119] || (l[119] = e("span", { class: "di-form-hint" }, "DBカラムはドロップダウンから挿入、演算子や数値はそのまま入力", -1))
               ])) : p("", !0),
-              J.value === "static" || J.value === "other" ? (n(), i("div", Lr, [
+              Q.value === "static" || Q.value === "other" ? (n(), i("div", Lr, [
                 l[120] || (l[120] = e("label", { class: "di-form-label" }, "メモ", -1)),
                 b(e("textarea", {
                   "onUpdate:modelValue": l[29] || (l[29] = (o) => re.value = o),
@@ -4443,7 +4443,7 @@ const Lo = {
                   [w, re.value]
                 ])
               ])) : p("", !0),
-              J.value && J.value !== "other" ? (n(), i(T, { key: 3 }, [
+              Q.value && Q.value !== "other" ? (n(), i(T, { key: 3 }, [
                 e("div", Fr, [
                   e("button", {
                     onClick: l[30] || (l[30] = (o) => Ye.value = !Ye.value),
@@ -4507,7 +4507,7 @@ const Lo = {
                   ])) : p("", !0)
                 ])) : p("", !0)
               ], 64)) : p("", !0),
-              J.value === "db_direct" || J.value === "db_formatted" || J.value === "calculated" ? (n(), i(T, { key: 4 }, [
+              Q.value === "db_direct" || Q.value === "db_formatted" || Q.value === "calculated" ? (n(), i(T, { key: 4 }, [
                 l[134] || (l[134] = e("div", { class: "di-form-divider" }, [
                   e("span", null, "表示の詳細")
                 ], -1)),
@@ -4613,12 +4613,12 @@ const Lo = {
               e("div", tc, [
                 l[137] || (l[137] = e("label", { class: "di-form-label" }, "ターゲット", -1)),
                 b(e("input", {
-                  "onUpdate:modelValue": l[42] || (l[42] = (o) => N.value = o),
+                  "onUpdate:modelValue": l[42] || (l[42] = (o) => J.value = o),
                   type: "text",
                   placeholder: q.value === "navigate" ? "/tasks" : q.value === "api" ? "/api/users" : q.value === "modal" ? "confirm-dialog" : q.value === "csv_export" ? "/api/export/users" : q.value === "csv_import" ? "/api/import/users" : "",
                   class: "di-input di-input-mono"
                 }, null, 8, lc), [
-                  [w, N.value]
+                  [w, J.value]
                 ])
               ]),
               q.value === "api" ? (n(), i("div", oc, [
@@ -5672,7 +5672,7 @@ const Lo = {
 }, Pp = /* @__PURE__ */ ol({
   __name: "DevPickOverlay",
   setup(le) {
-    const k = nl(), r = vl("teleportTarget", "body"), D = h(null), q = h(null), N = h(0), oe = h(0), ce = h(0), be = {
+    const k = nl(), r = vl("teleportTarget", "body"), D = h(null), q = h(null), J = h(0), oe = h(0), ce = h(0), be = {
       db_direct: "#3b82f6",
       db_formatted: "#8b5cf6",
       calculated: "#f59e0b",
@@ -5784,8 +5784,8 @@ const Lo = {
       return E.contains(B);
     }
     const U = H(() => {
-      var ne, G, K, L, _, V, fe, X, de, ue, qe, Xe, yt, pt, it, at, dt, Qe, ut, rt, Ne, ge, Be, Se, ct, Tt, gt, et, Et, Ct, zt, mt, ft, pe, kt, Qt, jt, Nt, ze, He, We, Pt, J, he, ve, R, Re;
-      const B = N.value, E = oe.value;
+      var ne, G, K, L, _, V, fe, X, de, ue, qe, Xe, yt, pt, it, at, dt, Qe, ut, rt, Ne, ge, Be, Se, ct, Tt, gt, et, Et, Ct, zt, mt, ft, pe, kt, Qt, jt, Nt, ze, He, We, Pt, Q, he, ve, R, Re;
+      const B = J.value, E = oe.value;
       ce.value;
       const g = [];
       if (!k.isEnabled) return g;
@@ -5821,8 +5821,8 @@ ${d.note.text}` : "");
             } else if ((d == null ? void 0 : d.elementType) === "form" && (d != null && d.formInfo)) {
               const F = d.formInfo, ke = (at = d == null ? void 0 : d.fieldInfoList) != null && at.length ? d.fieldInfoList : d != null && d.fieldInfo ? [d.fieldInfo] : [], Le = ke.length > 0 ? ke.map((xe) => `${xe.table}.${xe.column}`).join(", ") : "", Ye = ke.length > 0 ? `${ke[0].table}.${ke[0].column}` : "", re = Ye ? k.getMasterDefinition(Ye) : null;
               F.inputType === "select" ? se = `選択: ${Le || F.description || "?"}${re ? ` (${re.entries.length}件)` : ""}` : F.inputType === "textarea" ? se = `テキスト: ${Le || F.description || "?"}` : F.inputType === "checkbox" ? se = `チェック: ${Le || F.description || "?"}` : F.inputType === "radio" ? se = `ラジオ: ${Le || F.description || "?"}` : se = `入力: ${Le || F.description || F.inputType || "?"}`, F.required && (se += " (必須)");
-              const Q = [];
-              F.description && Q.push(F.description), (dt = F.validation) != null && dt.length && Q.push(`検証: ${F.validation.join(", ")}`), F.placeholder && Q.push(`placeholder: ${F.placeholder}`), F.defaultValue && Q.push(`初期値: ${F.defaultValue}`), $e = Q.join(`
+              const N = [];
+              F.description && N.push(F.description), (dt = F.validation) != null && dt.length && N.push(`検証: ${F.validation.join(", ")}`), F.placeholder && N.push(`placeholder: ${F.placeholder}`), F.defaultValue && N.push(`初期値: ${F.defaultValue}`), $e = N.join(`
 `) + ((Qe = d == null ? void 0 : d.note) != null && Qe.text ? `
 ${d.note.text}` : "");
             } else if ((d == null ? void 0 : d.elementType) === "action")
@@ -5832,16 +5832,16 @@ ${d.note.text}` : "");
             else if (bt === "db_direct") {
               const F = (Ne = d == null ? void 0 : d.fieldInfoList) != null && Ne.length ? d.fieldInfoList : d != null && d.fieldInfo ? [d.fieldInfo] : [];
               if (F.length > 0) {
-                const ke = F.map((Q) => `${Q.table}.${Q.column}`).join(", "), Le = `${F[0].table}.${F[0].column}`, Ye = k.getMasterDefinition(Le), re = Ye ? ` (${Ye.entries.length}値)` : "";
-                se = `DB: ${ke}${re}${lt}`, $e = F.map((Q) => `${Q.table}.${Q.column}${Q.type ? ` (${Q.type})` : ""}`).join(`
+                const ke = F.map((N) => `${N.table}.${N.column}`).join(", "), Le = `${F[0].table}.${F[0].column}`, Ye = k.getMasterDefinition(Le), re = Ye ? ` (${Ye.entries.length}値)` : "";
+                se = `DB: ${ke}${re}${lt}`, $e = F.map((N) => `${N.table}.${N.column}${N.type ? ` (${N.type})` : ""}`).join(`
 `) + Ge + je + ((ge = d == null ? void 0 : d.note) != null && ge.text ? `
 ${d.note.text}` : "");
               }
             } else if (bt === "db_formatted") {
               const F = (Be = d == null ? void 0 : d.fieldInfoList) != null && Be.length ? d.fieldInfoList : d != null && d.fieldInfo ? [d.fieldInfo] : [];
               if (F.length > 0) {
-                const ke = F.map((Q) => `${Q.table}.${Q.column}`).join(", "), Le = `${F[0].table}.${F[0].column}`, Ye = k.getMasterDefinition(Le), re = Ye ? ` (${Ye.entries.length}値)` : "";
-                se = `DB: ${ke} (整形)${re}${lt}`, $e = F.map((Q) => `${Q.table}.${Q.column}`).join(`
+                const ke = F.map((N) => `${N.table}.${N.column}`).join(", "), Le = `${F[0].table}.${F[0].column}`, Ye = k.getMasterDefinition(Le), re = Ye ? ` (${Ye.entries.length}値)` : "";
+                se = `DB: ${ke} (整形)${re}${lt}`, $e = F.map((N) => `${N.table}.${N.column}`).join(`
 `) + ((Se = d == null ? void 0 : d.note) != null && Se.formatDescription ? `
 整形: ${d.note.formatDescription}` : "") + Ge + je + ((ct = d == null ? void 0 : d.note) != null && ct.text ? `
 ${d.note.text}` : "");
@@ -5853,7 +5853,7 @@ ${d.note.text}` : "")) : bt === "static" ? (se = "固定" + lt, $e = (((zt = d =
               warning: "注意",
               todo: "TODO",
               question: "質問"
-            }[d.note.type] || "メモ", $e = ((Pt = d == null ? void 0 : d.note) == null ? void 0 : Pt.text) || "") : (se = "メモ", $e = ((J = d == null ? void 0 : d.note) == null ? void 0 : J.text) || "");
+            }[d.note.type] || "メモ", $e = ((Pt = d == null ? void 0 : d.note) == null ? void 0 : Pt.text) || "") : (se = "メモ", $e = ((Q = d == null ? void 0 : d.note) == null ? void 0 : Q.text) || "");
             const Bt = $e || ((he = d == null ? void 0 : d.note) == null ? void 0 : he.text) || "", At = ((ve = d == null ? void 0 : d.note) == null ? void 0 : ve.type) || "info", Ze = !!((R = d == null ? void 0 : d.note) != null && R.text || (Re = d == null ? void 0 : d.note) != null && Re.displayType);
             g.push({
               selector: Ke,
@@ -5874,7 +5874,7 @@ ${d.note.text}` : "")) : bt === "static" ? (se = "固定" + lt, $e = (((zt = d =
       return g;
     }), Ve = H(() => {
       var ee;
-      const B = N.value, E = oe.value;
+      const B = J.value, E = oe.value;
       ce.value;
       const g = [];
       if (!k.isEnabled || k.scanResults.length === 0) return g;
@@ -5899,7 +5899,7 @@ ${d.note.text}` : "")) : bt === "static" ? (se = "固定" + lt, $e = (((zt = d =
       return g;
     }), Ee = H(() => {
       var ne, G;
-      const B = N.value, E = oe.value;
+      const B = J.value, E = oe.value;
       ce.value;
       const g = [], O = k.analysisFilter;
       if (O === "none" || !k.isEnabled || k.analysisResults.length === 0) return g;
@@ -5966,7 +5966,7 @@ ${d.note.text}` : "")) : bt === "static" ? (se = "固定" + lt, $e = (((zt = d =
       }
       return g;
     }), Pe = H(() => {
-      const B = N.value, E = oe.value;
+      const B = J.value, E = oe.value;
       ce.value;
       const g = [];
       if (!k.isEnabled || !k.showUnannotatedDetection || k.unannotatedElements.length === 0) return g;
@@ -6028,7 +6028,7 @@ ${d.note.text}` : "")) : bt === "static" ? (se = "固定" + lt, $e = (((zt = d =
       B.key === "Escape" && k.isPickMode && (k.remapTargetId = null, k.togglePickMode());
     }
     function Me() {
-      N.value = window.scrollY, oe.value = window.scrollX, ce.value++;
+      J.value = window.scrollY, oe.value = window.scrollX, ce.value++;
     }
     let ye = null;
     return Ol(() => {
@@ -6216,23 +6216,23 @@ ${d.note.text}` : "")) : bt === "static" ? (se = "固定" + lt, $e = (((zt = d =
 }, m1 = { class: "di-form-group" }, f1 = { class: "di-form-group" }, b1 = { class: "di-form-group" }, h1 = { class: "di-form-group" }, y1 = { class: "di-editor-footer" }, g1 = { class: "di-editor-actions" }, k1 = ["disabled"], x1 = /* @__PURE__ */ ol({
   __name: "DevScreenEditor",
   setup(le) {
-    const k = nl(), r = vl("teleportTarget", "body"), D = h(""), q = h(""), N = h([]), oe = h(!1), ce = h(""), be = h(""), Y = h(""), me = h(""), Ue = h(!1), Ce = h([]), _e = h(!1), De = H(() => typeof window < "u" ? window.location.pathname : "/");
+    const k = nl(), r = vl("teleportTarget", "body"), D = h(""), q = h(""), J = h([]), oe = h(!1), ce = h(""), be = h(""), Y = h(""), me = h(""), Ue = h(!1), Ce = h([]), _e = h(!1), De = H(() => typeof window < "u" ? window.location.pathname : "/");
     ll(() => k.editingScreen, (L) => {
       L && U();
     });
     function U() {
       var _, V, fe, X;
       const L = k.getScreenConfig();
-      L ? (D.value = L.name, q.value = L.description || "", N.value = L.apis.map((de) => ({ ...de })), oe.value = ((_ = L.auth) == null ? void 0 : _.required) || !1, ce.value = ((fe = (V = L.auth) == null ? void 0 : V.roles) == null ? void 0 : fe.join(", ")) || "", be.value = ((X = L.auth) == null ? void 0 : X.description) || "", Y.value = L.figmaUrl || "", me.value = L.notes || "") : Ve();
+      L ? (D.value = L.name, q.value = L.description || "", J.value = L.apis.map((de) => ({ ...de })), oe.value = ((_ = L.auth) == null ? void 0 : _.required) || !1, ce.value = ((fe = (V = L.auth) == null ? void 0 : V.roles) == null ? void 0 : fe.join(", ")) || "", be.value = ((X = L.auth) == null ? void 0 : X.description) || "", Y.value = L.figmaUrl || "", me.value = L.notes || "") : Ve();
     }
     function Ve() {
-      D.value = "", q.value = "", N.value = [], oe.value = !1, ce.value = "", be.value = "", Y.value = "", me.value = "";
+      D.value = "", q.value = "", J.value = [], oe.value = !1, ce.value = "", be.value = "", Y.value = "", me.value = "";
     }
     function Ee() {
       k.editingScreen = !1, Ve();
     }
     function Pe() {
-      N.value.push({
+      J.value.push({
         method: "GET",
         endpoint: "",
         description: "",
@@ -6240,7 +6240,7 @@ ${d.note.text}` : "")) : bt === "static" ? (se = "固定" + lt, $e = (((zt = d =
       });
     }
     function st(L) {
-      N.value.splice(L, 1);
+      J.value.splice(L, 1);
     }
     function Z() {
       if (!D.value.trim()) return;
@@ -6248,7 +6248,7 @@ ${d.note.text}` : "")) : bt === "static" ? (se = "固定" + lt, $e = (((zt = d =
         path: De.value,
         name: D.value.trim(),
         description: q.value.trim() || void 0,
-        apis: N.value.filter((_) => _.endpoint.trim()),
+        apis: J.value.filter((_) => _.endpoint.trim()),
         auth: oe.value || ce.value.trim() ? {
           required: oe.value,
           roles: ce.value.trim() ? ce.value.split(",").map((_) => _.trim()).filter(Boolean) : void 0,
@@ -6278,17 +6278,17 @@ ${d.note.text}` : "")) : bt === "static" ? (se = "固定" + lt, $e = (((zt = d =
       Ce.value = k.suggestScreenApis(), Ue.value = !0;
     }
     function E(L) {
-      return N.value.some(
+      return J.value.some(
         (_) => _.method === L.method && _.endpoint === L.endpoint
       );
     }
     const g = H(() => Ce.value.filter((L) => !E(L)));
     function O(L) {
-      E(L) || N.value.push({ ...L });
+      E(L) || J.value.push({ ...L });
     }
     function ee() {
       for (const L of g.value)
-        N.value.push({ ...L });
+        J.value.push({ ...L });
     }
     function ne() {
       setTimeout(() => {
@@ -6412,8 +6412,8 @@ ${d.note.text}` : "")) : bt === "static" ? (se = "固定" + lt, $e = (((zt = d =
               ])) : Ue.value && Ce.value.length === 0 ? (n(), i("div", e1, [..._[16] || (_[16] = [
                 e("span", null, "要素のDB情報からAPIを推定できませんでした。要素にDB情報を登録してください。", -1)
               ])])) : p("", !0),
-              N.value.length === 0 && !Ue.value ? (n(), i("div", t1, " APIが未登録です。「自動推定」で要素情報からAPIを推定できます。 ")) : p("", !0),
-              (n(!0), i(T, null, S(N.value, (V, fe) => (n(), i("div", {
+              J.value.length === 0 && !Ue.value ? (n(), i("div", t1, " APIが未登録です。「自動推定」で要素情報からAPIを推定できます。 ")) : p("", !0),
+              (n(!0), i(T, null, S(J.value, (V, fe) => (n(), i("div", {
                 key: fe,
                 class: "di-api-entry"
               }, [
@@ -6571,8 +6571,8 @@ ${d.note.text}` : "")) : bt === "static" ? (se = "固定" + lt, $e = (((zt = d =
   },
   setup(le) {
     const k = le, r = nl();
-    function D(N) {
-      N.ctrlKey && N.shiftKey && N.key === "D" && (N.preventDefault(), r.toggle());
+    function D(J) {
+      J.ctrlKey && J.shiftKey && (J.key === "D" || J.key === "d") && (J.preventDefault(), r.toggle());
     }
     function q() {
       r.toggle();
@@ -6585,7 +6585,7 @@ ${d.note.text}` : "")) : bt === "static" ? (se = "固定" + lt, $e = (((zt = d =
       }), window.addEventListener("keydown", D), window.addEventListener("dev-inspector-toggle", q);
     }), jl(() => {
       window.removeEventListener("keydown", D), window.removeEventListener("dev-inspector-toggle", q);
-    }), (N, oe) => a(r).isAvailable ? (n(), i("div", C1, [
+    }), (J, oe) => a(r).isAvailable ? (n(), i("div", C1, [
       I(yu),
       I(bp),
       I(w1),
