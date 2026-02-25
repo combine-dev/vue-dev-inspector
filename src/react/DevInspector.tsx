@@ -32,8 +32,14 @@ export function DevInspector(props: DevInspectorProps) {
       const container = containerRef.current
       if (!container) return
 
-      // Attach Shadow DOM for style isolation
-      const shadow = container.attachShadow({ mode: 'open' })
+      // Reuse existing Shadow DOM if already attached (React 18 Strict Mode remounts)
+      let shadow = container.shadowRoot
+      if (!shadow) {
+        shadow = container.attachShadow({ mode: 'open' })
+      } else {
+        // Clear previous content for clean remount
+        shadow.innerHTML = ''
+      }
 
       // Inject inspector CSS into Shadow DOM
       // The CSS is bundled as style.css — load it at runtime
@@ -48,7 +54,7 @@ export function DevInspector(props: DevInspectorProps) {
         const existingStyles = document.querySelectorAll('style, link[rel="stylesheet"]')
         existingStyles.forEach(s => {
           if (s.textContent?.includes('data-dev-inspector') || (s as HTMLLinkElement).href?.includes('dev-inspector')) {
-            shadow.appendChild(s.cloneNode(true))
+            shadow!.appendChild(s.cloneNode(true))
           }
         })
       }
