@@ -13,7 +13,7 @@ const props = withDefaults(defineProps<DevInspectorOptions>(), {
 
 const store = useDevInspectorStore()
 
-// Ctrl+Shift+D keyboard shortcut (works in Vue, React/Next.js, Nuxt)
+// Ctrl+Shift+D keyboard shortcut
 function handleKeydown(e: KeyboardEvent) {
   if (e.ctrlKey && e.shiftKey && e.key === 'D') {
     e.preventDefault()
@@ -21,8 +21,12 @@ function handleKeydown(e: KeyboardEvent) {
   }
 }
 
+// Custom event from React wrapper
+function handleToggleEvent() {
+  store.toggle()
+}
+
 onMounted(() => {
-  // Initialize store with props
   store.init({
     storageKey: props.storageKey,
     enabledInProduction: props.enabledInProduction,
@@ -30,10 +34,12 @@ onMounted(() => {
   })
 
   window.addEventListener('keydown', handleKeydown)
+  window.addEventListener('dev-inspector-toggle', handleToggleEvent)
 })
 
 onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
+  window.removeEventListener('dev-inspector-toggle', handleToggleEvent)
 })
 </script>
 

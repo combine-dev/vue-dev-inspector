@@ -2073,6 +2073,6 @@ function xn() {
   return An();
 }
 export {
-  xn as useDevInspector,
-  An as useDevInspectorStore
+  An as a,
+  xn as u
 };

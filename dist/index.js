@@ -1,10 +1,10 @@
-import { _ as r } from "./DevInspector.vue_vue_type_script_setup_true_lang-CKvMc44o.js";
-import { D as v, a as i, b as D, c as m } from "./DevInspector.vue_vue_type_script_setup_true_lang-CKvMc44o.js";
-import { useDevInspector as l, useDevInspectorStore as u } from "./useDevInspector-CBomD82x.js";
+import { _ as r } from "./DevInspector.vue_vue_type_script_setup_true_lang-4cDz908T.js";
+import { D as v, a as i, b as D, c as m } from "./DevInspector.vue_vue_type_script_setup_true_lang-4cDz908T.js";
+import { u as f, a as l } from "./useDevInspector-B-Cj4Ejw.js";
 const a = {
   install(e, o = {}) {
-    const { autoRegister: t = !0, ...s } = o;
-    t && e.component("DevInspector", r), e.provide("devInspectorOptions", s);
+    const { autoRegister: s = !0, ...t } = o;
+    s && e.component("DevInspector", r), e.provide("devInspectorOptions", t);
   }
 };
 export {
@@ -15,6 +15,6 @@ export {
   m as DevScreenEditor,
   a as VueDevInspector,
   a as default,
-  l as useDevInspector,
-  u as useDevInspectorStore
+  f as useDevInspector,
+  l as useDevInspectorStore
 };
