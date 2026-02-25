@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted } from 'vue'
+import { onMounted, onUnmounted } from 'vue'
 import { useDevInspectorStore, type DevInspectorOptions } from '../composables/useDevInspector'
 import DevPanel from './DevPanel.vue'
 import DevElementEditor from './DevElementEditor.vue'
@@ -13,6 +13,14 @@ const props = withDefaults(defineProps<DevInspectorOptions>(), {
 
 const store = useDevInspectorStore()
 
+// Ctrl+Shift+D keyboard shortcut (works in Vue, React/Next.js, Nuxt)
+function handleKeydown(e: KeyboardEvent) {
+  if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+    e.preventDefault()
+    store.toggle()
+  }
+}
+
 onMounted(() => {
   // Initialize store with props
   store.init({
@@ -20,6 +28,12 @@ onMounted(() => {
     enabledInProduction: props.enabledInProduction,
     initialAnnotations: props.initialAnnotations
   })
+
+  window.addEventListener('keydown', handleKeydown)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', handleKeydown)
 })
 </script>
 

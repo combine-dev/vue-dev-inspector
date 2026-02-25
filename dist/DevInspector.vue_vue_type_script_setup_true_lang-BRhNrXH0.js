@@ -1,4 +1,4 @@
-import { h as Ml, defineComponent as ol, inject as vl, ref as h, computed as q, watch as ll, openBlock as n, createElementBlock as i, Fragment as T, createBlock as vt, Teleport as Dt, unref as a, createVNode as I, createCommentVNode as p, createElementVNode as e, normalizeClass as A, toDisplayString as v, withDirectives as b, renderList as S, createTextVNode as j, withModifiers as ee, vModelText as w, withKeys as Vt, vShow as Jt, normalizeStyle as nt, vModelSelect as we, resolveDynamicComponent as vo, vModelCheckbox as dl, onMounted as Ol, onUnmounted as po } from "vue";
+import { h as Ml, defineComponent as ol, inject as vl, ref as h, computed as H, watch as ll, openBlock as n, createElementBlock as i, Fragment as T, createBlock as vt, Teleport as Dt, unref as a, createVNode as I, createCommentVNode as p, createElementVNode as e, normalizeClass as A, toDisplayString as v, withDirectives as b, renderList as S, createTextVNode as q, withModifiers as ee, vModelText as w, withKeys as Vt, vShow as Jt, normalizeStyle as nt, vModelSelect as we, resolveDynamicComponent as po, vModelCheckbox as dl, onMounted as Ol, onUnmounted as jl } from "vue";
 import { a as nl } from "./useDevInspector-B-Cj4Ejw.js";
 /**
  * @license lucide-vue-next v0.300.0 - ISC
@@ -23,14 +23,14 @@ var ul = {
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const mo = (te) => te.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), W = (te, k) => ({ size: r, strokeWidth: V = 2, absoluteStrokeWidth: H, color: de, class: le, ...ce }, { attrs: be, slots: Y }) => Ml(
+const mo = (te) => te.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase(), W = (te, k) => ({ size: r, strokeWidth: D = 2, absoluteStrokeWidth: O, color: ae, class: le, ...ce }, { attrs: be, slots: Y }) => Ml(
   "svg",
   {
     ...ul,
     width: r || ul.width,
     height: r || ul.height,
-    stroke: de || ul.stroke,
-    "stroke-width": H ? Number(V) * 24 / Number(r) : V,
+    stroke: ae || ul.stroke,
+    "stroke-width": O ? Number(D) * 24 / Number(r) : D,
     ...be,
     class: ["lucide", `lucide-${mo(te)}`],
     ...ce
@@ -181,7 +181,7 @@ const Vl = W("CodeIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const zt = W("DatabaseIcon", [
+const Kt = W("DatabaseIcon", [
   ["ellipse", { cx: "12", cy: "5", rx: "9", ry: "3", key: "msslwz" }],
   ["path", { d: "M3 5V19A9 3 0 0 0 21 19V5", key: "1wlel7" }],
   ["path", { d: "M3 12A9 3 0 0 0 21 12", key: "mv7ke4" }]
@@ -245,7 +245,7 @@ const Co = W("EyeIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const jl = W("FileSpreadsheetIcon", [
+const ql = W("FileSpreadsheetIcon", [
   [
     "path",
     { d: "M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z", key: "1nnpy2" }
@@ -382,7 +382,7 @@ const Al = W("PenLineIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Fl = W("PenSquareIcon", [
+const Ll = W("PenSquareIcon", [
   ["path", { d: "M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7", key: "1qinfi" }],
   ["path", { d: "M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4Z", key: "w2jsv5" }]
 ]);
@@ -402,7 +402,7 @@ const Rt = W("PlusIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const ql = W("SaveIcon", [
+const Hl = W("SaveIcon", [
   ["path", { d: "M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z", key: "1owoqh" }],
   ["polyline", { points: "17 21 17 13 7 13 7 21", key: "1md35c" }],
   ["polyline", { points: "7 3 7 8 15 8", key: "8nz8an" }]
@@ -435,7 +435,7 @@ const Do = W("ServerIcon", [
  * This source code is licensed under the ISC license.
  * See the LICENSE file in the root directory of this source tree.
  */
-const Ll = W("ShieldQuestionIcon", [
+const Fl = W("ShieldQuestionIcon", [
   ["path", { d: "M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10", key: "1irkt0" }],
   ["path", { d: "M9.1 9a3 3 0 0 1 5.82 1c0 2-3 3-3 3", key: "mhlwft" }],
   ["path", { d: "M12 17h.01", key: "p32p05" }]
@@ -527,7 +527,7 @@ const Bo = W("ZapIcon", [
 ]);
 async function Ao(te, k, r = {}) {
   var De;
-  const V = await import("./xlsx-BopDBbWb.js"), { systemName: H = "System", author: de = "" } = r, le = /* @__PURE__ */ new Date(), ce = `${le.getFullYear()}/${le.getMonth() + 1}/${le.getDate()}`, be = V.utils.book_new(), Y = [];
+  const D = await import("./xlsx-BopDBbWb.js"), { systemName: O = "System", author: ae = "" } = r, le = /* @__PURE__ */ new Date(), ce = `${le.getFullYear()}/${le.getMonth() + 1}/${le.getDate()}`, be = D.utils.book_new(), Y = [];
   Y.push([
     "画面機能仕様書",
     "",
@@ -545,7 +545,7 @@ async function Ao(te, k, r = {}) {
     "",
     "",
     "",
-    H,
+    O,
     "",
     "",
     "",
@@ -567,7 +567,7 @@ async function Ao(te, k, r = {}) {
     "",
     "",
     "",
-    de,
+    ae,
     "",
     "作成日",
     "",
@@ -747,7 +747,7 @@ ${U.actionInfo.description}`)), U.links) {
       Z
     ]);
   });
-  const Ue = V.utils.aoa_to_sheet(Y);
+  const Ue = D.utils.aoa_to_sheet(Y);
   Ue["!cols"] = [
     { wch: 3 },
     // A
@@ -843,15 +843,15 @@ ${U.actionInfo.description}`)), U.links) {
     // AT
     { wch: 30 }
     // AU - 備考
-  ], V.utils.book_append_sheet(be, Ue, "画面設計書");
+  ], D.utils.book_append_sheet(be, Ue, "画面設計書");
   const _e = `画面仕様書_${((De = te == null ? void 0 : te.name) == null ? void 0 : De.replace(/[/\\?%*:|"<>]/g, "-")) || "screen"}_${ce.replace(/\//g, "")}.xlsx`;
-  return V.writeFile(be, _e), _e;
+  return D.writeFile(be, _e), _e;
 }
-const Fo = {
+const Lo = {
   key: 0,
   class: "di-panel",
   "data-dev-inspector": ""
-}, Lo = { class: "di-header" }, Oo = { class: "di-header-title" }, jo = { class: "di-tab-bar" }, qo = {
+}, Fo = { class: "di-header" }, Oo = { class: "di-header-title" }, jo = { class: "di-tab-bar" }, qo = {
   key: 0,
   class: "di-tab-badge"
 }, Ho = {
@@ -860,10 +860,10 @@ const Fo = {
 }, Ro = {
   key: 0,
   class: "di-tab-badge"
-}, zo = {
+}, Ko = {
   key: 0,
   class: "di-tab-badge"
-}, Ko = { class: "di-edit-section" }, Go = { class: "di-note-toggle-badge" }, Yo = {
+}, zo = { class: "di-edit-section" }, Go = { class: "di-note-toggle-badge" }, Yo = {
   key: 1,
   class: "di-note-filter"
 }, Xo = { class: "di-filter-buttons" }, Wo = ["onClick"], Zo = {
@@ -896,16 +896,16 @@ const Fo = {
 }, Un = {
   key: 0,
   class: "di-rename-row"
-}, Dn = ["onKeydown", "onBlur"], Vn = ["onClick", "onDragover", "onDragleave", "onDrop"], En = { class: "di-tree-icon" }, Pn = { class: "di-count-badge" }, Bn = ["onClick"], An = { key: 2 }, Fn = {
+}, Dn = ["onKeydown", "onBlur"], Vn = ["onClick", "onDragover", "onDragleave", "onDrop"], En = { class: "di-tree-icon" }, Pn = { class: "di-count-badge" }, Bn = ["onClick"], An = { key: 2 }, Ln = {
   key: 0,
   class: "di-element-list"
-}, Ln = ["onDragstart", "onClick", "onMouseenter"], On = { class: "di-element-item-body" }, jn = { class: "di-element-item-label" }, qn = ["onClick"], Hn = {
+}, Fn = ["onDragstart", "onClick", "onMouseenter"], On = { class: "di-element-item-body" }, jn = { class: "di-element-item-label" }, qn = ["onClick"], Hn = {
   key: 1,
   class: "di-tree-children"
 }, Rn = {
   key: 0,
   class: "di-rename-row"
-}, zn = ["onKeydown", "onBlur"], Kn = ["onClick", "onDragover", "onDragleave", "onDrop"], Gn = { class: "di-tree-icon" }, Yn = { class: "di-count-badge" }, Xn = ["onClick"], Wn = { key: 2 }, Zn = {
+}, Kn = ["onKeydown", "onBlur"], zn = ["onClick", "onDragover", "onDragleave", "onDrop"], Gn = { class: "di-tree-icon" }, Yn = { class: "di-count-badge" }, Xn = ["onClick"], Wn = { key: 2 }, Zn = {
   key: 0,
   class: "di-element-list"
 }, Jn = ["onDragstart", "onClick", "onMouseenter"], Qn = { class: "di-element-item-body" }, Nn = { class: "di-element-item-label" }, es = ["onClick"], ts = {
@@ -938,13 +938,13 @@ const Fo = {
 }, Vs = { class: "di-tree-icon" }, Es = { class: "di-count-badge" }, Ps = {
   key: 2,
   class: "di-element-list"
-}, Bs = ["onDragstart", "onClick", "onMouseenter"], As = { class: "di-element-item-body" }, Fs = { class: "di-element-item-label" }, Ls = ["onClick"], Os = {
+}, Bs = ["onDragstart", "onClick", "onMouseenter"], As = { class: "di-element-item-body" }, Ls = { class: "di-element-item-label" }, Fs = ["onClick"], Os = {
   key: 0,
   class: "di-unannotated-badge"
 }, js = {
   key: 4,
   class: "di-unannotated-results"
-}, qs = { class: "di-unannotated-summary" }, Hs = { key: 0 }, Rs = { key: 1 }, zs = { key: 2 }, Ks = { class: "di-unannotated-list" }, Gs = ["onMouseenter"], Ys = { class: "di-unannotated-text" }, Xs = ["onClick"], Ws = ["onClick"], Zs = {
+}, qs = { class: "di-unannotated-summary" }, Hs = { key: 0 }, Rs = { key: 1 }, Ks = { key: 2 }, zs = { class: "di-unannotated-list" }, Gs = ["onMouseenter"], Ys = { class: "di-unannotated-text" }, Xs = ["onClick"], Ws = ["onClick"], Zs = {
   key: 5,
   class: "di-unannotated-empty"
 }, Js = {
@@ -986,7 +986,7 @@ const Fo = {
 }, Vi = { class: "di-card di-cross-search-section" }, Ei = { class: "di-cross-search-header" }, Pi = { class: "di-cross-search-body" }, Bi = {
   class: "di-filter-buttons",
   style: { "margin-bottom": "8px" }
-}, Ai = ["onClick"], Fi = ["placeholder"], Li = {
+}, Ai = ["onClick"], Li = ["placeholder"], Fi = {
   key: 0,
   class: "di-cross-search-count"
 }, Oi = {
@@ -995,10 +995,10 @@ const Fo = {
 }, ji = { class: "di-cross-search-page-header" }, qi = {
   key: 0,
   class: "di-cross-search-page-name"
-}, Hi = ["onClick"], Ri = { class: "di-cross-search-field" }, zi = {
+}, Hi = ["onClick"], Ri = { class: "di-cross-search-field" }, Ki = {
   key: 0,
   class: "di-cross-search-context"
-}, Ki = { class: "di-card di-screen-flow-section" }, Gi = {
+}, zi = { class: "di-card di-screen-flow-section" }, Gi = {
   key: 0,
   class: "di-screen-flow-badge"
 }, Yi = {
@@ -1037,14 +1037,14 @@ const Fo = {
 }, Va = {
   key: 0,
   class: "di-master-entries-list"
-}, Ea = ["onUpdate:modelValue"], Pa = ["value"], Ba = ["onUpdate:modelValue"], Aa = ["value"], Fa = ["onUpdate:modelValue"], La = ["onUpdate:modelValue"], Oa = ["onClick"], ja = {
+}, Ea = ["onUpdate:modelValue"], Pa = ["value"], Ba = ["onUpdate:modelValue"], Aa = ["value"], La = ["onUpdate:modelValue"], Fa = ["onUpdate:modelValue"], Oa = ["onClick"], ja = {
   key: 1,
   class: "di-master-empty",
   style: { "margin-top": "4px", "font-size": "11px" }
-}, qa = { class: "di-master-editor-footer" }, Ha = ["disabled"], Ra = { class: "di-section" }, za = {
+}, qa = { class: "di-master-editor-footer" }, Ha = ["disabled"], Ra = { class: "di-section" }, Ka = {
   class: "di-section-header",
   style: { "margin-bottom": "8px" }
-}, Ka = {
+}, za = {
   key: 0,
   class: "di-section-badge"
 }, Ga = ["onClick"], Ya = { class: "di-batch-item-info" }, Xa = { class: "di-batch-item-name" }, Wa = {
@@ -1056,13 +1056,13 @@ const Fo = {
 }, sd = { class: "di-batch-row" }, id = { class: "di-batch-field" }, ad = { class: "di-batch-tags-input" }, dd = ["onClick"], ud = { class: "di-batch-field" }, rd = { class: "di-batch-tags-input" }, cd = ["onClick"], vd = { class: "di-batch-section-label" }, pd = { key: 0 }, md = { class: "di-batch-step-no" }, fd = ["onUpdate:modelValue"], bd = ["onUpdate:modelValue"], hd = ["onUpdate:modelValue"], yd = ["onUpdate:modelValue"], gd = ["onClick"], kd = { class: "di-batch-row" }, xd = { class: "di-batch-field" }, wd = { class: "di-batch-field" }, Cd = { class: "di-batch-row" }, _d = { class: "di-batch-field" }, $d = { class: "di-batch-field" }, Td = { class: "di-batch-editor-footer" }, Id = ["disabled"], Md = { class: "di-er-controls" }, Sd = ["onClick"], Ud = { class: "di-er-grid" }, Dd = ["onClick"], Vd = { class: "di-er-card-header" }, Ed = ["onClick"], Pd = { class: "di-er-card-columns" }, Bd = {
   key: 0,
   class: "di-er-col-type"
-}, Ad = ["onClick"], Fd = {
+}, Ad = ["onClick"], Ld = {
   key: 0,
   class: "di-er-empty"
-}, Ld = ["onKeyup"], Od = ["onKeyup"], jd = ["onClick", "disabled"], qd = ["onClick"], Hd = {
+}, Fd = ["onKeyup"], Od = ["onKeyup"], jd = ["onClick", "disabled"], qd = ["onClick"], Hd = {
   key: 0,
   class: "di-er-card-relations"
-}, Rd = { class: "di-er-rel-type" }, zd = ["onClick"], Kd = { class: "di-er-add-section" }, Gd = { style: { display: "flex", gap: "6px", "flex-wrap": "wrap" } }, Yd = {
+}, Rd = { class: "di-er-rel-type" }, Kd = ["onClick"], zd = { class: "di-er-add-section" }, Gd = { style: { display: "flex", gap: "6px", "flex-wrap": "wrap" } }, Yd = {
   key: 0,
   class: "di-er-add-form"
 }, Xd = ["disabled"], Wd = {
@@ -1081,13 +1081,13 @@ const Fo = {
 }, fu = { class: "di-modal-actions" }, bu = ["disabled"], hu = /* @__PURE__ */ ol({
   __name: "DevPanel",
   setup(te) {
-    const k = vl("teleportTarget", "body"), r = nl(), V = h("elements"), H = h(!1), de = h(!1), le = h(""), ce = h(""), be = h(!1), Y = h(""), me = h(""), Ue = h("has_many"), Ce = h(!1), _e = h(""), De = h(null), U = h(""), Ve = h(""), Ee = {
+    const k = vl("teleportTarget", "body"), r = nl(), D = h("elements"), O = h(!1), ae = h(!1), le = h(""), ce = h(""), be = h(!1), Y = h(""), me = h(""), Ue = h("has_many"), Ce = h(!1), _e = h(""), De = h(null), U = h(""), Ve = h(""), Ee = {
       GET: "#10b981",
       POST: "#3b82f6",
       PUT: "#f59e0b",
       DELETE: "#ef4444",
       PATCH: "#8b5cf6"
-    }, Pe = q(() => r.currentScreenSpec), st = q(() => r.getScreenConfig()), Z = q(() => {
+    }, Pe = H(() => r.currentScreenSpec), st = H(() => r.getScreenConfig()), Z = H(() => {
       var x;
       const u = st.value, t = Pe.value;
       return !u && !t ? null : {
@@ -1100,14 +1100,14 @@ const Fo = {
         notes: (u == null ? void 0 : u.notes) || (t != null && t.notes ? t.notes.join(`
 `) : "")
       };
-    }), Oe = q(() => Object.keys(r.elementConfigs).length), Me = q(() => {
+    }), Oe = H(() => Object.keys(r.elementConfigs).length), Me = H(() => {
       const u = typeof window < "u" ? window.location.pathname : "/";
       return Object.entries(r.elementConfigs).filter(([, t]) => !t.pagePath || t.pagePath === u).map(([t, x]) => {
         var s, m, c;
         let P = "";
         return (s = x.note) != null && s.text ? P = x.note.text : x.fieldInfo ? P = `${x.fieldInfo.table}.${x.fieldInfo.column}` : (m = x.actionInfo) != null && m.description ? P = x.actionInfo.description : (c = x.actionInfo) != null && c.type ? (P = { navigate: "画面遷移", api: "API", modal: "モーダル", emit: "イベント", function: "関数", csv_export: "CSV出力", csv_import: "CSV取込", email: "メール送信" }[x.actionInfo.type] || x.actionInfo.type, x.actionInfo.target && (P += ` → ${x.actionInfo.target}`)) : x.formInfo && (P = x.formInfo.label || x.formInfo.inputType || "フォーム"), P || (P = t), { id: t, desc: P, type: x.elementType, isConditional: !!x.isConditional, tabContext: x.tabContext || "", modalName: x.modalName || "", config: x };
       });
-    }), ye = q(() => {
+    }), ye = H(() => {
       const u = r.noteHighlightFilter, t = r.noteTableFilter;
       let x = Me.value;
       return t !== "all" && (x = x.filter((P) => {
@@ -1138,7 +1138,7 @@ const Fo = {
             return !0;
         }
       });
-    }), B = q(() => ye.value.filter((u) => !u.isConditional && !u.tabContext));
+    }), B = H(() => ye.value.filter((u) => !u.isConditional && !u.tabContext));
     function E(u) {
       let t = u.elements.length;
       for (const x of Object.values(u.children)) t += E(x);
@@ -1157,13 +1157,13 @@ const Fo = {
         }
       }), x;
     }
-    const O = q(() => g(
+    const j = H(() => g(
       ye.value.filter((u) => u.tabContext && !u.isConditional),
       "tabContext"
-    )), N = q(() => ye.value.filter((u) => u.tabContext && !u.isConditional)), oe = h(!0), G = h(!1), z = h({}), F = q(() => ye.value.filter((u) => u.isConditional)), _ = q(() => ye.value.filter((u) => u.isConditional && u.modalName)), D = q(() => g(_.value, "modalName")), fe = q(() => ye.value.filter((u) => u.isConditional && !u.modalName)), X = h(!1), ae = h({}), ue = q(() => Object.values(r.elementConfigs).filter((u) => {
+    )), N = H(() => ye.value.filter((u) => u.tabContext && !u.isConditional)), oe = h(!0), G = h(!1), K = h({}), L = H(() => ye.value.filter((u) => u.isConditional)), _ = H(() => ye.value.filter((u) => u.isConditional && u.modalName)), V = H(() => g(_.value, "modalName")), fe = H(() => ye.value.filter((u) => u.isConditional && !u.modalName)), X = h(!1), de = h({}), ue = H(() => Object.values(r.elementConfigs).filter((u) => {
       var t, x;
       return !!((t = u.note) != null && t.text || (x = u.note) != null && x.displayType);
-    }).length), qe = q(() => {
+    }).length), qe = H(() => {
       const u = r.noteHighlightFilter;
       return u === "all" ? ue.value : Object.values(r.elementConfigs).filter((t) => {
         var m, c, $, M, ie, se, wt;
@@ -1190,7 +1190,7 @@ const Fo = {
             return !0;
         }
       }).length;
-    }), Xe = q(() => {
+    }), Xe = H(() => {
       var x;
       const u = /* @__PURE__ */ new Set(), t = typeof window < "u" ? window.location.pathname : "/";
       for (const P of Object.values(r.elementConfigs)) {
@@ -1203,11 +1203,11 @@ const Fo = {
     });
     function yt() {
       const u = r.exportConfigs();
-      navigator.clipboard.writeText(u), H.value = !1;
+      navigator.clipboard.writeText(u), O.value = !1;
     }
     function pt() {
       const u = r.exportConfigs(), t = new Blob([u], { type: "application/json" }), x = URL.createObjectURL(t), P = document.createElement("a");
-      P.href = x, P.download = "dev-mode-configs.json", P.click(), URL.revokeObjectURL(x), H.value = !1;
+      P.href = x, P.download = "dev-mode-configs.json", P.click(), URL.revokeObjectURL(x), O.value = !1;
     }
     function it() {
       r.downloadAnnotations();
@@ -1225,7 +1225,7 @@ const Fo = {
     }
     function dt() {
       try {
-        r.importConfigs(le.value), le.value = "", ce.value = "", de.value = !1;
+        r.importConfigs(le.value), le.value = "", ce.value = "", ae.value = !1;
       } catch {
         ce.value = "JSONの形式が正しくありません";
       }
@@ -1243,7 +1243,7 @@ const Fo = {
     function ut() {
       confirm("すべての要素設定を削除しますか？") && r.clearAllConfigs();
     }
-    const rt = q(() => {
+    const rt = H(() => {
       if (!r.erFocusTable) return r.erTables;
       const u = r.erRelations.filter((t) => t.fromTable === r.erFocusTable || t.toTable === r.erFocusTable).flatMap((t) => [t.fromTable, t.toTable]);
       return r.erTables.filter((t) => t === r.erFocusTable || u.includes(t));
@@ -1291,12 +1291,12 @@ const Fo = {
       { value: "form", label: "フォーム" },
       { value: "other", label: "その他" }
     ];
-    q(() => r.getCurrentPageApis());
-    const Ct = q(() => r.brokenAnnotations.length);
+    H(() => r.getCurrentPageApis());
+    const Ct = H(() => r.brokenAnnotations.length);
     ll(() => r.isPanelOpen, (u) => {
       u && r.detectBrokenAnnotations();
     });
-    function Kt() {
+    function zt() {
       confirm(`${Ct.value}件の壊れたメモを削除しますか？`) && r.deleteBrokenAnnotations();
     }
     const mt = h(!1), ft = h(null), pe = h({
@@ -1307,7 +1307,7 @@ const Fo = {
       description: "",
       entries: [],
       transitions: []
-    }), kt = q(() => Object.keys(r.masterDefinitions).length), Qt = q(() => {
+    }), kt = H(() => Object.keys(r.masterDefinitions).length), Qt = H(() => {
       const u = Object.values(r.masterDefinitions), t = {};
       for (const x of u)
         t[x.table] || (t[x.table] = []), t[x.table].push(x);
@@ -1353,7 +1353,7 @@ const Fo = {
       };
       r.setMasterDefinition(P), mt.value = !1;
     }
-    function Ke() {
+    function ze() {
       pe.value.entries.push({ value: "", label: "" });
     }
     function He(u) {
@@ -1380,7 +1380,7 @@ const Fo = {
       retryPolicy: "",
       notifyOnError: "",
       notifyOnComplete: ""
-    }), Re = h(""), ze = h(""), Ae = q(() => Object.keys(r.batchDefinitions).length), Ie = q(() => Object.values(r.batchDefinitions));
+    }), Re = h(""), Ke = h(""), Ae = H(() => Object.keys(r.batchDefinitions).length), Ie = H(() => Object.values(r.batchDefinitions));
     function d(u) {
       if (u) {
         const t = r.getBatchDefinition(u);
@@ -1411,7 +1411,7 @@ const Fo = {
           notifyOnError: "",
           notifyOnComplete: ""
         };
-      Re.value = "", ze.value = "", he.value = !0;
+      Re.value = "", Ke.value = "", he.value = !0;
     }
     function qt() {
       const u = R.value;
@@ -1452,8 +1452,8 @@ const Fo = {
       R.value.inputTables.splice(u, 1);
     }
     function Ge() {
-      const u = ze.value.trim();
-      u && !R.value.outputTables.includes(u) && R.value.outputTables.push(u), ze.value = "";
+      const u = Ke.value.trim();
+      u && !R.value.outputTables.includes(u) && R.value.outputTables.push(u), Ke.value = "";
     }
     function Mt(u) {
       R.value.outputTables.splice(u, 1);
@@ -1462,15 +1462,15 @@ const Fo = {
       { value: "column", label: "カラム", placeholder: "users.email, orders..." },
       { value: "api", label: "API", placeholder: "GET /api/users..." },
       { value: "text", label: "テキスト", placeholder: "メモ、説明文で検索..." }
-    ], lt = q(() => {
+    ], lt = H(() => {
       var u;
       return ((u = je.find((t) => t.value === r.crossSearchMode)) == null ? void 0 : u.placeholder) || "検索...";
-    }), Bt = q(() => {
+    }), Bt = H(() => {
       const u = {};
       for (const t of r.crossSearchResults)
         u[t.pagePath] || (u[t.pagePath] = { pagePath: t.pagePath, pageName: t.pageName, items: [] }), u[t.pagePath].items.push(t);
       return Object.values(u);
-    }), At = q(() => Bt.value.length), Ze = q(() => {
+    }), At = H(() => Bt.value.length), Ze = H(() => {
       const u = r.unannotatedElements;
       return {
         binding: u.filter((t) => t.category === "binding").length,
@@ -1478,13 +1478,13 @@ const Fo = {
         action: u.filter((t) => t.category === "action").length
       };
     });
-    function L() {
+    function F() {
       r.showUnannotatedDetection ? (r.showUnannotatedDetection = !1, r.unannotatedElements = [], r.hoveredUnannotatedSelector = null) : (r.showUnannotatedDetection = !0, r.detectUnannotatedElements());
     }
     function ke(u) {
       r.unannotatedElements = r.unannotatedElements.filter((t) => t.selector !== u);
     }
-    function Fe(u) {
+    function Le(u) {
       r.hoveredUnannotatedSelector = u;
       try {
         const t = document.querySelector(u);
@@ -1514,13 +1514,13 @@ const Fo = {
     function St(u, t) {
       xe.value = t, u.dataTransfer && (u.dataTransfer.effectAllowed = "move", u.dataTransfer.setData("text/plain", t));
     }
-    function Ft() {
+    function Lt() {
       xe.value = null, Te.value = null;
     }
     function Je(u, t) {
       u.preventDefault(), u.dataTransfer && (u.dataTransfer.dropEffect = "move"), Te.value = t;
     }
-    function Lt(u, t) {
+    function Ft(u, t) {
       const x = u.relatedTarget, P = u.currentTarget;
       P && x && P.contains(x) || Te.value === t && (Te.value = null);
     }
@@ -1556,7 +1556,7 @@ const Fo = {
           for (const [$, M] of Object.entries(r.elementConfigs))
             M.tabContext && (M.tabContext === x ? r.setElementConfig($, { tabContext: s }) : M.tabContext.startsWith(x + " > ") && r.setElementConfig($, { tabContext: s + M.tabContext.slice(x.length) }));
           const m = x.replace(/ > /g, ">"), c = s.replace(/ > /g, ">");
-          z.value[m] !== void 0 && (z.value[c] = z.value[m], delete z.value[m]);
+          K.value[m] !== void 0 && (K.value[c] = K.value[m], delete K.value[m]);
         } else if (u.startsWith("modal:")) {
           const x = u.slice(6), P = x.split(" > ");
           P[P.length - 1] = t;
@@ -1565,7 +1565,7 @@ const Fo = {
           for (const [$, M] of Object.entries(r.elementConfigs))
             M.modalName && (M.modalName === x ? r.setElementConfig($, { modalName: s }) : M.modalName.startsWith(x + " > ") && r.setElementConfig($, { modalName: s + M.modalName.slice(x.length) }));
           const m = x.replace(/ > /g, ">"), c = s.replace(/ > /g, ">");
-          ae.value[m] !== void 0 && (ae.value[c] = ae.value[m], delete ae.value[m]);
+          de.value[m] !== void 0 && (de.value[c] = de.value[m], delete de.value[m]);
         }
       }
     }
@@ -1588,7 +1588,7 @@ const Fo = {
     function Xt() {
       el.value = null, Yt.value = "";
     }
-    const sl = q(() => typeof window < "u" ? window.location.pathname : "/"), fl = q(() => {
+    const sl = H(() => typeof window < "u" ? window.location.pathname : "/"), fl = H(() => {
       const u = r.screenFlowData, t = {};
       for (const x of u.edges) {
         if (!t[x.from]) {
@@ -1618,8 +1618,8 @@ const Fo = {
           ])) : p("", !0)
         ], 8, ["to"])),
         (n(), vt(Dt, { to: a(k) }, [
-          a(r).isEnabled && a(r).isPanelOpen ? (n(), i("div", Fo, [
-            e("div", Lo, [
+          a(r).isEnabled && a(r).isPanelOpen ? (n(), i("div", Lo, [
+            e("div", Fo, [
               e("div", Oo, [
                 I(a(Vl), { style: { width: "20px", height: "20px", color: "#60a5fa" } }),
                 t[81] || (t[81] = e("span", null, "Developer Mode", -1))
@@ -1634,46 +1634,46 @@ const Fo = {
             ]),
             e("div", jo, [
               e("button", {
-                onClick: t[2] || (t[2] = (s) => V.value = "elements"),
-                class: A(["di-tab-btn", { active: V.value === "elements" }])
+                onClick: t[2] || (t[2] = (s) => D.value = "elements"),
+                class: A(["di-tab-btn", { active: D.value === "elements" }])
               }, [
                 I(a(Al), { style: { width: "14px", height: "14px" } }),
                 t[82] || (t[82] = e("span", null, "要素設定", -1)),
                 Oe.value > 0 ? (n(), i("span", qo, v(Oe.value), 1)) : p("", !0)
               ], 2),
               e("button", {
-                onClick: t[3] || (t[3] = (s) => V.value = "masters"),
-                class: A(["di-tab-btn", { active: V.value === "masters" }])
+                onClick: t[3] || (t[3] = (s) => D.value = "masters"),
+                class: A(["di-tab-btn", { active: D.value === "masters" }])
               }, [
-                I(a(zt), { style: { width: "14px", height: "14px" } }),
+                I(a(Kt), { style: { width: "14px", height: "14px" } }),
                 t[83] || (t[83] = e("span", null, "マスタ", -1)),
                 kt.value > 0 ? (n(), i("span", Ho, v(kt.value), 1)) : p("", !0)
               ], 2),
               e("button", {
-                onClick: t[4] || (t[4] = (s) => V.value = "batches"),
-                class: A(["di-tab-btn", { active: V.value === "batches" }])
+                onClick: t[4] || (t[4] = (s) => D.value = "batches"),
+                class: A(["di-tab-btn", { active: D.value === "batches" }])
               }, [
                 I(a(Dl), { style: { width: "14px", height: "14px" } }),
                 t[84] || (t[84] = e("span", null, "バッチ", -1)),
                 Ae.value > 0 ? (n(), i("span", Ro, v(Ae.value), 1)) : p("", !0)
               ], 2),
               e("button", {
-                onClick: t[5] || (t[5] = (s) => V.value = "tables"),
-                class: A(["di-tab-btn", { active: V.value === "tables" }])
+                onClick: t[5] || (t[5] = (s) => D.value = "tables"),
+                class: A(["di-tab-btn", { active: D.value === "tables" }])
               }, [
                 I(a(El), { style: { width: "14px", height: "14px" } }),
                 t[85] || (t[85] = e("span", null, "テーブル", -1)),
-                a(r).erTables.length > 0 ? (n(), i("span", zo, v(a(r).erTables.length), 1)) : p("", !0)
+                a(r).erTables.length > 0 ? (n(), i("span", Ko, v(a(r).erTables.length), 1)) : p("", !0)
               ], 2),
               e("button", {
-                onClick: t[6] || (t[6] = (s) => V.value = "export"),
-                class: A(["di-tab-btn", { active: V.value === "export" }])
+                onClick: t[6] || (t[6] = (s) => D.value = "export"),
+                class: A(["di-tab-btn", { active: D.value === "export" }])
               }, [
                 I(a(hl), { style: { width: "14px", height: "14px" } }),
                 t[86] || (t[86] = e("span", null, "出力", -1))
               ], 2)
             ]),
-            b(e("div", Ko, [
+            b(e("div", zo, [
               e("button", {
                 onClick: t[7] || (t[7] = //@ts-ignore
                 (...s) => a(r).togglePickMode && a(r).togglePickMode(...s)),
@@ -1726,7 +1726,7 @@ const Fo = {
                   I(a(Al), { style: { width: "14px", height: "14px", color: "#94a3b8" } }),
                   t[89] || (t[89] = e("span", null, "登録済み要素", -1)),
                   e("span", tn, [
-                    j(v(ye.value.length), 1),
+                    q(v(ye.value.length), 1),
                     ye.value.length !== Me.value.length ? (n(), i("span", ln, " / " + v(Me.value.length), 1)) : p("", !0)
                   ])
                 ]),
@@ -1736,7 +1736,7 @@ const Fo = {
                       class: A(["di-tree-group-header", { "di-drop-target": Te.value === "__page__" }]),
                       onClick: t[10] || (t[10] = (s) => oe.value = !oe.value),
                       onDragover: t[11] || (t[11] = (s) => Je(s, "__page__")),
-                      onDragleave: t[12] || (t[12] = (s) => Lt(s, "__page__")),
+                      onDragleave: t[12] || (t[12] = (s) => Ft(s, "__page__")),
                       onDrop: t[13] || (t[13] = (s) => Ot(s, "__page__"))
                     }, [
                       e("span", sn, v(oe.value ? "▼" : "▶"), 1),
@@ -1749,7 +1749,7 @@ const Fo = {
                         class: A(["di-element-item", { "di-element-item-active": a(r).hoveredSelector === s.id, "di-dragging": xe.value === s.id }]),
                         draggable: "true",
                         onDragstart: (m) => St(m, s.id),
-                        onDragend: Ft,
+                        onDragend: Lt,
                         onClick: (m) => a(r).startEditing(s.id),
                         onMouseenter: (m) => re(s.id),
                         onMouseleave: Q
@@ -1778,7 +1778,7 @@ const Fo = {
                       e("span", fn, v(N.value.length), 1)
                     ]),
                     G.value ? (n(), i("div", bn, [
-                      (n(!0), i(T, null, S(O.value, (s, m) => (n(), i("div", {
+                      (n(!0), i(T, null, S(j.value, (s, m) => (n(), i("div", {
                         key: "t1-" + m,
                         class: "di-tree-subgroup"
                       }, [
@@ -1798,12 +1798,12 @@ const Fo = {
                         ])) : (n(), i("button", {
                           key: 1,
                           class: A(["di-tree-group-header di-tree-subgroup-header", { "di-drop-target": Te.value === "tab:" + m }]),
-                          onClick: (c) => z.value[m] = !z.value[m],
+                          onClick: (c) => K.value[m] = !K.value[m],
                           onDragover: (c) => Je(c, "tab:" + m),
-                          onDragleave: (c) => Lt(c, "tab:" + m),
+                          onDragleave: (c) => Ft(c, "tab:" + m),
                           onDrop: (c) => Ot(c, "tab:" + m)
                         }, [
-                          e("span", kn, v(z.value[m] ? "▼" : "▶"), 1),
+                          e("span", kn, v(K.value[m] ? "▼" : "▶"), 1),
                           t[93] || (t[93] = e("span", { class: "di-tree-badge di-tree-badge-tab" }, "T", -1)),
                           e("span", null, v(m), 1),
                           e("span", xn, v(E(s)), 1),
@@ -1813,14 +1813,14 @@ const Fo = {
                             title: "名前変更"
                           }, "✏", 8, wn)
                         ], 42, gn)),
-                        z.value[m] ? (n(), i("div", Cn, [
+                        K.value[m] ? (n(), i("div", Cn, [
                           s.elements.length > 0 ? (n(), i("div", _n, [
                             (n(!0), i(T, null, S(s.elements, (c) => (n(), i("div", {
                               key: c.id,
                               class: A(["di-element-item", { "di-element-item-active": a(r).hoveredSelector === c.id, "di-dragging": xe.value === c.id }]),
                               draggable: "true",
                               onDragstart: ($) => St($, c.id),
-                              onDragend: Ft,
+                              onDragend: Lt,
                               onClick: ($) => a(r).startEditing(c.id),
                               onMouseenter: ($) => re(c.id),
                               onMouseleave: Q
@@ -1857,12 +1857,12 @@ const Fo = {
                               ])) : (n(), i("button", {
                                 key: 1,
                                 class: A(["di-tree-group-header di-tree-subgroup-header", { "di-drop-target": Te.value === "tab:" + m + " > " + $ }]),
-                                onClick: (M) => z.value[m + ">" + $] = !z.value[m + ">" + $],
+                                onClick: (M) => K.value[m + ">" + $] = !K.value[m + ">" + $],
                                 onDragover: (M) => Je(M, "tab:" + m + " > " + $),
-                                onDragleave: (M) => Lt(M, "tab:" + m + " > " + $),
+                                onDragleave: (M) => Ft(M, "tab:" + m + " > " + $),
                                 onDrop: (M) => Ot(M, "tab:" + m + " > " + $)
                               }, [
-                                e("span", En, v(z.value[m + ">" + $] ? "▼" : "▶"), 1),
+                                e("span", En, v(K.value[m + ">" + $] ? "▼" : "▶"), 1),
                                 t[95] || (t[95] = e("span", { class: "di-tree-badge di-tree-badge-tab" }, "T", -1)),
                                 e("span", null, v($), 1),
                                 e("span", Pn, v(E(c)), 1),
@@ -1872,14 +1872,14 @@ const Fo = {
                                   title: "名前変更"
                                 }, "✏", 8, Bn)
                               ], 42, Vn)),
-                              z.value[m + ">" + $] ? (n(), i("div", An, [
-                                c.elements.length > 0 ? (n(), i("div", Fn, [
+                              K.value[m + ">" + $] ? (n(), i("div", An, [
+                                c.elements.length > 0 ? (n(), i("div", Ln, [
                                   (n(!0), i(T, null, S(c.elements, (M) => (n(), i("div", {
                                     key: M.id,
                                     class: A(["di-element-item", { "di-element-item-active": a(r).hoveredSelector === M.id, "di-dragging": xe.value === M.id }]),
                                     draggable: "true",
                                     onDragstart: (ie) => St(ie, M.id),
-                                    onDragend: Ft,
+                                    onDragend: Lt,
                                     onClick: (ie) => a(r).startEditing(M.id),
                                     onMouseenter: (ie) => re(M.id),
                                     onMouseleave: Q
@@ -1895,7 +1895,7 @@ const Fo = {
                                       onClick: ee((ie) => a(r).deleteElementConfig(M.id), ["stop"]),
                                       title: "削除"
                                     }, "×", 8, qn)
-                                  ], 42, Ln))), 128))
+                                  ], 42, Fn))), 128))
                                 ])) : p("", !0),
                                 Object.keys(c.children).length > 0 ? (n(), i("div", Hn, [
                                   (n(!0), i(T, null, S(c.children, (M, ie) => (n(), i("div", {
@@ -1910,18 +1910,18 @@ const Fo = {
                                         onKeydown: (se) => Gt(se, "tab:" + m + " > " + $ + " > " + ie),
                                         onBlur: (se) => xt("tab:" + m + " > " + $ + " > " + ie),
                                         autofocus: ""
-                                      }, null, 40, zn), [
+                                      }, null, 40, Kn), [
                                         [w, ot.value]
                                       ])
                                     ])) : (n(), i("button", {
                                       key: 1,
                                       class: A(["di-tree-group-header di-tree-subgroup-header", { "di-drop-target": Te.value === "tab:" + m + " > " + $ + " > " + ie }]),
-                                      onClick: (se) => z.value[m + ">" + $ + ">" + ie] = !z.value[m + ">" + $ + ">" + ie],
+                                      onClick: (se) => K.value[m + ">" + $ + ">" + ie] = !K.value[m + ">" + $ + ">" + ie],
                                       onDragover: (se) => Je(se, "tab:" + m + " > " + $ + " > " + ie),
-                                      onDragleave: (se) => Lt(se, "tab:" + m + " > " + $ + " > " + ie),
+                                      onDragleave: (se) => Ft(se, "tab:" + m + " > " + $ + " > " + ie),
                                       onDrop: (se) => Ot(se, "tab:" + m + " > " + $ + " > " + ie)
                                     }, [
-                                      e("span", Gn, v(z.value[m + ">" + $ + ">" + ie] ? "▼" : "▶"), 1),
+                                      e("span", Gn, v(K.value[m + ">" + $ + ">" + ie] ? "▼" : "▶"), 1),
                                       t[97] || (t[97] = e("span", { class: "di-tree-badge di-tree-badge-tab" }, "T", -1)),
                                       e("span", null, v(ie), 1),
                                       e("span", Yn, v(E(M)), 1),
@@ -1930,15 +1930,15 @@ const Fo = {
                                         onClick: (se) => Ht("tab:" + m + " > " + $ + " > " + ie, String(ie), se),
                                         title: "名前変更"
                                       }, "✏", 8, Xn)
-                                    ], 42, Kn)),
-                                    z.value[m + ">" + $ + ">" + ie] ? (n(), i("div", Wn, [
+                                    ], 42, zn)),
+                                    K.value[m + ">" + $ + ">" + ie] ? (n(), i("div", Wn, [
                                       M.elements.length > 0 ? (n(), i("div", Zn, [
                                         (n(!0), i(T, null, S(M.elements, (se) => (n(), i("div", {
                                           key: se.id,
                                           class: A(["di-element-item", { "di-element-item-active": a(r).hoveredSelector === se.id, "di-dragging": xe.value === se.id }]),
                                           draggable: "true",
                                           onDragstart: (wt) => St(wt, se.id),
-                                          onDragend: Ft,
+                                          onDragend: Lt,
                                           onClick: (wt) => a(r).startEditing(se.id),
                                           onMouseenter: (wt) => re(se.id),
                                           onMouseleave: Q
@@ -1966,17 +1966,17 @@ const Fo = {
                       ]))), 128))
                     ])) : p("", !0)
                   ])) : p("", !0),
-                  F.value.length > 0 || xe.value && ((P = Te.value) != null && P.startsWith("modal:") || Te.value === "__modal_unnamed__") ? (n(), i("div", ts, [
+                  L.value.length > 0 || xe.value && ((P = Te.value) != null && P.startsWith("modal:") || Te.value === "__modal_unnamed__") ? (n(), i("div", ts, [
                     e("button", {
                       class: "di-tree-group-header",
                       onClick: t[18] || (t[18] = (s) => X.value = !X.value)
                     }, [
                       e("span", ls, v(X.value ? "▼" : "▶"), 1),
                       t[98] || (t[98] = e("span", null, "モーダル", -1)),
-                      e("span", os, v(F.value.length), 1)
+                      e("span", os, v(L.value.length), 1)
                     ]),
                     X.value ? (n(), i("div", ns, [
-                      (n(!0), i(T, null, S(D.value, (s, m) => (n(), i("div", {
+                      (n(!0), i(T, null, S(V.value, (s, m) => (n(), i("div", {
                         key: "m1-" + m,
                         class: "di-tree-subgroup"
                       }, [
@@ -1994,12 +1994,12 @@ const Fo = {
                         ])) : (n(), i("button", {
                           key: 1,
                           class: A(["di-tree-group-header di-tree-subgroup-header", { "di-drop-target": Te.value === "modal:" + m }]),
-                          onClick: (c) => ae.value[String(m)] = !ae.value[String(m)],
+                          onClick: (c) => de.value[String(m)] = !de.value[String(m)],
                           onDragover: (c) => Je(c, "modal:" + m),
-                          onDragleave: (c) => Lt(c, "modal:" + m),
+                          onDragleave: (c) => Ft(c, "modal:" + m),
                           onDrop: (c) => Ot(c, "modal:" + m)
                         }, [
-                          e("span", ds, v(ae.value[String(m)] ? "▼" : "▶"), 1),
+                          e("span", ds, v(de.value[String(m)] ? "▼" : "▶"), 1),
                           t[100] || (t[100] = e("span", { class: "di-tree-badge di-tree-badge-modal" }, "M", -1)),
                           e("span", null, v(m), 1),
                           e("span", us, v(E(s)), 1),
@@ -2009,14 +2009,14 @@ const Fo = {
                             title: "名前変更"
                           }, "✏", 8, rs)
                         ], 42, as)),
-                        ae.value[String(m)] ? (n(), i("div", cs, [
+                        de.value[String(m)] ? (n(), i("div", cs, [
                           s.elements.length > 0 ? (n(), i("div", vs, [
                             (n(!0), i(T, null, S(s.elements, (c) => (n(), i("div", {
                               key: c.id,
                               class: A(["di-element-item", { "di-element-item-active": a(r).hoveredSelector === c.id, "di-dragging": xe.value === c.id }]),
                               draggable: "true",
                               onDragstart: ($) => St($, c.id),
-                              onDragend: Ft,
+                              onDragend: Lt,
                               onClick: ($) => a(r).startEditing(c.id),
                               onMouseenter: ($) => re(c.id),
                               onMouseleave: Q
@@ -2053,12 +2053,12 @@ const Fo = {
                               ])) : (n(), i("button", {
                                 key: 1,
                                 class: A(["di-tree-group-header di-tree-subgroup-header", { "di-drop-target": Te.value === "modal:" + m + " > " + $ }]),
-                                onClick: (M) => ae.value[m + ">" + $] = !ae.value[m + ">" + $],
+                                onClick: (M) => de.value[m + ">" + $] = !de.value[m + ">" + $],
                                 onDragover: (M) => Je(M, "modal:" + m + " > " + $),
-                                onDragleave: (M) => Lt(M, "modal:" + m + " > " + $),
+                                onDragleave: (M) => Ft(M, "modal:" + m + " > " + $),
                                 onDrop: (M) => Ot(M, "modal:" + m + " > " + $)
                               }, [
-                                e("span", xs, v(ae.value[m + ">" + $] ? "▼" : "▶"), 1),
+                                e("span", xs, v(de.value[m + ">" + $] ? "▼" : "▶"), 1),
                                 t[102] || (t[102] = e("span", { class: "di-tree-badge di-tree-badge-modal" }, "M", -1)),
                                 e("span", null, v($), 1),
                                 e("span", ws, v(E(c)), 1),
@@ -2068,14 +2068,14 @@ const Fo = {
                                   title: "名前変更"
                                 }, "✏", 8, Cs)
                               ], 42, ks)),
-                              ae.value[m + ">" + $] ? (n(), i("div", _s, [
+                              de.value[m + ">" + $] ? (n(), i("div", _s, [
                                 c.elements.length > 0 ? (n(), i("div", $s, [
                                   (n(!0), i(T, null, S(c.elements, (M) => (n(), i("div", {
                                     key: M.id,
                                     class: A(["di-element-item", { "di-element-item-active": a(r).hoveredSelector === M.id, "di-dragging": xe.value === M.id }]),
                                     draggable: "true",
                                     onDragstart: (ie) => St(ie, M.id),
-                                    onDragend: Ft,
+                                    onDragend: Lt,
                                     onClick: (ie) => a(r).startEditing(M.id),
                                     onMouseenter: (ie) => re(M.id),
                                     onMouseleave: Q
@@ -2116,12 +2116,12 @@ const Fo = {
                         ])) : (n(), i("button", {
                           key: 1,
                           class: A(["di-tree-group-header di-tree-subgroup-header", { "di-drop-target": Te.value === "__modal_unnamed__" }]),
-                          onClick: t[23] || (t[23] = (s) => ae.value.__unnamed = !ae.value.__unnamed),
+                          onClick: t[23] || (t[23] = (s) => de.value.__unnamed = !de.value.__unnamed),
                           onDragover: t[24] || (t[24] = (s) => Je(s, "__modal_unnamed__")),
-                          onDragleave: t[25] || (t[25] = (s) => Lt(s, "__modal_unnamed__")),
+                          onDragleave: t[25] || (t[25] = (s) => Ft(s, "__modal_unnamed__")),
                           onDrop: t[26] || (t[26] = (s) => Ot(s, "__modal_unnamed__"))
                         }, [
-                          e("span", Vs, v(ae.value.__unnamed ? "▼" : "▶"), 1),
+                          e("span", Vs, v(de.value.__unnamed ? "▼" : "▶"), 1),
                           t[104] || (t[104] = e("span", { class: "di-tree-badge di-tree-badge-modal" }, "M", -1)),
                           t[105] || (t[105] = e("span", null, "未分類", -1)),
                           e("span", Es, v(fe.value.length), 1),
@@ -2131,13 +2131,13 @@ const Fo = {
                             title: "モーダル名を設定"
                           }, "✏")
                         ], 34)),
-                        ae.value.__unnamed ? (n(), i("div", Ps, [
+                        de.value.__unnamed ? (n(), i("div", Ps, [
                           (n(!0), i(T, null, S(fe.value, (s) => (n(), i("div", {
                             key: s.id,
                             class: A(["di-element-item", { "di-element-item-active": a(r).hoveredSelector === s.id, "di-dragging": xe.value === s.id }]),
                             draggable: "true",
                             onDragstart: (m) => St(m, s.id),
-                            onDragend: Ft,
+                            onDragend: Lt,
                             onClick: (m) => a(r).startEditing(s.id),
                             onMouseenter: (m) => re(s.id),
                             onMouseleave: Q
@@ -2146,13 +2146,13 @@ const Fo = {
                               class: A(["di-element-type-badge", "di-element-type-" + (s.type || "other")])
                             }, v(s.type === "datasource" ? "DB" : s.type === "action" ? "Act" : s.type === "form" ? "Form" : s.type === "chart" ? "Chart" : "-"), 3),
                             e("div", As, [
-                              e("div", Fs, v(s.desc), 1)
+                              e("div", Ls, v(s.desc), 1)
                             ]),
                             e("button", {
                               class: "di-element-delete-btn",
                               onClick: ee((m) => a(r).deleteElementConfig(s.id), ["stop"]),
                               title: "削除"
-                            }, "×", 8, Ls)
+                            }, "×", 8, Fs)
                           ], 42, Bs))), 128))
                         ])) : p("", !0)
                       ])) : p("", !0)
@@ -2161,7 +2161,7 @@ const Fo = {
                 ])
               ])) : p("", !0),
               e("button", {
-                onClick: L,
+                onClick: F,
                 class: A(["di-unannotated-btn", { active: a(r).showUnannotatedDetection }])
               }, [
                 I(a(ko), { style: { width: "14px", height: "14px" } }),
@@ -2170,16 +2170,16 @@ const Fo = {
               ], 2),
               a(r).showUnannotatedDetection && a(r).unannotatedElements.length > 0 ? (n(), i("div", js, [
                 e("div", qs, [
-                  j(v(a(r).unannotatedElements.length) + "件検出: ", 1),
+                  q(v(a(r).unannotatedElements.length) + "件検出: ", 1),
                   Ze.value.binding > 0 ? (n(), i("span", Hs, "バインディング " + v(Ze.value.binding), 1)) : p("", !0),
                   Ze.value.form > 0 ? (n(), i("span", Rs, " / フォーム " + v(Ze.value.form), 1)) : p("", !0),
-                  Ze.value.action > 0 ? (n(), i("span", zs, " / アクション " + v(Ze.value.action), 1)) : p("", !0)
+                  Ze.value.action > 0 ? (n(), i("span", Ks, " / アクション " + v(Ze.value.action), 1)) : p("", !0)
                 ]),
-                e("div", Ks, [
+                e("div", zs, [
                   (n(!0), i(T, null, S(a(r).unannotatedElements, (s) => (n(), i("div", {
                     key: s.selector,
                     class: A(["di-unannotated-item", { "di-unannotated-item-active": a(r).hoveredUnannotatedSelector === s.selector, ["di-unannotated-item-" + s.category]: a(r).hoveredUnannotatedSelector === s.selector }]),
-                    onMouseenter: (m) => Fe(s.selector),
+                    onMouseenter: (m) => Le(s.selector),
                     onMouseleave: Ye
                   }, [
                     e("span", {
@@ -2224,7 +2224,7 @@ const Fo = {
                           title: "新しい要素に再設定"
                         }, [
                           I(a(Bl), { style: { width: "12px", height: "12px" } }),
-                          t[106] || (t[106] = j(" 再設定 ", -1))
+                          t[106] || (t[106] = q(" 再設定 ", -1))
                         ], 8, ni),
                         e("button", {
                           onClick: ($) => {
@@ -2241,17 +2241,17 @@ const Fo = {
                 ]),
                 e("div", ii, [
                   e("button", {
-                    onClick: Kt,
+                    onClick: zt,
                     class: "di-broken-delete-btn"
                   }, [
                     I(a(tl), { style: { width: "12px", height: "12px" } }),
-                    t[107] || (t[107] = j(" まとめて削除 ", -1))
+                    t[107] || (t[107] = q(" まとめて削除 ", -1))
                   ])
                 ])
               ])) : p("", !0),
               p("", !0)
             ], 512), [
-              [Jt, V.value === "elements"]
+              [Jt, D.value === "elements"]
             ]),
             e("div", ai, [
               b(e("div", null, [
@@ -2264,21 +2264,21 @@ const Fo = {
                         class: "di-screen-edit-btn",
                         title: "画面情報を編集"
                       }, [
-                        I(a(Fl), { style: { width: "14px", height: "14px" } })
+                        I(a(Ll), { style: { width: "14px", height: "14px" } })
                       ])
                     ]),
                     Z.value.description ? (n(), i("p", ci, v(Z.value.description), 1)) : p("", !0),
                     Z.value.auth ? (n(), i("div", vi, [
                       Z.value.auth.required ? (n(), i("span", pi, [
                         I(a(To), { style: { width: "11px", height: "11px" } }),
-                        t[118] || (t[118] = j(" ログイン必須 ", -1))
+                        t[118] || (t[118] = q(" ログイン必須 ", -1))
                       ])) : p("", !0),
                       (n(!0), i(T, null, S(Z.value.auth.roles || [], (s) => (n(), i("span", {
                         key: s,
                         class: "di-auth-badge di-auth-role"
                       }, [
                         I(a(Vo), { style: { width: "11px", height: "11px" } }),
-                        j(" " + v(s), 1)
+                        q(" " + v(s), 1)
                       ]))), 128)),
                       Z.value.auth.description ? (n(), i("span", mi, v(Z.value.auth.description), 1)) : p("", !0)
                     ])) : p("", !0)
@@ -2333,16 +2333,16 @@ const Fo = {
                 ], 64)) : (n(), i("div", Di, [
                   I(a(rl), { style: { width: "48px", height: "48px", color: "#334155" } }),
                   t[124] || (t[124] = e("p", null, [
-                    j("この画面の仕様情報は"),
+                    q("この画面の仕様情報は"),
                     e("br"),
-                    j("まだ登録されていません")
+                    q("まだ登録されていません")
                   ], -1)),
                   e("button", {
                     onClick: t[30] || (t[30] = (s) => a(r).editingScreen = !0),
                     class: "di-screen-register-btn"
                   }, [
-                    I(a(Fl), { style: { width: "14px", height: "14px" } }),
-                    t[123] || (t[123] = j(" 画面情報を登録 ", -1))
+                    I(a(Ll), { style: { width: "14px", height: "14px" } }),
+                    t[123] || (t[123] = q(" 画面情報を登録 ", -1))
                   ])
                 ])),
                 e("div", Vi, [
@@ -2364,17 +2364,17 @@ const Fo = {
                       type: "text",
                       class: "di-cross-search-input",
                       placeholder: lt.value
-                    }, null, 8, Fi), [
+                    }, null, 8, Li), [
                       [w, a(r).crossSearchQuery]
                     ]),
-                    a(r).crossSearchQuery.trim() ? (n(), i("div", Li, v(a(r).crossSearchResults.length) + "件 (" + v(At.value) + "画面) ", 1)) : p("", !0),
+                    a(r).crossSearchQuery.trim() ? (n(), i("div", Fi, v(a(r).crossSearchResults.length) + "件 (" + v(At.value) + "画面) ", 1)) : p("", !0),
                     Bt.value.length > 0 ? (n(), i("div", Oi, [
                       (n(!0), i(T, null, S(Bt.value, (s) => (n(), i("div", {
                         key: s.pagePath,
                         class: "di-cross-search-group"
                       }, [
                         e("div", ji, [
-                          j(v(s.pagePath) + " ", 1),
+                          q(v(s.pagePath) + " ", 1),
                           s.pageName !== s.pagePath ? (n(), i("span", qi, "(" + v(s.pageName) + ")", 1)) : p("", !0)
                         ]),
                         (n(!0), i(T, null, S(s.items, (m, c) => (n(), i("div", {
@@ -2383,13 +2383,13 @@ const Fo = {
                           onClick: ($) => m.selector && a(r).startEditing(m.selector)
                         }, [
                           e("span", Ri, v(m.matchedField), 1),
-                          m.matchContext ? (n(), i("span", zi, v(m.matchContext), 1)) : p("", !0)
+                          m.matchContext ? (n(), i("span", Ki, v(m.matchContext), 1)) : p("", !0)
                         ], 10, Hi))), 128))
                       ]))), 128))
                     ])) : p("", !0)
                   ])
                 ]),
-                e("div", Ki, [
+                e("div", zi, [
                   e("button", {
                     onClick: t[32] || (t[32] = (s) => a(r).showScreenFlow = !a(r).showScreenFlow),
                     class: A(["di-screen-flow-toggle", { active: a(r).showScreenFlow }])
@@ -2430,12 +2430,12 @@ const Fo = {
                   ])) : p("", !0)
                 ])
               ], 512), [
-                [Jt, V.value === "elements"]
+                [Jt, D.value === "elements"]
               ]),
               b(e("div", null, [
                 e("div", ta, [
                   e("div", la, [
-                    I(a(zt), { style: { width: "16px", height: "16px", color: "#a78bfa" } }),
+                    I(a(Kt), { style: { width: "16px", height: "16px", color: "#a78bfa" } }),
                     t[130] || (t[130] = e("span", null, "マスタ定義", -1)),
                     kt.value > 0 ? (n(), i("span", oa, v(kt.value), 1)) : p("", !0),
                     e("button", {
@@ -2551,7 +2551,7 @@ const Fo = {
                         e("div", _a, [
                           t[137] || (t[137] = e("label", null, "マスタ値", -1)),
                           e("button", {
-                            onClick: Ke,
+                            onClick: ze,
                             class: "di-btn-icon",
                             title: "追加"
                           }, [
@@ -2651,14 +2651,14 @@ const Fo = {
                               "onUpdate:modelValue": (c) => s.trigger = c,
                               placeholder: "トリガー",
                               class: "di-transition-input di-transition-col-trigger"
-                            }, null, 8, Fa), [
+                            }, null, 8, La), [
                               [w, s.trigger]
                             ]),
                             b(e("input", {
                               "onUpdate:modelValue": (c) => s.condition = c,
                               placeholder: "条件",
                               class: "di-transition-input di-transition-col-condition"
-                            }, null, 8, La), [
+                            }, null, 8, Fa), [
                               [w, s.condition]
                             ]),
                             e("button", {
@@ -2693,14 +2693,14 @@ const Fo = {
                   ])) : p("", !0)
                 ], 8, ["to"]))
               ], 512), [
-                [Jt, V.value === "masters"]
+                [Jt, D.value === "masters"]
               ]),
               b(e("div", null, [
                 e("div", Ra, [
-                  e("div", za, [
+                  e("div", Ka, [
                     I(a(Dl), { style: { width: "16px", height: "16px", color: "#f59e0b" } }),
                     t[144] || (t[144] = e("span", null, "バッチ処理", -1)),
-                    Ae.value > 0 ? (n(), i("span", Ka, v(Ae.value), 1)) : p("", !0),
+                    Ae.value > 0 ? (n(), i("span", za, v(Ae.value), 1)) : p("", !0),
                     e("button", {
                       onClick: t[44] || (t[44] = (s) => d()),
                       class: "di-btn-icon",
@@ -2795,7 +2795,7 @@ const Fo = {
                                 key: m,
                                 class: "di-batch-tag"
                               }, [
-                                j(v(s) + " ", 1),
+                                q(v(s) + " ", 1),
                                 e("button", {
                                   onClick: (c) => tt(m),
                                   class: "di-batch-tag-remove"
@@ -2819,26 +2819,26 @@ const Fo = {
                                 key: m,
                                 class: "di-batch-tag"
                               }, [
-                                j(v(s) + " ", 1),
+                                q(v(s) + " ", 1),
                                 e("button", {
                                   onClick: (c) => Mt(m),
                                   class: "di-batch-tag-remove"
                                 }, "×", 8, cd)
                               ]))), 128)),
                               b(e("input", {
-                                "onUpdate:modelValue": t[53] || (t[53] = (s) => ze.value = s),
+                                "onUpdate:modelValue": t[53] || (t[53] = (s) => Ke.value = s),
                                 onKeydown: t[54] || (t[54] = Vt(ee((s) => Ge(), ["prevent"]), ["enter"])),
                                 type: "text",
                                 placeholder: "テーブル名",
                                 class: "di-batch-tag-input"
                               }, null, 544), [
-                                [w, ze.value]
+                                [w, Ke.value]
                               ])
                             ])
                           ])
                         ]),
                         e("div", vd, [
-                          t[152] || (t[152] = j(" 処理ステップ ", -1)),
+                          t[152] || (t[152] = q(" 処理ステップ ", -1)),
                           e("button", {
                             onClick: It,
                             class: "di-btn-icon",
@@ -2969,7 +2969,7 @@ const Fo = {
                   ])) : p("", !0)
                 ], 8, ["to"]))
               ], 512), [
-                [Jt, V.value === "batches"]
+                [Jt, D.value === "batches"]
               ]),
               b(e("div", null, [
                 e("div", Md, [
@@ -3012,7 +3012,7 @@ const Fo = {
                             class: "di-er-rel-delete"
                           }, "×", 8, Ad)) : p("", !0)
                         ]))), 128)),
-                        (m = a(r).erTableColumns[s]) != null && m.length ? p("", !0) : (n(), i("div", Fd, "カラム未定義")),
+                        (m = a(r).erTableColumns[s]) != null && m.length ? p("", !0) : (n(), i("div", Ld, "カラム未定義")),
                         De.value === s ? (n(), i("div", {
                           key: 1,
                           class: "di-er-add-col-form",
@@ -3023,7 +3023,7 @@ const Fo = {
                             "onUpdate:modelValue": t[63] || (t[63] = (c) => U.value = c),
                             placeholder: "カラム名",
                             onKeyup: Vt((c) => et(s), ["enter"])
-                          }, null, 40, Ld), [
+                          }, null, 40, Fd), [
                             [w, U.value]
                           ]),
                           b(e("input", {
@@ -3055,13 +3055,13 @@ const Fo = {
                             key: 0,
                             onClick: ee(($) => a(r).removeTableRelation(c.id), ["stop"]),
                             class: "di-er-rel-delete"
-                          }, "×", 8, zd))
+                          }, "×", 8, Kd))
                         ]))), 128))
                       ])) : p("", !0)
                     ], 10, Dd);
                   }), 128))
                 ]),
-                e("div", Kd, [
+                e("div", zd, [
                   e("div", Gd, [
                     e("button", {
                       onClick: t[66] || (t[66] = (s) => {
@@ -3070,7 +3070,7 @@ const Fo = {
                       class: "di-btn-small"
                     }, [
                       I(a(Rt), { style: { width: "12px", height: "12px" } }),
-                      t[162] || (t[162] = j(" テーブル追加 ", -1))
+                      t[162] || (t[162] = q(" テーブル追加 ", -1))
                     ]),
                     e("button", {
                       onClick: t[67] || (t[67] = (s) => {
@@ -3079,7 +3079,7 @@ const Fo = {
                       class: "di-btn-small"
                     }, [
                       I(a(Rt), { style: { width: "12px", height: "12px" } }),
-                      t[163] || (t[163] = j(" リレーション追加 ", -1))
+                      t[163] || (t[163] = q(" リレーション追加 ", -1))
                     ])
                   ]),
                   Ce.value ? (n(), i("div", Yd, [
@@ -3138,7 +3138,7 @@ const Fo = {
                   ])) : p("", !0)
                 ])
               ], 512), [
-                [Jt, V.value === "tables"]
+                [Jt, D.value === "tables"]
               ]),
               b(e("div", null, [
                 e("div", Nd, [
@@ -3147,49 +3147,49 @@ const Fo = {
                     class: "di-btn-green"
                   }, [
                     I(a($o), { style: { width: "16px", height: "16px" } }),
-                    t[167] || (t[167] = j(" Git管理用に保存 ", -1))
+                    t[167] || (t[167] = q(" Git管理用に保存 ", -1))
                   ]),
                   e("button", {
                     onClick: at,
                     class: "di-btn-blue"
                   }, [
-                    I(a(jl), { style: { width: "16px", height: "16px" } }),
-                    t[168] || (t[168] = j(" 画面仕様書 (xlsx) 出力 ", -1))
+                    I(a(ql), { style: { width: "16px", height: "16px" } }),
+                    t[168] || (t[168] = q(" 画面仕様書 (xlsx) 出力 ", -1))
                   ]),
                   e("button", {
                     onClick: t[72] || (t[72] = (s) => a(r).downloadSddSpec()),
                     class: "di-btn-green-outline"
                   }, [
                     I(a(rl), { style: { width: "16px", height: "16px" } }),
-                    t[169] || (t[169] = j(" SDD仕様書 (md) ", -1))
+                    t[169] || (t[169] = q(" SDD仕様書 (md) ", -1))
                   ]),
                   e("button", {
                     onClick: t[73] || (t[73] = (s) => a(r).downloadClientSpec()),
                     class: "di-btn-blue-outline"
                   }, [
                     I(a(rl), { style: { width: "16px", height: "16px" } }),
-                    t[170] || (t[170] = j(" 納品用仕様書 (md) ", -1))
+                    t[170] || (t[170] = q(" 納品用仕様書 (md) ", -1))
                   ])
                 ]),
                 t[178] || (t[178] = e("p", { class: "di-export-hint" }, [
-                  j(" JSON: "),
+                  q(" JSON: "),
                   e("code", null, "dev-annotations.json"),
-                  j(" に配置してcommit ")
+                  q(" に配置してcommit ")
                 ], -1)),
                 e("div", eu, [
                   e("button", {
-                    onClick: t[74] || (t[74] = (s) => H.value = !0),
+                    onClick: t[74] || (t[74] = (s) => O.value = !0),
                     class: "di-btn-small"
                   }, [
                     I(a(hl), { style: { width: "14px", height: "14px" } }),
-                    t[171] || (t[171] = j(" エクスポート ", -1))
+                    t[171] || (t[171] = q(" エクスポート ", -1))
                   ]),
                   e("button", {
-                    onClick: t[75] || (t[75] = (s) => de.value = !0),
+                    onClick: t[75] || (t[75] = (s) => ae.value = !0),
                     class: "di-btn-small"
                   }, [
                     I(a(Po), { style: { width: "14px", height: "14px" } }),
-                    t[172] || (t[172] = j(" インポート ", -1))
+                    t[172] || (t[172] = q(" インポート ", -1))
                   ]),
                   Oe.value > 0 ? (n(), i("button", {
                     key: 0,
@@ -3197,7 +3197,7 @@ const Fo = {
                     class: "di-btn-small di-btn-danger"
                   }, [
                     I(a(tl), { style: { width: "14px", height: "14px" } }),
-                    t[173] || (t[173] = j(" 全削除 ", -1))
+                    t[173] || (t[173] = q(" 全削除 ", -1))
                   ])) : p("", !0)
                 ]),
                 Oe.value > 0 || kt.value > 0 || Ae.value > 0 ? (n(), i("div", tu, [
@@ -3216,7 +3216,7 @@ const Fo = {
                   ])
                 ])) : p("", !0)
               ], 512), [
-                [Jt, V.value === "export"]
+                [Jt, D.value === "export"]
               ])
             ]),
             t[179] || (t[179] = e("div", { class: "di-footer" }, [
@@ -3232,14 +3232,14 @@ const Fo = {
         (n(), vt(Dt, { to: a(k) }, [
           a(r).isEnabled ? (n(), i("div", du, [...t[180] || (t[180] = [
             e("span", { class: "di-indicator-dot" }, null, -1),
-            j(" Developer Mode ", -1)
+            q(" Developer Mode ", -1)
           ])])) : p("", !0)
         ], 8, ["to"])),
         (n(), vt(Dt, { to: a(k) }, [
-          H.value ? (n(), i("div", {
+          O.value ? (n(), i("div", {
             key: 0,
             class: "di-modal-overlay",
-            onClick: t[77] || (t[77] = ee((s) => H.value = !1, ["self"])),
+            onClick: t[77] || (t[77] = ee((s) => O.value = !1, ["self"])),
             "data-dev-inspector": ""
           }, [
             e("div", uu, [
@@ -3251,7 +3251,7 @@ const Fo = {
               }, null, 8, ru),
               e("div", cu, [
                 e("button", {
-                  onClick: t[76] || (t[76] = (s) => H.value = !1),
+                  onClick: t[76] || (t[76] = (s) => O.value = !1),
                   class: "di-btn-small"
                 }, "閉じる"),
                 e("button", {
@@ -3259,7 +3259,7 @@ const Fo = {
                   class: "di-btn-small di-btn-gray"
                 }, [
                   I(a(hl), { style: { width: "14px", height: "14px" } }),
-                  t[181] || (t[181] = j(" ファイル保存 ", -1))
+                  t[181] || (t[181] = q(" ファイル保存 ", -1))
                 ]),
                 e("button", {
                   onClick: yt,
@@ -3270,10 +3270,10 @@ const Fo = {
           ])) : p("", !0)
         ], 8, ["to"])),
         (n(), vt(Dt, { to: a(k) }, [
-          de.value ? (n(), i("div", {
+          ae.value ? (n(), i("div", {
             key: 0,
             class: "di-modal-overlay",
-            onClick: t[80] || (t[80] = ee((s) => de.value = !1, ["self"])),
+            onClick: t[80] || (t[80] = ee((s) => ae.value = !1, ["self"])),
             "data-dev-inspector": ""
           }, [
             e("div", vu, [
@@ -3297,7 +3297,7 @@ const Fo = {
               e("div", fu, [
                 e("button", {
                   onClick: t[79] || (t[79] = (s) => {
-                    de.value = !1, le.value = "", ce.value = "";
+                    ae.value = !1, le.value = "", ce.value = "";
                   }),
                   class: "di-btn-small"
                 }, " キャンセル "),
@@ -3315,8 +3315,8 @@ const Fo = {
   }
 }), pl = (te, k) => {
   const r = te.__vccOpts || te;
-  for (const [V, H] of k)
-    r[V] = H;
+  for (const [D, O] of k)
+    r[D] = O;
   return r;
 }, yu = /* @__PURE__ */ pl(hu, [["__scopeId", "data-v-f586c7b8"]]), gu = { class: "di-editor-header" }, ku = { class: "di-header-actions" }, xu = {
   key: 0,
@@ -3330,7 +3330,7 @@ const Fo = {
 }, Iu = ["onMousedown"], Mu = { class: "di-context-field di-context-field-dropdown" }, Su = { class: "di-dropdown-wrapper" }, Uu = {
   key: 0,
   class: "di-dropdown-list"
-}, Du = ["onMousedown"], Vu = { class: "di-editor-tabs" }, Eu = { class: "di-editor-content" }, Pu = { class: "di-form-group" }, Bu = { class: "di-display-type-grid" }, Au = ["onClick"], Fu = { class: "di-display-type-desc" }, Lu = {
+}, Du = ["onMousedown"], Vu = { class: "di-editor-tabs" }, Eu = { class: "di-editor-content" }, Pu = { class: "di-form-group" }, Bu = { class: "di-display-type-grid" }, Au = ["onClick"], Lu = { class: "di-display-type-desc" }, Fu = {
   key: 0,
   class: "di-field-tags"
 }, Ou = { class: "di-field-tags-list" }, ju = { class: "di-field-tag-name" }, qu = {
@@ -3339,7 +3339,7 @@ const Fo = {
 }, Hu = ["onClick"], Ru = {
   key: 1,
   class: "di-binding-selector"
-}, zu = { class: "di-form-group" }, Ku = { class: "di-form-label" }, Gu = { class: "di-binding-search-wrapper" }, Yu = {
+}, Ku = { class: "di-form-group" }, zu = { class: "di-form-label" }, Gu = { class: "di-binding-search-wrapper" }, Yu = {
   key: 0,
   class: "di-binding-list"
 }, Xu = ["onClick"], Wu = { class: "di-binding-item-main" }, Zu = { class: "di-binding-name" }, Ju = { class: "di-binding-type" }, Qu = {
@@ -3394,16 +3394,16 @@ const Fo = {
 }, Pr = ["placeholder"], Br = {
   key: 0,
   class: "di-suggest-list"
-}, Ar = ["onMousedown"], Fr = {
+}, Ar = ["onMousedown"], Lr = {
   key: 2,
   class: "di-form-group"
-}, Lr = { class: "di-condition-toggle" }, Or = {
+}, Fr = { class: "di-condition-toggle" }, Or = {
   key: 0,
   class: "di-condition-badge"
 }, jr = {
   key: 0,
   class: "di-condition-section"
-}, qr = { class: "di-form-group" }, Hr = { class: "di-form-group di-suggest-wrapper" }, Rr = { class: "di-form-row" }, zr = { class: "di-form-group" }, Kr = {
+}, qr = { class: "di-form-group" }, Hr = { class: "di-form-group di-suggest-wrapper" }, Rr = { class: "di-form-row" }, Kr = { class: "di-form-group" }, zr = {
   key: 0,
   class: "di-form-group"
 }, Gr = { class: "di-form-row" }, Yr = { class: "di-form-group" }, Xr = {
@@ -3421,7 +3421,7 @@ const Fo = {
 }, fc = { class: "di-csv-col-no" }, bc = ["onUpdate:modelValue"], hc = ["onUpdate:modelValue"], yc = ["onUpdate:modelValue"], gc = ["onUpdate:modelValue"], kc = { class: "di-csv-col-req di-csv-checkbox-center" }, xc = ["onUpdate:modelValue"], wc = ["onUpdate:modelValue"], Cc = { class: "di-csv-col-act" }, _c = ["onClick", "disabled"], $c = ["onClick", "disabled"], Tc = ["onClick"], Ic = { class: "di-form-group" }, Mc = { class: "di-form-group" }, Sc = { class: "di-form-group" }, Uc = { class: "di-form-group" }, Dc = { class: "di-form-group" }, Vc = { class: "di-form-group" }, Ec = { class: "di-csv-error-section" }, Pc = {
   key: 0,
   class: "di-csv-columns-table"
-}, Bc = ["onUpdate:modelValue"], Ac = ["value"], Fc = ["onUpdate:modelValue"], Lc = ["onUpdate:modelValue"], Oc = ["onUpdate:modelValue"], jc = ["onClick"], qc = { class: "di-form-divider" }, Hc = { class: "di-form-row" }, Rc = { class: "di-form-group" }, zc = { class: "di-form-group" }, Kc = { class: "di-form-row" }, Gc = { class: "di-form-group" }, Yc = { class: "di-form-group" }, Xc = { class: "di-form-group" }, Wc = { class: "di-form-group" }, Zc = { class: "di-form-group" }, Jc = { class: "di-form-group" }, Qc = { class: "di-email-variables-input" }, Nc = ["onClick"], ev = { class: "di-form-group" }, tv = { class: "di-form-group" }, lv = { class: "di-form-group" }, ov = { class: "di-form-divider" }, nv = { class: "di-form-group" }, sv = {
+}, Bc = ["onUpdate:modelValue"], Ac = ["value"], Lc = ["onUpdate:modelValue"], Fc = ["onUpdate:modelValue"], Oc = ["onUpdate:modelValue"], jc = ["onClick"], qc = { class: "di-form-divider" }, Hc = { class: "di-form-row" }, Rc = { class: "di-form-group" }, Kc = { class: "di-form-group" }, zc = { class: "di-form-row" }, Gc = { class: "di-form-group" }, Yc = { class: "di-form-group" }, Xc = { class: "di-form-group" }, Wc = { class: "di-form-group" }, Zc = { class: "di-form-group" }, Jc = { class: "di-form-group" }, Qc = { class: "di-email-variables-input" }, Nc = ["onClick"], ev = { class: "di-form-group" }, tv = { class: "di-form-group" }, lv = { class: "di-form-group" }, ov = { class: "di-form-divider" }, nv = { class: "di-form-group" }, sv = {
   class: "di-form-label",
   style: { display: "flex", "align-items": "center", gap: "8px" }
 }, iv = { class: "di-form-row" }, av = { class: "di-form-group" }, dv = { class: "di-form-group" }, uv = { class: "di-form-group" }, rv = { class: "di-form-group" }, cv = {
@@ -3455,29 +3455,29 @@ const Fo = {
 }, Pv = {
   key: 0,
   class: "di-master-entries-table"
-}, Bv = ["onUpdate:modelValue"], Av = ["onUpdate:modelValue"], Fv = ["onUpdate:modelValue"], Lv = ["onClick"], Ov = { class: "di-condition-toggle" }, jv = {
+}, Bv = ["onUpdate:modelValue"], Av = ["onUpdate:modelValue"], Lv = ["onUpdate:modelValue"], Fv = ["onClick"], Ov = { class: "di-condition-toggle" }, jv = {
   key: 0,
   class: "di-condition-badge"
-}, qv = { class: "di-form-group di-suggest-wrapper" }, Hv = { class: "di-calc-tags-input" }, Rv = ["onClick"], zv = ["placeholder"], Kv = { class: "di-form-group" }, Gv = { class: "di-form-group" }, Yv = { class: "di-form-group" }, Xv = { class: "di-form-group" }, Wv = { class: "di-form-group" }, Zv = { class: "di-form-group" }, Jv = { class: "di-form-row" }, Qv = { class: "di-form-group di-form-half" }, Nv = { class: "di-form-group di-form-half" }, ep = { class: "di-csv-columns-section" }, tp = {
+}, qv = { class: "di-form-group di-suggest-wrapper" }, Hv = { class: "di-calc-tags-input" }, Rv = ["onClick"], Kv = ["placeholder"], zv = { class: "di-form-group" }, Gv = { class: "di-form-group" }, Yv = { class: "di-form-group" }, Xv = { class: "di-form-group" }, Wv = { class: "di-form-group" }, Zv = { class: "di-form-group" }, Jv = { class: "di-form-row" }, Qv = { class: "di-form-group di-form-half" }, Nv = { class: "di-form-group di-form-half" }, ep = { class: "di-csv-columns-section" }, tp = {
   key: 0,
   class: "di-csv-columns-table"
 }, lp = ["onUpdate:modelValue"], op = ["onUpdate:modelValue"], np = ["onUpdate:modelValue"], sp = { class: "di-csv-col-act" }, ip = ["onClick", "disabled"], ap = ["onClick", "disabled"], dp = ["onClick"], up = { class: "di-form-group" }, rp = { class: "di-form-group" }, cp = { class: "di-form-group" }, vp = { class: "di-form-group" }, pp = { class: "di-editor-footer" }, mp = { class: "di-editor-actions" }, fp = /* @__PURE__ */ ol({
   __name: "DevElementEditor",
   setup(te) {
-    const k = nl(), r = vl("teleportTarget", "body"), V = h("datasource"), H = h(""), de = h(""), le = h(""), ce = h(""), be = h(""), Y = h(!1), me = h([]), Ue = h(""), Ce = h(""), _e = h(""), De = h(""), U = h([]), Ve = h("UTF-8"), Ee = h(","), Pe = h(!0), st = h(""), Z = h(""), Oe = h(""), Me = h(void 0), ye = h(""), B = h(""), E = h(""), g = h([]), O = h(""), N = h(""), oe = h(""), G = h(""), z = h(""), F = h(""), _ = h(""), D = h([]), fe = h(""), X = h(""), ae = h(""), ue = h(""), qe = h(!0), Xe = h(""), yt = h(""), pt = h(""), it = h(!1), at = h(""), dt = h(""), Qe = h(""), ut = h(""), rt = h(""), Ne = h(""), ge = h([]), Be = h(""), Se = h(""), ct = h(""), Tt = h(""), gt = h(""), et = h(""), Et = h(!1), Ct = h(!1), Kt = q(() => {
+    const k = nl(), r = vl("teleportTarget", "body"), D = h("datasource"), O = h(""), ae = h(""), le = h(""), ce = h(""), be = h(""), Y = h(!1), me = h([]), Ue = h(""), Ce = h(""), _e = h(""), De = h(""), U = h([]), Ve = h("UTF-8"), Ee = h(","), Pe = h(!0), st = h(""), Z = h(""), Oe = h(""), Me = h(void 0), ye = h(""), B = h(""), E = h(""), g = h([]), j = h(""), N = h(""), oe = h(""), G = h(""), K = h(""), L = h(""), _ = h(""), V = h([]), fe = h(""), X = h(""), de = h(""), ue = h(""), qe = h(!0), Xe = h(""), yt = h(""), pt = h(""), it = h(!1), at = h(""), dt = h(""), Qe = h(""), ut = h(""), rt = h(""), Ne = h(""), ge = h([]), Be = h(""), Se = h(""), ct = h(""), Tt = h(""), gt = h(""), et = h(""), Et = h(!1), Ct = h(!1), zt = H(() => {
       const y = /* @__PURE__ */ new Set();
       for (const l of Object.values(k.elementConfigs))
         l.tabContext && y.add(l.tabContext);
       return [...y].sort();
-    }), mt = q(() => {
+    }), mt = H(() => {
       const y = /* @__PURE__ */ new Set();
       for (const l of Object.values(k.elementConfigs))
         l.modalName && y.add(l.modalName);
       return [...y].sort();
-    }), ft = q(() => {
+    }), ft = H(() => {
       const y = gt.value.toLowerCase();
-      return y ? Kt.value.filter((l) => l.toLowerCase().includes(y)) : Kt.value;
-    }), pe = q(() => {
+      return y ? zt.value.filter((l) => l.toLowerCase().includes(y)) : zt.value;
+    }), pe = H(() => {
       const y = et.value.toLowerCase();
       return y ? mt.value.filter((l) => l.toLowerCase().includes(y)) : mt.value;
     });
@@ -3497,13 +3497,13 @@ const Fo = {
         Ct.value = !1;
       }, 150);
     }
-    const Ke = h(!1), He = h([]), We = q(() => {
+    const ze = h(!1), He = h([]), We = H(() => {
       if (he.value.length > 0) {
         const y = he.value[0];
         if (y.table && y.column) return `${y.table}.${y.column}`;
       }
       return "";
-    }), Pt = q(() => We.value && k.getMasterDefinition(We.value) || null), J = h("db_direct"), he = h([]), ve = h(""), R = h(""), Re = h(""), ze = h(""), Ae = h(""), Ie = h([]), d = h(""), qt = h(!1), It = h(""), ne = h(""), $e = h(""), bt = h(""), tt = h(""), Ge = h(!1), Mt = h(""), je = h([]), lt = h(""), Bt = h(!1), At = h(""), Ze = h(""), L = h(""), ke = h(""), Fe = h(""), Ye = h(!1), re = h(""), Q = h(""), xe = h(""), Te = h(!1), St = q(() => Q.value ? {
+    }), Pt = H(() => We.value && k.getMasterDefinition(We.value) || null), J = h("db_direct"), he = h([]), ve = h(""), R = h(""), Re = h(""), Ke = h(""), Ae = h(""), Ie = h([]), d = h(""), qt = h(!1), It = h(""), ne = h(""), $e = h(""), bt = h(""), tt = h(""), Ge = h(!1), Mt = h(""), je = h([]), lt = h(""), Bt = h(!1), At = h(""), Ze = h(""), F = h(""), ke = h(""), Le = h(""), Ye = h(!1), re = h(""), Q = h(""), xe = h(""), Te = h(!1), St = H(() => Q.value ? {
       data: "data",
       "v-model": "v-model",
       prop: "prop",
@@ -3512,8 +3512,8 @@ const Fo = {
       store: "store",
       api: "data"
       // legacy compatibility
-    }[Q.value] || Q.value : ""), Ft = q(() => k.editingElementId !== null), Je = q(() => k.editingElementId), Lt = q(() => H.value === "csv_export" || H.value === "csv_import"), Ot = q(() => H.value === "email"), Ut = q(() => Lt.value || Ot.value), ot = [
-      { value: "db_direct", label: "DBカラム (そのまま)", icon: zt, color: "#3b82f6", description: "DBの値をそのまま表示" },
+    }[Q.value] || Q.value : ""), Lt = H(() => k.editingElementId !== null), Je = H(() => k.editingElementId), Ft = H(() => O.value === "csv_export" || O.value === "csv_import"), Ot = H(() => O.value === "email"), Ut = H(() => Ft.value || Ot.value), ot = [
+      { value: "db_direct", label: "DBカラム (そのまま)", icon: Kt, color: "#3b82f6", description: "DBの値をそのまま表示" },
       { value: "db_formatted", label: "DBカラム (整形)", icon: cl, color: "#8b5cf6", description: "DBの値を整形して表示" },
       { value: "calculated", label: "計算値", icon: Sl, color: "#f59e0b", description: "複数カラムから計算" },
       { value: "static", label: "固定文言", icon: Eo, color: "#10b981", description: "コード内の固定テキスト" },
@@ -3526,11 +3526,11 @@ const Fo = {
         try {
           const f = document.querySelector(y);
           if (f) {
-            o != null && o.elementType ? V.value = o.elementType : V.value = k.detectElementType(f);
-            const K = f.querySelector("[data-di-binding]") || (f.hasAttribute("data-di-binding") ? f : null) || f.closest("[data-di-binding]");
-            if (K) {
-              const Le = K.getAttribute("data-di-binding"), Wt = K.getAttribute("data-di-db"), bl = K.getAttribute("data-di-db-type"), Zt = K.getAttribute("data-di-db-comment");
-              if (Le && (xe.value = Le, Q.value = "data", Te.value = !1), Wt) {
+            o != null && o.elementType ? D.value = o.elementType : D.value = k.detectElementType(f);
+            const z = f.querySelector("[data-di-binding]") || (f.hasAttribute("data-di-binding") ? f : null) || f.closest("[data-di-binding]");
+            if (z) {
+              const Fe = z.getAttribute("data-di-binding"), Wt = z.getAttribute("data-di-db"), bl = z.getAttribute("data-di-db-type"), Zt = z.getAttribute("data-di-db-comment");
+              if (Fe && (xe.value = Fe, Q.value = "data", Te.value = !1), Wt) {
                 const [Tl, Il] = Wt.split(".");
                 Tl && Il && (he.value.push({
                   table: Tl,
@@ -3544,16 +3544,16 @@ const Fo = {
         } catch (f) {
           console.warn("[DevInspector] Failed to read element:", f);
         }
-        o != null && o.fieldInfoList && o.fieldInfoList.length > 0 ? he.value = o.fieldInfoList.map((f) => ({ ...f })) : o != null && o.fieldInfo && (he.value = [{ ...o.fieldInfo }]), ve.value = "", R.value = "", Re.value = "", ze.value = "", o != null && o.note && (re.value = o.note.text || re.value, J.value = o.note.displayType || J.value, Ae.value = o.note.formatDescription || "", It.value = o.note.sampleValue || "", ne.value = o.note.decimalHandling || "", $e.value = o.note.unit || "", bt.value = o.note.nullDisplay || "", tt.value = o.note.displayFormat || "", Yl(o.note.calcDescription || "", o.note.calcSources || []), Ge.value = o.note.storedCalc || !1, Mt.value = o.note.storedCalcLogic || "", je.value = o.note.storedCalcSources ? [...o.note.storedCalcSources] : [], At.value = o.note.storedCalcTiming || "", Ze.value = o.note.condition || "", L.value = o.note.conditionColumn || "", ke.value = o.note.hiddenBehavior || "", Fe.value = o.note.hiddenNote || "", Ye.value = !!(o.note.condition || o.note.conditionColumn)), o != null && o.sourceBinding && (Q.value = o.sourceBinding.type || Q.value, xe.value = o.sourceBinding.source || xe.value, Te.value = o.sourceBinding.isStatic || !1), gt.value = (o == null ? void 0 : o.tabContext) || k.detectTabContext(y) || "";
+        o != null && o.fieldInfoList && o.fieldInfoList.length > 0 ? he.value = o.fieldInfoList.map((f) => ({ ...f })) : o != null && o.fieldInfo && (he.value = [{ ...o.fieldInfo }]), ve.value = "", R.value = "", Re.value = "", Ke.value = "", o != null && o.note && (re.value = o.note.text || re.value, J.value = o.note.displayType || J.value, Ae.value = o.note.formatDescription || "", It.value = o.note.sampleValue || "", ne.value = o.note.decimalHandling || "", $e.value = o.note.unit || "", bt.value = o.note.nullDisplay || "", tt.value = o.note.displayFormat || "", Xl(o.note.calcDescription || "", o.note.calcSources || []), Ge.value = o.note.storedCalc || !1, Mt.value = o.note.storedCalcLogic || "", je.value = o.note.storedCalcSources ? [...o.note.storedCalcSources] : [], At.value = o.note.storedCalcTiming || "", Ze.value = o.note.condition || "", F.value = o.note.conditionColumn || "", ke.value = o.note.hiddenBehavior || "", Le.value = o.note.hiddenNote || "", Ye.value = !!(o.note.condition || o.note.conditionColumn)), o != null && o.sourceBinding && (Q.value = o.sourceBinding.type || Q.value, xe.value = o.sourceBinding.source || xe.value, Te.value = o.sourceBinding.isStatic || !1), gt.value = (o == null ? void 0 : o.tabContext) || k.detectTabContext(y) || "";
         const C = k.detectModalName(y);
         if (et.value = (o == null ? void 0 : o.modalName) || C || "", o != null && o.actionInfo) {
-          if (H.value = o.actionInfo.type || "", de.value = o.actionInfo.target || "", le.value = o.actionInfo.method || "", ce.value = o.actionInfo.description || "", o.actionInfo.csvSpec) {
+          if (O.value = o.actionInfo.type || "", ae.value = o.actionInfo.target || "", le.value = o.actionInfo.method || "", ce.value = o.actionInfo.description || "", o.actionInfo.csvSpec) {
             const f = o.actionInfo.csvSpec;
-            U.value = f.columns.map((K) => ({ ...K })), Ve.value = f.encoding || "UTF-8", Ee.value = f.delimiter || ",", Pe.value = f.hasHeaderRow !== !1, st.value = f.filenamePattern || "", Z.value = f.sortOrder || "", Oe.value = f.filterCondition || "", Me.value = f.maxRows, ye.value = f.errorHandling || "", B.value = f.duplicateHandling || "", E.value = f.preValidation || "", g.value = f.errorDefs ? f.errorDefs.map((K) => ({ ...K })) : [];
+            U.value = f.columns.map((z) => ({ ...z })), Ve.value = f.encoding || "UTF-8", Ee.value = f.delimiter || ",", Pe.value = f.hasHeaderRow !== !1, st.value = f.filenamePattern || "", Z.value = f.sortOrder || "", Oe.value = f.filterCondition || "", Me.value = f.maxRows, ye.value = f.errorHandling || "", B.value = f.duplicateHandling || "", E.value = f.preValidation || "", g.value = f.errorDefs ? f.errorDefs.map((z) => ({ ...z })) : [];
           }
           if (o.actionInfo.emailSpec) {
             const f = o.actionInfo.emailSpec;
-            O.value = f.trigger || "", N.value = f.to || "", oe.value = f.cc || "", G.value = f.bcc || "", z.value = f.subject || "", F.value = f.bodyTemplate || "", _.value = f.templatePath || "", D.value = f.variables ? [...f.variables] : [], X.value = f.attachments || "", ae.value = f.conditions || "", ue.value = f.errorHandling || "";
+            j.value = f.trigger || "", N.value = f.to || "", oe.value = f.cc || "", G.value = f.bcc || "", K.value = f.subject || "", L.value = f.bodyTemplate || "", _.value = f.templatePath || "", V.value = f.variables ? [...f.variables] : [], X.value = f.attachments || "", de.value = f.conditions || "", ue.value = f.errorHandling || "";
           }
         }
         if (o != null && o.formInfo && (be.value = o.formInfo.inputType || "", Y.value = o.formInfo.required || !1, me.value = o.formInfo.validation ? [...o.formInfo.validation] : [], Ce.value = o.formInfo.placeholder || "", _e.value = o.formInfo.defaultValue || "", De.value = o.formInfo.description || ""), (l = o == null ? void 0 : o.actionInfo) != null && l.sortSpec) {
@@ -3562,13 +3562,13 @@ const Fo = {
         }
         if (o != null && o.chartSpec) {
           const f = o.chartSpec;
-          Qe.value = f.chartType || "", ut.value = f.title || "", rt.value = f.xAxis || "", Ne.value = f.yAxis || "", ge.value = f.series ? f.series.map((K) => ({ ...K })) : [], Be.value = f.dataSource || "", Se.value = f.aggregation || "", ct.value = f.filters || "", Tt.value = f.description || "";
+          Qe.value = f.chartType || "", ut.value = f.title || "", rt.value = f.xAxis || "", Ne.value = f.yAxis || "", ge.value = f.series ? f.series.map((z) => ({ ...z })) : [], Be.value = f.dataSource || "", Se.value = f.aggregation || "", ct.value = f.filters || "", Tt.value = f.description || "";
         }
       } else
         Ht();
     });
     function Ht() {
-      V.value = "datasource", J.value = "db_direct", he.value = [], ve.value = "", R.value = "", Re.value = "", ze.value = "", Ae.value = "", It.value = "", ne.value = "", $e.value = "", bt.value = "", tt.value = "", Ie.value = [], d.value = "", Ge.value = !1, Mt.value = "", je.value = [], lt.value = "", At.value = "", Ze.value = "", L.value = "", ke.value = "", Fe.value = "", Ye.value = !1, re.value = "", Q.value = "", xe.value = "", Te.value = !1, H.value = "", de.value = "", le.value = "", ce.value = "", U.value = [], Ve.value = "UTF-8", Ee.value = ",", Pe.value = !0, st.value = "", Z.value = "", Oe.value = "", Me.value = void 0, ye.value = "", B.value = "", E.value = "", g.value = [], be.value = "", Y.value = !1, me.value = [], Ue.value = "", Ce.value = "", _e.value = "", De.value = "", O.value = "", N.value = "", oe.value = "", G.value = "", z.value = "", F.value = "", _.value = "", D.value = [], fe.value = "", X.value = "", ae.value = "", ue.value = "", qe.value = !0, Xe.value = "", yt.value = "", pt.value = "", it.value = !1, at.value = "", dt.value = "", Qe.value = "", ut.value = "", rt.value = "", Ne.value = "", ge.value = [], Be.value = "", Se.value = "", ct.value = "", Tt.value = "", gt.value = "", et.value = "", Ke.value = !1, He.value = [];
+      D.value = "datasource", J.value = "db_direct", he.value = [], ve.value = "", R.value = "", Re.value = "", Ke.value = "", Ae.value = "", It.value = "", ne.value = "", $e.value = "", bt.value = "", tt.value = "", Ie.value = [], d.value = "", Ge.value = !1, Mt.value = "", je.value = [], lt.value = "", At.value = "", Ze.value = "", F.value = "", ke.value = "", Le.value = "", Ye.value = !1, re.value = "", Q.value = "", xe.value = "", Te.value = !1, O.value = "", ae.value = "", le.value = "", ce.value = "", U.value = [], Ve.value = "UTF-8", Ee.value = ",", Pe.value = !0, st.value = "", Z.value = "", Oe.value = "", Me.value = void 0, ye.value = "", B.value = "", E.value = "", g.value = [], be.value = "", Y.value = !1, me.value = [], Ue.value = "", Ce.value = "", _e.value = "", De.value = "", j.value = "", N.value = "", oe.value = "", G.value = "", K.value = "", L.value = "", _.value = "", V.value = [], fe.value = "", X.value = "", de.value = "", ue.value = "", qe.value = !0, Xe.value = "", yt.value = "", pt.value = "", it.value = !1, at.value = "", dt.value = "", Qe.value = "", ut.value = "", rt.value = "", Ne.value = "", ge.value = [], Be.value = "", Se.value = "", ct.value = "", Tt.value = "", gt.value = "", et.value = "", ze.value = !1, He.value = [];
     }
     function xt() {
       k.stopEditing(), Ht();
@@ -3596,13 +3596,13 @@ const Fo = {
         table: ve.value,
         column: R.value,
         type: Re.value || void 0,
-        description: ze.value || void 0
+        description: Ke.value || void 0
       });
       const l = y.length > 0 ? y : void 0, o = y.length > 0 ? y[0] : void 0, C = J.value === "db_direct" || J.value === "db_formatted", f = J.value || re.value ? {
         text: re.value || "",
         displayType: J.value,
         formatDescription: J.value === "db_formatted" && Ae.value || void 0,
-        calcDescription: J.value === "calculated" && Gl() || void 0,
+        calcDescription: J.value === "calculated" && Yl() || void 0,
         calcSources: J.value === "calculated" && kl().length > 0 ? kl() : void 0,
         // 保存済み計算値 (db_direct / db_formatted のみ)
         storedCalc: C && Ge.value ? !0 : void 0,
@@ -3615,29 +3615,29 @@ const Fo = {
         nullDisplay: bt.value || void 0,
         displayFormat: tt.value || void 0,
         condition: Ze.value || void 0,
-        conditionColumn: L.value || void 0,
+        conditionColumn: F.value || void 0,
         hiddenBehavior: ke.value || void 0,
-        hiddenNote: Fe.value || void 0
-      } : void 0, K = Q.value ? {
+        hiddenNote: Le.value || void 0
+      } : void 0, z = Q.value ? {
         type: Q.value,
         source: xe.value || void 0,
         isStatic: Te.value
-      } : void 0, Le = V.value === "action" && H.value ? {
-        type: H.value,
-        target: de.value || void 0,
+      } : void 0, Fe = D.value === "action" && O.value ? {
+        type: O.value,
+        target: ae.value || void 0,
         method: le.value ? le.value : void 0,
         description: ce.value || void 0,
-        csvSpec: no(),
-        emailSpec: so(),
-        sortSpec: ro()
-      } : void 0, Wt = V.value === "form" ? {
+        csvSpec: so(),
+        emailSpec: io(),
+        sortSpec: co()
+      } : void 0, Wt = D.value === "form" ? {
         inputType: be.value || void 0,
         required: Y.value || void 0,
         validation: me.value.length > 0 ? me.value : void 0,
         placeholder: Ce.value || void 0,
         defaultValue: _e.value || void 0,
         description: De.value || void 0
-      } : void 0, bl = V.value === "chart" && Qe.value ? {
+      } : void 0, bl = D.value === "chart" && Qe.value ? {
         chartType: Qe.value,
         title: ut.value || void 0,
         xAxis: rt.value || void 0,
@@ -3649,18 +3649,18 @@ const Fo = {
         description: Tt.value || void 0
       } : void 0;
       k.setElementConfig(Je.value, {
-        elementType: V.value,
+        elementType: D.value,
         fieldInfo: o,
         fieldInfoList: l,
-        actionInfo: Le,
+        actionInfo: Fe,
         formInfo: Wt,
         chartSpec: bl,
         note: f,
-        sourceBinding: K,
+        sourceBinding: z,
         tabContext: gt.value || void 0,
         modalName: et.value || void 0,
         isConditional: et.value ? !0 : void 0
-      }), Ke.value && We.value && co(), xt();
+      }), ze.value && We.value && vo(), xt();
     }
     function el() {
       Je.value && (k.deleteElementConfig(Je.value), xt());
@@ -3689,7 +3689,7 @@ const Fo = {
       "DATETIME",
       "TIMESTAMP",
       "JSON"
-    ], ht = h(""), _t = h(!1), Xt = q(() => k.searchSchemaColumns(ht.value).slice(0, 30));
+    ], ht = h(""), _t = h(!1), Xt = H(() => k.searchSchemaColumns(ht.value).slice(0, 30));
     function sl(y) {
       he.value.push({
         table: y.table,
@@ -3703,19 +3703,19 @@ const Fo = {
         table: ve.value,
         column: R.value,
         type: Re.value || void 0,
-        description: ze.value || void 0
-      }), ve.value = "", R.value = "", Re.value = "", ze.value = "");
+        description: Ke.value || void 0
+      }), ve.value = "", R.value = "", Re.value = "", Ke.value = "");
     }
     function il(y) {
       he.value.splice(y, 1);
     }
-    const u = q(() => k.getSchemaColumns().length > 0), t = h(!1), x = h(!1), P = q(() => {
+    const u = H(() => k.getSchemaColumns().length > 0), t = h(!1), x = h(!1), P = H(() => {
       var C;
       const y = /* @__PURE__ */ new Set();
       for (const f of Object.values(k.elementConfigs))
         if (f.fieldInfoList)
-          for (const K of f.fieldInfoList)
-            K.table && y.add(K.table);
+          for (const z of f.fieldInfoList)
+            z.table && y.add(z.table);
         else (C = f.fieldInfo) != null && C.table && y.add(f.fieldInfo.table);
       for (const f of k.getSchemaColumns())
         y.add(f.table);
@@ -3723,13 +3723,13 @@ const Fo = {
       if (!ve.value) return l;
       const o = ve.value.toLowerCase();
       return l.filter((f) => f.toLowerCase().includes(o));
-    }), s = q(() => {
+    }), s = H(() => {
       var C;
       const y = /* @__PURE__ */ new Set();
       for (const f of Object.values(k.elementConfigs))
         if (f.fieldInfoList)
-          for (const K of f.fieldInfoList)
-            K.column && (!ve.value || K.table === ve.value) && y.add(K.column);
+          for (const z of f.fieldInfoList)
+            z.column && (!ve.value || z.table === ve.value) && y.add(z.column);
         else (C = f.fieldInfo) != null && C.column && (!ve.value || f.fieldInfo.table === ve.value) && y.add(f.fieldInfo.column);
       for (const f of k.getSchemaColumns())
         (!ve.value || f.table === ve.value) && y.add(f.column);
@@ -3751,31 +3751,31 @@ const Fo = {
     function $(y) {
       if (ve.value = y, t.value = !1, R.value) {
         const l = k.getSchemaColumns().find((o) => o.table === y && o.column === R.value);
-        l && (Re.value = l.type || "", ze.value = l.comment || "");
+        l && (Re.value = l.type || "", Ke.value = l.comment || "");
       }
     }
     function M(y) {
       if (R.value = y, x.value = !1, ve.value) {
         const l = k.getSchemaColumns().find((o) => o.table === ve.value && o.column === y);
-        l && (Re.value = l.type || "", ze.value = l.comment || "");
+        l && (Re.value = l.type || "", Ke.value = l.comment || "");
       }
     }
-    const ie = q(() => {
+    const ie = H(() => {
       var C, f;
       const y = /* @__PURE__ */ new Set();
-      for (const K of Object.values(k.elementConfigs))
-        if (K.fieldInfoList)
-          for (const Le of K.fieldInfoList)
-            Le.table && Le.column && y.add(`${Le.table}.${Le.column}`);
-        else (C = K.fieldInfo) != null && C.table && ((f = K.fieldInfo) != null && f.column) && y.add(`${K.fieldInfo.table}.${K.fieldInfo.column}`);
-      for (const K of k.getSchemaColumns())
-        y.add(K.fullName);
+      for (const z of Object.values(k.elementConfigs))
+        if (z.fieldInfoList)
+          for (const Fe of z.fieldInfoList)
+            Fe.table && Fe.column && y.add(`${Fe.table}.${Fe.column}`);
+        else (C = z.fieldInfo) != null && C.table && ((f = z.fieldInfo) != null && f.column) && y.add(`${z.fieldInfo.table}.${z.fieldInfo.column}`);
+      for (const z of k.getSchemaColumns())
+        y.add(z.fullName);
       const l = [...y].sort();
       if (!d.value) return l;
       const o = d.value.trim().toLowerCase();
       if (/^[a-z0-9_.]+$/i.test(o)) {
-        const K = l.filter((Le) => Le.toLowerCase().includes(o));
-        if (K.length > 0) return K;
+        const z = l.filter((Fe) => Fe.toLowerCase().includes(o));
+        if (z.length > 0) return z;
       }
       return l;
     });
@@ -3791,27 +3791,27 @@ const Fo = {
         l.type === "text" && (d.value = l.value);
       }
     }
-    function Hl() {
+    function Rl() {
       setTimeout(() => {
         qt.value = !1;
       }, 150);
     }
-    const gl = q(() => {
+    const gl = H(() => {
       var C, f;
       const y = /* @__PURE__ */ new Set();
-      for (const K of k.getSchemaColumns())
-        y.add(K.fullName);
-      for (const K of Object.values(k.elementConfigs))
-        if (K.fieldInfoList)
-          for (const Le of K.fieldInfoList)
-            Le.table && Le.column && y.add(`${Le.table}.${Le.column}`);
-        else (C = K.fieldInfo) != null && C.table && ((f = K.fieldInfo) != null && f.column) && y.add(`${K.fieldInfo.table}.${K.fieldInfo.column}`);
+      for (const z of k.getSchemaColumns())
+        y.add(z.fullName);
+      for (const z of Object.values(k.elementConfigs))
+        if (z.fieldInfoList)
+          for (const Fe of z.fieldInfoList)
+            Fe.table && Fe.column && y.add(`${Fe.table}.${Fe.column}`);
+        else (C = z.fieldInfo) != null && C.table && ((f = z.fieldInfo) != null && f.column) && y.add(`${z.fieldInfo.table}.${z.fieldInfo.column}`);
       const l = [...y].sort();
       if (!lt.value) return l;
       const o = lt.value.trim().toLowerCase();
-      return l.filter((K) => K.toLowerCase().includes(o));
+      return l.filter((z) => z.toLowerCase().includes(o));
     });
-    function Rl() {
+    function Kl() {
       setTimeout(() => {
         Bt.value = !1;
       }, 150);
@@ -3820,17 +3820,17 @@ const Fo = {
       const y = lt.value.trim();
       y && !je.value.includes(y) && je.value.push(y), lt.value = "";
     }
-    function Kl(y) {
+    function Gl(y) {
       je.value.includes(y) || je.value.push(y), lt.value = "";
     }
-    function Gl() {
+    function Yl() {
       const y = Ie.value.map((l) => l.value);
       return d.value.trim() && y.push(d.value.trim()), y.join(" ").replace(/\s+/g, " ").trim();
     }
     function kl() {
       return Ie.value.filter((y) => y.type === "tag").map((y) => y.value);
     }
-    function Yl(y, l) {
+    function Xl(y, l) {
       if (!y && l.length === 0) {
         Ie.value = [], d.value = "";
         return;
@@ -3841,30 +3841,30 @@ const Fo = {
       }
       const o = [];
       let C = y;
-      for (const K of l) {
-        const Le = C.indexOf(K);
-        if (Le >= 0) {
-          const Wt = C.substring(0, Le).trim();
-          Wt && o.push({ type: "text", value: Wt }), o.push({ type: "tag", value: K }), C = C.substring(Le + K.length);
+      for (const z of l) {
+        const Fe = C.indexOf(z);
+        if (Fe >= 0) {
+          const Wt = C.substring(0, Fe).trim();
+          Wt && o.push({ type: "text", value: Wt }), o.push({ type: "tag", value: z }), C = C.substring(Fe + z.length);
         }
       }
       const f = C.trim();
       f && o.push({ type: "text", value: f }), o.length === 0 ? d.value = y : (Ie.value = o, d.value = "");
     }
-    function Xl() {
+    function Wl() {
       const y = Ue.value.trim();
       y && !me.value.includes(y) && me.value.push(y), Ue.value = "";
     }
-    function Wl(y) {
+    function Zl(y) {
       me.value.splice(y, 1);
     }
-    function Zl(y) {
+    function Jl(y) {
       y.key === "Backspace" && !Ue.value && me.value.length > 0 && me.value.pop();
     }
-    function Jl() {
+    function Ql() {
       U.value.push({ name: "", dbMapping: "", type: "string", required: !1, description: "" });
     }
-    function Ql(y) {
+    function Nl(y) {
       U.value.splice(y, 1);
     }
     function xl(y, l) {
@@ -3873,10 +3873,10 @@ const Fo = {
       const C = U.value[y];
       U.value[y] = U.value[o], U.value[o] = C, U.value = [...U.value];
     }
-    function Nl() {
+    function eo() {
       ge.value.push({ label: "", field: "", color: "#3b82f6" });
     }
-    function eo(y) {
+    function to(y) {
       ge.value.splice(y, 1);
     }
     function wl(y, l) {
@@ -3885,15 +3885,15 @@ const Fo = {
       const C = ge.value[y];
       ge.value[y] = ge.value[o], ge.value[o] = C, ge.value = [...ge.value];
     }
-    function to() {
+    function lo() {
       g.value.push({ condition: "", message: "", column: "", severity: "error" });
     }
-    function lo(y) {
+    function oo(y) {
       g.value.splice(y, 1);
     }
-    const oo = q(() => U.value.filter((y) => y.name).map((y) => y.name));
-    function no() {
-      if (H.value !== "csv_export" && H.value !== "csv_import") return;
+    const no = H(() => U.value.filter((y) => y.name).map((y) => y.name));
+    function so() {
+      if (O.value !== "csv_export" && O.value !== "csv_import") return;
       const y = g.value.filter((l) => l.condition || l.message);
       return {
         columns: U.value.filter((l) => l.name),
@@ -3910,34 +3910,34 @@ const Fo = {
         errorDefs: y.length > 0 ? y : void 0
       };
     }
-    function so() {
-      if (H.value === "email")
+    function io() {
+      if (O.value === "email")
         return {
-          trigger: O.value || "",
+          trigger: j.value || "",
           to: N.value || "",
           cc: oe.value || void 0,
           bcc: G.value || void 0,
-          subject: z.value || "",
-          bodyTemplate: F.value || void 0,
+          subject: K.value || "",
+          bodyTemplate: L.value || void 0,
           templatePath: _.value || void 0,
-          variables: D.value.length > 0 ? D.value : void 0,
+          variables: V.value.length > 0 ? V.value : void 0,
           attachments: X.value || void 0,
-          conditions: ae.value || void 0,
+          conditions: de.value || void 0,
           errorHandling: ue.value || void 0
         };
     }
-    function io() {
+    function ao() {
       const y = fe.value.trim();
-      y && !D.value.includes(y) && D.value.push(y), fe.value = "";
-    }
-    function ao(y) {
-      D.value.splice(y, 1);
+      y && !V.value.includes(y) && V.value.push(y), fe.value = "";
     }
     function uo(y) {
-      y.key === "Backspace" && !fe.value && D.value.length > 0 && D.value.pop();
+      V.value.splice(y, 1);
     }
-    function ro() {
-      if (H.value === "sort")
+    function ro(y) {
+      y.key === "Backspace" && !fe.value && V.value.length > 0 && V.value.pop();
+    }
+    function co() {
+      if (O.value === "sort")
         return {
           sortable: qe.value,
           sortType: Xe.value ? Xe.value : void 0,
@@ -3951,12 +3951,12 @@ const Fo = {
     ll(We, (y) => {
       if (y) {
         const l = k.getMasterDefinition(y);
-        l ? (He.value = l.entries.map((o) => ({ ...o })), Ke.value = !0) : (He.value = [], Ke.value = !1);
+        l ? (He.value = l.entries.map((o) => ({ ...o })), ze.value = !0) : (He.value = [], ze.value = !1);
       } else
-        He.value = [], Ke.value = !1;
+        He.value = [], ze.value = !1;
     });
     function Cl() {
-      Ke.value = !Ke.value, Ke.value && He.value.length === 0 && He.value.push({ value: "", label: "" });
+      ze.value = !ze.value, ze.value && He.value.length === 0 && He.value.push({ value: "", label: "" });
     }
     function _l() {
       He.value.push({ value: "", label: "" });
@@ -3964,12 +3964,12 @@ const Fo = {
     function $l(y) {
       He.value.splice(y, 1);
     }
-    function co() {
+    function vo() {
       var f;
       if (!We.value) return;
       const [y, l] = We.value.split(".");
       if (!y || !l) return;
-      const o = He.value.filter((K) => K.value || K.label);
+      const o = He.value.filter((z) => z.value || z.label);
       if (o.length === 0) {
         k.deleteMasterDefinition(We.value);
         return;
@@ -3987,7 +3987,7 @@ const Fo = {
       });
     }
     return (y, l) => (n(), vt(Dt, { to: a(r) }, [
-      Ft.value ? (n(), i("div", {
+      Lt.value ? (n(), i("div", {
         key: 0,
         class: "di-editor-overlay",
         onClick: ee(xt, ["self"]),
@@ -4070,36 +4070,36 @@ const Fo = {
           ]),
           e("div", Vu, [
             e("button", {
-              onClick: l[4] || (l[4] = (o) => V.value = "datasource"),
-              class: A(["di-editor-tab", { "di-editor-tab-active": V.value === "datasource" }])
+              onClick: l[4] || (l[4] = (o) => D.value = "datasource"),
+              class: A(["di-editor-tab", { "di-editor-tab-active": D.value === "datasource" }])
             }, [
-              I(a(zt), { style: { width: "14px", height: "14px" } }),
-              l[97] || (l[97] = j(" データソース ", -1))
+              I(a(Kt), { style: { width: "14px", height: "14px" } }),
+              l[97] || (l[97] = q(" データソース ", -1))
             ], 2),
             e("button", {
-              onClick: l[5] || (l[5] = (o) => V.value = "action"),
-              class: A(["di-editor-tab", { "di-editor-tab-active": V.value === "action" }])
+              onClick: l[5] || (l[5] = (o) => D.value = "action"),
+              class: A(["di-editor-tab", { "di-editor-tab-active": D.value === "action" }])
             }, [
               I(a(Bo), { style: { width: "14px", height: "14px" } }),
-              l[98] || (l[98] = j(" アクション ", -1))
+              l[98] || (l[98] = q(" アクション ", -1))
             ], 2),
             e("button", {
-              onClick: l[6] || (l[6] = (o) => V.value = "form"),
-              class: A(["di-editor-tab", { "di-editor-tab-active": V.value === "form" }])
+              onClick: l[6] || (l[6] = (o) => D.value = "form"),
+              class: A(["di-editor-tab", { "di-editor-tab-active": D.value === "form" }])
             }, [
               I(a(_o), { style: { width: "14px", height: "14px" } }),
-              l[99] || (l[99] = j(" フォーム ", -1))
+              l[99] || (l[99] = q(" フォーム ", -1))
             ], 2),
             e("button", {
-              onClick: l[7] || (l[7] = (o) => V.value = "chart"),
-              class: A(["di-editor-tab", { "di-editor-tab-active": V.value === "chart" }])
+              onClick: l[7] || (l[7] = (o) => D.value = "chart"),
+              class: A(["di-editor-tab", { "di-editor-tab-active": D.value === "chart" }])
             }, [
               I(a(yo), { style: { width: "14px", height: "14px" } }),
-              l[100] || (l[100] = j(" チャート ", -1))
+              l[100] || (l[100] = q(" チャート ", -1))
             ], 2)
           ]),
           e("div", Eu, [
-            V.value === "datasource" ? (n(), i(T, { key: 0 }, [
+            D.value === "datasource" ? (n(), i(T, { key: 0 }, [
               e("div", Pu, [
                 l[101] || (l[101] = e("label", { class: "di-form-label" }, "表示タイプ", -1)),
                 e("div", Bu, [
@@ -4109,19 +4109,19 @@ const Fo = {
                     class: A(["di-display-type-card", { "di-display-type-active": J.value === o.value }]),
                     style: nt(J.value === o.value ? { borderColor: o.color, background: o.color + "18" } : {})
                   }, [
-                    (n(), vt(vo(o.icon), {
+                    (n(), vt(po(o.icon), {
                       style: nt([{ width: "20px", height: "20px" }, { color: J.value === o.value ? o.color : "#64748b" }])
                     }, null, 8, ["style"])),
                     e("span", {
                       class: "di-display-type-label",
                       style: nt({ color: J.value === o.value ? o.color : "#94a3b8" })
                     }, v(o.label), 5),
-                    e("span", Fu, v(o.description), 1)
+                    e("span", Lu, v(o.description), 1)
                   ], 14, Au)), 64))
                 ])
               ]),
               J.value === "db_direct" || J.value === "db_formatted" ? (n(), i(T, { key: 0 }, [
-                he.value.length > 0 ? (n(), i("div", Lu, [
+                he.value.length > 0 ? (n(), i("div", Fu, [
                   l[102] || (l[102] = e("label", { class: "di-form-label" }, "登録済みカラム", -1)),
                   e("div", Ou, [
                     (n(!0), i(T, null, S(he.value, (o, C) => (n(), i("div", {
@@ -4138,10 +4138,10 @@ const Fo = {
                   ])
                 ])) : p("", !0),
                 u.value ? (n(), i("div", Ru, [
-                  e("div", zu, [
-                    e("label", Ku, [
-                      I(a(zt), { style: { width: "12px", height: "12px", display: "inline", "vertical-align": "middle" } }),
-                      l[103] || (l[103] = j(" schema.rb から選択 ", -1))
+                  e("div", Ku, [
+                    e("label", zu, [
+                      I(a(Kt), { style: { width: "12px", height: "12px", display: "inline", "vertical-align": "middle" } }),
+                      l[103] || (l[103] = q(" schema.rb から選択 ", -1))
                     ]),
                     e("div", Gu, [
                       b(e("input", {
@@ -4248,13 +4248,13 @@ const Fo = {
                 We.value ? (n(), i("div", cr, [
                   e("button", {
                     onClick: Cl,
-                    class: A(["di-btn-condition-toggle", { "di-condition-active": Ke.value }])
+                    class: A(["di-btn-condition-toggle", { "di-condition-active": ze.value }])
                   }, [
                     I(a(Pl), { style: { width: "14px", height: "14px" } }),
-                    l[109] || (l[109] = j(" マスタ値を定義 ", -1)),
+                    l[109] || (l[109] = q(" マスタ値を定義 ", -1)),
                     Pt.value ? (n(), i("span", vr, v(Pt.value.entries.length) + "件", 1)) : p("", !0)
                   ], 2),
-                  Ke.value ? (n(), i("div", pr, [
+                  ze.value ? (n(), i("div", pr, [
                     He.value.length > 0 ? (n(), i("div", mr, [
                       l[110] || (l[110] = e("div", { class: "di-master-entries-header" }, [
                         e("span", { class: "di-master-col-val" }, "値"),
@@ -4317,7 +4317,7 @@ const Fo = {
                     class: A(["di-btn-condition-toggle", { "di-condition-active": Ge.value }])
                   }, [
                     I(a(Sl), { style: { width: "14px", height: "14px" } }),
-                    l[112] || (l[112] = j(" このカラムは計算値を保存している ", -1)),
+                    l[112] || (l[112] = q(" このカラムは計算値を保存している ", -1)),
                     Ge.value ? (n(), i("span", xr, "設定あり")) : p("", !0)
                   ], 2)
                 ]),
@@ -4340,7 +4340,7 @@ const Fo = {
                         key: C,
                         class: "di-calc-tag"
                       }, [
-                        j(v(o) + " ", 1),
+                        q(v(o) + " ", 1),
                         e("button", {
                           onClick: ee((f) => je.value.splice(C, 1), ["stop"]),
                           class: "di-calc-tag-remove"
@@ -4349,7 +4349,7 @@ const Fo = {
                       b(e("input", {
                         "onUpdate:modelValue": l[21] || (l[21] = (o) => lt.value = o),
                         onFocus: l[22] || (l[22] = (o) => Bt.value = !0),
-                        onBlur: Rl,
+                        onBlur: Kl,
                         onKeydown: l[23] || (l[23] = Vt(ee((o) => zl(), ["prevent"]), ["enter"])),
                         type: "text",
                         placeholder: "order_items.price",
@@ -4362,11 +4362,11 @@ const Fo = {
                     Bt.value && gl.value.length > 0 ? (n(), i("div", Ir, [
                       (n(!0), i(T, null, S(gl.value.slice(0, 12), (o) => (n(), i("button", {
                         key: o,
-                        onMousedown: ee((C) => Kl(o), ["prevent"]),
+                        onMousedown: ee((C) => Gl(o), ["prevent"]),
                         class: "di-suggest-item"
                       }, [
-                        I(a(zt), { style: { width: "10px", height: "10px", opacity: "0.5", "flex-shrink": "0" } }),
-                        j(" " + v(o), 1)
+                        I(a(Kt), { style: { width: "10px", height: "10px", opacity: "0.5", "flex-shrink": "0" } }),
+                        q(" " + v(o), 1)
                       ], 40, Mr))), 128))
                     ])) : p("", !0),
                     l[115] || (l[115] = e("span", { class: "di-form-hint" }, "Enter で追加、またはドロップダウンから選択", -1))
@@ -4399,7 +4399,7 @@ const Fo = {
                 }, [
                   (n(!0), i(T, null, S(Ie.value, (o, C) => (n(), i(T, { key: C }, [
                     o.type === "tag" ? (n(), i("span", Dr, [
-                      j(v(o.value) + " ", 1),
+                      q(v(o.value) + " ", 1),
                       e("button", {
                         onClick: ee((f) => wt(C), ["stop"]),
                         class: "di-calc-tag-remove"
@@ -4410,7 +4410,7 @@ const Fo = {
                     ref: "calcInputEl",
                     "onUpdate:modelValue": l[25] || (l[25] = (o) => d.value = o),
                     onFocus: l[26] || (l[26] = (o) => qt.value = !0),
-                    onBlur: l[27] || (l[27] = (o) => Hl()),
+                    onBlur: l[27] || (l[27] = (o) => Rl()),
                     onKeydown: al,
                     type: "text",
                     placeholder: Ie.value.length === 0 ? "カラムを選択 or 自由入力 (例: × 2)" : "",
@@ -4426,13 +4426,13 @@ const Fo = {
                     onMousedown: ee((C) => se(o), ["prevent"]),
                     class: "di-suggest-item"
                   }, [
-                    I(a(zt), { style: { width: "10px", height: "10px", opacity: "0.5", "flex-shrink": "0" } }),
-                    j(" " + v(o), 1)
+                    I(a(Kt), { style: { width: "10px", height: "10px", opacity: "0.5", "flex-shrink": "0" } }),
+                    q(" " + v(o), 1)
                   ], 40, Ar))), 128))
                 ])) : p("", !0),
                 l[119] || (l[119] = e("span", { class: "di-form-hint" }, "DBカラムはドロップダウンから挿入、演算子や数値はそのまま入力", -1))
               ])) : p("", !0),
-              J.value === "static" || J.value === "other" ? (n(), i("div", Fr, [
+              J.value === "static" || J.value === "other" ? (n(), i("div", Lr, [
                 l[120] || (l[120] = e("label", { class: "di-form-label" }, "メモ", -1)),
                 b(e("textarea", {
                   "onUpdate:modelValue": l[29] || (l[29] = (o) => re.value = o),
@@ -4444,13 +4444,13 @@ const Fo = {
                 ])
               ])) : p("", !0),
               J.value && J.value !== "other" ? (n(), i(T, { key: 3 }, [
-                e("div", Lr, [
+                e("div", Fr, [
                   e("button", {
                     onClick: l[30] || (l[30] = (o) => Ye.value = !Ye.value),
                     class: A(["di-btn-condition-toggle", { "di-condition-active": Ye.value || Ze.value }])
                   }, [
-                    I(a(Ll), { style: { width: "14px", height: "14px" } }),
-                    l[121] || (l[121] = j(" 条件付き表示 ", -1)),
+                    I(a(Fl), { style: { width: "14px", height: "14px" } }),
+                    l[121] || (l[121] = q(" 条件付き表示 ", -1)),
                     Ze.value ? (n(), i("span", Or, "設定あり")) : p("", !0)
                   ], 2)
                 ]),
@@ -4469,16 +4469,16 @@ const Fo = {
                   e("div", Hr, [
                     l[123] || (l[123] = e("label", { class: "di-form-label" }, "判定カラム", -1)),
                     b(e("input", {
-                      "onUpdate:modelValue": l[32] || (l[32] = (o) => L.value = o),
+                      "onUpdate:modelValue": l[32] || (l[32] = (o) => F.value = o),
                       type: "text",
                       placeholder: "users.role / orders.status",
                       class: "di-input di-input-mono"
                     }, null, 512), [
-                      [w, L.value]
+                      [w, F.value]
                     ])
                   ]),
                   e("div", Rr, [
-                    e("div", zr, [
+                    e("div", Kr, [
                       l[125] || (l[125] = e("label", { class: "di-form-label" }, "条件不一致時の挙動", -1)),
                       b(e("select", {
                         "onUpdate:modelValue": l[33] || (l[33] = (o) => ke.value = o),
@@ -4494,15 +4494,15 @@ const Fo = {
                       ])
                     ])
                   ]),
-                  ke.value === "different_value" ? (n(), i("div", Kr, [
+                  ke.value === "different_value" ? (n(), i("div", zr, [
                     l[126] || (l[126] = e("label", { class: "di-form-label" }, "代わりに表示する値", -1)),
                     b(e("input", {
-                      "onUpdate:modelValue": l[34] || (l[34] = (o) => Fe.value = o),
+                      "onUpdate:modelValue": l[34] || (l[34] = (o) => Le.value = o),
                       type: "text",
                       placeholder: "「権限がありません」/ 「***」",
                       class: "di-input"
                     }, null, 512), [
-                      [w, Fe.value]
+                      [w, Le.value]
                     ])
                   ])) : p("", !0)
                 ])) : p("", !0)
@@ -4589,11 +4589,11 @@ const Fo = {
                 ])
               ], 64)) : p("", !0)
             ], 64)) : p("", !0),
-            V.value === "action" ? (n(), i(T, { key: 1 }, [
+            D.value === "action" ? (n(), i(T, { key: 1 }, [
               e("div", ec, [
                 l[136] || (l[136] = e("label", { class: "di-form-label" }, "アクションタイプ", -1)),
                 b(e("select", {
-                  "onUpdate:modelValue": l[41] || (l[41] = (o) => H.value = o),
+                  "onUpdate:modelValue": l[41] || (l[41] = (o) => O.value = o),
                   class: "di-select"
                 }, [...l[135] || (l[135] = [
                   e("option", { value: "" }, "選択してください", -1),
@@ -4607,21 +4607,21 @@ const Fo = {
                   e("option", { value: "email" }, "メール送信", -1),
                   e("option", { value: "sort" }, "ソート", -1)
                 ])], 512), [
-                  [we, H.value]
+                  [we, O.value]
                 ])
               ]),
               e("div", tc, [
                 l[137] || (l[137] = e("label", { class: "di-form-label" }, "ターゲット", -1)),
                 b(e("input", {
-                  "onUpdate:modelValue": l[42] || (l[42] = (o) => de.value = o),
+                  "onUpdate:modelValue": l[42] || (l[42] = (o) => ae.value = o),
                   type: "text",
-                  placeholder: H.value === "navigate" ? "/tasks" : H.value === "api" ? "/api/users" : H.value === "modal" ? "confirm-dialog" : H.value === "csv_export" ? "/api/export/users" : H.value === "csv_import" ? "/api/import/users" : "",
+                  placeholder: O.value === "navigate" ? "/tasks" : O.value === "api" ? "/api/users" : O.value === "modal" ? "confirm-dialog" : O.value === "csv_export" ? "/api/export/users" : O.value === "csv_import" ? "/api/import/users" : "",
                   class: "di-input di-input-mono"
                 }, null, 8, lc), [
-                  [w, de.value]
+                  [w, ae.value]
                 ])
               ]),
-              H.value === "api" ? (n(), i("div", oc, [
+              O.value === "api" ? (n(), i("div", oc, [
                 l[139] || (l[139] = e("label", { class: "di-form-label" }, "HTTPメソッド", -1)),
                 b(e("select", {
                   "onUpdate:modelValue": l[43] || (l[43] = (o) => le.value = o),
@@ -4648,11 +4648,11 @@ const Fo = {
                   [w, ce.value]
                 ])
               ]),
-              H.value === "csv_export" || H.value === "csv_import" ? (n(), i(T, { key: 1 }, [
+              O.value === "csv_export" || O.value === "csv_import" ? (n(), i(T, { key: 1 }, [
                 e("div", sc, [
                   e("span", null, [
-                    I(a(jl), { style: { width: "12px", height: "12px", display: "inline", "vertical-align": "middle" } }),
-                    l[141] || (l[141] = j(" CSV仕様", -1))
+                    I(a(ql), { style: { width: "12px", height: "12px", display: "inline", "vertical-align": "middle" } }),
+                    l[141] || (l[141] = q(" CSV仕様", -1))
                   ])
                 ]),
                 e("div", ic, [
@@ -4695,7 +4695,7 @@ const Fo = {
                       }, null, 512), [
                         [dl, Pe.value]
                       ]),
-                      l[146] || (l[146] = j(" ヘッダー行あり ", -1))
+                      l[146] || (l[146] = q(" ヘッダー行あり ", -1))
                     ])
                   ]),
                   e("div", vc, [
@@ -4797,7 +4797,7 @@ const Fo = {
                           I(a(yl), { style: { width: "12px", height: "12px" } })
                         ], 8, $c),
                         e("button", {
-                          onClick: (f) => Ql(C),
+                          onClick: (f) => Nl(C),
                           class: "di-csv-remove-btn",
                           title: "削除"
                         }, "×", 8, Tc)
@@ -4805,11 +4805,11 @@ const Fo = {
                     ]))), 128))
                   ])) : p("", !0),
                   e("button", {
-                    onClick: Jl,
+                    onClick: Ql,
                     class: "di-btn-add-field"
                   }, " + 列を追加 ")
                 ]),
-                H.value === "csv_export" ? (n(), i(T, { key: 0 }, [
+                O.value === "csv_export" ? (n(), i(T, { key: 0 }, [
                   l[155] || (l[155] = e("div", { class: "di-form-divider" }, [
                     e("span", null, "出力オプション")
                   ], -1)),
@@ -4852,7 +4852,7 @@ const Fo = {
                     ])
                   ])
                 ], 64)) : p("", !0),
-                H.value === "csv_import" ? (n(), i(T, { key: 1 }, [
+                O.value === "csv_import" ? (n(), i(T, { key: 1 }, [
                   l[161] || (l[161] = e("div", { class: "di-form-divider" }, [
                     e("span", null, "取込オプション")
                   ], -1)),
@@ -4917,7 +4917,7 @@ const Fo = {
                         class: "di-csv-select di-csv-err-col"
                       }, [
                         l[162] || (l[162] = e("option", { value: "" }, "（全体）", -1)),
-                        (n(!0), i(T, null, S(oo.value, (f) => (n(), i("option", {
+                        (n(!0), i(T, null, S(no.value, (f) => (n(), i("option", {
                           key: f,
                           value: f
                         }, v(f), 9, Ac))), 128))
@@ -4928,14 +4928,14 @@ const Fo = {
                         "onUpdate:modelValue": (f) => o.condition = f,
                         placeholder: "必須項目が空",
                         class: "di-csv-input di-csv-err-cond"
-                      }, null, 8, Fc), [
+                      }, null, 8, Lc), [
                         [w, o.condition]
                       ]),
                       b(e("input", {
                         "onUpdate:modelValue": (f) => o.message = f,
                         placeholder: "○○は必須です",
                         class: "di-csv-input di-csv-err-msg"
-                      }, null, 8, Lc), [
+                      }, null, 8, Fc), [
                         [w, o.message]
                       ]),
                       b(e("select", {
@@ -4948,38 +4948,38 @@ const Fo = {
                         [we, o.severity]
                       ]),
                       e("button", {
-                        onClick: (f) => lo(C),
+                        onClick: (f) => oo(C),
                         class: "di-csv-remove-btn",
                         title: "削除"
                       }, "×", 8, jc)
                     ]))), 128))
                   ])) : p("", !0),
                   e("button", {
-                    onClick: to,
+                    onClick: lo,
                     class: "di-btn-add-field"
                   }, " + エラー定義を追加 ")
                 ])
               ], 64)) : p("", !0),
-              H.value === "email" ? (n(), i(T, { key: 2 }, [
+              O.value === "email" ? (n(), i(T, { key: 2 }, [
                 e("div", qc, [
                   e("span", null, [
                     I(a(Io), { style: { width: "12px", height: "12px", display: "inline", "vertical-align": "middle" } }),
-                    l[166] || (l[166] = j(" メール基本設定", -1))
+                    l[166] || (l[166] = q(" メール基本設定", -1))
                   ])
                 ]),
                 e("div", Hc, [
                   e("div", Rc, [
                     l[167] || (l[167] = e("label", { class: "di-form-label" }, "トリガー *", -1)),
                     b(e("input", {
-                      "onUpdate:modelValue": l[55] || (l[55] = (o) => O.value = o),
+                      "onUpdate:modelValue": l[55] || (l[55] = (o) => j.value = o),
                       type: "text",
                       placeholder: "注文確定時、ボタンクリック",
                       class: "di-input"
                     }, null, 512), [
-                      [w, O.value]
+                      [w, j.value]
                     ])
                   ]),
-                  e("div", zc, [
+                  e("div", Kc, [
                     l[168] || (l[168] = e("label", { class: "di-form-label" }, "宛先 *", -1)),
                     b(e("input", {
                       "onUpdate:modelValue": l[56] || (l[56] = (o) => N.value = o),
@@ -4991,7 +4991,7 @@ const Fo = {
                     ])
                   ])
                 ]),
-                e("div", Kc, [
+                e("div", zc, [
                   e("div", Gc, [
                     l[169] || (l[169] = e("label", { class: "di-form-label" }, "CC", -1)),
                     b(e("input", {
@@ -5018,23 +5018,23 @@ const Fo = {
                 e("div", Xc, [
                   l[171] || (l[171] = e("label", { class: "di-form-label" }, "件名テンプレート *", -1)),
                   b(e("input", {
-                    "onUpdate:modelValue": l[59] || (l[59] = (o) => z.value = o),
+                    "onUpdate:modelValue": l[59] || (l[59] = (o) => K.value = o),
                     type: "text",
                     placeholder: "【注文確認】ご注文番号 {orderNumber}",
                     class: "di-input"
                   }, null, 512), [
-                    [w, z.value]
+                    [w, K.value]
                   ])
                 ]),
                 e("div", Wc, [
                   l[172] || (l[172] = e("label", { class: "di-form-label" }, "本文テンプレート概要", -1)),
                   b(e("textarea", {
-                    "onUpdate:modelValue": l[60] || (l[60] = (o) => F.value = o),
+                    "onUpdate:modelValue": l[60] || (l[60] = (o) => L.value = o),
                     rows: "3",
                     placeholder: "本文の概要を記述...",
                     class: "di-textarea"
                   }, null, 512), [
-                    [w, F.value]
+                    [w, L.value]
                   ])
                 ]),
                 e("div", Zc, [
@@ -5053,21 +5053,21 @@ const Fo = {
                 ], -1)),
                 e("div", Jc, [
                   e("div", Qc, [
-                    (n(!0), i(T, null, S(D.value, (o, C) => (n(), i("span", {
+                    (n(!0), i(T, null, S(V.value, (o, C) => (n(), i("span", {
                       key: C,
                       class: "di-calc-tag"
                     }, [
-                      j(v(o) + " ", 1),
+                      q(v(o) + " ", 1),
                       e("button", {
-                        onClick: ee((f) => ao(C), ["stop"]),
+                        onClick: ee((f) => uo(C), ["stop"]),
                         class: "di-calc-tag-remove"
                       }, "×", 8, Nc)
                     ]))), 128)),
                     b(e("input", {
                       "onUpdate:modelValue": l[62] || (l[62] = (o) => fe.value = o),
                       onKeydown: [
-                        l[63] || (l[63] = Vt(ee((o) => io(), ["prevent"]), ["enter"])),
-                        uo
+                        l[63] || (l[63] = Vt(ee((o) => ao(), ["prevent"]), ["enter"])),
+                        ro
                       ],
                       type: "text",
                       placeholder: "変数名を入力してEnter (例: userName)",
@@ -5096,12 +5096,12 @@ const Fo = {
                 e("div", tv, [
                   l[176] || (l[176] = e("label", { class: "di-form-label" }, "送信条件", -1)),
                   b(e("input", {
-                    "onUpdate:modelValue": l[65] || (l[65] = (o) => ae.value = o),
+                    "onUpdate:modelValue": l[65] || (l[65] = (o) => de.value = o),
                     type: "text",
                     placeholder: "メール送信設定がONの場合",
                     class: "di-input"
                   }, null, 512), [
-                    [w, ae.value]
+                    [w, de.value]
                   ])
                 ]),
                 e("div", lv, [
@@ -5116,11 +5116,11 @@ const Fo = {
                   ])
                 ])
               ], 64)) : p("", !0),
-              H.value === "sort" ? (n(), i(T, { key: 3 }, [
+              O.value === "sort" ? (n(), i(T, { key: 3 }, [
                 e("div", ov, [
                   e("span", null, [
                     I(a(ho), { style: { width: "12px", height: "12px", display: "inline", "vertical-align": "middle" } }),
-                    l[180] || (l[180] = j(" ソート設定", -1))
+                    l[180] || (l[180] = q(" ソート設定", -1))
                   ])
                 ]),
                 e("div", nv, [
@@ -5132,7 +5132,7 @@ const Fo = {
                     }, null, 512), [
                       [dl, qe.value]
                     ]),
-                    l[181] || (l[181] = j(" このカラムはソート可能 ", -1))
+                    l[181] || (l[181] = q(" このカラムはソート可能 ", -1))
                   ])
                 ]),
                 qe.value ? (n(), i(T, { key: 0 }, [
@@ -5186,7 +5186,7 @@ const Fo = {
                       }, null, 512), [
                         [dl, it.value]
                       ]),
-                      l[187] || (l[187] = j(" 初期表示時のデフォルトソート ", -1))
+                      l[187] || (l[187] = q(" 初期表示時のデフォルトソート ", -1))
                     ])
                   ])
                 ], 64)) : p("", !0),
@@ -5225,7 +5225,7 @@ const Fo = {
                 ])
               ])
             ], 64)) : p("", !0),
-            V.value === "form" ? (n(), i(T, { key: 2 }, [
+            D.value === "form" ? (n(), i(T, { key: 2 }, [
               e("div", fv, [
                 l[192] || (l[192] = e("label", { class: "di-form-label" }, "入力タイプ", -1)),
                 b(e("select", {
@@ -5269,8 +5269,8 @@ const Fo = {
               u.value ? (n(), i("div", xv, [
                 e("div", wv, [
                   e("label", Cv, [
-                    I(a(zt), { style: { width: "12px", height: "12px", display: "inline", "vertical-align": "middle" } }),
-                    l[194] || (l[194] = j(" 対応するDBカラム ", -1))
+                    I(a(Kt), { style: { width: "12px", height: "12px", display: "inline", "vertical-align": "middle" } }),
+                    l[194] || (l[194] = q(" 対応するDBカラム ", -1))
                   ]),
                   e("div", _v, [
                     b(e("input", {
@@ -5310,13 +5310,13 @@ const Fo = {
               We.value && (be.value === "select" || be.value === "radio" || be.value === "checkbox") ? (n(), i("div", Dv, [
                 e("button", {
                   onClick: Cl,
-                  class: A(["di-btn-condition-toggle", { "di-condition-active": Ke.value }])
+                  class: A(["di-btn-condition-toggle", { "di-condition-active": ze.value }])
                 }, [
                   I(a(Pl), { style: { width: "14px", height: "14px" } }),
-                  l[195] || (l[195] = j(" 選択肢を定義 ", -1)),
+                  l[195] || (l[195] = q(" 選択肢を定義 ", -1)),
                   Pt.value ? (n(), i("span", Vv, v(Pt.value.entries.length) + "件", 1)) : p("", !0)
                 ], 2),
-                Ke.value ? (n(), i("div", Ev, [
+                ze.value ? (n(), i("div", Ev, [
                   He.value.length > 0 ? (n(), i("div", Pv, [
                     l[196] || (l[196] = e("div", { class: "di-master-entries-header" }, [
                       e("span", { class: "di-master-col-val" }, "値"),
@@ -5346,13 +5346,13 @@ const Fo = {
                         "onUpdate:modelValue": (f) => o.color = f,
                         type: "color",
                         class: "di-master-color-input"
-                      }, null, 8, Fv), [
+                      }, null, 8, Lv), [
                         [w, o.color]
                       ]),
                       e("button", {
                         onClick: (f) => $l(C),
                         class: "di-master-entry-remove"
-                      }, "×", 8, Lv)
+                      }, "×", 8, Fv)
                     ]))), 128))
                   ])) : p("", !0),
                   e("button", {
@@ -5367,8 +5367,8 @@ const Fo = {
                   onClick: l[79] || (l[79] = (o) => Y.value = !Y.value),
                   class: A(["di-btn-condition-toggle", { "di-condition-active": Y.value }])
                 }, [
-                  I(a(Ll), { style: { width: "14px", height: "14px" } }),
-                  l[197] || (l[197] = j(" 必須入力 ", -1)),
+                  I(a(Fl), { style: { width: "14px", height: "14px" } }),
+                  l[197] || (l[197] = q(" 必須入力 ", -1)),
                   Y.value ? (n(), i("span", jv, "必須")) : p("", !0)
                 ], 2)
               ]),
@@ -5380,29 +5380,29 @@ const Fo = {
                     class: "di-calc-tag",
                     style: { background: "#ec4899" }
                   }, [
-                    j(v(o) + " ", 1),
+                    q(v(o) + " ", 1),
                     e("button", {
-                      onClick: ee((f) => Wl(C), ["stop"]),
+                      onClick: ee((f) => Zl(C), ["stop"]),
                       class: "di-calc-tag-remove"
                     }, "×", 8, Rv)
                   ]))), 128)),
                   b(e("input", {
                     "onUpdate:modelValue": l[80] || (l[80] = (o) => Ue.value = o),
                     onKeydown: [
-                      l[81] || (l[81] = Vt(ee((o) => Xl(), ["prevent"]), ["enter"])),
-                      Zl
+                      l[81] || (l[81] = Vt(ee((o) => Wl(), ["prevent"]), ["enter"])),
+                      Jl
                     ],
                     type: "text",
                     placeholder: me.value.length === 0 ? "max:255, email, 必須 など (Enter で追加)" : "",
                     class: "di-calc-tags-field",
                     autocomplete: "off"
-                  }, null, 40, zv), [
+                  }, null, 40, Kv), [
                     [w, Ue.value]
                   ])
                 ]),
                 l[199] || (l[199] = e("span", { class: "di-form-hint" }, "Enter で追加、Backspace で削除", -1))
               ]),
-              e("div", Kv, [
+              e("div", zv, [
                 l[200] || (l[200] = e("label", { class: "di-form-label" }, "プレースホルダー", -1)),
                 b(e("input", {
                   "onUpdate:modelValue": l[82] || (l[82] = (o) => Ce.value = o),
@@ -5447,7 +5447,7 @@ const Fo = {
                 ])
               ])
             ], 64)) : p("", !0),
-            V.value === "chart" ? (n(), i(T, { key: 3 }, [
+            D.value === "chart" ? (n(), i(T, { key: 3 }, [
               e("div", Wv, [
                 l[205] || (l[205] = e("label", { class: "di-form-label" }, "チャート種別", -1)),
                 b(e("select", {
@@ -5554,7 +5554,7 @@ const Fo = {
                         I(a(yl), { style: { width: "12px", height: "12px" } })
                       ], 8, ap),
                       e("button", {
-                        onClick: (f) => eo(C),
+                        onClick: (f) => to(C),
                         class: "di-csv-remove-btn",
                         title: "削除"
                       }, "×", 8, dp)
@@ -5562,7 +5562,7 @@ const Fo = {
                   ]))), 128))
                 ])) : p("", !0),
                 e("button", {
-                  onClick: Nl,
+                  onClick: eo,
                   class: "di-btn-add-field"
                 }, " + 系列を追加 ")
               ]),
@@ -5618,7 +5618,7 @@ const Fo = {
               class: "di-btn-delete"
             }, [
               I(a(tl), { style: { width: "14px", height: "14px" } }),
-              l[215] || (l[215] = j(" 削除 ", -1))
+              l[215] || (l[215] = q(" 削除 ", -1))
             ]),
             e("div", mp, [
               e("button", {
@@ -5629,8 +5629,8 @@ const Fo = {
                 onClick: Gt,
                 class: "di-btn-save"
               }, [
-                I(a(ql), { style: { width: "14px", height: "14px" } }),
-                l[216] || (l[216] = j(" 保存 ", -1))
+                I(a(Hl), { style: { width: "14px", height: "14px" } }),
+                l[216] || (l[216] = q(" 保存 ", -1))
               ])
             ])
           ])
@@ -5672,7 +5672,7 @@ const Fo = {
 }, Pp = /* @__PURE__ */ ol({
   __name: "DevPickOverlay",
   setup(te) {
-    const k = nl(), r = vl("teleportTarget", "body"), V = h(null), H = h(null), de = h(0), le = h(0), ce = h(0), be = {
+    const k = nl(), r = vl("teleportTarget", "body"), D = h(null), O = h(null), ae = h(0), le = h(0), ce = h(0), be = {
       db_direct: "#3b82f6",
       db_formatted: "#8b5cf6",
       calculated: "#f59e0b",
@@ -5696,14 +5696,14 @@ const Fo = {
       }[B] || B;
     }
     function Ue(B) {
-      var g, O;
+      var g, j;
       const E = k.getElementConfig(B);
       if (E != null && E.elementType && Y[E.elementType])
         return Y[E.elementType];
       if ((g = E == null ? void 0 : E.note) != null && g.displayType)
         return be[E.note.displayType] || "#60a5fa";
       if (!(E != null && E.sourceBinding)) {
-        const N = ((O = E == null ? void 0 : E.note) == null ? void 0 : O.type) || "info";
+        const N = ((j = E == null ? void 0 : E.note) == null ? void 0 : j.type) || "info";
         return {
           info: "#60a5fa",
           warning: "#fbbf24",
@@ -5714,12 +5714,12 @@ const Fo = {
       return E.sourceBinding.isStatic ? "#10b981" : E.sourceBinding.type === "v-model" ? "#8b5cf6" : E.sourceBinding.type === "api" ? "#f59e0b" : "#60a5fa";
     }
     function Ce(B) {
-      var z, F, _, D, fe, X;
-      const E = k.noteHighlightFilter, g = k.noteTableFilter, O = k.getElementConfig(B);
-      if (!O || g !== "all" && !((z = O.fieldInfoList) != null && z.length ? O.fieldInfoList : O.fieldInfo ? [O.fieldInfo] : []).some((qe) => qe.table === g || qe.table.startsWith(g + ".")))
+      var K, L, _, V, fe, X;
+      const E = k.noteHighlightFilter, g = k.noteTableFilter, j = k.getElementConfig(B);
+      if (!j || g !== "all" && !((K = j.fieldInfoList) != null && K.length ? j.fieldInfoList : j.fieldInfo ? [j.fieldInfo] : []).some((qe) => qe.table === g || qe.table.startsWith(g + ".")))
         return !1;
       if (E === "all") return !0;
-      const N = (F = O.note) == null ? void 0 : F.displayType, oe = !!((_ = O.note) != null && _.condition || (D = O.note) != null && D.conditionColumn), G = !!((fe = O.note) != null && fe.storedCalc);
+      const N = (L = j.note) == null ? void 0 : L.displayType, oe = !!((_ = j.note) != null && _.condition || (V = j.note) != null && V.conditionColumn), G = !!((fe = j.note) != null && fe.storedCalc);
       switch (E) {
         case "db":
           return N === "db_direct" || N === "db_formatted";
@@ -5732,11 +5732,11 @@ const Fo = {
         case "conditional":
           return oe;
         case "action":
-          return O.elementType === "action";
+          return j.elementType === "action";
         case "form":
-          return O.elementType === "form";
+          return j.elementType === "form";
         case "other":
-          return N === "other" || !N && !O.elementType && !!((X = O.note) != null && X.text);
+          return N === "other" || !N && !j.elementType && !!((X = j.note) != null && X.text);
         default:
           return !0;
       }
@@ -5747,33 +5747,33 @@ const Fo = {
       if (B) return B;
       const E = document.querySelectorAll('[role="dialog"], [role="alertdialog"]');
       for (const G of E) {
-        const z = G.getBoundingClientRect();
-        if (z.width > 0 && z.height > 0) return G;
+        const K = G.getBoundingClientRect();
+        if (K.width > 0 && K.height > 0) return G;
       }
       const g = '.v-overlay--active .v-overlay__content, .el-dialog__wrapper:not([style*="display: none"]) .el-dialog, .modal.show .modal-dialog, .modal-overlay[style*="display: block"], .v-dialog--active';
       try {
         const G = document.querySelector(g);
         if (G) {
-          const z = G.getBoundingClientRect();
-          if (z.width > 0 && z.height > 0) return G;
+          const K = G.getBoundingClientRect();
+          if (K.width > 0 && K.height > 0) return G;
         }
       } catch {
       }
-      const O = document.querySelectorAll(".fixed.inset-0, .fixed.inset-x-0.inset-y-0, [data-modal], [data-overlay]");
-      for (const G of O) {
+      const j = document.querySelectorAll(".fixed.inset-0, .fixed.inset-x-0.inset-y-0, [data-modal], [data-overlay]");
+      for (const G of j) {
         if (((N = G.dataset) == null ? void 0 : N.devInspector) !== void 0) continue;
-        const z = getComputedStyle(G), F = parseInt(z.zIndex, 10);
-        if (isNaN(F) || F < 40) continue;
+        const K = getComputedStyle(G), L = parseInt(K.zIndex, 10);
+        if (isNaN(L) || L < 40) continue;
         const _ = G.getBoundingClientRect();
         if (_.width >= window.innerWidth * 0.9 && _.height >= window.innerHeight * 0.9)
           return G;
       }
       for (const G of document.body.children) {
         if (((oe = G.dataset) == null ? void 0 : oe.devInspector) !== void 0) continue;
-        const z = getComputedStyle(G);
-        if (z.position !== "fixed") continue;
-        const F = parseInt(z.zIndex, 10);
-        if (isNaN(F) || F < 40) continue;
+        const K = getComputedStyle(G);
+        if (K.position !== "fixed") continue;
+        const L = parseInt(K.zIndex, 10);
+        if (isNaN(L) || L < 40) continue;
         const _ = G.getBoundingClientRect();
         if (_.width >= window.innerWidth * 0.9 && _.height >= window.innerHeight * 0.9)
           return G;
@@ -5783,46 +5783,46 @@ const Fo = {
     function De(B, E) {
       return E.contains(B);
     }
-    const U = q(() => {
-      var oe, G, z, F, _, D, fe, X, ae, ue, qe, Xe, yt, pt, it, at, dt, Qe, ut, rt, Ne, ge, Be, Se, ct, Tt, gt, et, Et, Ct, Kt, mt, ft, pe, kt, Qt, jt, Nt, Ke, He, We, Pt, J, he, ve, R, Re;
-      const B = de.value, E = le.value;
+    const U = H(() => {
+      var oe, G, K, L, _, V, fe, X, de, ue, qe, Xe, yt, pt, it, at, dt, Qe, ut, rt, Ne, ge, Be, Se, ct, Tt, gt, et, Et, Ct, zt, mt, ft, pe, kt, Qt, jt, Nt, ze, He, We, Pt, J, he, ve, R, Re;
+      const B = ae.value, E = le.value;
       ce.value;
       const g = [];
       if (!k.isEnabled) return g;
-      const O = _e(), N = k.getConfiguredSelectors();
-      for (const ze of N)
+      const j = _e(), N = k.getConfiguredSelectors();
+      for (const Ke of N)
         try {
-          const Ae = document.querySelector(ze);
+          const Ae = document.querySelector(Ke);
           if (Ae) {
-            if (O && !De(Ae, O)) continue;
+            if (j && !De(Ae, j)) continue;
             const Ie = Ae.getBoundingClientRect();
             if (Ie.width === 0 || Ie.height === 0 || !Ae.offsetParent && Ae.tagName !== "BODY" && getComputedStyle(Ae).position !== "fixed") continue;
-            const d = k.getElementConfig(ze), qt = ((oe = d == null ? void 0 : d.sourceBinding) == null ? void 0 : oe.isStatic) || !1, It = ((G = d == null ? void 0 : d.sourceBinding) == null ? void 0 : G.type) || "";
+            const d = k.getElementConfig(Ke), qt = ((oe = d == null ? void 0 : d.sourceBinding) == null ? void 0 : oe.isStatic) || !1, It = ((G = d == null ? void 0 : d.sourceBinding) == null ? void 0 : G.type) || "";
             let ne = "", $e = "";
-            const bt = (z = d == null ? void 0 : d.note) == null ? void 0 : z.displayType, tt = [];
-            if ((F = d == null ? void 0 : d.note) != null && F.sampleValue ? tt.push(`例: ${d.note.sampleValue}${d.note.unit ? d.note.unit : ""}`) : (_ = d == null ? void 0 : d.note) != null && _.unit && tt.push(`単位: ${d.note.unit}`), (D = d == null ? void 0 : d.note) != null && D.decimalHandling) {
-              const L = { round: "四捨五入", floor: "切り捨て", ceil: "切り上げ", decimal_1: "小数第1位", decimal_2: "小数第2位", integer: "整数" };
-              tt.push(L[d.note.decimalHandling] || d.note.decimalHandling);
+            const bt = (K = d == null ? void 0 : d.note) == null ? void 0 : K.displayType, tt = [];
+            if ((L = d == null ? void 0 : d.note) != null && L.sampleValue ? tt.push(`例: ${d.note.sampleValue}${d.note.unit ? d.note.unit : ""}`) : (_ = d == null ? void 0 : d.note) != null && _.unit && tt.push(`単位: ${d.note.unit}`), (V = d == null ? void 0 : d.note) != null && V.decimalHandling) {
+              const F = { round: "四捨五入", floor: "切り捨て", ceil: "切り上げ", decimal_1: "小数第1位", decimal_2: "小数第2位", integer: "整数" };
+              tt.push(F[d.note.decimalHandling] || d.note.decimalHandling);
             }
             (fe = d == null ? void 0 : d.note) != null && fe.nullDisplay && tt.push(`NULL時: ${d.note.nullDisplay}`), (X = d == null ? void 0 : d.note) != null && X.displayFormat && tt.push(d.note.displayFormat);
             const Ge = tt.length > 0 ? `
-${tt.join(" / ")}` : "", Mt = !!((ae = d == null ? void 0 : d.note) != null && ae.condition || (ue = d == null ? void 0 : d.note) != null && ue.conditionColumn);
+${tt.join(" / ")}` : "", Mt = !!((de = d == null ? void 0 : d.note) != null && de.condition || (ue = d == null ? void 0 : d.note) != null && ue.conditionColumn);
             let je = "";
             if (Mt) {
-              const L = { hidden: "非表示", disabled: "無効化", different_value: "別の値", empty: "空欄" }, ke = [];
-              (qe = d == null ? void 0 : d.note) != null && qe.condition && ke.push(d.note.condition), (Xe = d == null ? void 0 : d.note) != null && Xe.conditionColumn && ke.push(`判定: ${d.note.conditionColumn}`), (yt = d == null ? void 0 : d.note) != null && yt.hiddenBehavior && ke.push(`不一致時: ${L[d.note.hiddenBehavior] || d.note.hiddenBehavior}`), (pt = d == null ? void 0 : d.note) != null && pt.hiddenNote && ke.push(`→ ${d.note.hiddenNote}`), je = `
+              const F = { hidden: "非表示", disabled: "無効化", different_value: "別の値", empty: "空欄" }, ke = [];
+              (qe = d == null ? void 0 : d.note) != null && qe.condition && ke.push(d.note.condition), (Xe = d == null ? void 0 : d.note) != null && Xe.conditionColumn && ke.push(`判定: ${d.note.conditionColumn}`), (yt = d == null ? void 0 : d.note) != null && yt.hiddenBehavior && ke.push(`不一致時: ${F[d.note.hiddenBehavior] || d.note.hiddenBehavior}`), (pt = d == null ? void 0 : d.note) != null && pt.hiddenNote && ke.push(`→ ${d.note.hiddenNote}`), je = `
 条件: ${ke.join(" / ")}`;
             }
             const lt = Mt ? " ⚡" : "";
             if ((d == null ? void 0 : d.elementType) === "action" && (d != null && d.actionInfo)) {
-              const L = d.actionInfo;
-              L.type === "navigate" ? ne = `遷移: ${L.target || "?"}` : L.type === "api" ? ne = `API: ${L.method || "GET"} ${L.target || "?"}` : L.type === "modal" ? ne = `モーダル: ${L.target || "?"}` : L.type === "emit" ? ne = `イベント: ${L.target || "?"}` : L.type === "function" ? ne = `関数: ${L.target || "?"}` : ne = "アクション", $e = (L.description || ne) + ((it = d == null ? void 0 : d.note) != null && it.text ? `
+              const F = d.actionInfo;
+              F.type === "navigate" ? ne = `遷移: ${F.target || "?"}` : F.type === "api" ? ne = `API: ${F.method || "GET"} ${F.target || "?"}` : F.type === "modal" ? ne = `モーダル: ${F.target || "?"}` : F.type === "emit" ? ne = `イベント: ${F.target || "?"}` : F.type === "function" ? ne = `関数: ${F.target || "?"}` : ne = "アクション", $e = (F.description || ne) + ((it = d == null ? void 0 : d.note) != null && it.text ? `
 ${d.note.text}` : "");
             } else if ((d == null ? void 0 : d.elementType) === "form" && (d != null && d.formInfo)) {
-              const L = d.formInfo, ke = (at = d == null ? void 0 : d.fieldInfoList) != null && at.length ? d.fieldInfoList : d != null && d.fieldInfo ? [d.fieldInfo] : [], Fe = ke.length > 0 ? ke.map((xe) => `${xe.table}.${xe.column}`).join(", ") : "", Ye = ke.length > 0 ? `${ke[0].table}.${ke[0].column}` : "", re = Ye ? k.getMasterDefinition(Ye) : null;
-              L.inputType === "select" ? ne = `選択: ${Fe || L.description || "?"}${re ? ` (${re.entries.length}件)` : ""}` : L.inputType === "textarea" ? ne = `テキスト: ${Fe || L.description || "?"}` : L.inputType === "checkbox" ? ne = `チェック: ${Fe || L.description || "?"}` : L.inputType === "radio" ? ne = `ラジオ: ${Fe || L.description || "?"}` : ne = `入力: ${Fe || L.description || L.inputType || "?"}`, L.required && (ne += " (必須)");
+              const F = d.formInfo, ke = (at = d == null ? void 0 : d.fieldInfoList) != null && at.length ? d.fieldInfoList : d != null && d.fieldInfo ? [d.fieldInfo] : [], Le = ke.length > 0 ? ke.map((xe) => `${xe.table}.${xe.column}`).join(", ") : "", Ye = ke.length > 0 ? `${ke[0].table}.${ke[0].column}` : "", re = Ye ? k.getMasterDefinition(Ye) : null;
+              F.inputType === "select" ? ne = `選択: ${Le || F.description || "?"}${re ? ` (${re.entries.length}件)` : ""}` : F.inputType === "textarea" ? ne = `テキスト: ${Le || F.description || "?"}` : F.inputType === "checkbox" ? ne = `チェック: ${Le || F.description || "?"}` : F.inputType === "radio" ? ne = `ラジオ: ${Le || F.description || "?"}` : ne = `入力: ${Le || F.description || F.inputType || "?"}`, F.required && (ne += " (必須)");
               const Q = [];
-              L.description && Q.push(L.description), (dt = L.validation) != null && dt.length && Q.push(`検証: ${L.validation.join(", ")}`), L.placeholder && Q.push(`placeholder: ${L.placeholder}`), L.defaultValue && Q.push(`初期値: ${L.defaultValue}`), $e = Q.join(`
+              F.description && Q.push(F.description), (dt = F.validation) != null && dt.length && Q.push(`検証: ${F.validation.join(", ")}`), F.placeholder && Q.push(`placeholder: ${F.placeholder}`), F.defaultValue && Q.push(`初期値: ${F.defaultValue}`), $e = Q.join(`
 `) + ((Qe = d == null ? void 0 : d.note) != null && Qe.text ? `
 ${d.note.text}` : "");
             } else if ((d == null ? void 0 : d.elementType) === "action")
@@ -5830,25 +5830,25 @@ ${d.note.text}` : "");
             else if ((d == null ? void 0 : d.elementType) === "form")
               ne = "フォーム", $e = ((rt = d == null ? void 0 : d.note) == null ? void 0 : rt.text) || "";
             else if (bt === "db_direct") {
-              const L = (Ne = d == null ? void 0 : d.fieldInfoList) != null && Ne.length ? d.fieldInfoList : d != null && d.fieldInfo ? [d.fieldInfo] : [];
-              if (L.length > 0) {
-                const ke = L.map((Q) => `${Q.table}.${Q.column}`).join(", "), Fe = `${L[0].table}.${L[0].column}`, Ye = k.getMasterDefinition(Fe), re = Ye ? ` (${Ye.entries.length}値)` : "";
-                ne = `DB: ${ke}${re}${lt}`, $e = L.map((Q) => `${Q.table}.${Q.column}${Q.type ? ` (${Q.type})` : ""}`).join(`
+              const F = (Ne = d == null ? void 0 : d.fieldInfoList) != null && Ne.length ? d.fieldInfoList : d != null && d.fieldInfo ? [d.fieldInfo] : [];
+              if (F.length > 0) {
+                const ke = F.map((Q) => `${Q.table}.${Q.column}`).join(", "), Le = `${F[0].table}.${F[0].column}`, Ye = k.getMasterDefinition(Le), re = Ye ? ` (${Ye.entries.length}値)` : "";
+                ne = `DB: ${ke}${re}${lt}`, $e = F.map((Q) => `${Q.table}.${Q.column}${Q.type ? ` (${Q.type})` : ""}`).join(`
 `) + Ge + je + ((ge = d == null ? void 0 : d.note) != null && ge.text ? `
 ${d.note.text}` : "");
               }
             } else if (bt === "db_formatted") {
-              const L = (Be = d == null ? void 0 : d.fieldInfoList) != null && Be.length ? d.fieldInfoList : d != null && d.fieldInfo ? [d.fieldInfo] : [];
-              if (L.length > 0) {
-                const ke = L.map((Q) => `${Q.table}.${Q.column}`).join(", "), Fe = `${L[0].table}.${L[0].column}`, Ye = k.getMasterDefinition(Fe), re = Ye ? ` (${Ye.entries.length}値)` : "";
-                ne = `DB: ${ke} (整形)${re}${lt}`, $e = L.map((Q) => `${Q.table}.${Q.column}`).join(`
+              const F = (Be = d == null ? void 0 : d.fieldInfoList) != null && Be.length ? d.fieldInfoList : d != null && d.fieldInfo ? [d.fieldInfo] : [];
+              if (F.length > 0) {
+                const ke = F.map((Q) => `${Q.table}.${Q.column}`).join(", "), Le = `${F[0].table}.${F[0].column}`, Ye = k.getMasterDefinition(Le), re = Ye ? ` (${Ye.entries.length}値)` : "";
+                ne = `DB: ${ke} (整形)${re}${lt}`, $e = F.map((Q) => `${Q.table}.${Q.column}`).join(`
 `) + ((Se = d == null ? void 0 : d.note) != null && Se.formatDescription ? `
 整形: ${d.note.formatDescription}` : "") + Ge + je + ((ct = d == null ? void 0 : d.note) != null && ct.text ? `
 ${d.note.text}` : "");
               }
             } else bt === "calculated" ? (ne = "計算値" + ((Tt = d == null ? void 0 : d.note) != null && Tt.unit ? ` (${d.note.unit})` : "") + lt, $e = (((gt = d == null ? void 0 : d.note) == null ? void 0 : gt.calcDescription) || "計算値") + ((Et = (et = d == null ? void 0 : d.note) == null ? void 0 : et.calcSources) != null && Et.length ? `
 参照: ${d.note.calcSources.join(", ")}` : "") + Ge + je + ((Ct = d == null ? void 0 : d.note) != null && Ct.text ? `
-${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d == null ? void 0 : d.note) == null ? void 0 : Kt.text) || "固定文言") + je) : bt === "other" ? (ne = "メモ", $e = ((mt = d == null ? void 0 : d.note) == null ? void 0 : mt.text) || "") : (ft = d == null ? void 0 : d.fieldInfoList) != null && ft.length || (pe = d == null ? void 0 : d.fieldInfo) != null && pe.table && ((kt = d == null ? void 0 : d.fieldInfo) != null && kt.column) ? (ne = `DB: ${((Qt = d == null ? void 0 : d.fieldInfoList) != null && Qt.length ? d.fieldInfoList : d != null && d.fieldInfo ? [d.fieldInfo] : []).map((Fe) => `${Fe.table}.${Fe.column}`).join(", ")}`, $e = ((jt = d == null ? void 0 : d.note) == null ? void 0 : jt.text) || "") : qt ? (ne = "固定", $e = ((Nt = d == null ? void 0 : d.note) == null ? void 0 : Nt.text) || "固定文言") : It === "v-model" ? (ne = "フォーム", $e = ((Ke = d == null ? void 0 : d.note) == null ? void 0 : Ke.text) || "") : It === "api" ? (ne = "データ", $e = ((He = d == null ? void 0 : d.note) == null ? void 0 : He.text) || "") : (We = d == null ? void 0 : d.note) != null && We.type ? (ne = {
+${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((zt = d == null ? void 0 : d.note) == null ? void 0 : zt.text) || "固定文言") + je) : bt === "other" ? (ne = "メモ", $e = ((mt = d == null ? void 0 : d.note) == null ? void 0 : mt.text) || "") : (ft = d == null ? void 0 : d.fieldInfoList) != null && ft.length || (pe = d == null ? void 0 : d.fieldInfo) != null && pe.table && ((kt = d == null ? void 0 : d.fieldInfo) != null && kt.column) ? (ne = `DB: ${((Qt = d == null ? void 0 : d.fieldInfoList) != null && Qt.length ? d.fieldInfoList : d != null && d.fieldInfo ? [d.fieldInfo] : []).map((Le) => `${Le.table}.${Le.column}`).join(", ")}`, $e = ((jt = d == null ? void 0 : d.note) == null ? void 0 : jt.text) || "") : qt ? (ne = "固定", $e = ((Nt = d == null ? void 0 : d.note) == null ? void 0 : Nt.text) || "固定文言") : It === "v-model" ? (ne = "フォーム", $e = ((ze = d == null ? void 0 : d.note) == null ? void 0 : ze.text) || "") : It === "api" ? (ne = "データ", $e = ((He = d == null ? void 0 : d.note) == null ? void 0 : He.text) || "") : (We = d == null ? void 0 : d.note) != null && We.type ? (ne = {
               info: "情報",
               warning: "注意",
               todo: "TODO",
@@ -5856,12 +5856,12 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
             }[d.note.type] || "メモ", $e = ((Pt = d == null ? void 0 : d.note) == null ? void 0 : Pt.text) || "") : (ne = "メモ", $e = ((J = d == null ? void 0 : d.note) == null ? void 0 : J.text) || "");
             const Bt = $e || ((he = d == null ? void 0 : d.note) == null ? void 0 : he.text) || "", At = ((ve = d == null ? void 0 : d.note) == null ? void 0 : ve.type) || "info", Ze = !!((R = d == null ? void 0 : d.note) != null && R.text || (Re = d == null ? void 0 : d.note) != null && Re.displayType);
             g.push({
-              selector: ze,
+              selector: Ke,
               top: `${Ie.top + B}px`,
               left: `${Ie.left + E}px`,
               width: `${Ie.width}px`,
               height: `${Ie.height}px`,
-              color: Ue(ze),
+              color: Ue(Ke),
               isStatic: qt,
               label: ne,
               noteText: Bt,
@@ -5872,89 +5872,89 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
         } catch {
         }
       return g;
-    }), Ve = q(() => {
+    }), Ve = H(() => {
       var N;
-      const B = de.value, E = le.value;
+      const B = ae.value, E = le.value;
       ce.value;
       const g = [];
       if (!k.isEnabled || k.scanResults.length === 0) return g;
-      const O = _e();
+      const j = _e();
       for (const oe of k.scanResults)
         try {
           const G = document.querySelector(oe.selector);
           if (G) {
-            if (O && !De(G, O)) continue;
-            const z = G.getBoundingClientRect();
+            if (j && !De(G, j)) continue;
+            const K = G.getBoundingClientRect();
             g.push({
               selector: oe.selector,
-              top: `${z.top + B}px`,
-              left: `${z.left + E}px`,
-              width: `${z.width}px`,
-              height: `${z.height}px`,
+              top: `${K.top + B}px`,
+              left: `${K.left + E}px`,
+              width: `${K.width}px`,
+              height: `${K.height}px`,
               isStatic: ((N = oe.detected.sourceBinding) == null ? void 0 : N.isStatic) || !1
             });
           }
         } catch {
         }
       return g;
-    }), Ee = q(() => {
+    }), Ee = H(() => {
       var oe, G;
-      const B = de.value, E = le.value;
+      const B = ae.value, E = le.value;
       ce.value;
-      const g = [], O = k.analysisFilter;
-      if (O === "none" || !k.isEnabled || k.analysisResults.length === 0) return g;
+      const g = [], j = k.analysisFilter;
+      if (j === "none" || !k.isEnabled || k.analysisResults.length === 0) return g;
       const N = _e();
-      for (const z of k.analysisResults) {
-        if (!z.matched) continue;
-        const F = z.element;
+      for (const K of k.analysisResults) {
+        if (!K.matched) continue;
+        const L = K.element;
         try {
-          const _ = document.querySelector(z.selector);
+          const _ = document.querySelector(K.selector);
           if (!_ || N && !De(_, N)) continue;
-          const D = _.getBoundingClientRect();
-          if (D.width === 0 || D.height === 0 || !_.offsetParent && _.tagName !== "BODY" && getComputedStyle(_).position !== "fixed" || D.width > window.innerWidth * 0.8 || D.height > window.innerHeight * 0.5)
+          const V = _.getBoundingClientRect();
+          if (V.width === 0 || V.height === 0 || !_.offsetParent && _.tagName !== "BODY" && getComputedStyle(_).position !== "fixed" || V.width > window.innerWidth * 0.8 || V.height > window.innerHeight * 0.5)
             continue;
           const fe = _.querySelector("[data-di-binding]") || (_.hasAttribute("data-di-binding") ? _ : null);
-          let X = "", ae = F.binding || "";
-          const ue = [...F.tags || []];
+          let X = "", de = L.binding || "";
+          const ue = [...L.tags || []];
           if (fe) {
             const Se = fe.getAttribute("data-di-db"), ct = fe.getAttribute("data-di-binding");
-            Se && (X = Se, ue.includes("db") || ue.push("db")), ct && (ae = ct);
+            Se && (X = Se, ue.includes("db") || ue.push("db")), ct && (de = ct);
           }
-          !X && F.db && (X = `${F.db.table}.${F.db.column}`, ue.includes("db") || ue.push("db"));
+          !X && L.db && (X = `${L.db.table}.${L.db.column}`, ue.includes("db") || ue.push("db"));
           let qe = "";
-          F.api && (qe = `${F.api.method} ${F.api.endpoint}`, ue.includes("api") || ue.push("api"));
+          L.api && (qe = `${L.api.method} ${L.api.endpoint}`, ue.includes("api") || ue.push("api"));
           let Xe = "";
-          if (ae) {
-            const Se = k.getApiSourceForBinding(ae);
+          if (de) {
+            const Se = k.getApiSourceForBinding(de);
             Se && Se.endpoint ? Xe = `${Se.method || "GET"} ${Se.endpoint}` : Se && Se.composable && (Xe = Se.composable);
           }
-          const yt = (oe = F.conditional) == null ? void 0 : oe.expression, pt = (G = F.modal) == null ? void 0 : G.target, it = !!X || ue.includes("db"), at = !!qe || ue.includes("api"), dt = ue.includes("form"), Qe = ue.includes("button"), ut = ue.includes("link"), rt = ue.includes("modal"), Ne = ue.includes("conditional"), ge = ue.includes("computed");
-          if (O === "db-api") {
+          const yt = (oe = L.conditional) == null ? void 0 : oe.expression, pt = (G = L.modal) == null ? void 0 : G.target, it = !!X || ue.includes("db"), at = !!qe || ue.includes("api"), dt = ue.includes("form"), Qe = ue.includes("button"), ut = ue.includes("link"), rt = ue.includes("modal"), Ne = ue.includes("conditional"), ge = ue.includes("computed");
+          if (j === "db-api") {
             if (!it && !at) continue;
-          } else if (O === "form") {
+          } else if (j === "form") {
             if (!dt) continue;
-          } else if (O === "button") {
+          } else if (j === "button") {
             if (!Qe) continue;
-          } else if (O === "link") {
+          } else if (j === "link") {
             if (!ut) continue;
-          } else if (O === "modal") {
+          } else if (j === "modal") {
             if (!rt) continue;
-          } else if (O === "conditional") {
+          } else if (j === "conditional") {
             if (!Ne) continue;
-          } else if (O === "computed") {
+          } else if (j === "computed") {
             if (!ge) continue;
-          } else if (O === "other" && (it || at || dt || Qe || ut || rt || Ne || ge))
+          } else if (j === "other" && (it || at || dt || Qe || ut || rt || Ne || ge))
             continue;
           let Be = "other";
           it ? Be = "db" : at ? Be = "api" : dt ? Be = "form" : Qe ? Be = "button" : ut ? Be = "link" : rt ? Be = "modal" : Ne ? Be = "conditional" : ge && (Be = "computed"), g.push({
-            selector: z.selector,
-            top: `${D.top + B}px`,
-            left: `${D.left + E}px`,
-            width: `${D.width}px`,
-            height: `${D.height}px`,
+            selector: K.selector,
+            top: `${V.top + B}px`,
+            left: `${V.left + E}px`,
+            width: `${V.width}px`,
+            height: `${V.height}px`,
             tags: ue,
             primaryTag: Be,
-            text: F.text || ae || "",
+            text: L.text || de || "",
             dbInfo: X,
             apiInfo: qe,
             apiSource: Xe,
@@ -5965,16 +5965,16 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
         }
       }
       return g;
-    }), Pe = q(() => {
-      const B = de.value, E = le.value;
+    }), Pe = H(() => {
+      const B = ae.value, E = le.value;
       ce.value;
       const g = [];
       if (!k.isEnabled || !k.showUnannotatedDetection || k.unannotatedElements.length === 0) return g;
-      const O = _e();
+      const j = _e();
       for (const N of k.unannotatedElements)
         try {
           const oe = document.querySelector(N.selector);
-          if (!oe || O && !De(oe, O)) continue;
+          if (!oe || j && !De(oe, j)) continue;
           const G = oe.getBoundingClientRect();
           if (G.width === 0 || G.height === 0 || !oe.offsetParent && oe.tagName !== "BODY" && getComputedStyle(oe).position !== "fixed") continue;
           g.push({
@@ -5993,30 +5993,30 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
     function st(B) {
       if (!k.isPickMode) return;
       if (B.target.closest("[data-dev-inspector]")) {
-        V.value = null, H.value = null, k.setHoveredSelector(null);
+        D.value = null, O.value = null, k.setHoveredSelector(null);
         return;
       }
       const g = document.elementFromPoint(B.clientX, B.clientY);
       if (!g || g === document.body || g === document.documentElement) {
-        V.value = null, H.value = null, k.setHoveredSelector(null);
+        D.value = null, O.value = null, k.setHoveredSelector(null);
         return;
       }
       if (g.closest("[data-dev-inspector]"))
         return;
-      H.value = g;
-      const O = g.getBoundingClientRect();
-      V.value = {
-        top: `${O.top + window.scrollY}px`,
-        left: `${O.left + window.scrollX}px`,
-        width: `${O.width}px`,
-        height: `${O.height}px`
+      O.value = g;
+      const j = g.getBoundingClientRect();
+      D.value = {
+        top: `${j.top + window.scrollY}px`,
+        left: `${j.left + window.scrollX}px`,
+        width: `${j.width}px`,
+        height: `${j.height}px`
       };
       const N = k.generateSelector(g);
       k.setHoveredSelector(N);
     }
     function Z(B) {
-      if (!(!k.isPickMode || B.target.closest("[data-dev-inspector]")) && (B.preventDefault(), B.stopPropagation(), H.value)) {
-        const g = k.generateSelector(H.value);
+      if (!(!k.isPickMode || B.target.closest("[data-dev-inspector]")) && (B.preventDefault(), B.stopPropagation(), O.value)) {
+        const g = k.generateSelector(O.value);
         if (k.remapTargetId) {
           k.remapAnnotation(k.remapTargetId, g), k.remapTargetId = null, k.togglePickMode(), k.openPanel();
           return;
@@ -6028,7 +6028,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
       B.key === "Escape" && k.isPickMode && (k.remapTargetId = null, k.togglePickMode());
     }
     function Me() {
-      de.value = window.scrollY, le.value = window.scrollX, ce.value++;
+      ae.value = window.scrollY, le.value = window.scrollX, ce.value++;
     }
     let ye = null;
     return Ol(() => {
@@ -6039,10 +6039,10 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
           ce.value++;
         }, 100);
       }), ye.observe(document.body, { childList: !0, subtree: !0 });
-    }), po(() => {
+    }), jl(() => {
       window.removeEventListener("mousemove", st, !0), window.removeEventListener("click", Z, !0), window.removeEventListener("keydown", Oe), window.removeEventListener("scroll", Me), window.removeEventListener("resize", Me), ye == null || ye.disconnect();
     }), ll(() => k.isPickMode, (B) => {
-      B || (V.value = null, H.value = null);
+      B || (D.value = null, O.value = null);
     }), (B, E) => (n(), vt(Dt, { to: a(r) }, [
       a(k).isInitializing ? (n(), i("div", hp, [...E[1] || (E[1] = [
         e("div", { class: "di-loading-content" }, [
@@ -6050,15 +6050,15 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
           e("span", { class: "di-loading-text" }, "Developer Mode 起動中...")
         ], -1)
       ])])) : p("", !0),
-      a(k).isPickMode && V.value ? (n(), i("div", {
+      a(k).isPickMode && D.value ? (n(), i("div", {
         key: 1,
         "data-dev-inspector": "",
         class: "di-highlight",
         style: nt({
-          top: V.value.top,
-          left: V.value.left,
-          width: V.value.width,
-          height: V.value.height
+          top: D.value.top,
+          left: D.value.left,
+          width: D.value.width,
+          height: D.value.height
         })
       }, [
         e("div", yp, v(a(k).hoveredSelector), 1)
@@ -6088,7 +6088,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
           borderColor: (g.hasNote, g.color),
           backgroundColor: a(k).hoveredSelector === g.selector ? g.color + "30" : g.color + (g.hasNote ? "18" : "15")
         }),
-        onClick: (O) => a(k).startEditing(g.selector)
+        onClick: (j) => a(k).startEditing(g.selector)
       }, [
         g.hasNote ? (n(), i("div", kp, [
           e("span", {
@@ -6118,7 +6118,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
             width: g.width,
             height: g.height
           }),
-          onClick: (O) => a(k).startEditing(g.selector)
+          onClick: (j) => a(k).startEditing(g.selector)
         }, [
           e("div", {
             class: A(["di-scan-label", { "di-scan-label-static": g.isStatic }])
@@ -6143,7 +6143,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
             width: g.width,
             height: g.height
           }),
-          onClick: (O) => a(k).startEditing(g.selector)
+          onClick: (j) => a(k).startEditing(g.selector)
         }, [
           e("div", {
             class: A(["di-analysis-label", "di-analysis-label-" + g.primaryTag])
@@ -6155,7 +6155,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
             g.conditionalExpr ? (n(), i("span", Mp, v(g.conditionalExpr), 1)) : p("", !0),
             e("button", {
               class: "di-analysis-delete",
-              onClick: ee((O) => a(k).removeAnalysisResult(g.selector), ["stop"]),
+              onClick: ee((j) => a(k).removeAnalysisResult(g.selector), ["stop"]),
               title: "この要素を非表示"
             }, "×", 8, Sp)
           ], 2),
@@ -6178,7 +6178,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
           width: g.width,
           height: g.height
         }),
-        onClick: (O) => a(k).quickAnnotate(g.selector, g.category === "form" ? "form" : g.category === "action" ? "action" : "datasource")
+        onClick: (j) => a(k).quickAnnotate(g.selector, g.category === "form" ? "form" : g.category === "action" ? "action" : "datasource")
       }, [
         e("div", {
           class: A(["di-unannotated-label", { ["di-unannotated-label-" + g.category]: a(k).hoveredUnannotatedSelector === g.selector }])
@@ -6189,7 +6189,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
       ], 14, Vp))), 128)) : p("", !0)
     ], 8, ["to"]));
   }
-}), Bp = /* @__PURE__ */ pl(Pp, [["__scopeId", "data-v-12aca2d6"]]), Ap = { class: "di-editor-modal" }, Fp = { class: "di-editor-header" }, Lp = { class: "di-header-actions" }, Op = { class: "di-path-badge" }, jp = { class: "di-editor-content" }, qp = { class: "di-form-group" }, Hp = { class: "di-form-group" }, Rp = { class: "di-form-section" }, zp = { class: "di-form-section-header" }, Kp = { class: "di-api-header-actions" }, Gp = { class: "di-dropdown-wrapper" }, Yp = {
+}), Bp = /* @__PURE__ */ pl(Pp, [["__scopeId", "data-v-12aca2d6"]]), Ap = { class: "di-editor-modal" }, Lp = { class: "di-editor-header" }, Fp = { class: "di-header-actions" }, Op = { class: "di-path-badge" }, jp = { class: "di-editor-content" }, qp = { class: "di-form-group" }, Hp = { class: "di-form-group" }, Rp = { class: "di-form-section" }, Kp = { class: "di-form-section-header" }, zp = { class: "di-api-header-actions" }, Gp = { class: "di-dropdown-wrapper" }, Yp = {
   key: 1,
   class: "di-suggestion-dropdown"
 }, Xp = {
@@ -6216,39 +6216,39 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
 }, m1 = { class: "di-form-group" }, f1 = { class: "di-form-group" }, b1 = { class: "di-form-group" }, h1 = { class: "di-form-group" }, y1 = { class: "di-editor-footer" }, g1 = { class: "di-editor-actions" }, k1 = ["disabled"], x1 = /* @__PURE__ */ ol({
   __name: "DevScreenEditor",
   setup(te) {
-    const k = nl(), r = vl("teleportTarget", "body"), V = h(""), H = h(""), de = h([]), le = h(!1), ce = h(""), be = h(""), Y = h(""), me = h(""), Ue = h(!1), Ce = h([]), _e = h(!1), De = q(() => typeof window < "u" ? window.location.pathname : "/");
-    ll(() => k.editingScreen, (F) => {
-      F && U();
+    const k = nl(), r = vl("teleportTarget", "body"), D = h(""), O = h(""), ae = h([]), le = h(!1), ce = h(""), be = h(""), Y = h(""), me = h(""), Ue = h(!1), Ce = h([]), _e = h(!1), De = H(() => typeof window < "u" ? window.location.pathname : "/");
+    ll(() => k.editingScreen, (L) => {
+      L && U();
     });
     function U() {
-      var _, D, fe, X;
-      const F = k.getScreenConfig();
-      F ? (V.value = F.name, H.value = F.description || "", de.value = F.apis.map((ae) => ({ ...ae })), le.value = ((_ = F.auth) == null ? void 0 : _.required) || !1, ce.value = ((fe = (D = F.auth) == null ? void 0 : D.roles) == null ? void 0 : fe.join(", ")) || "", be.value = ((X = F.auth) == null ? void 0 : X.description) || "", Y.value = F.figmaUrl || "", me.value = F.notes || "") : Ve();
+      var _, V, fe, X;
+      const L = k.getScreenConfig();
+      L ? (D.value = L.name, O.value = L.description || "", ae.value = L.apis.map((de) => ({ ...de })), le.value = ((_ = L.auth) == null ? void 0 : _.required) || !1, ce.value = ((fe = (V = L.auth) == null ? void 0 : V.roles) == null ? void 0 : fe.join(", ")) || "", be.value = ((X = L.auth) == null ? void 0 : X.description) || "", Y.value = L.figmaUrl || "", me.value = L.notes || "") : Ve();
     }
     function Ve() {
-      V.value = "", H.value = "", de.value = [], le.value = !1, ce.value = "", be.value = "", Y.value = "", me.value = "";
+      D.value = "", O.value = "", ae.value = [], le.value = !1, ce.value = "", be.value = "", Y.value = "", me.value = "";
     }
     function Ee() {
       k.editingScreen = !1, Ve();
     }
     function Pe() {
-      de.value.push({
+      ae.value.push({
         method: "GET",
         endpoint: "",
         description: "",
         loadTiming: "onMount"
       });
     }
-    function st(F) {
-      de.value.splice(F, 1);
+    function st(L) {
+      ae.value.splice(L, 1);
     }
     function Z() {
-      if (!V.value.trim()) return;
-      const F = {
+      if (!D.value.trim()) return;
+      const L = {
         path: De.value,
-        name: V.value.trim(),
-        description: H.value.trim() || void 0,
-        apis: de.value.filter((_) => _.endpoint.trim()),
+        name: D.value.trim(),
+        description: O.value.trim() || void 0,
+        apis: ae.value.filter((_) => _.endpoint.trim()),
         auth: le.value || ce.value.trim() ? {
           required: le.value,
           roles: ce.value.trim() ? ce.value.split(",").map((_) => _.trim()).filter(Boolean) : void 0,
@@ -6258,7 +6258,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
         notes: me.value.trim() || void 0,
         updatedAt: (/* @__PURE__ */ new Date()).toISOString()
       };
-      k.setScreenConfig(F), Ee();
+      k.setScreenConfig(L), Ee();
     }
     function Oe() {
       k.deleteScreenConfig(De.value), Ee();
@@ -6277,30 +6277,30 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
     function B() {
       Ce.value = k.suggestScreenApis(), Ue.value = !0;
     }
-    function E(F) {
-      return de.value.some(
-        (_) => _.method === F.method && _.endpoint === F.endpoint
+    function E(L) {
+      return ae.value.some(
+        (_) => _.method === L.method && _.endpoint === L.endpoint
       );
     }
-    const g = q(() => Ce.value.filter((F) => !E(F)));
-    function O(F) {
-      E(F) || de.value.push({ ...F });
+    const g = H(() => Ce.value.filter((L) => !E(L)));
+    function j(L) {
+      E(L) || ae.value.push({ ...L });
     }
     function N() {
-      for (const F of g.value)
-        de.value.push({ ...F });
+      for (const L of g.value)
+        ae.value.push({ ...L });
     }
     function oe() {
       setTimeout(() => {
         _e.value = !1;
       }, 150);
     }
-    const G = ["GET", "POST", "PUT", "DELETE", "PATCH"], z = [
+    const G = ["GET", "POST", "PUT", "DELETE", "PATCH"], K = [
       { value: "onMount", label: "画面読込時" },
       { value: "action", label: "アクション時" },
       { value: "conditional", label: "条件付き" }
     ];
-    return (F, _) => (n(), vt(Dt, { to: a(r) }, [
+    return (L, _) => (n(), vt(Dt, { to: a(r) }, [
       a(k).editingScreen ? (n(), i("div", {
         key: 0,
         class: "di-editor-overlay",
@@ -6308,9 +6308,9 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
         "data-dev-inspector": ""
       }, [
         e("div", Ap, [
-          e("div", Fp, [
+          e("div", Lp, [
             _[9] || (_[9] = e("h3", null, "画面情報を編集", -1)),
-            e("div", Lp, [
+            e("div", Fp, [
               e("span", Op, v(De.value), 1),
               e("button", {
                 onClick: Ee,
@@ -6324,47 +6324,47 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
             e("div", qp, [
               _[10] || (_[10] = e("label", { class: "di-form-label" }, "画面名 *", -1)),
               b(e("input", {
-                "onUpdate:modelValue": _[0] || (_[0] = (D) => V.value = D),
+                "onUpdate:modelValue": _[0] || (_[0] = (V) => D.value = V),
                 type: "text",
                 placeholder: "ユーザー詳細",
                 class: "di-input"
               }, null, 512), [
-                [w, V.value]
+                [w, D.value]
               ])
             ]),
             e("div", Hp, [
               _[11] || (_[11] = e("label", { class: "di-form-label" }, "画面の説明", -1)),
               b(e("textarea", {
-                "onUpdate:modelValue": _[1] || (_[1] = (D) => H.value = D),
+                "onUpdate:modelValue": _[1] || (_[1] = (V) => O.value = V),
                 rows: "2",
                 placeholder: "この画面の概要...",
                 class: "di-textarea"
               }, null, 512), [
-                [w, H.value]
+                [w, O.value]
               ])
             ]),
             e("div", Rp, [
-              e("div", zp, [
+              e("div", Kp, [
                 _[15] || (_[15] = e("label", { class: "di-form-label" }, "API一覧", -1)),
-                e("div", Kp, [
+                e("div", zp, [
                   e("button", {
                     onClick: B,
                     class: "di-btn-suggest",
                     title: "要素情報からAPI推定"
                   }, [
                     I(a(cl), { style: { width: "13px", height: "13px" } }),
-                    _[12] || (_[12] = j(" 自動推定 ", -1))
+                    _[12] || (_[12] = q(" 自動推定 ", -1))
                   ]),
                   e("div", Gp, [
                     Ce.value.length > 0 ? (n(), i("button", {
                       key: 0,
-                      onClick: _[2] || (_[2] = (D) => _e.value = !_e.value),
-                      onBlur: _[3] || (_[3] = (D) => oe()),
+                      onClick: _[2] || (_[2] = (V) => _e.value = !_e.value),
+                      onBlur: _[3] || (_[3] = (V) => oe()),
                       class: "di-btn-dropdown",
                       title: "推定結果から選択"
                     }, [
                       I(a(yl), { style: { width: "13px", height: "13px" } }),
-                      _[13] || (_[13] = j(" 候補から選択 ", -1))
+                      _[13] || (_[13] = q(" 候補から選択 ", -1))
                     ], 32)) : p("", !0),
                     _e.value && Ce.value.length > 0 ? (n(), i("div", Yp, [
                       g.value.length > 0 ? (n(), i("div", Xp, [
@@ -6373,19 +6373,19 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
                           class: "di-suggestion-add-all"
                         }, " すべて追加 (" + v(g.value.length) + ") ", 33)
                       ])) : p("", !0),
-                      (n(!0), i(T, null, S(Ce.value, (D, fe) => (n(), i("button", {
+                      (n(!0), i(T, null, S(Ce.value, (V, fe) => (n(), i("button", {
                         key: fe,
-                        onMousedown: ee((X) => O(D), ["prevent"]),
-                        class: A(["di-suggestion-item", { "di-suggestion-added": E(D) }]),
-                        disabled: E(D)
+                        onMousedown: ee((X) => j(V), ["prevent"]),
+                        class: A(["di-suggestion-item", { "di-suggestion-added": E(V) }]),
+                        disabled: E(V)
                       }, [
                         e("span", {
                           class: "di-suggestion-method",
-                          style: nt({ backgroundColor: Me[D.method] + "20", color: Me[D.method] })
-                        }, v(D.method), 5),
-                        e("code", Zp, v(D.endpoint), 1),
-                        D.loadTiming ? (n(), i("span", Jp, v(ye[D.loadTiming] || D.loadTiming), 1)) : p("", !0),
-                        E(D) ? (n(), vt(a(go), {
+                          style: nt({ backgroundColor: Me[V.method] + "20", color: Me[V.method] })
+                        }, v(V.method), 5),
+                        e("code", Zp, v(V.endpoint), 1),
+                        V.loadTiming ? (n(), i("span", Jp, v(ye[V.loadTiming] || V.loadTiming), 1)) : p("", !0),
+                        E(V) ? (n(), vt(a(go), {
                           key: 1,
                           style: { width: "12px", height: "12px", color: "#10b981", "flex-shrink": "0" }
                         })) : p("", !0)
@@ -6398,7 +6398,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
                     class: "di-btn-add"
                   }, [
                     I(a(Rt), { style: { width: "14px", height: "14px" } }),
-                    _[14] || (_[14] = j(" 手動追加 ", -1))
+                    _[14] || (_[14] = q(" 手動追加 ", -1))
                   ])
                 ])
               ]),
@@ -6412,14 +6412,14 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
               ])) : Ue.value && Ce.value.length === 0 ? (n(), i("div", e1, [..._[16] || (_[16] = [
                 e("span", null, "要素のDB情報からAPIを推定できませんでした。要素にDB情報を登録してください。", -1)
               ])])) : p("", !0),
-              de.value.length === 0 && !Ue.value ? (n(), i("div", t1, " APIが未登録です。「自動推定」で要素情報からAPIを推定できます。 ")) : p("", !0),
-              (n(!0), i(T, null, S(de.value, (D, fe) => (n(), i("div", {
+              ae.value.length === 0 && !Ue.value ? (n(), i("div", t1, " APIが未登録です。「自動推定」で要素情報からAPIを推定できます。 ")) : p("", !0),
+              (n(!0), i(T, null, S(ae.value, (V, fe) => (n(), i("div", {
                 key: fe,
                 class: "di-api-entry"
               }, [
                 e("div", l1, [
                   b(e("select", {
-                    "onUpdate:modelValue": (X) => D.method = X,
+                    "onUpdate:modelValue": (X) => V.method = X,
                     class: "di-select di-select-method"
                   }, [
                     (n(), i(T, null, S(G, (X) => e("option", {
@@ -6427,15 +6427,15 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
                       value: X
                     }, v(X), 9, n1)), 64))
                   ], 8, o1), [
-                    [we, D.method]
+                    [we, V.method]
                   ]),
                   b(e("input", {
-                    "onUpdate:modelValue": (X) => D.endpoint = X,
+                    "onUpdate:modelValue": (X) => V.endpoint = X,
                     type: "text",
                     placeholder: "/api/users/:id",
                     class: "di-input di-input-endpoint"
                   }, null, 8, s1), [
-                    [w, D.endpoint]
+                    [w, V.endpoint]
                   ]),
                   e("button", {
                     onClick: (X) => st(fe),
@@ -6446,23 +6446,23 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
                 ]),
                 e("div", a1, [
                   b(e("input", {
-                    "onUpdate:modelValue": (X) => D.description = X,
+                    "onUpdate:modelValue": (X) => V.description = X,
                     type: "text",
                     placeholder: "説明（任意）",
                     class: "di-input di-input-desc"
                   }, null, 8, d1), [
-                    [w, D.description]
+                    [w, V.description]
                   ]),
                   b(e("select", {
-                    "onUpdate:modelValue": (X) => D.loadTiming = X,
+                    "onUpdate:modelValue": (X) => V.loadTiming = X,
                     class: "di-select di-select-timing"
                   }, [
-                    (n(), i(T, null, S(z, (X) => e("option", {
+                    (n(), i(T, null, S(K, (X) => e("option", {
                       key: X.value,
                       value: X.value
                     }, v(X.label), 9, r1)), 64))
                   ], 8, u1), [
-                    [we, D.loadTiming]
+                    [we, V.loadTiming]
                   ])
                 ])
               ]))), 128))
@@ -6471,7 +6471,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
               _[20] || (_[20] = e("label", { class: "di-form-label" }, "認証設定", -1)),
               e("div", v1, [
                 e("button", {
-                  onClick: _[4] || (_[4] = (D) => le.value = !le.value),
+                  onClick: _[4] || (_[4] = (V) => le.value = !le.value),
                   class: A(["di-toggle-btn", { active: le.value }])
                 }, [
                   e("span", {
@@ -6484,7 +6484,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
                 e("div", m1, [
                   _[18] || (_[18] = e("label", { class: "di-form-label" }, "必要ロール（カンマ区切り）", -1)),
                   b(e("input", {
-                    "onUpdate:modelValue": _[5] || (_[5] = (D) => ce.value = D),
+                    "onUpdate:modelValue": _[5] || (_[5] = (V) => ce.value = V),
                     type: "text",
                     placeholder: "admin, manager",
                     class: "di-input"
@@ -6495,7 +6495,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
                 e("div", f1, [
                   _[19] || (_[19] = e("label", { class: "di-form-label" }, "認証メモ", -1)),
                   b(e("input", {
-                    "onUpdate:modelValue": _[6] || (_[6] = (D) => be.value = D),
+                    "onUpdate:modelValue": _[6] || (_[6] = (V) => be.value = V),
                     type: "text",
                     placeholder: "自分のデータのみ閲覧可",
                     class: "di-input"
@@ -6508,7 +6508,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
             e("div", b1, [
               _[21] || (_[21] = e("label", { class: "di-form-label" }, "Figma URL", -1)),
               b(e("input", {
-                "onUpdate:modelValue": _[7] || (_[7] = (D) => Y.value = D),
+                "onUpdate:modelValue": _[7] || (_[7] = (V) => Y.value = V),
                 type: "text",
                 placeholder: "https://www.figma.com/design/...",
                 class: "di-input"
@@ -6519,7 +6519,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
             e("div", h1, [
               _[22] || (_[22] = e("label", { class: "di-form-label" }, "メモ", -1)),
               b(e("textarea", {
-                "onUpdate:modelValue": _[8] || (_[8] = (D) => me.value = D),
+                "onUpdate:modelValue": _[8] || (_[8] = (V) => me.value = V),
                 rows: "3",
                 placeholder: "この画面に関するメモ...",
                 class: "di-textarea"
@@ -6534,7 +6534,7 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
               class: "di-btn-delete"
             }, [
               I(a(tl), { style: { width: "14px", height: "14px" } }),
-              _[23] || (_[23] = j(" 削除 ", -1))
+              _[23] || (_[23] = q(" 削除 ", -1))
             ]),
             e("div", g1, [
               e("button", {
@@ -6544,10 +6544,10 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
               e("button", {
                 onClick: Z,
                 class: "di-btn-save",
-                disabled: !V.value.trim()
+                disabled: !D.value.trim()
               }, [
-                I(a(ql), { style: { width: "14px", height: "14px" } }),
-                _[24] || (_[24] = j(" 保存 ", -1))
+                I(a(Hl), { style: { width: "14px", height: "14px" } }),
+                _[24] || (_[24] = q(" 保存 ", -1))
               ], 8, k1)
             ])
           ])
@@ -6571,13 +6571,18 @@ ${d.note.text}` : "")) : bt === "static" ? (ne = "固定" + lt, $e = (((Kt = d =
   },
   setup(te) {
     const k = te, r = nl();
+    function D(O) {
+      O.ctrlKey && O.shiftKey && O.key === "D" && (O.preventDefault(), r.toggle());
+    }
     return Ol(() => {
       r.init({
         storageKey: k.storageKey,
         enabledInProduction: k.enabledInProduction,
         initialAnnotations: k.initialAnnotations
-      });
-    }), (V, H) => a(r).isAvailable ? (n(), i("div", C1, [
+      }), window.addEventListener("keydown", D);
+    }), jl(() => {
+      window.removeEventListener("keydown", D);
+    }), (O, ae) => a(r).isAvailable ? (n(), i("div", C1, [
       I(yu),
       I(bp),
       I(w1),
