@@ -3318,7 +3318,7 @@ const Fo = {
   for (const [V, H] of k)
     r[V] = H;
   return r;
-}, yu = /* @__PURE__ */ pl(hu, [["__scopeId", "data-v-7d2b8cdc"]]), gu = { class: "di-editor-header" }, ku = { class: "di-header-actions" }, xu = {
+}, yu = /* @__PURE__ */ pl(hu, [["__scopeId", "data-v-f586c7b8"]]), gu = { class: "di-editor-header" }, ku = { class: "di-header-actions" }, xu = {
   key: 0,
   class: "di-source-badge-row"
 }, wu = {

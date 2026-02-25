@@ -2324,20 +2324,24 @@ function handleFlowEdgeClick(selector: string) {
   border-bottom: 1px solid #334155;
   padding: 0 4px;
   gap: 2px;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.di-tab-bar::-webkit-scrollbar { display: none; }
 .di-tab-btn {
-  flex: 1;
+  flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  padding: 8px 4px;
+  padding: 8px 8px;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
   color: #64748b;
   font-size: 11px;
   font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s;
   white-space: nowrap;
