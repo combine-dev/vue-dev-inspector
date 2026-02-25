@@ -1,8 +1,8 @@
-import { defineNuxtPlugin as s, useRuntimeConfig as r } from "#app";
-import { a } from "./useDevInspector-B-Cj4Ejw.js";
-const p = s((t) => {
+import { defineNuxtPlugin as r, useRuntimeConfig as s } from "#app";
+import { useDevInspectorStore as a } from "./useDevInspector-CBomD82x.js";
+const p = r((t) => {
   if (import.meta.server) return;
-  const o = r().public.devInspector || {};
+  const o = s().public.devInspector || {};
   t.hook("app:mounted", () => {
     const e = a();
     e.init({

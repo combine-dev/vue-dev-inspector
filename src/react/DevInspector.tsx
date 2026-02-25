@@ -63,33 +63,37 @@ export function DevInspector(props: DevInspectorProps) {
       shadow.appendChild(mountPoint)
 
       // Create and mount Vue app
+      const pinia = createPinia()
       app = createApp(Inspector.default, {
         storageKey: props.storageKey,
         enabledInProduction: props.enabledInProduction,
         initialAnnotations: props.initialAnnotations,
       })
-      app.use(createPinia())
+      app.use(pinia)
       app.provide('teleportTarget', teleportTarget)
       app.mount(mountPoint)
-    })()
 
-    // Ctrl+Shift+D keyboard shortcut to toggle inspector
-    const handleKeydown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
-        e.preventDefault()
-        // Access the Pinia store via the Vue app
-        const pinia = app?._context?.app?.config?.globalProperties?.$pinia
-        if (pinia?.state?.value?.devInspector) {
-          const state = pinia.state.value.devInspector
-          state.isEnabled = !state.isEnabled
+      // Ctrl+Shift+D keyboard shortcut to toggle inspector
+      const { useDevInspectorStore } = await import('../composables/useDevInspector')
+      const { setActivePinia } = await import('pinia')
+      setActivePinia(pinia)
+      const store = useDevInspectorStore()
+
+      const handleKeydown = (e: KeyboardEvent) => {
+        if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+          e.preventDefault()
+          store.toggle()
         }
       }
-    }
-    window.addEventListener('keydown', handleKeydown)
+      window.addEventListener('keydown', handleKeydown)
+      cleanupKeydown = () => window.removeEventListener('keydown', handleKeydown)
+    })()
+
+    let cleanupKeydown: (() => void) | null = null
 
     return () => {
       disposed = true
-      window.removeEventListener('keydown', handleKeydown)
+      cleanupKeydown?.()
       app?.unmount()
     }
   }, [])
