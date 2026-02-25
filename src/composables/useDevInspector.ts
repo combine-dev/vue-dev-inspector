@@ -1401,8 +1401,11 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
     return Object.keys(elementConfigs.value).filter(id => {
       const config = elementConfigs.value[id]
       if (!config) return false
-      return (id.includes('>') || id.startsWith('#') || id.startsWith('[') || id.startsWith('.')) &&
-        (!config.componentPath || config.componentPath.includes(currentPath) || currentPath === '/')
+      // Must be a valid CSS selector
+      if (!(id.includes('>') || id.startsWith('#') || id.startsWith('[') || id.startsWith('.'))) return false
+      // Filter by pagePath (skip elements from other pages)
+      if (config.pagePath && config.pagePath !== currentPath) return false
+      return true
     })
   }
 

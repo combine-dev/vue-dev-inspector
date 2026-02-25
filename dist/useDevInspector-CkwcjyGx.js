@@ -1009,7 +1009,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     const e = typeof window < "u" ? window.location.pathname : "/";
     return Object.keys(S.value).filter((n) => {
       const o = S.value[n];
-      return o ? (n.includes(">") || n.startsWith("#") || n.startsWith("[") || n.startsWith(".")) && (!o.componentPath || o.componentPath.includes(e) || e === "/") : !1;
+      return !(!o || !(n.includes(">") || n.startsWith("#") || n.startsWith("[") || n.startsWith(".")) || o.pagePath && o.pagePath !== e);
     });
   }
   function It(e) {

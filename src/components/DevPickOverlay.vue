@@ -125,6 +125,18 @@ function matchesNoteFilter(selector: string): boolean {
   }
 }
 
+// Check if an element is clipped to invisible by an ancestor with overflow:hidden
+function isClippedByAncestor(element: HTMLElement): boolean {
+  let el: HTMLElement | null = element.parentElement
+  while (el && el !== document.body) {
+    const style = getComputedStyle(el)
+    if (style.display === 'none') return true
+    if ((style.overflow === 'hidden' || style.overflowY === 'hidden') && el.clientHeight === 0) return true
+    el = el.parentElement
+  }
+  return false
+}
+
 // Detect if a modal/dialog overlay is currently open
 function detectOpenModal(): Element | null {
   // Check for <dialog open>
@@ -218,6 +230,7 @@ const existingAnnotations = computed(() => {
         // Skip elements that are effectively hidden (e.g. inside closed accordion/collapse)
         if (rect.width === 0 || rect.height === 0) continue
         if (!element.offsetParent && element.tagName !== 'BODY' && getComputedStyle(element).position !== 'fixed') continue
+        if (isClippedByAncestor(element)) continue
 
         const config = store.getElementConfig(selector)
         const isStatic = config?.sourceBinding?.isStatic || false
@@ -434,6 +447,9 @@ const scannedHighlights = computed(() => {
       if (element) {
         if (openModal && !isInsideModal(element, openModal)) continue
         const rect = element.getBoundingClientRect()
+        if (rect.width === 0 || rect.height === 0) continue
+        if (!element.offsetParent && element.tagName !== 'BODY' && getComputedStyle(element).position !== 'fixed') continue
+        if (isClippedByAncestor(element)) continue
         highlights.push({
           selector: result.selector,
           top: `${rect.top + _scrollY}px`,
@@ -495,6 +511,7 @@ const analysisHighlights = computed(() => {
       // Skip elements that are effectively hidden (e.g. inside closed accordion/collapse)
       if (rect.width === 0 || rect.height === 0) continue
       if (!element.offsetParent && element.tagName !== 'BODY' && getComputedStyle(element).position !== 'fixed') continue
+      if (isClippedByAncestor(element)) continue
 
       // Skip very large elements (likely containers)
       if (rect.width > window.innerWidth * 0.8 || rect.height > window.innerHeight * 0.5) {
@@ -650,6 +667,7 @@ const unannotatedHighlights = computed(() => {
       // Skip elements that are effectively hidden (e.g. inside closed accordion/collapse)
       if (rect.width === 0 || rect.height === 0) continue
       if (!element.offsetParent && element.tagName !== 'BODY' && getComputedStyle(element).position !== 'fixed') continue
+      if (isClippedByAncestor(element)) continue
 
       highlights.push({
         selector: uEl.selector,

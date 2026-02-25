@@ -1,6 +1,6 @@
-import { _ as r } from "./DevInspector.vue_vue_type_script_setup_true_lang-5I-9ZJQ8.js";
-import { D as v, a as i, b as D, c as m } from "./DevInspector.vue_vue_type_script_setup_true_lang-5I-9ZJQ8.js";
-import { u as f, a as l } from "./useDevInspector-B-Cj4Ejw.js";
+import { _ as r } from "./DevInspector.vue_vue_type_script_setup_true_lang-DbV6SANS.js";
+import { D as v, a as i, b as D, c as m } from "./DevInspector.vue_vue_type_script_setup_true_lang-DbV6SANS.js";
+import { u as f, a as l } from "./useDevInspector-CkwcjyGx.js";
 const a = {
   install(e, o = {}) {
     const { autoRegister: s = !0, ...t } = o;
