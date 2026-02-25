@@ -13,17 +13,9 @@ const props = withDefaults(defineProps<DevInspectorOptions>(), {
 
 const store = useDevInspectorStore()
 
-// Ctrl+Shift+D keyboard shortcut
-function handleKeydown(e: KeyboardEvent) {
-  if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
-    e.preventDefault()
-    store.togglePanel()
-  }
-}
-
-// Custom event from React wrapper
+// Ctrl+Shift+D toggle event (dispatched by React wrapper or Nuxt plugin)
 function handleToggleEvent() {
-  store.togglePanel()
+  store.toggle()
 }
 
 onMounted(() => {
@@ -33,12 +25,10 @@ onMounted(() => {
     initialAnnotations: props.initialAnnotations
   })
 
-  window.addEventListener('keydown', handleKeydown)
   window.addEventListener('dev-inspector-toggle', handleToggleEvent)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('keydown', handleKeydown)
   window.removeEventListener('dev-inspector-toggle', handleToggleEvent)
 })
 </script>

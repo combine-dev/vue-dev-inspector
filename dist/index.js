@@ -1,5 +1,5 @@
-import { _ as r } from "./DevInspector.vue_vue_type_script_setup_true_lang-CZe93ywo.js";
-import { D as v, a as i, b as D, c as m } from "./DevInspector.vue_vue_type_script_setup_true_lang-CZe93ywo.js";
+import { _ as r } from "./DevInspector.vue_vue_type_script_setup_true_lang-5I-9ZJQ8.js";
+import { D as v, a as i, b as D, c as m } from "./DevInspector.vue_vue_type_script_setup_true_lang-5I-9ZJQ8.js";
 import { u as f, a as l } from "./useDevInspector-B-Cj4Ejw.js";
 const a = {
   install(e, o = {}) {
