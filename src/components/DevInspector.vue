@@ -17,13 +17,13 @@ const store = useDevInspectorStore()
 function handleKeydown(e: KeyboardEvent) {
   if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
     e.preventDefault()
-    store.toggle()
+    store.togglePanel()
   }
 }
 
 // Custom event from React wrapper
 function handleToggleEvent() {
-  store.toggle()
+  store.togglePanel()
 }
 
 onMounted(() => {

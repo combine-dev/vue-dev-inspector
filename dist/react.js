@@ -8,7 +8,7 @@ function a(t) {
       const [{ createApp: Y }, { createPinia: R }, h] = await Promise.all([
         import("vue"),
         import("pinia"),
-        import("./DevInspector-BurpaYFm.js")
+        import("./DevInspector-DSPGAbIm.js")
       ]);
       if (d) return;
       const W = c.current;

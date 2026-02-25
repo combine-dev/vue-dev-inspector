@@ -6572,10 +6572,10 @@ ${d.note.text}` : "")) : bt === "static" ? (se = "固定" + lt, $e = (((zt = d =
   setup(le) {
     const k = le, r = nl();
     function D(J) {
-      J.ctrlKey && J.shiftKey && (J.key === "D" || J.key === "d") && (J.preventDefault(), r.toggle());
+      J.ctrlKey && J.shiftKey && (J.key === "D" || J.key === "d") && (J.preventDefault(), r.togglePanel());
     }
     function q() {
-      r.toggle();
+      r.togglePanel();
     }
     return Ol(() => {
       r.init({
