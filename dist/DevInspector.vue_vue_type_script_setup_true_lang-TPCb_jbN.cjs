@@ -1,4 +1,4 @@
-"use strict";const e=require("vue"),Ut=require("./useDevInspector-CzA2mpo8.cjs");/**
+"use strict";const e=require("vue"),Ut=require("./useDevInspector-DvcI3OAa.cjs");/**
  * @license lucide-vue-next v0.300.0 - ISC
  *
  * This source code is licensed under the ISC license.

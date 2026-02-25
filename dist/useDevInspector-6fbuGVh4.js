@@ -55,8 +55,8 @@ function yt(v) {
   const I = [], k = /* @__PURE__ */ new Set();
   for (const se of Object.values(v))
     if ((Z = se.auth) != null && Z.roles)
-      for (const P of se.auth.roles)
-        k.add(P);
+      for (const j of se.auth.roles)
+        k.add(j);
   const D = [...k].sort();
   if (D.length === 0 && !Object.values(v).some((se) => se.auth))
     return I;
@@ -65,10 +65,10 @@ function yt(v) {
   I.push(`| 画面 | パス | 認証 |${t ? t + "|" : ""}`);
   const W = D.map(() => "------").join("|");
   I.push(`|------|------|------|${W ? W + "|" : ""}`);
-  for (const [se, P] of Object.entries(v)) {
-    const he = P.name || se, ne = (S = P.auth) != null && S.required ? "必須" : "不要";
-    if ((ae = P.auth) != null && ae.required) {
-      const Q = P.auth.roles || [], re = D.map((j) => Q.length === 0 || Q.includes(j) ? " ○ " : " × ").join("|");
+  for (const [se, j] of Object.entries(v)) {
+    const he = j.name || se, ne = (S = j.auth) != null && S.required ? "必須" : "不要";
+    if ((ae = j.auth) != null && ae.required) {
+      const Q = j.auth.roles || [], re = D.map((P) => Q.length === 0 || Q.includes(P) ? " ○ " : " × ").join("|");
       I.push(`| ${p(he)} | ${p(se)} | ${ne} |${re ? re + "|" : ""}`);
     } else {
       const Q = D.map(() => " - ").join("|");
@@ -78,7 +78,7 @@ function yt(v) {
   return I.push(""), I;
 }
 function wn(v, I, k, D = {}) {
-  var he, ne, Q, re, j, Te, ve, ee, _, z, me, te, be, le, Se, E;
+  var he, ne, Q, re, P, Te, ve, ee, _, z, me, te, be, le, Se, E;
   const t = [];
   t.push("# 画面仕様（SDD）"), t.push("");
   const W = vt(v), Z = /* @__PURE__ */ new Set([...Object.keys(I), ...Object.keys(W)]);
@@ -135,8 +135,8 @@ function wn(v, I, k, D = {}) {
       }
       t.push("");
     }
-    const { common: K, tabs: U, modals: Y, unnamedModals: we } = bt(O), je = Object.keys(U).length > 0, Re = Object.keys(Y).length > 0 || we.length > 0;
-    if (je || Re) {
+    const { common: K, tabs: U, modals: Y, unnamedModals: we } = bt(O), Pe = Object.keys(U).length > 0, Re = Object.keys(Y).length > 0 || we.length > 0;
+    if (Pe || Re) {
       K.length > 0 && (t.push("### ページ共通"), t.push(""), m(K, "####"));
       for (const [T, y] of Object.entries(U))
         t.push(`### ${T}タブ`), t.push(""), m(y, "####");
@@ -209,10 +209,10 @@ function wn(v, I, k, D = {}) {
     });
     if (de.length > 0) {
       t.push("### ソート定義");
-      const T = (Te = (j = (re = de.find((H) => {
+      const T = (Te = (P = (re = de.find((H) => {
         var J, q;
         return (q = (J = H.config.actionInfo) == null ? void 0 : J.sortSpec) == null ? void 0 : q.unsortedOrder;
-      })) == null ? void 0 : re.config.actionInfo) == null ? void 0 : j.sortSpec) == null ? void 0 : Te.unsortedOrder;
+      })) == null ? void 0 : re.config.actionInfo) == null ? void 0 : P.sortSpec) == null ? void 0 : Te.unsortedOrder;
       T && (t.push(`- 未ソート時の並び順: ${T}`), t.push(""));
       const y = de.find((H) => {
         var J, q;
@@ -307,10 +307,10 @@ function wn(v, I, k, D = {}) {
       }
     }
   }
-  const P = Object.values(D);
-  if (P.length > 0) {
+  const j = Object.values(D);
+  if (j.length > 0) {
     t.push("## バッチ処理定義"), t.push("");
-    for (const r of P) {
+    for (const r of j) {
       if (t.push(`### ${r.name}`), r.schedule && t.push(`- スケジュール: ${r.schedule}`), r.trigger && t.push(`- トリガー: ${r.trigger}`), r.description && t.push(`- 概要: ${r.description}`), r.timeout && t.push(`- タイムアウト: ${r.timeout}`), r.retryPolicy && t.push(`- リトライ: ${r.retryPolicy}`), r.inputTables && r.inputTables.length > 0 && t.push(`- 入力: ${r.inputTables.join(", ")}`), r.outputTables && r.outputTables.length > 0 && t.push(`- 出力: ${r.outputTables.join(", ")}`), t.push(""), r.steps.length > 0) {
         t.push("**処理ステップ**"), t.push("| No | 処理内容 | 対象 | 種別 | エラー時 |"), t.push("|----|---------|------|------|---------|");
         for (const m of r.steps)
@@ -324,14 +324,14 @@ function wn(v, I, k, D = {}) {
 `);
 }
 function In(v, I, k, D = {}) {
-  var P, he, ne, Q, re, j, Te, ve;
+  var j, he, ne, Q, re, P, Te, ve;
   const t = [];
   t.push("# 画面仕様書"), t.push("");
   const W = vt(v), Z = /* @__PURE__ */ new Set([...Object.keys(I), ...Object.keys(W)]);
   for (const ee of Z) {
     const _ = I[ee], z = W[ee] || [];
     if (t.push(`## ${(_ == null ? void 0 : _.name) || ee}`), t.push(`**URL:** ${ee}`), t.push(""), _ != null && _.description && (t.push("### 概要"), t.push(_.description), t.push("")), _ != null && _.auth) {
-      if (t.push("### 認証"), t.push(`- ${_.auth.required ? "ログイン必須" : "ログイン不要"}`), (P = _.auth.roles) != null && P.length) {
+      if (t.push("### 認証"), t.push(`- ${_.auth.required ? "ログイン必須" : "ログイン不要"}`), (j = _.auth.roles) != null && j.length) {
         const E = _.auth.roles.map((r) => ({ admin: "管理者", manager: "マネージャー", user: "ユーザー" })[r] || r);
         t.push(`- 権限: ${E.join("、")}`);
       }
@@ -341,8 +341,8 @@ function In(v, I, k, D = {}) {
       let E = function(K, U) {
         t.push("| No | 項目名 | 種別 | 説明 | 必須 | 備考 |"), t.push("|----|--------|------|------|------|------|"), K.forEach(({ config: Y }, we) => {
           var de, Ae, T, y;
-          const je = $n(Y), Re = yn(Y), Be = Sn(Y), fe = (de = Y.formInfo) != null && de.required ? "必須" : "", ye = [];
-          (Ae = Y.note) != null && Ae.condition && ye.push(Y.note.condition), (T = Y.note) != null && T.unit && ye.push(`単位: ${Y.note.unit}`), (y = Y.note) != null && y.nullDisplay && Y.note.nullDisplay !== "-" && ye.push(`空欄時: ${Y.note.nullDisplay}`), t.push(`| ${U + we} | ${p(je)} | ${Re} | ${p(Be)} | ${fe} | ${p(ye.join(" / "))} |`);
+          const Pe = $n(Y), Re = yn(Y), Be = Sn(Y), fe = (de = Y.formInfo) != null && de.required ? "必須" : "", ye = [];
+          (Ae = Y.note) != null && Ae.condition && ye.push(Y.note.condition), (T = Y.note) != null && T.unit && ye.push(`単位: ${Y.note.unit}`), (y = Y.note) != null && y.nullDisplay && Y.note.nullDisplay !== "-" && ye.push(`空欄時: ${Y.note.nullDisplay}`), t.push(`| ${U + we} | ${p(Pe)} | ${Re} | ${p(Be)} | ${fe} | ${p(ye.join(" / "))} |`);
         }), t.push("");
       };
       const { common: r, tabs: m, modals: $, unnamedModals: O } = bt(z);
@@ -409,10 +409,10 @@ function In(v, I, k, D = {}) {
     });
     if (le.length > 0) {
       t.push("### ソート");
-      const E = (j = (re = (Q = le.find(($) => {
+      const E = (P = (re = (Q = le.find(($) => {
         var O, F;
         return (F = (O = $.config.actionInfo) == null ? void 0 : O.sortSpec) == null ? void 0 : F.unsortedOrder;
-      })) == null ? void 0 : Q.config.actionInfo) == null ? void 0 : re.sortSpec) == null ? void 0 : j.unsortedOrder;
+      })) == null ? void 0 : Q.config.actionInfo) == null ? void 0 : re.sortSpec) == null ? void 0 : P.unsortedOrder;
       E && t.push(`- 初期並び順: ${E}`);
       const r = le.filter(($) => {
         var O, F;
@@ -478,9 +478,9 @@ function In(v, I, k, D = {}) {
 `);
 }
 const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConfigs", mt = "devInspector:masterDefinitions", gt = "devInspector:batchDefinitions", An = bn("devInspector", () => {
-  const v = N({}), I = N(!1), k = N(!1), D = N(!1), t = N(!1), W = N(null), Z = N(!1), S = N({}), ae = N(null), se = N(null), P = N({}), he = N(!1), ne = N({}), Q = N({}), re = Oe(() => v.value.storageKey || Tn), j = N(null), Te = N("all"), ve = N(!0), ee = N("all"), _ = N("all"), z = N([]), me = N(null), te = N([]), be = N(!1), le = N(""), Se = N("column"), E = N(!1), r = N([]), m = N(null), $ = N(!1), O = N(/* @__PURE__ */ new Set()), F = "devInspector:hiddenAnalysisSelectors", K = Oe(() => v.value.enabledInProduction ? !0 : typeof import.meta < "u" && Cn ? !1 : process.env.NODE_ENV === "development"), U = N(!1);
+  const v = N({}), I = N(!1), k = N(!1), D = N(!1), t = N(!1), W = N(null), Z = N(!1), S = N({}), ae = N(null), se = N(null), j = N({}), he = N(!1), ne = N({}), Q = N({}), re = Oe(() => v.value.storageKey || Tn), P = N(null), Te = N("all"), ve = N(!0), ee = N("all"), _ = N("all"), z = N([]), me = N(null), te = N([]), be = N(!1), le = N(""), Se = N("column"), E = N(!1), r = N([]), m = N(null), $ = N(!1), O = N(/* @__PURE__ */ new Set()), F = "devInspector:hiddenAnalysisSelectors", K = Oe(() => v.value.enabledInProduction ? !0 : typeof import.meta < "u" && Cn ? !1 : process.env.NODE_ENV === "development"), U = N(!1);
   function Y(e = {}) {
-    v.value = e, Be(), ye(), h(), xe(), Mt(), fn(), dn(), e.analysisData && (j.value = e.analysisData);
+    v.value = e, Be(), ye(), h(), xe(), Mt(), fn(), dn(), e.analysisData && (P.value = e.analysisData);
     const n = e.analysisDataUrl ?? "/dev-inspector-analysis.json";
     e.autoLoadAnalysis !== !1 && K.value && we(n);
   }
@@ -489,24 +489,24 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     try {
       const o = await fetch(e);
       if (o.ok)
-        return j.value = await o.json(), console.log("[DevInspector] Analysis data loaded:", Object.keys(((n = j.value) == null ? void 0 : n.components) || {}).length, "components"), !0;
+        return P.value = await o.json(), console.log("[DevInspector] Analysis data loaded:", Object.keys(((n = P.value) == null ? void 0 : n.components) || {}).length, "components"), !0;
     } catch {
       console.debug("[DevInspector] Analysis data not found at", e);
     }
     return !1;
   }
-  function je(e) {
-    if (!j.value) return null;
-    for (const n of Object.values(j.value.components)) {
+  function Pe(e) {
+    if (!P.value) return null;
+    for (const n of Object.values(P.value.components)) {
       const o = n.elements.find((s) => s.selector === e);
       if (o) return o;
     }
     return null;
   }
   function Re(e) {
-    if (!j.value) return [];
+    if (!P.value) return [];
     const n = [];
-    for (const [o, s] of Object.entries(j.value.components))
+    for (const [o, s] of Object.entries(P.value.components))
       (!e || o.includes(e)) && n.push(...s.elements);
     return n;
   }
@@ -541,7 +541,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     try {
       if (typeof window < "u") {
         const e = localStorage.getItem(ht);
-        e && (P.value = JSON.parse(e));
+        e && (j.value = JSON.parse(e));
       }
     } catch (e) {
       console.error("[DevInspector] Failed to load screen configs:", e);
@@ -550,31 +550,31 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
   function de() {
     try {
       if (typeof window < "u") {
-        const e = JSON.stringify(P.value);
+        const e = JSON.stringify(j.value);
         localStorage.setItem(ht, e);
       }
     } catch (e) {
       console.error("[DevInspector] Failed to save screen configs:", e);
     }
   }
-  ze(P, () => {
+  ze(j, () => {
     ce(() => {
       de();
     });
   }, { deep: !0 });
   function Ae(e) {
     const n = e || (typeof window < "u" ? window.location.pathname : "/");
-    return P.value[n];
+    return j.value[n];
   }
   function T(e) {
-    P.value = {
-      ...P.value,
+    j.value = {
+      ...j.value,
       [e.path]: e
     }, ce(() => de());
   }
   function y(e) {
-    const { [e]: n, ...o } = P.value;
-    P.value = o, ce(() => de());
+    const { [e]: n, ...o } = j.value;
+    j.value = o, ce(() => de());
   }
   function h() {
     try {
@@ -693,9 +693,9 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
         }));
       }
     }
-    if ((u = j.value) != null && u.components) {
+    if ((u = P.value) != null && u.components) {
       const f = typeof window < "u" ? window.location.pathname : "/";
-      for (const [w, g] of Object.entries(j.value.components)) {
+      for (const [w, g] of Object.entries(P.value.components)) {
         const l = w.replace(/^pages/, "").replace(/\.vue$/, "").replace(/\/index$/, "").replace(/\[.*?\]/g, "[^/]+");
         let d = !1;
         if (f === "/" && w.includes("index"))
@@ -726,7 +726,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     if (!e) return [];
     const n = Se.value, o = [];
     for (const [L, C] of Object.entries(S.value)) {
-      const oe = C.pagePath || "/", Pe = P.value[oe], Ve = (Pe == null ? void 0 : Pe.name) || oe;
+      const oe = C.pagePath || "/", je = j.value[oe], Ve = (je == null ? void 0 : je.name) || oe;
       if (n === "column") {
         const Qe = (s = C.fieldInfoList) != null && s.length ? C.fieldInfoList : C.fieldInfo ? [C.fieldInfo] : [];
         for (const pe of Qe)
@@ -783,7 +783,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       }
     }
     if (n === "api")
-      for (const [L, C] of Object.entries(P.value))
+      for (const [L, C] of Object.entries(j.value))
         for (const oe of C.apis || [])
           oe.endpoint.toLowerCase().includes(e) && o.push({
             pagePath: L,
@@ -844,8 +844,8 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       const G = l.querySelector("tbody tr") || l.querySelectorAll("tr")[b.length > 0 ? 1 : 0];
       if (!G) return;
       G.querySelectorAll("td").forEach((A, x) => {
-        var Pe;
-        const L = A, C = ((Pe = L.textContent) == null ? void 0 : Pe.trim()) || "";
+        var je;
+        const L = A, C = ((je = L.textContent) == null ? void 0 : je.trim()) || "";
         if (!C || L.querySelector("[data-di-binding]") || u(L)) return;
         const oe = b[x] || `列${x + 1}`;
         f(L, "binding", `${oe}: ${C}`, "datasource");
@@ -899,7 +899,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
   const Ee = Oe(() => {
     var a, u, f, w;
     const e = /* @__PURE__ */ new Map(), n = [], o = /* @__PURE__ */ new Set();
-    for (const [g, l] of Object.entries(P.value))
+    for (const [g, l] of Object.entries(j.value))
       e.set(g, {
         path: g,
         name: l.name || g,
@@ -909,7 +909,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       if (((a = l.actionInfo) == null ? void 0 : a.type) === "navigate" && l.actionInfo.target) {
         const d = l.pagePath || "/", b = l.actionInfo.target, G = `${d}→${b}`;
         if (!e.has(d)) {
-          const R = P.value[d];
+          const R = j.value[d];
           e.set(d, {
             path: d,
             name: (R == null ? void 0 : R.name) || d,
@@ -917,7 +917,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
           });
         }
         if (!e.has(b)) {
-          const R = P.value[b];
+          const R = j.value[b];
           e.set(b, {
             path: b,
             name: (R == null ? void 0 : R.name) || b,
@@ -952,7 +952,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
   }
   async function Ie() {
     if (!K.value) return;
-    if (j.value && !U.value && v.value.autoApplyAnalysis !== !1) {
+    if (P.value && !U.value && v.value.autoApplyAnalysis !== !1) {
       t.value = !0, I.value = !0;
       try {
         await new Promise((n) => setTimeout(n, 300)), rt(), U.value = !0;
@@ -1006,11 +1006,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     return n.join(" > ");
   }
   function wt() {
-    const e = typeof window < "u" ? window.location.pathname : "/";
-    return Object.keys(S.value).filter((n) => {
-      const o = S.value[n];
-      return !(!o || !(n.includes(">") || n.startsWith("#") || n.startsWith("[") || n.startsWith(".")) || o.pagePath && o.pagePath !== e);
-    });
+    return Object.keys(S.value).filter((e) => S.value[e] ? e.includes(">") || e.startsWith("#") || e.startsWith("[") || e.startsWith(".") : !1);
   }
   function It(e) {
     W.value = e;
@@ -1178,7 +1174,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       [e]: w
     }, ce(() => fe());
   }
-  function Pt(e) {
+  function jt(e) {
     const { [e]: n, ...o } = S.value;
     S.value = o, ce(() => fe());
   }
@@ -1485,7 +1481,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     }
   }
   const at = N([]), Xe = N("");
-  async function jt(e) {
+  async function Pt(e) {
     var o;
     if (!e)
       return console.warn("[DevInspector] Router not provided for all pages scan"), [];
@@ -1517,12 +1513,12 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
   const ge = N([]);
   async function rt() {
     var c;
-    if (!j.value)
+    if (!P.value)
       return console.warn("[DevInspector] No analysis data loaded. Call loadAnalysisData first."), 0;
     ge.value = [];
     const e = typeof window < "u" ? window.location.pathname : "/", n = (a) => {
-      if (!j.value) return null;
-      for (const [u, f] of Object.entries(j.value.components))
+      if (!P.value) return null;
+      for (const [u, f] of Object.entries(P.value.components))
         if (f.componentName === a || f.componentName.toLowerCase() === a.toLowerCase() || u.toLowerCase().includes(`/${a.toLowerCase()}.vue`))
           return f;
       return null;
@@ -1536,7 +1532,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
         }
       return f;
     }, s = [], i = /* @__PURE__ */ new Set();
-    for (const [a, u] of Object.entries(j.value.components)) {
+    for (const [a, u] of Object.entries(P.value.components)) {
       const f = a.replace(/^pages/, "").replace(/\.vue$/, "").replace(/\/index$/, "").replace(/\[.*?\]/g, "[^/]+");
       let w = !1;
       if ((e === "/" && a.includes("index") || a.includes("pages/") && e.match(new RegExp(`^${f}$`))) && (w = !0), w) {
@@ -1544,7 +1540,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
         s.push(...g), i.add(u.componentName), u.usedComponents && u.usedComponents.forEach((l) => i.add(l));
       }
     }
-    for (const [a, u] of Object.entries(j.value.components))
+    for (const [a, u] of Object.entries(P.value.components))
       a.includes("components/") && !i.has(u.componentName) && s.push(...u.elements);
     for (const a of s) {
       if (O.value.has(a.selector))
@@ -1635,9 +1631,9 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     i.href = s, i.download = e, document.body.appendChild(i), i.click(), document.body.removeChild(i), URL.revokeObjectURL(s);
   }
   function lt() {
-    if (!j.value) return [];
+    if (!P.value) return [];
     const e = [], n = /* @__PURE__ */ new Set();
-    for (const o of Object.values(j.value.components))
+    for (const o of Object.values(P.value.components))
       for (const s of o.elements)
         s.binding && !n.has(s.binding) && (n.add(s.binding), e.push({
           binding: s.binding,
@@ -1660,9 +1656,9 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
   }
   function ut() {
     var n, o;
-    if (!((o = (n = j.value) == null ? void 0 : n.dbSchema) != null && o.tables)) return [];
+    if (!((o = (n = P.value) == null ? void 0 : n.dbSchema) != null && o.tables)) return [];
     const e = [];
-    for (const [s, i] of Object.entries(j.value.dbSchema.tables))
+    for (const [s, i] of Object.entries(P.value.dbSchema.tables))
       for (const [c, a] of Object.entries(i.columns))
         e.push({
           table: s,
@@ -1687,20 +1683,20 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
   function Gt() {
     var o, s;
     const e = [], n = [];
-    if (!((o = j.value) != null && o.components)) return { pageLoad: e, action: n };
+    if (!((o = P.value) != null && o.components)) return { pageLoad: e, action: n };
     for (const i of ge.value) {
       if (!i.matched) continue;
       const c = i.element.component;
-      if (c && ((s = j.value.components[c]) != null && s.apis))
-        for (const a of j.value.components[c].apis)
+      if (c && ((s = P.value.components[c]) != null && s.apis))
+        for (const a of P.value.components[c].apis)
           ["onMount", "useFetch", "useAsyncData"].includes(a.loadTrigger) ? e.some((u) => u.endpoint === a.endpoint && u.method === a.method) || e.push(a) : a.loadTrigger === "action" && (n.some((u) => u.endpoint === a.endpoint && u.method === a.method) || n.push(a));
     }
     return { pageLoad: e, action: n };
   }
   function Jt(e) {
     var n;
-    if (!((n = j.value) != null && n.components)) return null;
-    for (const o of Object.values(j.value.components))
+    if (!((n = P.value) != null && n.components)) return null;
+    for (const o of Object.values(P.value.components))
       if (o.apis) {
         for (const s of o.apis)
           if (s.variable && e.startsWith(s.variable))
@@ -1757,7 +1753,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
   function en() {
     return JSON.stringify({
       elementConfigs: S.value,
-      screenConfigs: P.value,
+      screenConfigs: j.value,
       manualTables: te.value,
       tableRelations: z.value
     }, null, 2);
@@ -1770,7 +1766,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
         lastUpdated: (/* @__PURE__ */ new Date()).toISOString()
       },
       annotations: S.value,
-      screenConfigs: P.value,
+      screenConfigs: j.value,
       manualTables: te.value,
       tableRelations: z.value
     };
@@ -1784,7 +1780,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     var n, o;
     try {
       const s = JSON.parse(e), i = s.annotations || s.elementConfigs || s;
-      if (S.value = { ...S.value, ...i }, s.screenConfigs && (P.value = { ...P.value, ...s.screenConfigs }), (n = s.manualTables) != null && n.length) {
+      if (S.value = { ...S.value, ...i }, s.screenConfigs && (j.value = { ...j.value, ...s.screenConfigs }), (n = s.manualTables) != null && n.length) {
         for (const c of s.manualTables)
           te.value.some((a) => a.name === c.name) || te.value.push(c);
         qe();
@@ -1802,11 +1798,11 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     S.value = {};
   }
   function sn(e = "screen-spec-sdd.md") {
-    const n = wn(S.value, P.value, ne.value, Q.value), o = new Blob([n], { type: "text/markdown;charset=utf-8" }), s = URL.createObjectURL(o), i = document.createElement("a");
+    const n = wn(S.value, j.value, ne.value, Q.value), o = new Blob([n], { type: "text/markdown;charset=utf-8" }), s = URL.createObjectURL(o), i = document.createElement("a");
     i.href = s, i.download = e, document.body.appendChild(i), i.click(), document.body.removeChild(i), URL.revokeObjectURL(s);
   }
   function an(e = "screen-spec-client.md") {
-    const n = In(S.value, P.value, ne.value, Q.value), o = new Blob([n], { type: "text/markdown;charset=utf-8" }), s = URL.createObjectURL(o), i = document.createElement("a");
+    const n = In(S.value, j.value, ne.value, Q.value), o = new Blob([n], { type: "text/markdown;charset=utf-8" }), s = URL.createObjectURL(o), i = document.createElement("a");
     i.href = s, i.download = e, document.body.appendChild(i), i.click(), document.body.removeChild(i), URL.revokeObjectURL(s);
   }
   const pt = Oe(() => {
@@ -1947,7 +1943,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     elementConfigs: S,
     editingElementId: ae,
     // Screen configs
-    screenConfigs: P,
+    screenConfigs: j,
     editingScreen: he,
     getScreenConfig: Ae,
     setScreenConfig: T,
@@ -1970,7 +1966,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     closePanel: Ke,
     getElementConfig: At,
     setElementConfig: Ye,
-    deleteElementConfig: Pt,
+    deleteElementConfig: jt,
     startEditing: Zt,
     stopEditing: Qt,
     exportConfigs: en,
@@ -1987,14 +1983,14 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     scanProgress: Me,
     scanResults: Je,
     scanCurrentPage: it,
-    scanAllPages: jt,
+    scanAllPages: Pt,
     allPagesRoutes: at,
     currentScanPage: Xe,
     clearScanResults: Rt,
     // Analysis data
-    analysisData: j,
+    analysisData: P,
     loadAnalysisData: we,
-    getAnalyzedElement: je,
+    getAnalyzedElement: Pe,
     getAnalyzedElementsForPage: Re,
     analysisResults: ge,
     applyAnalysisToPage: rt,

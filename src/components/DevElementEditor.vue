@@ -1323,7 +1323,7 @@ function saveMasterEntries() {
                     @focus="showTableSuggestions = true"
                     @blur="hideTableSuggestions()"
                     type="text"
-                    placeholder="users"
+                    placeholder="users, users.sheets"
                     class="di-input"
                     autocomplete="off"
                   />

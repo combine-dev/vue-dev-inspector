@@ -1397,15 +1397,11 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
   }
 
   function getConfiguredSelectors(): string[] {
-    const currentPath = typeof window !== 'undefined' ? window.location.pathname : '/'
     return Object.keys(elementConfigs.value).filter(id => {
       const config = elementConfigs.value[id]
       if (!config) return false
       // Must be a valid CSS selector
-      if (!(id.includes('>') || id.startsWith('#') || id.startsWith('[') || id.startsWith('.'))) return false
-      // Filter by pagePath (skip elements from other pages)
-      if (config.pagePath && config.pagePath !== currentPath) return false
-      return true
+      return id.includes('>') || id.startsWith('#') || id.startsWith('[') || id.startsWith('.')
     })
   }
 
