@@ -73,8 +73,23 @@ export function DevInspector(props: DevInspectorProps) {
       app.mount(mountPoint)
     })()
 
+    // Ctrl+Shift+D keyboard shortcut to toggle inspector
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.shiftKey && e.key === 'D') {
+        e.preventDefault()
+        // Access the Pinia store via the Vue app
+        const pinia = app?._context?.app?.config?.globalProperties?.$pinia
+        if (pinia?.state?.value?.devInspector) {
+          const state = pinia.state.value.devInspector
+          state.isEnabled = !state.isEnabled
+        }
+      }
+    }
+    window.addEventListener('keydown', handleKeydown)
+
     return () => {
       disposed = true
+      window.removeEventListener('keydown', handleKeydown)
       app?.unmount()
     }
   }, [])
