@@ -79,19 +79,8 @@ export function DevInspector(props: DevInspectorProps) {
       app.mount(mountPoint)
     })()
 
-    // Ctrl+Shift+D keyboard shortcut to toggle inspector
-    const handleKeydown = (e: KeyboardEvent) => {
-      if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
-        e.preventDefault()
-        // Dispatch custom event that Vue side listens for
-        window.dispatchEvent(new CustomEvent('dev-inspector-toggle'))
-      }
-    }
-    window.addEventListener('keydown', handleKeydown)
-
     return () => {
       disposed = true
-      window.removeEventListener('keydown', handleKeydown)
       app?.unmount()
     }
   }, [])
