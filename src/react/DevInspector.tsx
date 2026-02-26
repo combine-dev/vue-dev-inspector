@@ -41,22 +41,22 @@ export function DevInspector(props: DevInspectorProps) {
         shadow.innerHTML = ''
       }
 
-      // Inject inspector CSS into Shadow DOM
-      // The CSS is bundled as style.css — load it at runtime
+      // Inject inspector CSS into Shadow DOM as inline <style>
+      // Dynamic import ensures CSS string is always in sync with component hashes
       try {
-        const styleUrl = new URL('vue-dev-inspector/style.css', import.meta.url).href
-        const link = document.createElement('link')
-        link.rel = 'stylesheet'
-        link.href = styleUrl
-        shadow.appendChild(link)
+        const cssModule = await import('vue-dev-inspector/style-content')
+        const style = document.createElement('style')
+        style.textContent = cssModule.default
+        shadow.appendChild(style)
       } catch {
-        // Fallback: try to find existing style.css and clone it
-        const existingStyles = document.querySelectorAll('style, link[rel="stylesheet"]')
-        existingStyles.forEach(s => {
-          if (s.textContent?.includes('data-dev-inspector') || (s as HTMLLinkElement).href?.includes('dev-inspector')) {
-            shadow!.appendChild(s.cloneNode(true))
-          }
-        })
+        // Fallback: try URL-based loading
+        try {
+          const styleUrl = new URL('vue-dev-inspector/style.css', import.meta.url).href
+          const link = document.createElement('link')
+          link.rel = 'stylesheet'
+          link.href = styleUrl
+          shadow.appendChild(link)
+        } catch { /* CSS loading failed */ }
       }
 
       // Teleport target inside Shadow DOM

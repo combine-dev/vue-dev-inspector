@@ -43,7 +43,11 @@
     "./cli": {
       "require": "./dist/cli.cjs"
     },
-    "./style.css": "./dist/style.css"
+    "./style.css": "./dist/style.css",
+    "./style-content": {
+      "import": "./dist/style-content.mjs",
+      "require": "./dist/style-content.cjs"
+    }
   },
   "files": [
     "dist",
@@ -53,7 +57,7 @@
   ],
   "scripts": {
     "dev": "vite build --watch",
-    "build": "vite build && npm run build:cli",
+    "build": "vite build && node -e \"const f=require('fs');const css=f.readFileSync('dist/style.css','utf-8');f.writeFileSync('dist/style-content.mjs','export default '+JSON.stringify(css));f.writeFileSync('dist/style-content.cjs','module.exports='+JSON.stringify(css))\" && npm run build:cli",
     "build:cli": "esbuild src/cli/index.ts --bundle --platform=node --outfile=dist/cli.cjs --format=cjs",
     "typecheck": "vue-tsc --noEmit",
     "prepublishOnly": "npm run build"

@@ -125,13 +125,16 @@ function matchesNoteFilter(selector: string): boolean {
   }
 }
 
-// Check if an element is clipped to invisible by an ancestor with overflow:hidden
+// Check if an element is clipped to invisible by an ancestor (e.g. closed accordion)
 function isClippedByAncestor(element: HTMLElement): boolean {
   let el: HTMLElement | null = element.parentElement
-  while (el && el !== document.body) {
+  while (el && el !== document.body && el !== document.documentElement) {
     const style = getComputedStyle(el)
     if (style.display === 'none') return true
-    if ((style.overflow === 'hidden' || style.overflowY === 'hidden') && el.clientHeight === 0) return true
+    // Detect collapsed accordion/collapsible: overflow-y hidden with near-zero height
+    if (style.overflowY === 'hidden' || style.overflowY === 'clip') {
+      if (el.getBoundingClientRect().height < 3) return true
+    }
     el = el.parentElement
   }
   return false
@@ -775,6 +778,9 @@ onMounted(() => {
   window.addEventListener('scroll', updateAnnotationPositions)
   window.addEventListener('resize', updateAnnotationPositions)
 
+  // Recalc after CSS transitions (accordion open/close, collapse animations)
+  window.addEventListener('transitionend', updateAnnotationPositions, true)
+
   // Observe DOM changes to detect modal open/close and tab switches
   let domDebounceTimer: ReturnType<typeof setTimeout> | null = null
   domObserver = new MutationObserver(() => {
@@ -784,7 +790,12 @@ onMounted(() => {
       layoutVersion.value++
     }, 100)
   })
-  domObserver.observe(document.body, { childList: true, subtree: true })
+  domObserver.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class', 'style', 'hidden', 'open', 'aria-expanded', 'data-state']
+  })
 })
 
 onUnmounted(() => {
@@ -793,6 +804,7 @@ onUnmounted(() => {
   window.removeEventListener('keydown', handleKeydown)
   window.removeEventListener('scroll', updateAnnotationPositions)
   window.removeEventListener('resize', updateAnnotationPositions)
+  window.removeEventListener('transitionend', updateAnnotationPositions, true)
   domObserver?.disconnect()
 })
 

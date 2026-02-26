@@ -1398,10 +1398,14 @@ export const useDevInspectorStore = defineStore('devInspector', () => {
 
   function getConfiguredSelectors(): string[] {
     return Object.keys(elementConfigs.value).filter(id => {
-      const config = elementConfigs.value[id]
-      if (!config) return false
-      // Must be a valid CSS selector
-      return id.includes('>') || id.startsWith('#') || id.startsWith('[') || id.startsWith('.')
+      if (!elementConfigs.value[id]) return false
+      // Validate as CSS selector via querySelector (catches non-selector keys)
+      try {
+        document.querySelector(id)
+        return true
+      } catch {
+        return false
+      }
     })
   }
 

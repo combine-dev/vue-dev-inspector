@@ -1,4 +1,4 @@
-import { ref as N, computed as Oe, watch as ze, nextTick as ce } from "vue";
+import { ref as N, computed as Oe, watch as Ke, nextTick as ce } from "vue";
 import { defineStore as bn } from "pinia";
 function p(v) {
   return v.replace(/\|/g, "\\|").replace(/\n/g, " ");
@@ -12,8 +12,8 @@ function vt(v) {
   return I;
 }
 function yn(v) {
-  var I, k, D, t, W, Z;
-  return v.elementType === "chart" ? "チャート" : v.elementType === "form" ? "入力" : v.elementType === "action" ? ((I = v.actionInfo) == null ? void 0 : I.type) === "navigate" ? "リンク" : (((k = v.actionInfo) == null ? void 0 : k.type) === "modal", "ボタン") : v.fieldInfo || ((D = v.note) == null ? void 0 : D.displayType) === "db_direct" || ((t = v.note) == null ? void 0 : t.displayType) === "db_formatted" ? "表示" : ((W = v.note) == null ? void 0 : W.displayType) === "calculated" ? "表示(計算)" : ((Z = v.note) == null ? void 0 : Z.displayType) === "static" ? "表示(固定)" : "表示";
+  var I, k, D, t, z, Z;
+  return v.elementType === "chart" ? "チャート" : v.elementType === "form" ? "入力" : v.elementType === "action" ? ((I = v.actionInfo) == null ? void 0 : I.type) === "navigate" ? "リンク" : (((k = v.actionInfo) == null ? void 0 : k.type) === "modal", "ボタン") : v.fieldInfo || ((D = v.note) == null ? void 0 : D.displayType) === "db_direct" || ((t = v.note) == null ? void 0 : t.displayType) === "db_formatted" ? "表示" : ((z = v.note) == null ? void 0 : z.displayType) === "calculated" ? "表示(計算)" : ((Z = v.note) == null ? void 0 : Z.displayType) === "static" ? "表示(固定)" : "表示";
 }
 function $n(v) {
   var I, k, D, t;
@@ -23,7 +23,7 @@ function Sn(v) {
   var k, D;
   const I = [];
   if (v.fieldInfo && I.push(`DBの${v.fieldInfo.table}.${v.fieldInfo.column}を表示`), ((k = v.note) == null ? void 0 : k.displayType) === "calculated" && v.note.calcDescription && I.push(v.note.calcDescription), v.actionInfo) {
-    const W = {
+    const z = {
       navigate: "画面遷移",
       api: "API呼び出し",
       modal: "モーダル表示",
@@ -33,21 +33,21 @@ function Sn(v) {
       csv_import: "CSV取込",
       email: "メール送信"
     }[v.actionInfo.type] || v.actionInfo.type;
-    I.push(`${W}${v.actionInfo.target ? `: ${v.actionInfo.target}` : ""}`);
+    I.push(`${z}${v.actionInfo.target ? `: ${v.actionInfo.target}` : ""}`);
   }
   return (D = v.formInfo) != null && D.description && I.push(v.formInfo.description), I.join(" / ");
 }
 function bt(v) {
   const I = [], k = {}, D = {}, t = [];
-  for (const W of v)
-    if (W.config.isConditional) {
-      const Z = W.config.modalName;
-      Z ? (D[Z] || (D[Z] = []), D[Z].push(W)) : t.push(W);
-    } else if (W.config.tabContext) {
-      const Z = W.config.tabContext;
-      k[Z] || (k[Z] = []), k[Z].push(W);
+  for (const z of v)
+    if (z.config.isConditional) {
+      const Z = z.config.modalName;
+      Z ? (D[Z] || (D[Z] = []), D[Z].push(z)) : t.push(z);
+    } else if (z.config.tabContext) {
+      const Z = z.config.tabContext;
+      k[Z] || (k[Z] = []), k[Z].push(z);
     } else
-      I.push(W);
+      I.push(z);
   return { common: I, tabs: k, modals: D, unnamedModals: t };
 }
 function yt(v) {
@@ -63,8 +63,8 @@ function yt(v) {
   I.push("## 権限マトリクス");
   const t = D.map((se) => ` ${se} `).join("|");
   I.push(`| 画面 | パス | 認証 |${t ? t + "|" : ""}`);
-  const W = D.map(() => "------").join("|");
-  I.push(`|------|------|------|${W ? W + "|" : ""}`);
+  const z = D.map(() => "------").join("|");
+  I.push(`|------|------|------|${z ? z + "|" : ""}`);
   for (const [se, j] of Object.entries(v)) {
     const he = j.name || se, ne = (S = j.auth) != null && S.required ? "必須" : "不要";
     if ((ae = j.auth) != null && ae.required) {
@@ -78,20 +78,20 @@ function yt(v) {
   return I.push(""), I;
 }
 function wn(v, I, k, D = {}) {
-  var he, ne, Q, re, P, Te, ve, ee, _, z, me, te, be, le, Se, E;
+  var he, ne, Q, re, P, Te, ve, ee, _, K, me, te, be, le, Se, E;
   const t = [];
   t.push("# 画面仕様（SDD）"), t.push("");
-  const W = vt(v), Z = /* @__PURE__ */ new Set([...Object.keys(I), ...Object.keys(W)]);
+  const z = vt(v), Z = /* @__PURE__ */ new Set([...Object.keys(I), ...Object.keys(z)]);
   for (const r of Z) {
     let m = function(T, y) {
-      var M, B, ue, xe, Le, Fe, Ue, He, Ge;
-      const h = T.filter((X) => X.config.elementType === "datasource" || !X.config.elementType && X.config.fieldInfo), H = T.filter((X) => X.config.elementType === "action" || !X.config.elementType && X.config.actionInfo && !X.config.fieldInfo), J = T.filter((X) => X.config.elementType === "form" || !X.config.elementType && X.config.formInfo && !X.config.fieldInfo && !X.config.actionInfo), q = T.filter(
+      var q, B, ue, xe, Le, Fe, Ue, He, Ge;
+      const h = T.filter((X) => X.config.elementType === "datasource" || !X.config.elementType && X.config.fieldInfo), H = T.filter((X) => X.config.elementType === "action" || !X.config.elementType && X.config.actionInfo && !X.config.fieldInfo), J = T.filter((X) => X.config.elementType === "form" || !X.config.elementType && X.config.formInfo && !X.config.fieldInfo && !X.config.actionInfo), M = T.filter(
         (X) => !h.includes(X) && !H.includes(X) && !J.includes(X)
       );
-      if (h.length > 0 || q.length > 0) {
+      if (h.length > 0 || M.length > 0) {
         t.push(`${y} データソース`), t.push("| セレクタ | DB | 型 | NULL時 | 表示形式 | 計算ロジック |"), t.push("|---------|-----|-----|--------|---------|------------|");
-        for (const { selector: X, config: ie } of [...h, ...q]) {
-          const V = ie.fieldInfo, Ee = V ? `${V.table}.${V.column}` : "", $e = (V == null ? void 0 : V.type) || "", Ie = ((M = ie.note) == null ? void 0 : M.nullDisplay) || "-", ke = ((B = ie.note) == null ? void 0 : B.displayFormat) || "";
+        for (const { selector: X, config: ie } of [...h, ...M]) {
+          const V = ie.fieldInfo, Ee = V ? `${V.table}.${V.column}` : "", $e = (V == null ? void 0 : V.type) || "", Ie = ((q = ie.note) == null ? void 0 : q.nullDisplay) || "-", ke = ((B = ie.note) == null ? void 0 : B.displayFormat) || "";
           let Ne = "";
           ((ue = ie.note) == null ? void 0 : ue.displayType) === "calculated" && ie.note.calcDescription && (Ne = ie.note.calcDescription), (xe = ie.note) != null && xe.storedCalc && ie.note.storedCalcLogic && (Ne = ie.note.storedCalcLogic), t.push(`| ${p(X)} | ${p(Ee)} | ${p($e)} | ${p(Ie)} | ${p(ke)} | ${p(Ne)} |`);
         }
@@ -120,7 +120,7 @@ function wn(v, I, k, D = {}) {
         t.push("");
       }
     };
-    const $ = I[r], O = W[r] || [];
+    const $ = I[r], O = z[r] || [];
     if (t.push(`## ${r} — ${($ == null ? void 0 : $.name) || r}`), t.push(""), t.push("### 画面情報"), $ != null && $.auth) {
       const T = (he = $.auth.roles) != null && he.length ? ` (${$.auth.roles.join(", ")})` : "";
       t.push(`- 認証: ${$.auth.required ? "必須" : "不要"}${T}`);
@@ -135,16 +135,16 @@ function wn(v, I, k, D = {}) {
       }
       t.push("");
     }
-    const { common: K, tabs: U, modals: Y, unnamedModals: we } = bt(O), Pe = Object.keys(U).length > 0, Re = Object.keys(Y).length > 0 || we.length > 0;
+    const { common: W, tabs: U, modals: Y, unnamedModals: we } = bt(O), Pe = Object.keys(U).length > 0, Re = Object.keys(Y).length > 0 || we.length > 0;
     if (Pe || Re) {
-      K.length > 0 && (t.push("### ページ共通"), t.push(""), m(K, "####"));
+      W.length > 0 && (t.push("### ページ共通"), t.push(""), m(W, "####"));
       for (const [T, y] of Object.entries(U))
         t.push(`### ${T}タブ`), t.push(""), m(y, "####");
       for (const [T, y] of Object.entries(Y))
         t.push(`### モーダル: ${T}`), t.push(""), m(y, "####");
       we.length > 0 && (t.push("### モーダル要素"), t.push(""), m(we, "####"));
     } else
-      m(K, "###");
+      m(W, "###");
     const fe = O.filter(
       (T) => {
         var y, h;
@@ -156,21 +156,21 @@ function wn(v, I, k, D = {}) {
       for (const { config: T } of fe) {
         const y = T.actionInfo, h = y.csvSpec, H = y.type === "csv_export" ? "CSV出力" : "CSV取込", J = y.description || ((ne = T.note) == null ? void 0 : ne.text) || "";
         if (t.push(`#### ${H}: ${J}`), t.push(""), h) {
-          const q = [];
-          if (h.encoding && q.push(`- エンコーディング: ${h.encoding}`), h.delimiter) {
-            const M = { ",": "カンマ", "	": "タブ", "|": "パイプ" };
-            q.push(`- 区切り文字: ${M[h.delimiter] || h.delimiter}`);
+          const M = [];
+          if (h.encoding && M.push(`- エンコーディング: ${h.encoding}`), h.delimiter) {
+            const q = { ",": "カンマ", "	": "タブ", "|": "パイプ" };
+            M.push(`- 区切り文字: ${q[h.delimiter] || h.delimiter}`);
           }
-          if (h.hasHeaderRow !== void 0 && q.push(`- ヘッダー行: ${h.hasHeaderRow ? "あり" : "なし"}`), h.filenamePattern && q.push(`- ファイル名: ${h.filenamePattern}`), q.length > 0 && (t.push("**ファイル設定**"), t.push(...q), t.push("")), h.columns.length > 0 && (h.columns.some((B) => B.processing) ? (t.push("| No | 項目名 | DBマッピング | 加工ロジック | 型 | 必須 | バリデーション | フォーマット | 説明 |"), t.push("|----|--------|-------------|------------|-----|------|--------------|------------|------|"), h.columns.forEach((B, ue) => {
+          if (h.hasHeaderRow !== void 0 && M.push(`- ヘッダー行: ${h.hasHeaderRow ? "あり" : "なし"}`), h.filenamePattern && M.push(`- ファイル名: ${h.filenamePattern}`), M.length > 0 && (t.push("**ファイル設定**"), t.push(...M), t.push("")), h.columns.length > 0 && (h.columns.some((B) => B.processing) ? (t.push("| No | 項目名 | DBマッピング | 加工ロジック | 型 | 必須 | バリデーション | フォーマット | 説明 |"), t.push("|----|--------|-------------|------------|-----|------|--------------|------------|------|"), h.columns.forEach((B, ue) => {
             t.push(`| ${ue + 1} | ${p(B.name)} | ${p(B.dbMapping || "")} | ${p(B.processing || "")} | ${p(B.type || "")} | ${B.required ? "Yes" : ""} | ${p(B.validation || "")} | ${p(B.format || "")} | ${p(B.description || "")} |`);
           })) : (t.push("| No | 項目名 | DBマッピング | 型 | 必須 | バリデーション | フォーマット | 説明 |"), t.push("|----|--------|-------------|-----|------|--------------|------------|------|"), h.columns.forEach((B, ue) => {
             t.push(`| ${ue + 1} | ${p(B.name)} | ${p(B.dbMapping || "")} | ${p(B.type || "")} | ${B.required ? "Yes" : ""} | ${p(B.validation || "")} | ${p(B.format || "")} | ${p(B.description || "")} |`);
           })), t.push("")), y.type === "csv_export") {
-            const M = [];
-            h.sortOrder && M.push(`- ソート: ${h.sortOrder}`), h.filterCondition && M.push(`- 抽出条件: ${h.filterCondition}`), h.maxRows && M.push(`- 最大行数: ${h.maxRows}`), M.length > 0 && (t.push("**出力オプション**"), t.push(...M), t.push(""));
+            const q = [];
+            h.sortOrder && q.push(`- ソート: ${h.sortOrder}`), h.filterCondition && q.push(`- 抽出条件: ${h.filterCondition}`), h.maxRows && q.push(`- 最大行数: ${h.maxRows}`), q.length > 0 && (t.push("**出力オプション**"), t.push(...q), t.push(""));
           }
           if (y.type === "csv_import") {
-            const M = [], B = {
+            const q = [], B = {
               stop_on_first: "最初のエラーで停止",
               skip_and_continue: "スキップして続行",
               collect_all: "全エラー収集"
@@ -179,13 +179,13 @@ function wn(v, I, k, D = {}) {
               overwrite: "上書き",
               error: "エラー"
             };
-            h.errorHandling && M.push(`- エラー処理: ${B[h.errorHandling] || h.errorHandling}`), h.duplicateHandling && M.push(`- 重複処理: ${ue[h.duplicateHandling] || h.duplicateHandling}`), h.preValidation && M.push(`- 事前バリデーション: ${h.preValidation}`), M.length > 0 && (t.push("**取込オプション**"), t.push(...M), t.push(""));
+            h.errorHandling && q.push(`- エラー処理: ${B[h.errorHandling] || h.errorHandling}`), h.duplicateHandling && q.push(`- 重複処理: ${ue[h.duplicateHandling] || h.duplicateHandling}`), h.preValidation && q.push(`- 事前バリデーション: ${h.preValidation}`), q.length > 0 && (t.push("**取込オプション**"), t.push(...q), t.push(""));
           }
           if (h.errorDefs && h.errorDefs.length > 0) {
             t.push("**エラー定義**"), t.push("| 対象列 | エラー条件 | エラーメッセージ | 種別 |"), t.push("|--------|----------|----------------|------|");
-            for (const M of h.errorDefs) {
-              const B = M.severity === "warning" ? "警告" : "エラー";
-              t.push(`| ${p(M.column || "（全体）")} | ${p(M.condition)} | ${p(M.message)} | ${B} |`);
+            for (const q of h.errorDefs) {
+              const B = q.severity === "warning" ? "警告" : "エラー";
+              t.push(`| ${p(q.column || "（全体）")} | ${p(q.condition)} | ${p(q.message)} | ${B} |`);
             }
             t.push("");
           }
@@ -210,30 +210,30 @@ function wn(v, I, k, D = {}) {
     if (de.length > 0) {
       t.push("### ソート定義");
       const T = (Te = (P = (re = de.find((H) => {
-        var J, q;
-        return (q = (J = H.config.actionInfo) == null ? void 0 : J.sortSpec) == null ? void 0 : q.unsortedOrder;
+        var J, M;
+        return (M = (J = H.config.actionInfo) == null ? void 0 : J.sortSpec) == null ? void 0 : M.unsortedOrder;
       })) == null ? void 0 : re.config.actionInfo) == null ? void 0 : P.sortSpec) == null ? void 0 : Te.unsortedOrder;
       T && (t.push(`- 未ソート時の並び順: ${T}`), t.push(""));
       const y = de.find((H) => {
-        var J, q;
-        return (q = (J = H.config.actionInfo) == null ? void 0 : J.sortSpec) == null ? void 0 : q.isDefaultSort;
+        var J, M;
+        return (M = (J = H.config.actionInfo) == null ? void 0 : J.sortSpec) == null ? void 0 : M.isDefaultSort;
       });
       if (y) {
         const H = y.config.actionInfo.sortSpec, J = H.defaultDirection === "desc" ? "降順" : "昇順";
         t.push(`- デフォルトソート: ${H.sortKey || ((ve = y.config.actionInfo) == null ? void 0 : ve.description) || y.selector} (${J})`), t.push("");
       }
       const h = de.filter((H) => {
-        var J, q;
-        return (q = (J = H.config.actionInfo) == null ? void 0 : J.sortSpec) == null ? void 0 : q.sortable;
+        var J, M;
+        return (M = (J = H.config.actionInfo) == null ? void 0 : J.sortSpec) == null ? void 0 : M.sortable;
       });
       if (h.length > 0) {
         t.push("| 項目 | ソートキー | データ型 | デフォルト方向 | 備考 |"), t.push("|------|----------|---------|-------------|------|");
         for (const { config: H } of h) {
-          const J = H.actionInfo.sortSpec, q = (ee = H.actionInfo) != null && ee.description || (_ = H.note) != null && _.text || H.fieldInfo ? `${(z = H.fieldInfo) == null ? void 0 : z.table}.${(me = H.fieldInfo) == null ? void 0 : me.column}` : H.id, M = { string: "文字列", number: "数値", date: "日付", custom: "カスタム" }, B = J.sortType ? M[J.sortType] || J.sortType : "", ue = J.defaultDirection === "desc" ? "降順" : J.defaultDirection === "asc" ? "昇順" : "", xe = [
+          const J = H.actionInfo.sortSpec, M = (ee = H.actionInfo) != null && ee.description || (_ = H.note) != null && _.text || H.fieldInfo ? `${(K = H.fieldInfo) == null ? void 0 : K.table}.${(me = H.fieldInfo) == null ? void 0 : me.column}` : H.id, q = { string: "文字列", number: "数値", date: "日付", custom: "カスタム" }, B = J.sortType ? q[J.sortType] || J.sortType : "", ue = J.defaultDirection === "desc" ? "降順" : J.defaultDirection === "asc" ? "昇順" : "", xe = [
             J.isDefaultSort ? "初期ソート" : "",
             J.description || ""
           ].filter(Boolean).join(" / ");
-          t.push(`| ${p(q)} | ${p(J.sortKey || "")} | ${B} | ${ue} | ${p(xe)} |`);
+          t.push(`| ${p(M)} | ${p(J.sortKey || "")} | ${B} | ${ue} | ${p(xe)} |`);
         }
         t.push("");
       }
@@ -253,17 +253,17 @@ function wn(v, I, k, D = {}) {
           other: "その他"
         }[y.chartType] || y.chartType, J = y.title || ((te = T.note) == null ? void 0 : te.text) || "";
         t.push(`#### ${H}: ${J}`), t.push("");
-        const q = [];
-        if (y.xAxis && q.push(["X軸", y.xAxis]), y.yAxis && q.push(["Y軸", y.yAxis]), y.dataSource && q.push(["データ取得", y.dataSource]), y.aggregation && q.push(["集計", y.aggregation]), y.filters && q.push(["フィルタ", y.filters]), y.description && q.push(["説明", y.description]), q.length > 0) {
+        const M = [];
+        if (y.xAxis && M.push(["X軸", y.xAxis]), y.yAxis && M.push(["Y軸", y.yAxis]), y.dataSource && M.push(["データ取得", y.dataSource]), y.aggregation && M.push(["集計", y.aggregation]), y.filters && M.push(["フィルタ", y.filters]), y.description && M.push(["説明", y.description]), M.length > 0) {
           t.push("| 項目 | 内容 |"), t.push("|------|------|");
-          for (const [M, B] of q)
-            t.push(`| ${M} | ${p(B)} |`);
+          for (const [q, B] of M)
+            t.push(`| ${q} | ${p(B)} |`);
           t.push("");
         }
         if (y.series && y.series.length > 0) {
           t.push("| 系列名 | フィールド | 色 |"), t.push("|--------|-----------|-----|");
-          for (const M of y.series)
-            t.push(`| ${p(M.label)} | ${p(M.field)} | ${p(M.color || "")} |`);
+          for (const q of y.series)
+            t.push(`| ${p(q.label)} | ${p(q.field)} | ${p(q.color || "")} |`);
           t.push("");
         }
       }
@@ -300,8 +300,8 @@ function wn(v, I, k, D = {}) {
       if (t.push(""), r.transitions && r.transitions.length > 0) {
         t.push("**状態遷移**"), t.push("| 遷移元 | 遷移先 | トリガー | 条件 |"), t.push("|--------|--------|---------|------|");
         for (const m of r.transitions) {
-          const $ = r.entries.find((U) => U.value === m.from), O = r.entries.find((U) => U.value === m.to), F = $ ? `${$.label} (${m.from})` : m.from, K = O ? `${O.label} (${m.to})` : m.to;
-          t.push(`| ${p(F)} | ${p(K)} | ${p(m.trigger)} | ${p(m.condition || "")} |`);
+          const $ = r.entries.find((U) => U.value === m.from), O = r.entries.find((U) => U.value === m.to), F = $ ? `${$.label} (${m.from})` : m.from, W = O ? `${O.label} (${m.to})` : m.to;
+          t.push(`| ${p(F)} | ${p(W)} | ${p(m.trigger)} | ${p(m.condition || "")} |`);
         }
         t.push("");
       }
@@ -327,9 +327,9 @@ function In(v, I, k, D = {}) {
   var j, he, ne, Q, re, P, Te, ve;
   const t = [];
   t.push("# 画面仕様書"), t.push("");
-  const W = vt(v), Z = /* @__PURE__ */ new Set([...Object.keys(I), ...Object.keys(W)]);
+  const z = vt(v), Z = /* @__PURE__ */ new Set([...Object.keys(I), ...Object.keys(z)]);
   for (const ee of Z) {
-    const _ = I[ee], z = W[ee] || [];
+    const _ = I[ee], K = z[ee] || [];
     if (t.push(`## ${(_ == null ? void 0 : _.name) || ee}`), t.push(`**URL:** ${ee}`), t.push(""), _ != null && _.description && (t.push("### 概要"), t.push(_.description), t.push("")), _ != null && _.auth) {
       if (t.push("### 認証"), t.push(`- ${_.auth.required ? "ログイン必須" : "ログイン不要"}`), (j = _.auth.roles) != null && j.length) {
         const E = _.auth.roles.map((r) => ({ admin: "管理者", manager: "マネージャー", user: "ユーザー" })[r] || r);
@@ -337,24 +337,24 @@ function In(v, I, k, D = {}) {
       }
       t.push("");
     }
-    if (z.length > 0) {
-      let E = function(K, U) {
-        t.push("| No | 項目名 | 種別 | 説明 | 必須 | 備考 |"), t.push("|----|--------|------|------|------|------|"), K.forEach(({ config: Y }, we) => {
+    if (K.length > 0) {
+      let E = function(W, U) {
+        t.push("| No | 項目名 | 種別 | 説明 | 必須 | 備考 |"), t.push("|----|--------|------|------|------|------|"), W.forEach(({ config: Y }, we) => {
           var de, Ae, T, y;
           const Pe = $n(Y), Re = yn(Y), Be = Sn(Y), fe = (de = Y.formInfo) != null && de.required ? "必須" : "", ye = [];
           (Ae = Y.note) != null && Ae.condition && ye.push(Y.note.condition), (T = Y.note) != null && T.unit && ye.push(`単位: ${Y.note.unit}`), (y = Y.note) != null && y.nullDisplay && Y.note.nullDisplay !== "-" && ye.push(`空欄時: ${Y.note.nullDisplay}`), t.push(`| ${U + we} | ${p(Pe)} | ${Re} | ${p(Be)} | ${fe} | ${p(ye.join(" / "))} |`);
         }), t.push("");
       };
-      const { common: r, tabs: m, modals: $, unnamedModals: O } = bt(z);
+      const { common: r, tabs: m, modals: $, unnamedModals: O } = bt(K);
       if (Object.keys(m).length > 0 || Object.keys($).length > 0 || O.length > 0) {
         t.push("### 画面項目"), t.push("");
-        let K = 1;
-        r.length > 0 && (t.push("#### ページ共通"), E(r, K), K += r.length);
+        let W = 1;
+        r.length > 0 && (t.push("#### ページ共通"), E(r, W), W += r.length);
         for (const [U, Y] of Object.entries(m))
-          t.push(`#### ${U}タブ`), E(Y, K), K += Y.length;
+          t.push(`#### ${U}タブ`), E(Y, W), W += Y.length;
         for (const [U, Y] of Object.entries($))
-          t.push(`#### モーダル: ${U}`), E(Y, K), K += Y.length;
-        O.length > 0 && (t.push("#### モーダル要素"), E(O, K));
+          t.push(`#### モーダル: ${U}`), E(Y, W), W += Y.length;
+        O.length > 0 && (t.push("#### モーダル要素"), E(O, W));
       } else
         t.push("### 画面項目"), E(r, 1);
     }
@@ -365,7 +365,7 @@ function In(v, I, k, D = {}) {
         t.push(`| ${E.method} | ${p(E.endpoint)} | ${p(E.description || "")} |`);
       t.push("");
     }
-    const te = z.filter(
+    const te = K.filter(
       (E) => {
         var r, m;
         return ((r = E.config.actionInfo) == null ? void 0 : r.type) === "csv_export" || ((m = E.config.actionInfo) == null ? void 0 : m.type) === "csv_import";
@@ -383,16 +383,16 @@ function In(v, I, k, D = {}) {
             t.push(`| ${Y + 1} | ${p(U.name)} | ${p(U.type || "")} | ${U.required ? "必須" : ""} | ${p(U.description || "")} |`);
           })), t.push("")), m.errorDefs && m.errorDefs.length > 0) {
             t.push("**エラー時の動作**"), t.push("| エラー条件 | メッセージ |"), t.push("|----------|----------|");
-            for (const K of m.errorDefs) {
-              const U = K.column ? `[${K.column}] ` : "";
-              t.push(`| ${p(U + K.condition)} | ${p(K.message)} |`);
+            for (const W of m.errorDefs) {
+              const U = W.column ? `[${W.column}] ` : "";
+              t.push(`| ${p(U + W.condition)} | ${p(W.message)} |`);
             }
             t.push("");
           }
         }
       }
     }
-    const be = z.filter((E) => {
+    const be = K.filter((E) => {
       var r;
       return ((r = E.config.actionInfo) == null ? void 0 : r.type) === "email";
     });
@@ -403,7 +403,7 @@ function In(v, I, k, D = {}) {
         t.push(`#### ${$}`), m && (m.trigger && t.push(`- タイミング: ${m.trigger}`), m.to && t.push(`- 宛先: ${m.to}`), m.subject && t.push(`- 件名: ${m.subject}`)), t.push("");
       }
     }
-    const le = z.filter((E) => {
+    const le = K.filter((E) => {
       var r, m;
       return ((r = E.config.actionInfo) == null ? void 0 : r.type) === "sort" && ((m = E.config.actionInfo) == null ? void 0 : m.sortSpec);
     });
@@ -432,7 +432,7 @@ function In(v, I, k, D = {}) {
       }
       t.push("");
     }
-    const Se = z.filter((E) => E.config.elementType === "chart" && E.config.chartSpec);
+    const Se = K.filter((E) => E.config.elementType === "chart" && E.config.chartSpec);
     if (Se.length > 0) {
       t.push("### チャート");
       for (const { config: E } of Se) {
@@ -461,7 +461,7 @@ function In(v, I, k, D = {}) {
     for (const ee of S) {
       t.push(`### ${ee.name}`), t.push("| 遷移元 | 遷移先 | 操作 | 条件 |"), t.push("|--------|--------|------|------|");
       for (const _ of ee.transitions) {
-        const z = ee.entries.find((le) => le.value === _.from), me = ee.entries.find((le) => le.value === _.to), te = z ? z.label : _.from, be = me ? me.label : _.to;
+        const K = ee.entries.find((le) => le.value === _.from), me = ee.entries.find((le) => le.value === _.to), te = K ? K.label : _.from, be = me ? me.label : _.to;
         t.push(`| ${p(te)} | ${p(be)} | ${p(_.trigger)} | ${p(_.condition || "")} |`);
       }
       t.push("");
@@ -478,11 +478,11 @@ function In(v, I, k, D = {}) {
 `);
 }
 const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConfigs", mt = "devInspector:masterDefinitions", gt = "devInspector:batchDefinitions", An = bn("devInspector", () => {
-  const v = N({}), I = N(!1), k = N(!1), D = N(!1), t = N(!1), W = N(null), Z = N(!1), S = N({}), ae = N(null), se = N(null), j = N({}), he = N(!1), ne = N({}), Q = N({}), re = Oe(() => v.value.storageKey || Tn), P = N(null), Te = N("all"), ve = N(!0), ee = N("all"), _ = N("all"), z = N([]), me = N(null), te = N([]), be = N(!1), le = N(""), Se = N("column"), E = N(!1), r = N([]), m = N(null), $ = N(!1), O = N(/* @__PURE__ */ new Set()), F = "devInspector:hiddenAnalysisSelectors", K = Oe(() => v.value.enabledInProduction ? !0 : typeof import.meta < "u" && Cn ? !1 : process.env.NODE_ENV === "development"), U = N(!1);
+  const v = N({}), I = N(!1), k = N(!1), D = N(!1), t = N(!1), z = N(null), Z = N(!1), S = N({}), ae = N(null), se = N(null), j = N({}), he = N(!1), ne = N({}), Q = N({}), re = Oe(() => v.value.storageKey || Tn), P = N(null), Te = N("all"), ve = N(!0), ee = N("all"), _ = N("all"), K = N([]), me = N(null), te = N([]), be = N(!1), le = N(""), Se = N("column"), E = N(!1), r = N([]), m = N(null), $ = N(!1), O = N(/* @__PURE__ */ new Set()), F = "devInspector:hiddenAnalysisSelectors", W = Oe(() => v.value.enabledInProduction ? !0 : typeof import.meta < "u" && Cn ? !1 : process.env.NODE_ENV === "development"), U = N(!1);
   function Y(e = {}) {
-    v.value = e, Be(), ye(), h(), xe(), Mt(), fn(), dn(), e.analysisData && (P.value = e.analysisData);
+    v.value = e, Be(), ye(), h(), xe(), qt(), fn(), dn(), e.analysisData && (P.value = e.analysisData);
     const n = e.analysisDataUrl ?? "/dev-inspector-analysis.json";
-    e.autoLoadAnalysis !== !1 && K.value && we(n);
+    e.autoLoadAnalysis !== !1 && W.value && we(n);
   }
   async function we(e) {
     var n;
@@ -532,7 +532,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       console.error("[DevInspector] Failed to save configs:", e);
     }
   }
-  ze(S, () => {
+  Ke(S, () => {
     ce(() => {
       fe();
     });
@@ -557,7 +557,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       console.error("[DevInspector] Failed to save screen configs:", e);
     }
   }
-  ze(j, () => {
+  Ke(j, () => {
     ce(() => {
       de();
     });
@@ -593,7 +593,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       console.error("[DevInspector] Failed to save master definitions:", e);
     }
   }
-  ze(ne, () => {
+  Ke(ne, () => {
     ce(() => {
       H();
     });
@@ -601,13 +601,13 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
   function J(e) {
     return ne.value[e];
   }
-  function q(e) {
+  function M(e) {
     ne.value = {
       ...ne.value,
       [e.id]: { ...e, updatedAt: (/* @__PURE__ */ new Date()).toISOString() }
     }, ce(() => H());
   }
-  function M(e) {
+  function q(e) {
     const { [e]: n, ...o } = ne.value;
     ne.value = o, ce(() => H());
   }
@@ -635,7 +635,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       console.error("[DevInspector] Failed to save batch definitions:", e);
     }
   }
-  ze(Q, () => {
+  Ke(Q, () => {
     ce(() => {
       Le();
     });
@@ -738,8 +738,8 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
             matchedField: `${pe.table}.${pe.column}`,
             matchContext: `${pe.type || ""} ${pe.description || ""}`.trim()
           });
-        const We = ((i = C.note) == null ? void 0 : i.calcSources) || [], vn = ((c = C.note) == null ? void 0 : c.storedCalcSources) || [];
-        for (const pe of [...We, ...vn])
+        const ze = ((i = C.note) == null ? void 0 : i.calcSources) || [], vn = ((c = C.note) == null ? void 0 : c.storedCalcSources) || [];
+        for (const pe of [...ze, ...vn])
           pe.toLowerCase().includes(e) && o.push({
             pagePath: oe,
             pageName: Ve,
@@ -768,14 +768,14 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
           L
           // selector itself
         ].filter(Boolean);
-        for (const We of Qe)
-          if (We.toLowerCase().includes(e)) {
+        for (const ze of Qe)
+          if (ze.toLowerCase().includes(e)) {
             o.push({
               pagePath: oe,
               pageName: Ve,
               selector: L,
               elementType: C.elementType,
-              matchedField: We.substring(0, 60),
+              matchedField: ze.substring(0, 60),
               matchContext: ((x = (A = C.note) == null ? void 0 : A.text) == null ? void 0 : x.substring(0, 40)) || ""
             });
             break;
@@ -948,10 +948,10 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     return { nodes: s, edges: n, orphanPages: c };
   });
   async function $e() {
-    K.value && (I.value ? (I.value = !1, k.value = !1, ae.value = null) : await Ie());
+    W.value && (I.value ? (I.value = !1, k.value = !1, ae.value = null) : await Ie());
   }
   async function Ie() {
-    if (!K.value) return;
+    if (!W.value) return;
     if (P.value && !U.value && v.value.autoApplyAnalysis !== !1) {
       t.value = !0, I.value = !0;
       try {
@@ -1006,16 +1006,23 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     return n.join(" > ");
   }
   function wt() {
-    return Object.keys(S.value).filter((e) => S.value[e] ? e.includes(">") || e.startsWith("#") || e.startsWith("[") || e.startsWith(".") : !1);
+    return Object.keys(S.value).filter((e) => {
+      if (!S.value[e]) return !1;
+      try {
+        return document.querySelector(e), !0;
+      } catch {
+        return !1;
+      }
+    });
   }
   function It(e) {
-    W.value = e;
+    z.value = e;
   }
   function Ct() {
-    W.value = null;
+    z.value = null;
   }
   function Tt() {
-    Z.value ? Ke() : tt();
+    Z.value ? We() : tt();
   }
   function et() {
     [0, 50, 100, 150, 200, 250, 320].forEach((n) => setTimeout(() => window.dispatchEvent(new Event("resize")), n));
@@ -1023,7 +1030,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
   function tt() {
     Z.value = !0, typeof document < "u" && (document.body.style.transition = "margin-right 0.3s ease", document.body.style.marginRight = "360px", et());
   }
-  function Ke() {
+  function We() {
     Z.value = !1, typeof document < "u" && (document.body.style.transition = "margin-right 0.3s ease", document.body.style.marginRight = "", et());
   }
   function At(e) {
@@ -1165,7 +1172,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       tabContext: u,
       chartSpec: f,
       pagePath: n.pagePath || (s == null ? void 0 : s.pagePath) || i,
-      componentPath: n.componentPath || ((g = W.value) == null ? void 0 : g.componentPath) || "",
+      componentPath: n.componentPath || ((g = z.value) == null ? void 0 : g.componentPath) || "",
       createdAt: (s == null ? void 0 : s.createdAt) || o,
       updatedAt: o
     };
@@ -1399,9 +1406,9 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       });
     return o;
   }
-  const _e = N(!1), Me = N(0), Je = N([]);
+  const _e = N(!1), qe = N(0), Je = N([]);
   async function it(e = {}) {
-    _e.value = !0, Me.value = 0, Je.value = [];
+    _e.value = !0, qe.value = 0, Je.value = [];
     const { rescan: n = !1 } = e;
     if (n) {
       const o = typeof window < "u" ? window.location.pathname : "/", s = Object.keys(S.value).filter((i) => {
@@ -1471,13 +1478,13 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
         const g = i.slice(w, w + f);
         for (const l of g) {
           const d = Ce(l), b = st(l, d);
-          b.sourceBinding && (Je.value.push({ selector: d, element: l, detected: b }), Ye(d, b), u++), a++, Me.value = Math.round(a / c * 100);
+          b.sourceBinding && (Je.value.push({ selector: d, element: l, detected: b }), Ye(d, b), u++), a++, qe.value = Math.round(a / c * 100);
         }
         await new Promise((l) => setTimeout(l, 10));
       }
       return u;
     } finally {
-      _e.value = !1, Me.value = 100;
+      _e.value = !1, qe.value = 100;
     }
   }
   const at = N([]), Xe = N("");
@@ -1508,7 +1515,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     }
   }
   function Rt() {
-    Je.value = [], Me.value = 0;
+    Je.value = [], qe.value = 0;
   }
   const ge = N([]);
   async function rt() {
@@ -1598,16 +1605,16 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     ge.value = [];
   }
   function _t(e) {
-    ge.value = ge.value.filter((n) => n.selector !== e), O.value.add(e), qt();
+    ge.value = ge.value.filter((n) => n.selector !== e), O.value.add(e), Mt();
   }
-  function Mt() {
+  function qt() {
     try {
       const e = localStorage.getItem(F);
       e && (O.value = new Set(JSON.parse(e)));
     } catch {
     }
   }
-  function qt() {
+  function Mt() {
     try {
       localStorage.setItem(
         F,
@@ -1709,7 +1716,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     return n === "INPUT" || n === "SELECT" || n === "TEXTAREA" ? "form" : n === "BUTTON" || n === "A" && e.hasAttribute("href") || e.getAttribute("role") === "button" || e.closest("button") || e.closest("a[href]") ? "action" : "datasource";
   }
   const De = N([]), ft = N(null);
-  function Wt() {
+  function zt() {
     if (typeof document > "u") return [];
     const e = typeof window < "u" ? window.location.pathname : "/", n = [];
     for (const [o, s] of Object.entries(S.value))
@@ -1721,7 +1728,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
         }
     return De.value = n, n;
   }
-  function zt(e, n) {
+  function Kt(e, n) {
     const o = S.value[e];
     if (!o) return;
     const { [e]: s, ...i } = S.value;
@@ -1730,8 +1737,8 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       [n]: { ...o, id: n, updatedAt: (/* @__PURE__ */ new Date()).toISOString() }
     }, De.value = De.value.filter((c) => c !== e), ce(() => fe());
   }
-  function Kt(e) {
-    ft.value = e, D.value = !0, k.value = !1, Ke();
+  function Wt(e) {
+    ft.value = e, D.value = !0, k.value = !1, We();
   }
   function Yt() {
     const e = De.value;
@@ -1755,7 +1762,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       elementConfigs: S.value,
       screenConfigs: j.value,
       manualTables: te.value,
-      tableRelations: z.value
+      tableRelations: K.value
     }, null, 2);
   }
   function dt() {
@@ -1768,7 +1775,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       annotations: S.value,
       screenConfigs: j.value,
       manualTables: te.value,
-      tableRelations: z.value
+      tableRelations: K.value
     };
     return JSON.stringify(e, null, 2);
   }
@@ -1783,11 +1790,11 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
       if (S.value = { ...S.value, ...i }, s.screenConfigs && (j.value = { ...j.value, ...s.screenConfigs }), (n = s.manualTables) != null && n.length) {
         for (const c of s.manualTables)
           te.value.some((a) => a.name === c.name) || te.value.push(c);
-        qe();
+        Me();
       }
       if ((o = s.tableRelations) != null && o.length) {
         for (const c of s.tableRelations)
-          z.value.some((a) => a.id === c.id) || z.value.push(c);
+          K.value.some((a) => a.id === c.id) || K.value.push(c);
         Ze();
       }
     } catch (s) {
@@ -1858,7 +1865,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
           }
         }
     }
-    for (const i of z.value)
+    for (const i of K.value)
       n.has(i.id) || (n.add(i.id), e.push(i));
     return e;
   }), cn = Oe(() => {
@@ -1876,15 +1883,15 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     return e;
   });
   function ln(e) {
-    const n = `${e.fromTable}->${e.toTable}`, o = z.value.findIndex((i) => i.id === n), s = { ...e, id: n, inferred: !1 };
-    o >= 0 ? z.value[o] = s : z.value.push(s), Ze();
+    const n = `${e.fromTable}->${e.toTable}`, o = K.value.findIndex((i) => i.id === n), s = { ...e, id: n, inferred: !1 };
+    o >= 0 ? K.value[o] = s : K.value.push(s), Ze();
   }
   function un(e) {
-    z.value = z.value.filter((n) => n.id !== e), Ze();
+    K.value = K.value.filter((n) => n.id !== e), Ze();
   }
   function Ze() {
     try {
-      typeof window < "u" && localStorage.setItem(`${re.value}:tableRelations`, JSON.stringify(z.value));
+      typeof window < "u" && localStorage.setItem(`${re.value}:tableRelations`, JSON.stringify(K.value));
     } catch (e) {
       console.error("[DevInspector] Failed to save table relations:", e);
     }
@@ -1893,13 +1900,13 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     try {
       if (typeof window < "u") {
         const e = localStorage.getItem(`${re.value}:tableRelations`);
-        e && (z.value = JSON.parse(e));
+        e && (K.value = JSON.parse(e));
       }
     } catch (e) {
       console.error("[DevInspector] Failed to load table relations:", e);
     }
   }
-  function qe() {
+  function Me() {
     try {
       typeof window < "u" && localStorage.setItem(`${re.value}:manualTables`, JSON.stringify(te.value));
     } catch (e) {
@@ -1917,28 +1924,28 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     }
   }
   function pn(e) {
-    !e || te.value.some((n) => n.name === e) || (te.value.push({ name: e, columns: [] }), qe());
+    !e || te.value.some((n) => n.name === e) || (te.value.push({ name: e, columns: [] }), Me());
   }
   function hn(e) {
-    te.value = te.value.filter((n) => n.name !== e), qe();
+    te.value = te.value.filter((n) => n.name !== e), Me();
   }
   function mn(e, n, o) {
     const s = te.value.find((i) => i.name === e);
-    !s || s.columns.some((i) => i.column === n) || (s.columns.push({ column: n, type: o }), qe());
+    !s || s.columns.some((i) => i.column === n) || (s.columns.push({ column: n, type: o }), Me());
   }
   function gn(e, n) {
     const o = te.value.find((s) => s.name === e);
-    o && (o.columns = o.columns.filter((s) => s.column !== n), qe());
+    o && (o.columns = o.columns.filter((s) => s.column !== n), Me());
   }
   return {
     // State
     isEnabled: I,
-    isAvailable: K,
+    isAvailable: W,
     isEditMode: k,
     isPickMode: D,
     isInitializing: t,
     hoveredSelector: se,
-    currentScreenSpec: W,
+    currentScreenSpec: z,
     isPanelOpen: Z,
     elementConfigs: S,
     editingElementId: ae,
@@ -1963,7 +1970,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     clearScreenSpec: Ct,
     togglePanel: Tt,
     openPanel: tt,
-    closePanel: Ke,
+    closePanel: We,
     getElementConfig: At,
     setElementConfig: Ye,
     deleteElementConfig: jt,
@@ -1980,7 +1987,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     autoDetectElementInfo: st,
     // Scan
     isScanning: _e,
-    scanProgress: Me,
+    scanProgress: qe,
     scanResults: Je,
     scanCurrentPage: it,
     scanAllPages: Pt,
@@ -2017,8 +2024,8 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     // Master definitions
     masterDefinitions: ne,
     getMasterDefinition: J,
-    setMasterDefinition: q,
-    deleteMasterDefinition: M,
+    setMasterDefinition: M,
+    deleteMasterDefinition: q,
     getMastersForTable: B,
     getMasterEntries: ue,
     // Batch definitions
@@ -2029,11 +2036,11 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     // Broken annotation detection
     brokenAnnotations: De,
     remapTargetId: ft,
-    detectBrokenAnnotations: Wt,
+    detectBrokenAnnotations: zt,
     detectModalName: Nt,
     detectTabContext: Dt,
-    remapAnnotation: zt,
-    startRemap: Kt,
+    remapAnnotation: Kt,
+    startRemap: Wt,
     deleteBrokenAnnotations: Yt,
     // Cross Search
     showCrossSearch: be,
@@ -2054,7 +2061,7 @@ const Cn = {}, Tn = "devInspector:elementConfigs", ht = "devInspector:screenConf
     erRelations: rn,
     erTableColumns: cn,
     erFocusTable: me,
-    tableRelations: z,
+    tableRelations: K,
     addTableRelation: ln,
     removeTableRelation: un,
     // Manual tables
